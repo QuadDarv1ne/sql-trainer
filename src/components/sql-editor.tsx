@@ -10,8 +10,6 @@ import {
   highlightSpecialChars,
   drawSelection,
   highlightActiveLine,
-  autocompletion,
-  completionKeymap,
 } from '@codemirror/view';
 import { EditorState, StateEffect } from '@codemirror/state';
 import { sql } from '@codemirror/lang-sql';
@@ -29,9 +27,12 @@ import {
 import {
   closeBrackets,
   closeBracketsKeymap,
+  autocompletion,
+  completionKeymap,
+  CompletionContext,
+  Completion,
 } from '@codemirror/autocomplete';
 import { searchKeymap } from '@codemirror/search';
-import { CompletionContext, Completion } from '@codemirror/autocomplete';
 
 export interface SchemaInfo {
   tables: {
