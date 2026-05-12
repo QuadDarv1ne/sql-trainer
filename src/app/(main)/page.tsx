@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useTheme } from 'next-themes';
+import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { useSQLTrainerStore } from '@/lib/store';
 import { getTaskById, TRAINING_TASKS } from '@/lib/training-tasks';
@@ -16,6 +17,7 @@ import SchemaViewer from '@/components/schema-viewer';
 import QueryHistory from '@/components/query-history';
 import SqlTemplates from '@/components/sql-templates';
 import ShortcutsHelp from '@/components/shortcuts-help';
+import UserMenu from '@/components/auth/user-menu';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
@@ -95,6 +97,7 @@ export default function HomePage() {
   } = useSQLTrainerStore();
 
   const { theme, setTheme } = useTheme();
+  const { data: session } = useSession();
   const [schemaInfo, setSchemaInfo] = useState<DatabaseInfo | null>(null);
   const [attemptCount, setAttemptCount] = useState(0);
   const [mounted, setMounted] = useState(false);
@@ -102,6 +105,24 @@ export default function HomePage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Load server progress on mount for authenticated users
+  useEffect(() => {
+    if (!session?.user) return;
+    fetch('/api/user/progress')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.progress?.length > 0) {
+          const { markTaskCompleted, isTaskCompleted } = useSQLTrainerStore.getState();
+          data.progress.forEach((p: { taskId: string; attempts: number; completedAt: number }) => {
+            if (!isTaskCompleted(p.taskId)) {
+              markTaskCompleted(p.taskId, p.attempts);
+            }
+          });
+        }
+      })
+      .catch(() => {});
+  }, [session?.user]);
 
   // Get current task
   const currentTask = useMemo(
@@ -187,6 +208,18 @@ export default function HomePage() {
             toast.success('Задание выполнено верно! 🎉', {
               description: `Вы решили задачу за ${attemptCount + 1} ${plural(attemptCount + 1, 'попытку', 'попытки', 'попыток')}`,
             });
+
+            // Sync progress to server for authenticated users
+            if (session?.user) {
+              fetch('/api/user/progress', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  taskId: currentTaskId,
+                  attempts: attemptCount + 1,
+                }),
+              }).catch(() => {});
+            }
           }
         } catch {
           // Verification failed silently — still show results
@@ -414,6 +447,9 @@ export default function HomePage() {
               {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
             </TooltipContent>
           </Tooltip>
+
+          {/* User menu */}
+          <UserMenu />
         </div>
       </header>
 

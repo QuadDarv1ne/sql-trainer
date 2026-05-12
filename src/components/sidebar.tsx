@@ -12,6 +12,7 @@ import {
   type TrainingTask,
 } from '@/lib/training-tasks';
 import { useSQLTrainerStore } from '@/lib/store';
+import { useSession } from 'next-auth/react';
 import {
   GraduationCap,
   ChevronDown,
@@ -19,12 +20,15 @@ import {
   CheckCircle2,
   Circle,
   Target,
+  User,
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import Link from 'next/link';
 
 export default function Sidebar() {
   const { currentTaskId, setCurrentTaskId, completedTasks, sidebarOpen } =
     useSQLTrainerStore();
+  const { data: session } = useSession();
 
   const [expandedSections, setExpandedSections] = useState<
     Record<Difficulty, boolean>
@@ -153,8 +157,21 @@ export default function Sidebar() {
         </div>
       </ScrollArea>
 
-      {/* Free mode */}
-      <div className="border-t border-border p-3">
+      {/* Free mode + Profile */}
+      <div className="border-t border-border p-3 space-y-2">
+        {session?.user && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            asChild
+          >
+            <Link href="/profile">
+              <User className="mr-2 h-4 w-4" />
+              Профиль
+            </Link>
+          </Button>
+        )}
         <Button
           variant={currentTaskId === null ? 'default' : 'outline'}
           size="sm"
