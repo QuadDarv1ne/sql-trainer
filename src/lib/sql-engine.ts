@@ -138,101 +138,111 @@ function isDDL(sql: string): boolean {
   );
 }
 
-export function executeQuery(
-  sql: string,
-  dbType: 'sqlite' | 'postgresql' = 'sqlite'
+/** Maximum number of rows returned by a query */
+const MAX_ROWS = 1000;
+
+/**
+ * Execute prepared statements against an already-initialized database.
+ * Shared logic between executeQuery and executeWithSchema.
+ */
+function executeStatements(
+  db: Database.Database,
+  statements: string[],
+  startTime: number
 ): QueryResult {
-  const startTime = performance.now();
+  let lastResult: QueryResult | null = null;
 
-  try {
-    // Create in-memory database
-    const db = new Database(':memory:');
+  for (const stmt of statements) {
+    try {
+      if (isSelectQuery(stmt)) {
+        const statement = db.prepare(stmt);
+        const columns = statement.columns().map((col) => col.name);
+        let rows = statement.all() as Record<string, unknown>[];
 
-    // Enable WAL mode for better performance
-    db.pragma('journal_mode = WAL');
-    // Enable foreign keys
-    db.pragma('foreign_keys = ON');
+        // Enforce row limit
+        const truncated = rows.length > MAX_ROWS;
+        if (truncated) {
+          rows = rows.slice(0, MAX_ROWS);
+        }
 
-    let processedSql = sql;
-
-    // Adapt PostgreSQL syntax to SQLite if needed
-    if (dbType === 'postgresql') {
-      processedSql = adaptPostgreSQLToSQLite(sql);
-    }
-
-    const statements = splitStatements(processedSql);
-    let lastResult: QueryResult | null = null;
-
-    for (const stmt of statements) {
-      try {
-        if (isSelectQuery(stmt)) {
-          const statement = db.prepare(stmt);
-          const columns = statement.columns().map((col) => col.name);
-          const rows = statement.all() as Record<string, unknown>[];
-
+        lastResult = {
+          success: true,
+          columns,
+          rows,
+          executionTime: performance.now() - startTime,
+          message: truncated
+            ? `Результат ограничен ${MAX_ROWS} строками`
+            : undefined,
+        };
+      } else if (isDDL(stmt)) {
+        db.exec(stmt);
+        lastResult = {
+          success: true,
+          columns: [],
+          rows: [],
+          executionTime: performance.now() - startTime,
+          message: 'Операция DDL выполнена успешно',
+        };
+      } else {
+        const statement = db.prepare(stmt);
+        const result = statement.run();
+        if (lastResult) {
           lastResult = {
-            success: true,
-            columns,
-            rows,
+            ...lastResult,
             executionTime: performance.now() - startTime,
+            affectedRows: result.changes,
           };
-        } else if (isDDL(stmt)) {
-          db.exec(stmt);
+        } else {
           lastResult = {
             success: true,
             columns: [],
             rows: [],
             executionTime: performance.now() - startTime,
-            message: 'Операция DDL выполнена успешно',
+            message: `Запрос выполнен. Изменено строк: ${result.changes}`,
+            affectedRows: result.changes,
           };
-        } else {
-          // INSERT, UPDATE, DELETE, etc.
-          const statement = db.prepare(stmt);
-          const result = statement.run();
-
-          if (lastResult) {
-            // Keep previous select result but update execution time
-            lastResult = {
-              ...lastResult!,
-              executionTime: performance.now() - startTime,
-              affectedRows: result.changes,
-            };
-          } else {
-            lastResult = {
-              success: true,
-              columns: [],
-              rows: [],
-              executionTime: performance.now() - startTime,
-              message: `Запрос выполнен. Изменено строк: ${result.changes}`,
-              affectedRows: result.changes,
-            };
-          }
         }
-      } catch (err: unknown) {
-        const errorMsg = err instanceof Error ? err.message : String(err);
-        return {
-          success: false,
-          columns: [],
-          rows: [],
-          error: errorMsg,
-          executionTime: performance.now() - startTime,
-        };
       }
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      return {
+        success: false,
+        columns: [],
+        rows: [],
+        error: errorMsg,
+        executionTime: performance.now() - startTime,
+      };
+    }
+  }
+
+  if (lastResult) return lastResult;
+
+  return {
+    success: true,
+    columns: [],
+    rows: [],
+    executionTime: performance.now() - startTime,
+    message: 'Запрос выполнен успешно',
+  };
+}
+
+export function executeQuery(
+  sql: string,
+  dbType: 'sqlite' | 'postgresql' = 'sqlite'
+): QueryResult {
+  const startTime = performance.now();
+  const db = new Database(':memory:');
+  db.pragma('foreign_keys = ON');
+
+  try {
+    let processedSql = sql;
+    if (dbType === 'postgresql') {
+      processedSql = adaptPostgreSQLToSQLite(sql);
     }
 
-    db.close();
-
-    if (lastResult) {
-      return lastResult;
-    }
-
-    return {
-      success: true,
-      columns: [],
-      rows: [],
-      executionTime: performance.now() - startTime,
-      message: 'Запрос выполнен успешно',
-    };
+    const statements = splitStatements(processedSql);
+    const result = executeStatements(db, statements, startTime);
+    return result;
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     return {
@@ -242,6 +252,8 @@ export function executeQuery(
       error: errorMsg,
       executionTime: performance.now() - startTime,
     };
+  } finally {
+    db.close();
   }
 }
 
@@ -251,13 +263,10 @@ export function executeWithSchema(
   dbType: 'sqlite' | 'postgresql' = 'sqlite'
 ): QueryResult {
   const startTime = performance.now();
+  const db = new Database(':memory:');
+  db.pragma('foreign_keys = ON');
 
   try {
-    const db = new Database(':memory:');
-    db.pragma('journal_mode = WAL');
-    db.pragma('foreign_keys = ON');
-
-    // Create schema first
     let processedSchema = schemaSql;
     if (dbType === 'postgresql') {
       processedSchema = adaptPostgreSQLToSQLite(schemaSql);
@@ -276,81 +285,13 @@ export function executeWithSchema(
       };
     }
 
-    // Then execute user query
     let processedSql = sql;
     if (dbType === 'postgresql') {
       processedSql = adaptPostgreSQLToSQLite(sql);
     }
 
     const statements = splitStatements(processedSql);
-    let lastResult: QueryResult | null = null;
-
-    for (const stmt of statements) {
-      try {
-        if (isSelectQuery(stmt)) {
-          const statement = db.prepare(stmt);
-          const columns = statement.columns().map((col) => col.name);
-          const rows = statement.all() as Record<string, unknown>[];
-          lastResult = {
-            success: true,
-            columns,
-            rows,
-            executionTime: performance.now() - startTime,
-          };
-        } else if (isDDL(stmt)) {
-          db.exec(stmt);
-          lastResult = {
-            success: true,
-            columns: [],
-            rows: [],
-            executionTime: performance.now() - startTime,
-            message: 'Операция DDL выполнена успешно',
-          };
-        } else {
-          const statement = db.prepare(stmt);
-          const result = statement.run();
-          if (lastResult) {
-            lastResult = {
-              ...lastResult,
-              executionTime: performance.now() - startTime,
-              affectedRows: result.changes,
-            };
-          } else {
-            lastResult = {
-              success: true,
-              columns: [],
-              rows: [],
-              executionTime: performance.now() - startTime,
-              message: `Запрос выполнен. Изменено строк: ${result.changes}`,
-              affectedRows: result.changes,
-            };
-          }
-        }
-      } catch (err: unknown) {
-        const errorMsg = err instanceof Error ? err.message : String(err);
-        return {
-          success: false,
-          columns: [],
-          rows: [],
-          error: errorMsg,
-          executionTime: performance.now() - startTime,
-        };
-      }
-    }
-
-    db.close();
-
-    if (lastResult) {
-      return lastResult;
-    }
-
-    return {
-      success: true,
-      columns: [],
-      rows: [],
-      executionTime: performance.now() - startTime,
-      message: 'Запрос выполнен успешно',
-    };
+    return executeStatements(db, statements, startTime);
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     return {
@@ -360,6 +301,8 @@ export function executeWithSchema(
       error: errorMsg,
       executionTime: performance.now() - startTime,
     };
+  } finally {
+    db.close();
   }
 }
 
@@ -370,43 +313,45 @@ export function getSchemaInfo(
   const db = new Database(':memory:');
   db.pragma('foreign_keys = ON');
 
-  let processedSchema = schemaSql;
-  if (dbType === 'postgresql') {
-    processedSchema = adaptPostgreSQLToSQLite(schemaSql);
+  try {
+    let processedSchema = schemaSql;
+    if (dbType === 'postgresql') {
+      processedSchema = adaptPostgreSQLToSQLite(schemaSql);
+    }
+
+    db.exec(processedSchema);
+
+    const tables = db
+      .prepare(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+      )
+      .all() as { name: string }[];
+
+    const tableInfos: TableInfo[] = tables.map((table) => {
+      const columns = db
+        .prepare(`PRAGMA table_info("${table.name}")`)
+        .all() as {
+        name: string;
+        type: string;
+        notnull: number;
+        dflt_value: unknown;
+        pk: number;
+      }[];
+
+      return {
+        name: table.name,
+        columns: columns.map((col) => ({
+          name: col.name,
+          type: col.type || 'TEXT',
+          notNull: col.notnull === 1,
+          defaultValue: col.dflt_value,
+          primaryKey: col.pk > 0,
+        })),
+      };
+    });
+
+    return { tables: tableInfos };
+  } finally {
+    db.close();
   }
-
-  db.exec(processedSchema);
-
-  const tables = db
-    .prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
-    )
-    .all() as { name: string }[];
-
-  const tableInfos: TableInfo[] = tables.map((table) => {
-    const columns = db
-      .prepare(`PRAGMA table_info("${table.name}")`)
-      .all() as {
-      name: string;
-      type: string;
-      notnull: number;
-      dflt_value: unknown;
-      pk: number;
-    }[];
-
-    return {
-      name: table.name,
-      columns: columns.map((col) => ({
-        name: col.name,
-        type: col.type || 'TEXT',
-        notNull: col.notnull === 1,
-        defaultValue: col.dflt_value,
-        primaryKey: col.pk > 0,
-      })),
-    };
-  });
-
-  db.close();
-
-  return { tables: tableInfos };
 }
