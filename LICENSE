@@ -1,0 +1,166 @@
+================================================================================
+  ЛИЦЕНЗИОННОЕ СОГЛАШЕНИЕ / LICENSE AGREEMENT
+  SQL Trainer
+================================================================================
+
+--------------------------------------------------------------------------------
+  РУССКАЯ ВЕРСИЯ
+--------------------------------------------------------------------------------
+
+ЛИЦЕНЗИОННОЕ СОГЛАШЕНИЕ НА ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ
+
+Проект: SQL Trainer
+Автор и правообладатель: Дуплей Максим Игоревич (Dupley Maxim Igorevich)
+Год: 2025
+
+1. ИНТЕЛЛЕКТУАЛЬНАЯ СОБСТВЕННОСТЬ
+
+Настоящим подтверждается, что проект «SQL Trainer» (далее — «Проект»),
+включая весь исходный код, дизайн интерфейса, текстовое содержание,
+образовательные материалы, графику, алгоритмы, структуры данных и любую
+сопутствующую документацию Проекта, является исключительной интеллектуальной
+собственностью Дуплей Максима Игоревича.
+
+Все авторские права на Проект принадлежат Дуплей Максиму Игоревичу в
+соответствии с законодательством Российской Федерации об авторском праве и
+международными конвенциями о защите интеллектуальной собственности.
+
+2. ПРЕДОСТАВЛЯЕМЫЕ ПРАВА
+
+Настоящим соглашением пользователю предоставляются следующие права:
+
+a) Право использования — Программное обеспечение может использоваться для
+   личных, образовательных и некоммерческих целей без ограничений.
+
+b) Право изучения — исходный код Программного обеспечения может изучаться в
+   образовательных и исследовательских целях.
+
+c) Право распространения — допускается распространение копий Программного
+   обеспечения при условии сохранения настоящего лицензионного соглашения и
+   указания автора — Дуплей Максим Игоревич.
+
+3. ОГРАНИЧЕНИЯ
+
+Пользователю запрещается:
+
+a) Использовать Проект или его компоненты в коммерческих целях без
+   предварительного письменного согласия автора.
+
+b) Модифицировать, изменять или создавать производные работы на основе
+   Проекта без указания оригинального автора и ссылки на оригинальный
+   Проект.
+
+c) Удалять или изменять любые уведомления об авторских правах, товарных
+   знаках или других правах собственности, содержащиеся в Проекте.
+
+d) Предоставлять сублицензии на использование Проекта третьим лицам без
+   письменного согласия автора.
+
+e) Использовать имя автора, название Проекта или любые связанные товарные
+   знаки для продвижения любых продуктов или услуг без предварительного
+   письменного согласия автора.
+
+4. АВТОРСКИЕ ПРАВА
+
+Все права, не предоставленные явно в настоящем соглашении, сохраняются за
+автором — Дуплей Максим Игоревич. Настоящее соглашение не является
+договором о передаче исключительных прав.
+
+5. ОТКАЗ ОТ ГАРАНТИЙ
+
+ПРОЕКТ ПОСТАВЛЯЕТСЯ «КАК ЕСТЬ», БЕЗ КАКИХ-ЛИБО ГАРАНТИЙ, ЯВНЫХ ИЛИ
+ПОДРАЗУМЕВАЕМЫХ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ, ГАРАНТИИ ТОВАРНОЙ
+ПРИГОДНОСТИ, СООТВЕТСТВИЯ ОПРЕДЕЛЁННОЙ ЦЕЛИ И НЕНАРУШЕНИЯ ПРАВ. НИ ПРИ
+КАКИХ ОБСТОЯТЕЛЬСТВАХ АВТОР НЕ НЕСЁТ ОТВЕТСТВЕННОСТИ ЗА ЛЮБЫЕ ПРЯМЫЕ,
+КОСВЕННЫЕ, СЛУЧАЙНЫЕ, СПЕЦИАЛЬНЫЕ ИЛИ ПОСЛЕДУЮЩИЕ УБЫТКИ, ВОЗНИКШИЕ В
+РЕЗУЛЬТАТЕ ИСПОЛЬЗОВАНИЯ ИЛИ НЕВОЗМОЖНОСТИ ИСПОЛЬЗОВАНИЯ ПРОЕКТА.
+
+6. ПРИМЕНИМОЕ ПРАВО
+
+Настоящее соглашение регулируется законодательством Российской Федерации.
+Любые споры, возникающие в связи с настоящим соглашением, подлежат
+разрешению в судах Российской Федерации.
+
+--------------------------------------------------------------------------------
+  ENGLISH VERSION
+--------------------------------------------------------------------------------
+
+SOFTWARE LICENSE AGREEMENT
+
+Project: SQL Trainer
+Author and Copyright Holder: Dupley Maxim Igorevich
+Year: 2025
+
+1. INTELLECTUAL PROPERTY
+
+It is hereby confirmed that the project "SQL Trainer" (hereinafter referred
+to as the "Project"), including all source code, interface design, text
+content, educational materials, graphics, algorithms, data structures, and
+any Project-related documentation, is the exclusive intellectual property of
+Dupley Maxim Igorevich.
+
+All copyrights to the Project belong to Dupley Maxim Igorevich in accordance
+with the copyright laws of the Russian Federation and international
+conventions on the protection of intellectual property.
+
+2. LICENSED RIGHTS
+
+This agreement grants the user the following rights:
+
+a) Right to Use — the Software may be used for personal, educational, and
+   non-commercial purposes without restrictions.
+
+b) Right to Study — the source code of the Software may be studied for
+   educational and research purposes.
+
+c) Right to Distribute — copies of the Software may be distributed provided
+   that this license agreement is preserved and the author — Dupley Maxim
+   Igorevich — is properly credited.
+
+3. RESTRICTIONS
+
+The user is prohibited from:
+
+a) Using the Project or its components for commercial purposes without the
+   prior written consent of the author.
+
+b) Modifying, altering, or creating derivative works based on the Project
+   without crediting the original author and providing a reference to the
+   original Project.
+
+c) Removing or altering any copyright notices, trademarks, or other
+   proprietary rights notices contained in the Project.
+
+d) Granting sublicenses for the use of the Project to third parties without
+   the written consent of the author.
+
+e) Using the author's name, the Project name, or any associated trademarks
+   to promote any products or services without prior written consent of the
+   author.
+
+4. COPYRIGHT
+
+All rights not expressly granted in this agreement are reserved by the author
+— Dupley Maxim Igorevich. This agreement is not a contract for the transfer
+of exclusive rights.
+
+5. DISCLAIMER OF WARRANTIES
+
+THE PROJECT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, OR
+CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE PROJECT.
+
+6. GOVERNING LAW
+
+This agreement shall be governed by the laws of the Russian Federation. Any
+disputes arising in connection with this agreement shall be resolved in the
+courts of the Russian Federation.
+
+================================================================================
+
+  Copyright (c) 2025 Дуплей Максим Игоревич / Dupley Maxim Igorevich
+  All rights reserved. Все права защищены.
+
+================================================================================
