@@ -1,16 +1,23 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { BookOpen, Code2, Filter, Table, FunctionSquare, Merge, Layers, BarChart3 } from 'lucide-react';
+import { BookOpen, Code2, Filter, Table, FunctionSquare, Merge, Layers, BarChart3, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
+
+interface SQLReferenceProps {
+  onInsertExample?: (sql: string) => void;
+}
 
 const SECTIONS = [
   {
@@ -122,7 +129,26 @@ const SECTIONS = [
   },
 ];
 
-export default function SQLReference() {
+export default function SQLReference({ onInsertExample }: SQLReferenceProps) {
+  const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
+
+  const handleCopy = (code: string, index: string) => {
+    navigator.clipboard.writeText(code).then(() => {
+      toast.success('Скопировано в буфер обмена');
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    });
+  };
+
+  const handleInsert = (code: string, key: string) => {
+    if (onInsertExample) {
+      onInsertExample(code);
+      setCopiedIndex(key);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } else {
+      handleCopy(code, key);
+    }
+  };
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-border px-4 py-3">
@@ -144,19 +170,36 @@ export default function SQLReference() {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-1.5 pt-1">
-                    {section.items.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="rounded-md bg-muted/50 px-2.5 py-1.5"
-                      >
-                        <code className="text-xs font-mono text-emerald-700 dark:text-emerald-400">
-                          {item.code}
-                        </code>
-                        <p className="mt-0.5 text-[11px] text-muted-foreground">
-                          {item.desc}
-                        </p>
-                      </div>
-                    ))}
+                    {section.items.map((item, idx) => {
+                      const itemKey = `${section.id}-${idx}`;
+                      const isCopied = copiedIndex === itemKey;
+                      return (
+                        <div
+                          key={idx}
+                          className="group rounded-md bg-muted/50 px-2.5 py-1.5 transition-colors hover:bg-muted/80"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <code className="flex-1 text-xs font-mono text-emerald-700 dark:text-emerald-400">
+                              {item.code}
+                            </code>
+                            <button
+                              onClick={() => handleInsert(item.code, itemKey)}
+                              className="shrink-0 rounded p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-background"
+                              title="Вставить в редактор"
+                            >
+                              {isCopied ? (
+                                <Check className="h-3 w-3 text-emerald-500" />
+                              ) : (
+                                <Copy className="h-3 w-3 text-muted-foreground" />
+                              )}
+                            </button>
+                          </div>
+                          <p className="mt-0.5 text-[11px] text-muted-foreground">
+                            {item.desc}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </AccordionContent>
               </AccordionItem>

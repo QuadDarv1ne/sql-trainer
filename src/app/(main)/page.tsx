@@ -17,6 +17,7 @@ import SchemaViewer from '@/components/schema-viewer';
 import QueryHistory from '@/components/query-history';
 import SqlTemplates from '@/components/sql-templates';
 import ShortcutsHelp from '@/components/shortcuts-help';
+import LocaleSelector from '@/components/locale-selector';
 import UserMenu from '@/components/auth/user-menu';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -48,6 +49,8 @@ import {
   ChevronRight,
   Loader2,
   Menu,
+  Search,
+  Shuffle,
 } from 'lucide-react';
 
 // Dynamic import for SQL Editor (no SSR)
@@ -94,6 +97,10 @@ export default function HomePage() {
     isTaskCompleted,
     markTaskCompleted,
     completedTasks,
+    updateStreak,
+    streak,
+    practiceMode,
+    nextPracticeTask,
   } = useSQLTrainerStore();
 
   const { theme, setTheme } = useTheme();
@@ -101,6 +108,7 @@ export default function HomePage() {
   const [schemaInfo, setSchemaInfo] = useState<DatabaseInfo | null>(null);
   const [attemptCount, setAttemptCount] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [explainPlan, setExplainPlan] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -205,9 +213,15 @@ export default function HomePage() {
           // Mark task as completed only when verified
           if (verifyData.verified && !isTaskCompleted(currentTaskId)) {
             markTaskCompleted(currentTaskId, attemptCount + 1);
+            updateStreak();
             toast.success('Задание выполнено верно! 🎉', {
               description: `Вы решили задачу за ${attemptCount + 1} ${plural(attemptCount + 1, 'попытку', 'попытки', 'попыток')}`,
             });
+
+            // Auto-advance in practice mode
+            if (practiceMode.active) {
+              setTimeout(() => nextPracticeTask(), 1500);
+            }
 
             // Sync progress to server for authenticated users
             if (session?.user) {
@@ -290,7 +304,36 @@ export default function HomePage() {
     setEditorContent('');
     setLastResult(null);
     setVerification(null);
+    setExplainPlan(null);
   };
+
+  // Explain query
+  const executeExplain = useCallback(async () => {
+    if (!editorContent.trim() || isExecuting || !currentTaskId) return;
+
+    setIsExecuting(true);
+    setExplainPlan(null);
+
+    try {
+      const response = await fetch('/api/sql/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sql: editorContent, dbType, taskId: currentTaskId }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.plan) {
+        setExplainPlan(data.plan);
+      } else {
+        setExplainPlan(`Ошибка: ${data.error}`);
+      }
+    } catch {
+      setExplainPlan('Ошибка сети. Попробуйте снова.');
+    } finally {
+      setIsExecuting(false);
+    }
+  }, [editorContent, isExecuting, dbType, currentTaskId, setIsExecuting]);
 
   // Reset DB (re-init task)
   const resetDb = () => {
@@ -338,6 +381,39 @@ export default function HomePage() {
     return { hasNext: false, label: '', isLastTask: true, allCompleted: allDone };
   }, [currentTask, completedTasks]);
 
+  // Find related tasks (same topic or similar title keywords)
+  const relatedTasks = useMemo(() => {
+    if (!currentTask) return [];
+
+    // Extract keywords from current task title
+    const currentTitle = currentTask.title.toLowerCase();
+    const currentDesc = currentTask.description.toLowerCase();
+
+    // Find tasks with similar topics
+    const related = TRAINING_TASKS.filter((t) => {
+      if (t.id === currentTask.id) return false;
+
+      // Check for shared keywords in title/description
+      const titleWords = new Set([...currentTitle.split(/\s+/), ...currentDesc.split(/\s+/)]);
+      const otherTitle = t.title.toLowerCase();
+      const otherDesc = t.description.toLowerCase();
+
+      // Check if any word from current task appears in other task
+      for (const word of titleWords) {
+        if (word.length > 3 && (otherTitle.includes(word) || otherDesc.includes(word))) {
+          return true;
+        }
+      }
+      return false;
+    });
+
+    // Return up to 3 related tasks, prioritizing same difficulty
+    const sameDifficulty = related.filter((t) => t.difficulty === currentTask.difficulty);
+    const otherDifficulty = related.filter((t) => t.difficulty !== currentTask.difficulty);
+
+    return [...sameDifficulty, ...otherDifficulty].slice(0, 3);
+  }, [currentTask]);
+
   const goToNextTask = useCallback(() => {
     if (!currentTask) return;
     const currentIndex = TRAINING_TASKS.findIndex((t) => t.id === currentTask.id);
@@ -346,9 +422,22 @@ export default function HomePage() {
     }
   }, [currentTask, setCurrentTaskId]);
 
+  const goToRelatedTask = useCallback((taskIndex: number) => {
+    if (relatedTasks[taskIndex]) {
+      setCurrentTaskId(relatedTasks[taskIndex].id);
+    }
+  }, [relatedTasks, setCurrentTaskId]);
+
   const handleRestoreQuery = useCallback(
     (sql: string) => {
       setEditorContent(sql);
+    },
+    [setEditorContent]
+  );
+
+  const handlePreviewTable = useCallback(
+    (tableName: string) => {
+      setEditorContent(`SELECT * FROM ${tableName} LIMIT 100;`);
     },
     [setEditorContent]
   );
@@ -425,6 +514,9 @@ export default function HomePage() {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Locale Selector */}
+          <LocaleSelector />
+
           {/* DB Selector */}
           <DbSelector dbType={dbType} onChange={setDbType} />
 
@@ -470,6 +562,18 @@ export default function HomePage() {
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Action bar */}
           <div className="flex items-center gap-1.5 border-b border-border px-3 py-1.5">
+            {practiceMode.active && (
+              <div className="flex items-center gap-2 rounded-md bg-emerald-50 px-2 py-1 text-xs text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
+                <Shuffle className="h-3.5 w-3.5" />
+                <span className="font-medium">
+                  Практика: {practiceMode.currentIndex + 1}/{practiceMode.taskOrder.length}
+                </span>
+                <Badge variant="secondary" className="text-[10px] px-1.5">
+                  Выполнено: {practiceMode.completedInSession.length}
+                </Badge>
+              </div>
+            )}
+
             <Button
               size="sm"
               className="h-7 bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 gap-1.5 text-xs px-3"
@@ -486,6 +590,24 @@ export default function HomePage() {
                 Ctrl+↵
               </kbd>
             </Button>
+
+            {currentTask && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={executeExplain}
+                    disabled={isExecuting || !editorContent.trim()}
+                  >
+                    <Search className="mr-1 h-3 w-3" />
+                    <span className="hidden sm:inline">EXPLAIN</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Показать план выполнения запроса</TooltipContent>
+              </Tooltip>
+            )}
 
             <QueryHistory onRestoreQuery={handleRestoreQuery} />
 
@@ -516,7 +638,7 @@ export default function HomePage() {
           {/* Editor + Results panels */}
           <ResizablePanelGroup direction="vertical" className="flex-1">
             <ResizablePanel defaultSize={45} minSize={20}>
-              <div className="h-full bg-[#282c34]">
+              <div className="h-full">
                 <SQLEditor
                   value={editorContent}
                   onChange={setEditorContent}
@@ -527,13 +649,41 @@ export default function HomePage() {
                       ? `Напишите SQL запрос для: ${currentTask.title}...`
                       : 'Напишите SQL запрос... (Ctrl+Enter для выполнения)'
                   }
+                  schema={schemaInfo ? {
+                    tables: schemaInfo.tables.map(t => ({
+                      name: t.name,
+                      columns: t.columns.map(c => ({ name: c.name, type: c.type })),
+                    })),
+                  } : null}
                 />
               </div>
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={55} minSize={20}>
               <div className="h-full overflow-hidden">
-                {lastResult ? (
+                {explainPlan ? (
+                  <div className="flex h-full flex-col">
+                    <div className="flex items-center justify-between border-b border-border px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <Search className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm font-medium">План выполнения</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-xs"
+                        onClick={() => setExplainPlan(null)}
+                      >
+                        Закрыть
+                      </Button>
+                    </div>
+                    <div className="flex-1 overflow-auto p-4">
+                      <pre className="whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 text-xs font-mono">
+                        {explainPlan}
+                      </pre>
+                    </div>
+                  </div>
+                ) : lastResult ? (
                   <ResultsTable
                     success={lastResult.success}
                     columns={lastResult.columns}
@@ -542,6 +692,7 @@ export default function HomePage() {
                     executionTime={lastResult.executionTime}
                     message={lastResult.message}
                     verification={verification || undefined}
+                    suggestion={lastResult.suggestion}
                   />
                 ) : (
                   <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
@@ -578,9 +729,11 @@ export default function HomePage() {
                     onShowSolution={() => setSolutionVisible(!solutionVisible)}
                     onUseSolution={(sql) => setEditorContent(sql)}
                     onNextTask={goToNextTask}
+                    onNextRelated={(index) => goToRelatedTask(index)}
                     nextTaskLabel={nextTaskInfo.label}
                     isLastTask={nextTaskInfo.isLastTask}
                     allCompleted={nextTaskInfo.allCompleted}
+                    relatedTasks={relatedTasks}
                   />
                 ) : (
                   <WelcomePanel
@@ -592,11 +745,11 @@ export default function HomePage() {
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={30} minSize={15}>
-              <SchemaViewer schema={schemaInfo} />
+              <SchemaViewer schema={schemaInfo} onPreviewTable={handlePreviewTable} />
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={25} minSize={15}>
-              <SQLReference />
+              <SQLReference onInsertExample={(sql) => setEditorContent(sql)} />
             </ResizablePanel>
           </ResizablePanelGroup>
         </aside>

@@ -12,6 +12,7 @@ import {
   type Difficulty,
 } from '@/lib/training-tasks';
 import { useSQLTrainerStore } from '@/lib/store';
+import { plural } from '@/lib/utils';
 import {
   Trophy,
   Target,
@@ -22,7 +23,11 @@ import {
   Sparkles,
   CheckCircle2,
   BookOpen,
+  Flame,
+  Calendar,
+  Award,
 } from 'lucide-react';
+import PracticeModeDialog from '@/components/practice-mode-dialog';
 
 interface WelcomePanelProps {
   onStartTraining: () => void;
@@ -30,7 +35,7 @@ interface WelcomePanelProps {
 }
 
 export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePanelProps) {
-  const { completedTasks, setCurrentTaskId } = useSQLTrainerStore();
+  const { completedTasks, setCurrentTaskId, streak } = useSQLTrainerStore();
 
   const completedCount = completedTasks.length;
   const totalCount = TRAINING_TASKS.length;
@@ -62,6 +67,43 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
   const firstIncompleteTask = useMemo(() => {
     return TRAINING_TASKS.find((t) => !completedTasks.some((ct) => ct.taskId === t.id));
   }, [completedTasks]);
+
+  // Recommended task based on skill progression
+  const recommendedTask = useMemo(() => {
+    // Find the highest difficulty level the user has completed at least one task
+    const completedDifficulties = new Set(
+      completedTasks
+        .map((ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty)
+        .filter(Boolean)
+    );
+
+    // If user has completed advanced tasks, recommend intermediate/advanced
+    // If user has completed intermediate, recommend more intermediate or start advanced
+    // If user is beginner or hasn't started, recommend beginner
+    
+    let targetDifficulty: Difficulty | null = 'beginner';
+    if (completedDifficulties.has('advanced')) {
+      targetDifficulty = 'advanced';
+    } else if (completedDifficulties.has('intermediate')) {
+      // Check if they've done most intermediate tasks
+      const intermediateCompleted = completedTasks.filter(
+        (ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'intermediate'
+      ).length;
+      const intermediateTotal = TRAINING_TASKS.filter((t) => t.difficulty === 'intermediate').length;
+      targetDifficulty = intermediateCompleted >= intermediateTotal * 0.5 ? 'advanced' : 'intermediate';
+    } else if (completedDifficulties.has('beginner')) {
+      const beginnerCompleted = completedTasks.filter(
+        (ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'beginner'
+      ).length;
+      const beginnerTotal = TRAINING_TASKS.filter((t) => t.difficulty === 'beginner').length;
+      targetDifficulty = beginnerCompleted >= beginnerTotal * 0.5 ? 'intermediate' : 'beginner';
+    }
+
+    // Find first incomplete task at target difficulty
+    return TRAINING_TASKS.find(
+      (t) => t.difficulty === targetDifficulty && !completedTasks.some((ct) => ct.taskId === t.id)
+    ) || firstIncompleteTask;
+  }, [completedTasks, firstIncompleteTask]);
 
   return (
     <div className="flex h-full flex-col gap-4 p-4">
@@ -121,12 +163,75 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
         ))}
       </div>
 
+      {/* Streak display */}
+      {streak.currentStreak > 0 && (
+        <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 dark:border-amber-800 dark:from-amber-950/30 dark:to-orange-950/20">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
+                <Flame className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-bold text-amber-700 dark:text-amber-400">
+                    {streak.currentStreak} {plural(streak.currentStreak, 'день', 'дня', 'дней')}
+                  </span>
+                  <span className="text-xs text-amber-600/70 dark:text-amber-500/70">
+                    серия
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-[10px] text-amber-600/60 dark:text-amber-500/60">
+                  <div className="flex items-center gap-1">
+                    <Award className="h-3 w-3" />
+                    Рекорд: {streak.longestStreak} {plural(streak.longestStreak, 'день', 'дня', 'дней')}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    Всего: {streak.totalPracticeDays} {plural(streak.totalPracticeDays, 'день', 'дня', 'дней')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recommended task card */}
+      {recommendedTask && (
+        <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 dark:border-emerald-800 dark:from-emerald-950/30 dark:to-teal-950/20">
+          <CardContent className="p-4">
+            <div className="mb-3 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                Рекомендуем далее
+              </span>
+            </div>
+            <button
+              onClick={() => setCurrentTaskId(recommendedTask.id)}
+              className="w-full text-left"
+            >
+              <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+                {recommendedTask.title}
+              </p>
+              <p className="mt-1 text-xs text-emerald-700/70 dark:text-emerald-400/70 line-clamp-2">
+                {recommendedTask.description}
+              </p>
+            </button>
+            <Badge className={`${DIFFICULTY_COLORS[recommendedTask.difficulty]} mt-2 text-[10px]`}>
+              {DIFFICULTY_LABELS[recommendedTask.difficulty]}
+            </Badge>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Quick start buttons */}
       <div className="flex flex-col gap-2">
         <Button
           className="w-full bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700"
           onClick={() => {
-            if (firstIncompleteTask) {
+            if (recommendedTask) {
+              setCurrentTaskId(recommendedTask.id);
+            } else if (firstIncompleteTask) {
               setCurrentTaskId(firstIncompleteTask.id);
             } else {
               onStartTraining();
@@ -140,6 +245,7 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
           <GraduationCap className="mr-2 h-4 w-4" />
           Свободный режим
         </Button>
+        <PracticeModeDialog />
       </div>
 
       {/* Last completed */}

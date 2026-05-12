@@ -29,11 +29,19 @@ const SHORTCUTS = [
     ],
   },
   {
+    category: 'Подсказки',
+    items: [
+      { keys: 'Ctrl + Shift + H', description: 'Показать подсказку к заданию' },
+      { keys: 'Ctrl + Shift + S', description: 'Показать решение' },
+    ],
+  },
+  {
     category: 'Навигация',
     items: [
       { keys: 'Ctrl + G', description: 'Перейти к строке' },
       { keys: 'Home / End', description: 'Начало / конец строки' },
       { keys: 'Ctrl + Home / End', description: 'Начало / конец документа' },
+      { keys: 'Ctrl + D', description: 'Выделить следующее вхождение' },
     ],
   },
 ];

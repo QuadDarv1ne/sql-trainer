@@ -13,6 +13,8 @@ export interface QueryResult {
   executionTime: number;
   message?: string;
   affectedRows?: number;
+  suggestion?: string;
+  explainPlan?: string;
 }
 
 export interface DatabaseInfo {
@@ -138,6 +140,112 @@ function isDDL(sql: string): boolean {
   );
 }
 
+/**
+ * Generate helpful suggestions based on error messages.
+ */
+function getSuggestionForError(error: string, sql: string): string | undefined {
+  const lowerError = error.toLowerCase();
+
+  // Common SQL errors and suggestions
+  if (lowerError.includes('no such table')) {
+    const match = error.match(/no such table: (\w+)/i);
+    if (match) {
+      return `Таблица "${match[1]}" не существует. Проверьте название таблицы в FROM или JOIN.`;
+    }
+    return 'Проверьте название таблицы — возможно, она не существует.';
+  }
+
+  if (lowerError.includes('no such column')) {
+    const match = error.match(/no such column: (\w+)/i);
+    if (match) {
+      return `Столбец "${match[1]}" не найден. Проверьте имя столбца или используйте алиас таблицы.`;
+    }
+    return 'Проверьте имя столбца — возможно, оно написано неверно.';
+  }
+
+  if (lowerError.includes('ambiguous column name')) {
+    return 'Имя столбца найдено в нескольких таблицах. Используйте алиас.таблица (например, e.name вместо name).';
+  }
+
+  if (lowerError.includes('syntax error') && lowerError.includes('near')) {
+    return 'Проверьте синтаксис запроса. Возможно, пропущена запятая, скобка или ключевое слово.';
+  }
+
+  if (lowerError.includes('aggregate function')) {
+    return 'Агрегатные функции (COUNT, SUM, AVG, etc.) нельзя использовать в WHERE. Используйте HAVING для фильтрации агрегатов.';
+  }
+
+  if (lowerError.includes('group by')) {
+    return 'Все столбцы в SELECT (кроме агрегатных) должны быть в GROUP BY.';
+  }
+
+  if (lowerError.includes('unique constraint failed') || lowerError.includes('primary key')) {
+    return 'Нарушено ограничение уникальности. Возможно, вы пытаетесь вставить дублирующийся ключ.';
+  }
+
+  if (lowerError.includes('foreign key constraint failed')) {
+    return 'Нарушено ограничение внешнего ключа. Убедитесь, что связанные записи существуют.';
+  }
+
+  if (lowerError.includes('cannot add foreign key')) {
+    return 'Не удалось добавить внешний ключ. Проверьте, что типы столбцов совпадают в обеих таблицах.';
+  }
+
+  if (lowerError.includes('order by')) {
+    return 'Проверьте порядок сортировки. ORDER BY должен быть после WHERE/GROUP BY/HAVING.';
+  }
+
+  if (lowerError.includes('limit')) {
+    return 'LIMIT должен быть последним в запросе (после ORDER BY).';
+  }
+
+  if (lowerError.includes('union') && lowerError.includes('different number')) {
+    return 'Все запросы в UNION должны иметь одинаковое количество столбцов.';
+  }
+
+  if (lowerError.includes('subquery returned more than one row')) {
+    return 'Подзапрос вернул несколько строк. Используйте IN, EXISTS или добавьте LIMIT 1.';
+  }
+
+  if (lowerError.includes('division by zero')) {
+    return 'Деление на ноль. Используйте NULLIF или CASE для избежания деления на ноль.';
+  }
+
+  if (lowerError.includes('case') && lowerError.includes('end')) {
+    return 'Проверьте синтаксис CASE WHEN ... THEN ... ELSE ... END.';
+  }
+
+  if (lowerError.includes('window function')) {
+    return 'Оконные функции требуют OVER(). Например: ROW_NUMBER() OVER (ORDER BY column).';
+  }
+
+  if (lowerError.includes('partition by')) {
+    return 'PARTITION BY используется внутри OVER(). Например: OVER (PARTITION BY column ORDER BY column).';
+  }
+
+  if (lowerError.includes('trigger')) {
+    return 'Проверьте синтаксис CREATE TRIGGER. Триггеры выполняются автоматически при INSERT/UPDATE/DELETE.';
+  }
+
+  if (lowerError.includes('transaction')) {
+    return 'Транзакция: BEGIN начинает, COMMIT фиксирует, ROLLBACK отменяет изменения.';
+  }
+
+  if (lowerError.includes('fts') || lowerError.includes('match')) {
+    return 'FTS5 поиск: используйте MATCH для полнотекстового поиска. Например: WHERE table MATCH "слово".';
+  }
+
+  if (lowerError.includes('json')) {
+    return 'JSON функции: json_extract(data, "$.field") извлекает значение из JSON.';
+  }
+
+  if (lowerError.includes('date') || lowerError.includes('time')) {
+    return 'Даты в SQLite: strftime("%Y", date), julianday(date1) - julianday(date2).';
+  }
+
+  return undefined;
+}
+
 /** Maximum number of rows returned by a query */
 const MAX_ROWS = 1000;
 
@@ -212,6 +320,7 @@ function executeStatements(
         rows: [],
         error: errorMsg,
         executionTime: performance.now() - startTime,
+        suggestion: getSuggestionForError(errorMsg, stmt),
       };
     }
   }
@@ -352,6 +461,48 @@ export function getSchemaInfo(
     });
 
     return { tables: tableInfos };
+  } finally {
+    db.close();
+  }
+}
+
+/**
+ * Execute EXPLAIN QUERY PLAN on a SQL statement.
+ * Returns the execution plan as a formatted string.
+ */
+export function explainQuery(
+  sql: string,
+  schemaSql: string,
+  dbType: 'sqlite' | 'postgresql' = 'sqlite'
+): { success: boolean; plan?: string; error?: string } {
+  const db = new Database(':memory:');
+  db.pragma('foreign_keys = ON');
+
+  try {
+    let processedSchema = schemaSql;
+    if (dbType === 'postgresql') {
+      processedSchema = adaptPostgreSQLToSQLite(schemaSql);
+    }
+
+    db.exec(processedSchema);
+
+    // Execute EXPLAIN QUERY PLAN
+    const explainSql = `EXPLAIN QUERY PLAN ${sql}`;
+    const rows = db.prepare(explainSql).all() as Record<string, unknown>[];
+
+    // Format the plan
+    const plan = rows
+      .map((row) => {
+        // SQLite EXPLAIN QUERY PLAN returns columns: id, parent, notused, detail
+        const detail = row['detail'] || row['Detail'] || '';
+        return String(detail);
+      })
+      .join('\n');
+
+    return { success: true, plan };
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    return { success: false, error: errorMsg };
   } finally {
     db.close();
   }

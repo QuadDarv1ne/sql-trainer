@@ -1,13 +1,15 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle2, XCircle, Clock, AlertTriangle, Copy, Download, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, AlertTriangle, Copy, Download, ShieldCheck, Lightbulb, ArrowUpDown, ArrowUp, ArrowDown, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 import { plural } from '@/lib/utils';
 import type { VerificationResult } from '@/lib/store';
+import QueryResultChart from '@/components/query-result-chart';
 
 interface ResultsTableProps {
   success: boolean;
@@ -17,7 +19,10 @@ interface ResultsTableProps {
   executionTime: number;
   message?: string;
   verification?: VerificationResult;
+  suggestion?: string;
 }
+
+type SortDirection = 'asc' | 'desc' | null;
 
 export default function ResultsTable({
   success,
@@ -27,7 +32,65 @@ export default function ResultsTable({
   executionTime,
   message,
   verification,
+  suggestion,
 }: ResultsTableProps) {
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [chartView, setChartView] = useState(false);
+  const pageSize = 100;
+
+  const handleSort = (col: string) => {
+    if (sortColumn === col) {
+      // Cycle through: asc -> desc -> null
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else if (sortDirection === 'desc') {
+        setSortDirection(null);
+        setSortColumn(null);
+      } else {
+        setSortDirection('asc');
+      }
+    } else {
+      setSortColumn(col);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortedRows = () => {
+    if (!sortColumn || !sortDirection || rows.length === 0) return rows;
+
+    return [...rows].sort((a, b) => {
+      const aVal = a[sortColumn];
+      const bVal = b[sortColumn];
+
+      // Handle nulls
+      if (aVal === null || aVal === undefined) return sortDirection === 'asc' ? -1 : 1;
+      if (bVal === null || bVal === undefined) return sortDirection === 'asc' ? 1 : -1;
+
+      // Compare based on type
+      let comparison = 0;
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        comparison = aVal - bVal;
+      } else {
+        comparison = String(aVal).localeCompare(String(bVal), 'ru');
+      }
+
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  };
+
+  const sortedRows = getSortedRows();
+  const totalPages = Math.ceil(sortedRows.length / pageSize);
+  const paginatedRows = sortedRows.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  // Reset page when data changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rows]);
   if (!success && error) {
     return (
       <div className="flex h-full flex-col gap-3 p-4">
@@ -38,6 +101,15 @@ export default function ResultsTable({
             <pre className="mt-2 whitespace-pre-wrap break-words rounded-md bg-destructive/10 p-3 text-sm font-mono">
               {error}
             </pre>
+            {suggestion && (
+              <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50/50 p-3 dark:border-amber-700 dark:bg-amber-950/20">
+                <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                <div>
+                  <span className="text-sm font-medium text-amber-700 dark:text-amber-400">Подсказка:</span>
+                  <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">{suggestion}</p>
+                </div>
+              </div>
+            )}
           </AlertDescription>
         </Alert>
       </div>
@@ -49,11 +121,24 @@ export default function ResultsTable({
       <div className="flex h-full flex-col items-center justify-center gap-3 p-4 text-center">
         <CheckCircle2 className="h-8 w-8 text-emerald-500" />
         {message && (
-          <p className="text-sm text-muted-foreground">{message}</p>
+          <div className="flex flex-col gap-2 items-center">
+            <p className="text-sm text-muted-foreground">{message}</p>
+            {verification && (
+              <p className={`text-sm font-medium ${
+                verification.verified
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-amber-600 dark:text-amber-400'
+              }`}>
+                {verification.message}
+              </p>
+            )}
+          </div>
         )}
-        <p className="text-xs text-muted-foreground">
-          DDL операция выполнена успешно
-        </p>
+        {!message && (
+          <p className="text-xs text-muted-foreground">
+            DDL операция выполнена успешно
+          </p>
+        )}
       </div>
     );
   }
@@ -90,24 +175,43 @@ export default function ResultsTable({
               {columns.length} {plural(columns.length, 'столбец', 'столбца', 'столбцов')}
             </Badge>
           )}
+          {sortColumn && sortDirection && (
+            <Badge variant="outline" className="text-xs">
+              Сортировка: {sortColumn} {sortDirection === 'asc' ? '↑' : '↓'}
+            </Badge>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => copyResults(columns, rows)}
+            onClick={() => copyResults(columns, sortedRows)}
             className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            title="Копировать результат"
+            title="Копировать все результаты"
             aria-label="Копировать результат"
           >
             <Copy className="h-3 w-3" />
           </button>
           <button
-            onClick={() => exportCSV(columns, rows)}
+            onClick={() => exportCSV(columns, sortedRows)}
             className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             title="Экспорт CSV"
             aria-label="Экспорт CSV"
           >
             <Download className="h-3 w-3" />
           </button>
+          {columns.length >= 2 && (
+            <button
+              onClick={() => setChartView(!chartView)}
+              className={`flex items-center gap-1 rounded px-1.5 py-0.5 text-xs transition-colors ${
+                chartView
+                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              }`}
+              title="Визуализация"
+              aria-label="Визуализация"
+            >
+              <BarChart3 className="h-3 w-3" />
+            </button>
+          )}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" />
             {executionTime.toFixed(1)} мс
@@ -115,34 +219,48 @@ export default function ResultsTable({
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table or Chart */}
       <div className="flex-1 overflow-auto">
+        {chartView ? (
+          <QueryResultChart columns={columns} rows={sortedRows} onClose={() => setChartView(false)} />
+        ) : (
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-12 text-center text-xs font-medium text-muted-foreground">#</TableHead>
-              {columns.map((col) => (
-                <TableHead
-                  key={col}
-                  className="whitespace-nowrap text-xs font-medium text-emerald-600 dark:text-emerald-400"
-                >
-                  {col}
-                </TableHead>
-              ))}
+              {columns.map((col) => {
+                const isSorted = sortColumn === col;
+                const dir = isSorted ? sortDirection : null;
+                return (
+                  <TableHead
+                    key={col}
+                    className="whitespace-nowrap text-xs font-medium text-emerald-600 dark:text-emerald-400 cursor-pointer hover:bg-muted/50 select-none"
+                    onClick={() => handleSort(col)}
+                    title="Нажмите для сортировки"
+                  >
+                    <div className="flex items-center gap-1">
+                      {col}
+                      {dir === 'asc' && <ArrowUp className="h-3 w-3" />}
+                      {dir === 'desc' && <ArrowDown className="h-3 w-3" />}
+                      {!dir && <ArrowUpDown className="h-3 w-3 opacity-40" />}
+                    </div>
+                  </TableHead>
+                );
+              })}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.length === 0 ? (
+            {paginatedRows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length + 1} className="h-24 text-center text-muted-foreground">
                   Нет данных
                 </TableCell>
               </TableRow>
             ) : (
-              rows.map((row, idx) => (
+              paginatedRows.map((row, idx) => (
                 <TableRow key={idx} className="text-sm">
                   <TableCell className="text-center text-xs text-muted-foreground">
-                    {idx + 1}
+                    {(currentPage - 1) * pageSize + idx + 1}
                   </TableCell>
                   {columns.map((col) => (
                     <TableCell key={col} className="whitespace-nowrap font-mono text-xs">
@@ -154,7 +272,36 @@ export default function ResultsTable({
             )}
           </TableBody>
         </Table>
+        )}
       </div>
+
+      {/* Pagination */}
+      {!chartView && totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-border px-4 py-2">
+          <span className="text-xs text-muted-foreground">
+            Показано {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, sortedRows.length)} из {sortedRows.length}
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="rounded px-2 py-1 text-xs disabled:opacity-50 hover:bg-muted disabled:hover:bg-transparent"
+            >
+              ← Назад
+            </button>
+            <span className="px-2 text-xs">
+              {currentPage} / {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="rounded px-2 py-1 text-xs disabled:opacity-50 hover:bg-muted disabled:hover:bg-transparent"
+            >
+              Вперед →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Footer message */}
       {message && (

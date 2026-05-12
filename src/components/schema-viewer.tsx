@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import {
   Table as TableIcon,
   Key,
@@ -10,12 +12,16 @@ import {
   Type,
   ToggleLeft,
   AlignLeft,
+  Eye,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import type { DatabaseInfo, TableInfo, ColumnInfo } from '@/lib/sql-engine';
 import { plural } from '@/lib/utils';
 
 interface SchemaViewerProps {
   schema: DatabaseInfo | null;
+  onPreviewTable?: (tableName: string) => void;
 }
 
 function getTypeIcon(type: string) {
@@ -40,7 +46,7 @@ function getTypeColor(type: string) {
   return 'text-muted-foreground';
 }
 
-export default function SchemaViewer({ schema }: SchemaViewerProps) {
+export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerProps) {
   if (!schema || schema.tables.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
@@ -70,7 +76,7 @@ export default function SchemaViewer({ schema }: SchemaViewerProps) {
       <ScrollArea className="flex-1">
         <div className="space-y-3 p-3">
           {schema.tables.map((table) => (
-            <TableCard key={table.name} table={table} />
+            <TableCard key={table.name} table={table} onPreview={onPreviewTable} />
           ))}
         </div>
       </ScrollArea>
@@ -78,7 +84,9 @@ export default function SchemaViewer({ schema }: SchemaViewerProps) {
   );
 }
 
-function TableCard({ table }: { table: TableInfo }) {
+function TableCard({ table, onPreview }: { table: TableInfo; onPreview?: (tableName: string) => void }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="px-3 py-2">
@@ -115,6 +123,27 @@ function TableCard({ table }: { table: TableInfo }) {
             );
           })}
         </div>
+        {onPreview && (
+          <div className="mt-2 flex gap-1.5 border-t border-border pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-6 flex-1 text-xs"
+              onClick={() => {
+                setIsExpanded(!isExpanded);
+                onPreview(table.name);
+              }}
+            >
+              <Eye className="mr-1 h-3 w-3" />
+              Предпросмотр
+              {isExpanded ? (
+                <ChevronUp className="ml-1 h-3 w-3" />
+              ) : (
+                <ChevronDown className="ml-1 h-3 w-3" />
+              )}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

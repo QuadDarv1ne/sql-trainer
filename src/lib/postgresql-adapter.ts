@@ -50,8 +50,83 @@ const FUNCTION_MAP: Record<string, string | null> = {
   'EXTRACT': null, // complex, skip
   'CURRENT_DATE': "date('now')",
   'CURRENT_TIME': "time('now')",
+  'CURRENT_TIMESTAMP': "datetime('now')",
+  'LOCALTIMESTAMP': "datetime('now')",
+  'LOCALTIME': "time('now')",
+  'NOW': "datetime('now')",
   'PG_SLEEP': null, // not supported
+  // String functions
+  'SUBSTRING': 'SUBSTR',
+  'SUBSTR': 'SUBSTR',
+  'LEFT': null, // use SUBSTR
+  'RIGHT': null, // use SUBSTR
+  'LPAD': null, // complex, skip
+  'RPAD': null, // complex, skip
+  'REPEAT': null, // not in SQLite
+  // Date/time functions
+  'AGE': null, // complex, skip
+  'DATE_PART': null, // complex, skip
+  'MAKE_DATE': null, // not in SQLite
+  'MAKE_TIME': null, // not in SQLite
+  'MAKE_TIMESTAMP': null, // not in SQLite
+  // Math functions
+  'POWER': 'POWER',
+  'SQRT': 'SQRT',
+  'CBRT': null, // not in SQLite
+  'ABS': 'ABS',
+  'CEIL': 'CEIL',
+  'CEILING': 'CEIL',
+  'FLOOR': 'FLOOR',
+  'ROUND': 'ROUND',
+  'TRUNC': null, // not in SQLite
+  'RANDOM': 'RANDOM',
+  'PI': null, // not in SQLite < 3.35
+  'LN': null, // not in SQLite < 3.35
+  'LOG': null, // not in SQLite < 3.35
+  'LOG10': null, // not in SQLite < 3.35
+  'EXP': null, // not in SQLite < 3.35
+  // Conditional
+  'COALESCE': 'COALESCE',
+  'NULLIF': 'NULLIF',
+  'GREATEST': null, // not in SQLite
+  'LEAST': null, // not in SQLite
+  // JSON
+  'ROW_TO_JSON': null, // complex, skip
+  'ARRAY_TO_JSON': null, // complex, skip
+  'JSON_BUILD_OBJECT': null, // complex, skip
+  'JSON_AGG': null, // complex, skip
+  // Window functions (SQLite supports these since 3.25)
+  'ROW_NUMBER': 'ROW_NUMBER',
+  'RANK': 'RANK',
+  'DENSE_RANK': 'DENSE_RANK',
+  'NTILE': 'NTILE',
+  'LAG': 'LAG',
+  'LEAD': 'LEAD',
+  'FIRST_VALUE': 'FIRST_VALUE',
+  'LAST_VALUE': 'LAST_VALUE',
+  'NTH_VALUE': 'NTH_VALUE',
+  'SUM': 'SUM',
+  'AVG': 'AVG',
+  'COUNT': 'COUNT',
+  'MIN': 'MIN',
+  'MAX': 'MAX',
 };
+
+function applyFunctionReplacements(sql: string): string {
+  let result = sql;
+
+  // Replace known function names
+  for (const [pgFunc, sqliteFunc] of Object.entries(FUNCTION_MAP)) {
+    if (sqliteFunc && sqliteFunc !== pgFunc) {
+      result = result.replace(
+        new RegExp(`\\b${pgFunc}\\b`, 'gi'),
+        sqliteFunc
+      );
+    }
+  }
+
+  return result;
+}
 
 export function adaptPostgreSQLToSQLite(sql: string): string {
   let result = sql;
@@ -65,12 +140,21 @@ export function adaptPostgreSQLToSQLite(sql: string): string {
   // Replace ILIKE with LIKE (SQLite LIKE is case-insensitive by default for ASCII)
   result = result.replace(/\bILIKE\b/g, 'LIKE');
 
+  // Replace SIMILAR TO with LIKE (approximate)
+  result = result.replace(/\bSIMILAR\s+TO\b/gi, 'LIKE');
+
+  // Replace DISTINCT ON - not supported in SQLite
+  result = result.replace(/\bDISTINCT\s+ON\s*\([^)]+\)/gi, 'DISTINCT');
+
   // Replace ::type casting with CAST
   result = result.replace(/::([\w\s]+(\([\d,\s]+\))?)/g, (_, type) => {
     const trimmed = type.trim().toUpperCase();
     const mapped = TYPE_MAP[trimmed] || trimmed;
     return ` AS ${mapped}`;
   });
+
+  // Replace function names from FUNCTION_MAP
+  result = applyFunctionReplacements(result);
 
   // Replace STRING_AGG(expr, delimiter) with GROUP_CONCAT(expr, delimiter)
   result = result.replace(
@@ -99,6 +183,13 @@ export function adaptPostgreSQLToSQLite(sql: string): string {
 
   // Replace ONLY keyword (FROM ONLY table -> FROM table)
   result = result.replace(/\bONLY\s+/gi, '');
+
+  // Replace FOR UPDATE / FOR SHARE (row locking not supported in SQLite)
+  result = result.replace(/\bFOR\s+(UPDATE|SHARE)(\s+OF\s+\w+)?(\s+NOWAIT|\s+SKIP\s+LOCKED)?$/gim, '');
+
+  // Replace WITH clause modifiers (SEARCH, CYCLE)
+  result = result.replace(/\bSEARCH\s+\w+\s+(?:BREADTH|DEPTH)\s+FIRST\s+BY\s+\w+\s+SET\s+\w+/gi, '');
+  result = result.replace(/\bCYCLE\s+\w+\s+SET\s+\w+/gi, '');
 
   // Replace PostgreSQL data types in CREATE TABLE
   result = replaceDataTypes(result);

@@ -21,12 +21,14 @@ import {
   Circle,
   Target,
   User,
+  Bookmark,
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import ExportImportDialog from '@/components/export-import-dialog';
 
 export default function Sidebar() {
-  const { currentTaskId, setCurrentTaskId, completedTasks, sidebarOpen } =
+  const { currentTaskId, setCurrentTaskId, completedTasks, sidebarOpen, bookmarkedTasks, toggleBookmark } =
     useSQLTrainerStore();
   const { data: session } = useSession();
 
@@ -37,6 +39,8 @@ export default function Sidebar() {
     intermediate: true,
     advanced: true,
   });
+
+  const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
 
   const completedCount = completedTasks.length;
   const totalCount = TRAINING_TASKS.length;
@@ -67,6 +71,25 @@ export default function Sidebar() {
     [completedTasks]
   );
 
+  const bookmarkedIds = useMemo(
+    () => new Set(bookmarkedTasks),
+    [bookmarkedTasks]
+  );
+
+  const filteredTasksByDifficulty = useMemo(() => {
+    const map: Record<Difficulty, TrainingTask[]> = {
+      beginner: [],
+      intermediate: [],
+      advanced: [],
+    };
+    TRAINING_TASKS.forEach((task) => {
+      if (!showBookmarksOnly || bookmarkedIds.has(task.id)) {
+        map[task.difficulty].push(task);
+      }
+    });
+    return map;
+  }, [showBookmarksOnly, bookmarkedIds]);
+
   if (!sidebarOpen) return null;
 
   return (
@@ -88,6 +111,23 @@ export default function Sidebar() {
             ? '🎉 Все задания выполнены!'
             : `${Math.round(progressPercent)}% завершено`}
         </p>
+
+        {/* Bookmark filter */}
+        <button
+          onClick={() => setShowBookmarksOnly(!showBookmarksOnly)}
+          className={`mt-2 flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-xs transition-colors ${
+            showBookmarksOnly
+              ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+              : 'text-muted-foreground hover:bg-muted/50'
+          }`}
+        >
+          <Bookmark
+            className={`h-3 w-3 ${
+              showBookmarksOnly ? 'fill-amber-500 text-amber-500' : ''
+            }`}
+          />
+          {showBookmarksOnly ? 'Избранные' : 'Все задания'}
+        </button>
       </div>
 
       {/* Tasks list */}
@@ -96,7 +136,9 @@ export default function Sidebar() {
           {(
             ['beginner', 'intermediate', 'advanced'] as Difficulty[]
           ).map((difficulty) => {
-            const tasks = tasksByDifficulty[difficulty];
+            const tasks = filteredTasksByDifficulty[difficulty];
+            if (tasks.length === 0) return null;
+
             const isExpanded = expandedSections[difficulty];
             const completedInSection = tasks.filter((t) =>
               completedIds.has(t.id)
@@ -129,24 +171,45 @@ export default function Sidebar() {
                     {tasks.map((task) => {
                       const isActive = task.id === currentTaskId;
                       const isDone = completedIds.has(task.id);
+                      const isBookmarked = bookmarkedIds.has(task.id);
                       return (
-                        <button
+                        <div
                           key={task.id}
-                          onClick={() => setCurrentTaskId(task.id)}
-                          aria-label={`${isDone ? 'Выполнено: ' : ''}${task.title}`}
-                          className={`flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted/50 ${
-                            isActive
-                              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
-                              : 'text-foreground/80'
-                          }`}
+                          className="flex w-full items-start gap-1 rounded-md"
                         >
-                          {isDone ? (
-                            <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
-                          ) : (
-                            <Circle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground/40" />
-                          )}
-                          <span className="leading-tight">{task.title}</span>
-                        </button>
+                          <button
+                            onClick={() => setCurrentTaskId(task.id)}
+                            aria-label={`${isDone ? 'Выполнено: ' : ''}${task.title}`}
+                            className={`flex flex-1 items-start gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted/50 ${
+                              isActive
+                                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
+                                : 'text-foreground/80'
+                            }`}
+                          >
+                            {isDone ? (
+                              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                            ) : (
+                              <Circle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground/40" />
+                            )}
+                            <span className="leading-tight">{task.title}</span>
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleBookmark(task.id);
+                            }}
+                            className={`mt-1.5 rounded p-0.5 transition-colors hover:bg-muted/50 ${
+                              isBookmarked
+                                ? 'text-amber-500'
+                                : 'text-muted-foreground/40'
+                            }`}
+                            aria-label={isBookmarked ? 'Удалить из избранного' : 'Добавить в избранное'}
+                          >
+                            <Bookmark
+                              className={`h-3 w-3 ${isBookmarked ? 'fill-amber-500' : ''}`}
+                            />
+                          </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -159,6 +222,8 @@ export default function Sidebar() {
 
       {/* Free mode + Profile */}
       <div className="border-t border-border p-3 space-y-2">
+        <ExportImportDialog />
+
         {session?.user && (
           <Button
             variant="outline"

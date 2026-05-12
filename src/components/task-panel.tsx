@@ -28,9 +28,12 @@ interface TaskPanelProps {
   onShowSolution: () => void;
   onUseSolution: (sql: string) => void;
   onNextTask: () => void;
+  onPrevTask?: () => void;
+  onNextRelated?: (index: number) => void;
   nextTaskLabel?: string;
   isLastTask?: boolean;
   allCompleted?: boolean;
+  relatedTasks?: TrainingTask[];
 }
 
 export default function TaskPanel({
@@ -42,9 +45,12 @@ export default function TaskPanel({
   onShowSolution,
   onUseSolution,
   onNextTask,
+  onPrevTask,
+  onNextRelated,
   nextTaskLabel,
   isLastTask = false,
   allCompleted = false,
+  relatedTasks = [],
 }: TaskPanelProps) {
   if (!task) {
     return (
@@ -128,6 +134,31 @@ export default function TaskPanel({
           </CardContent>
         </Card>
       </div>
+
+      {/* Related tasks */}
+      {relatedTasks.length > 0 && (
+        <div>
+          <h4 className="mb-2 text-sm font-medium flex items-center gap-1.5">
+            <BookOpen className="h-4 w-4 text-blue-500" />
+            Связанные задания
+          </h4>
+          <div className="flex flex-col gap-1.5">
+            {relatedTasks.map((relatedTask, index) => (
+              <button
+                key={relatedTask.id}
+                onClick={() => onNextRelated?.(index)}
+                className="flex items-center gap-2 rounded-md border border-border/50 bg-muted/20 px-3 py-2 text-left text-sm transition-colors hover:bg-muted/40"
+              >
+                <Badge className={DIFFICULTY_COLORS[relatedTask.difficulty]} variant="outline">
+                  {DIFFICULTY_LABELS[relatedTask.difficulty]}
+                </Badge>
+                <span className="flex-1 truncate text-xs">{relatedTask.title}</span>
+                <ChevronRight className="h-3 w-3 text-muted-foreground" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Hint */}
       {!hintVisible ? (
