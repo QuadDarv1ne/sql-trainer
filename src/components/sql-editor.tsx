@@ -253,13 +253,14 @@ export default function SQLEditor({
         closeBrackets(),
         highlightActiveLine(),
         sql({
+          dialect: undefined,
           schema: schemaRef.current
-            ? {
-                tables: schemaRef.current.tables.map((t) => ({
-                  tableName: t.name,
-                  columns: t.columns.map((c) => c.name),
-                })),
-              }
+            ? Object.fromEntries(
+                schemaRef.current.tables.map((t) => [
+                  t.name,
+                  { columns: t.columns.map((c) => c.name) },
+                ]),
+              ) as any
             : undefined,
         }),
         autocompletion({

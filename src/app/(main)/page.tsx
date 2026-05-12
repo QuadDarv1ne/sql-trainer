@@ -9,6 +9,7 @@ import { useSQLTrainerStore } from '@/lib/store';
 import { getTaskById, TRAINING_TASKS } from '@/lib/training-tasks';
 import { type DatabaseInfo } from '@/lib/sql-engine';
 import { plural } from '@/lib/utils';
+import { t } from '@/lib/i18n';
 import ResultsTable from '@/components/results-table';
 import Sidebar from '@/components/sidebar';
 import TaskPanel from '@/components/task-panel';
@@ -214,8 +215,8 @@ export default function HomePage() {
           if (verifyData.verified && !isTaskCompleted(currentTaskId)) {
             markTaskCompleted(currentTaskId, attemptCount + 1);
             updateStreak();
-            toast.success('Задание выполнено верно! 🎉', {
-              description: `Вы решили задачу за ${attemptCount + 1} ${plural(attemptCount + 1, 'попытку', 'попытки', 'попыток')}`,
+            toast.success(t('task.completed'), {
+              description: `${attemptCount + 1} ${plural(attemptCount + 1, t('task.attempts'), t('task.attemptsFew'), t('task.attemptsMany'))}`,
             });
 
             // Auto-advance in practice mode
@@ -244,7 +245,7 @@ export default function HomePage() {
         success: false,
         columns: [],
         rows: [],
-        error: 'Ошибка сети. Попробуйте снова.',
+        error: t('results.error'),
         executionTime: 0,
       });
     } finally {
@@ -326,10 +327,10 @@ export default function HomePage() {
       if (data.success && data.plan) {
         setExplainPlan(data.plan);
       } else {
-        setExplainPlan(`Ошибка: ${data.error}`);
+        setExplainPlan(`${t('results.error')}: ${data.error}`);
       }
     } catch {
-      setExplainPlan('Ошибка сети. Попробуйте снова.');
+      setExplainPlan(t('results.error'));
     } finally {
       setIsExecuting(false);
     }
@@ -482,7 +483,7 @@ export default function HomePage() {
             </SheetTrigger>
             <SheetContent side="left" className="w-72 p-0">
               <SheetHeader className="border-b border-border px-4 py-3">
-                <SheetTitle className="text-sm">Задания</SheetTitle>
+                <SheetTitle className="text-sm">{t('header.tasks')}</SheetTitle>
               </SheetHeader>
               <Sidebar />
             </SheetContent>
@@ -508,7 +509,7 @@ export default function HomePage() {
               <TableIcon className="h-4 w-4 text-white" />
             </div>
             <h1 className="text-sm font-bold tracking-tight hidden sm:block">
-              SQL <span className="text-emerald-600">Тренажёр</span>
+              SQL <span className="text-emerald-600">Trainer</span>
             </h1>
           </div>
         </div>
@@ -536,7 +537,7 @@ export default function HomePage() {
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+              {theme === 'dark' ? t('header.theme.light') : t('header.theme.dark')}
             </TooltipContent>
           </Tooltip>
 
@@ -566,10 +567,10 @@ export default function HomePage() {
               <div className="flex items-center gap-2 rounded-md bg-emerald-50 px-2 py-1 text-xs text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
                 <Shuffle className="h-3.5 w-3.5" />
                 <span className="font-medium">
-                  Практика: {practiceMode.currentIndex + 1}/{practiceMode.taskOrder.length}
+                  {t('practice.title')}: {practiceMode.currentIndex + 1}/{practiceMode.taskOrder.length}
                 </span>
                 <Badge variant="secondary" className="text-[10px] px-1.5">
-                  Выполнено: {practiceMode.completedInSession.length}
+                  ✓ {practiceMode.completedInSession.length}
                 </Badge>
               </div>
             )}
@@ -585,7 +586,7 @@ export default function HomePage() {
               ) : (
                 <Play className="h-3.5 w-3.5" />
               )}
-              <span className="hidden sm:inline">Выполнить</span>
+              <span className="hidden sm:inline">{t('action.executeShort')}</span>
               <kbd className="ml-1 hidden sm:inline-flex h-5 items-center rounded border border-current/20 bg-current/10 px-1.5 text-[10px] font-mono">
                 Ctrl+↵
               </kbd>
@@ -602,10 +603,10 @@ export default function HomePage() {
                     disabled={isExecuting || !editorContent.trim()}
                   >
                     <Search className="mr-1 h-3 w-3" />
-                    <span className="hidden sm:inline">EXPLAIN</span>
+                    <span className="hidden sm:inline">{t('action.explain')}</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Показать план выполнения запроса</TooltipContent>
+                <TooltipContent>{t('action.explainTooltip')}</TooltipContent>
               </Tooltip>
             )}
 
@@ -613,7 +614,7 @@ export default function HomePage() {
 
             <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={clearEditor}>
               <Trash2 className="mr-1 h-3 w-3" />
-              Очистить
+              {t('action.clear')}
             </Button>
 
             {!currentTask && <SqlTemplates onInsertTemplate={handleInsertTemplate} />}
@@ -621,7 +622,7 @@ export default function HomePage() {
             {currentTask && (
               <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={resetDb}>
                 <RotateCcw className="mr-1 h-3 w-3" />
-                Сбросить БД
+                {t('action.resetDb')}
               </Button>
             )}
 
@@ -646,8 +647,8 @@ export default function HomePage() {
                   height="100%"
                   placeholder={
                     currentTask
-                      ? `Напишите SQL запрос для: ${currentTask.title}...`
-                      : 'Напишите SQL запрос... (Ctrl+Enter для выполнения)'
+                      ? t('editor.placeholder.task', { title: currentTask.title })
+                      : t('editor.placeholder.free')
                   }
                   schema={schemaInfo ? {
                     tables: schemaInfo.tables.map(t => ({
@@ -666,7 +667,7 @@ export default function HomePage() {
                     <div className="flex items-center justify-between border-b border-border px-4 py-2">
                       <div className="flex items-center gap-2">
                         <Search className="h-4 w-4 text-blue-500" />
-                        <span className="text-sm font-medium">План выполнения</span>
+                        <span className="text-sm font-medium">{t('action.explain')}</span>
                       </div>
                       <Button
                         variant="ghost"
@@ -674,7 +675,7 @@ export default function HomePage() {
                         className="h-6 text-xs"
                         onClick={() => setExplainPlan(null)}
                       >
-                        Закрыть
+                        {t('action.close')}
                       </Button>
                     </div>
                     <div className="flex-1 overflow-auto p-4">
@@ -701,10 +702,10 @@ export default function HomePage() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">
-                        Результаты запроса
+                        {t('results.title')}
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground/70">
-                        Нажмите «Выполнить» или Ctrl+Enter для запуска
+                        {t('results.executeHint')}
                       </p>
                     </div>
                   </div>

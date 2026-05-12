@@ -26,10 +26,14 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.freeMode': 'Свободный режим',
     'action.practice': 'Режим практики',
     'action.execute': 'Выполнить',
+    'action.executeShort': 'Выполнить',
     'action.clear': 'Очистить',
     'action.resetDb': 'Сбросить БД',
     'action.export': 'Экспорт / Импорт',
     'action.profile': 'Профиль',
+    'action.close': 'Закрыть',
+    'action.explain': 'EXPLAIN',
+    'action.explainTooltip': 'Показать план выполнения запроса',
 
     // Results
     'results.row': 'строка',
@@ -91,6 +95,58 @@ export const translations: Record<Locale, Record<string, string>> = {
     'shortcuts.execution': 'Выполнение',
     'shortcuts.editor': 'Редактор',
     'shortcuts.navigation': 'Навигация',
+
+    // Header
+    'header.tasks': 'Задания',
+    'header.theme.light': 'Светлая тема',
+    'header.theme.dark': 'Тёмная тема',
+
+    // Editor
+    'editor.placeholder.task': 'Напишите SQL запрос для: {title}...',
+    'editor.placeholder.free': 'Напишите SQL запрос... (Ctrl+Enter для выполнения)',
+
+    // Actions bar
+    'action.executeShort': 'Выполнить',
+    'action.explain': 'EXPLAIN',
+    'action.explainTooltip': 'Показать план выполнения запроса',
+    'action.queryHistory': 'История запросов',
+    'action.sqlTemplates': 'Шаблоны SQL',
+    'action.chart': 'График',
+
+    // Task panel
+    'task.completed': 'Задание выполнено верно! 🎉',
+    'task.attempts': 'попытку',
+    'task.attemptsFew': 'попытки',
+    'task.attemptsMany': 'попыток',
+    'task.next.label': 'Следующее: {title}',
+    'task.next.level': 'Следующий уровень: {title}',
+    'task.showHint': 'Показать подсказку',
+    'task.showSolution': 'Показать решение',
+    'task.useSolution': 'Использовать решение',
+
+    // Results
+    'results.error': 'Ошибка',
+    'results.success': 'Запрос выполнен успешно',
+    'results.verified': 'Результат проверен',
+    'results.notVerified': 'Результат не проверен',
+    'results.executionTime': 'Время выполнения',
+    'results.ms': 'мс',
+    'results.suggestion': 'Рекомендация',
+
+    // Schema
+    'schema.title': 'Схема базы данных',
+    'schema.noSchema': 'Схема не загружена',
+    'schema.selectTable': 'Выберите таблицу',
+
+    // SQL Reference
+    'sqlReference.title': 'Справка по SQL',
+    'sqlReference.select': 'Выберите раздел',
+
+    // Welcome
+    'welcome.title': 'Добро пожаловать в SQL Тренажёр',
+    'welcome.description': 'Интерактивная платформа для изучения и практики SQL',
+    'welcome.startTraining': 'Начать обучение',
+    'welcome.freeModeDesc': 'Пишите любые SQL-запросы без ограничений',
   },
   en: {
     // Header
@@ -112,10 +168,14 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.freeMode': 'Free Mode',
     'action.practice': 'Practice Mode',
     'action.execute': 'Execute',
+    'action.executeShort': 'Execute',
     'action.clear': 'Clear',
     'action.resetDb': 'Reset DB',
     'action.export': 'Export / Import',
     'action.profile': 'Profile',
+    'action.close': 'Close',
+    'action.explain': 'EXPLAIN',
+    'action.explainTooltip': 'Show query execution plan',
 
     // Results
     'results.row': 'row',
@@ -177,6 +237,58 @@ export const translations: Record<Locale, Record<string, string>> = {
     'shortcuts.execution': 'Execution',
     'shortcuts.editor': 'Editor',
     'shortcuts.navigation': 'Navigation',
+
+    // Header
+    'header.tasks': 'Tasks',
+    'header.theme.light': 'Light theme',
+    'header.theme.dark': 'Dark theme',
+
+    // Editor
+    'editor.placeholder.task': 'Write SQL query for: {title}...',
+    'editor.placeholder.free': 'Write SQL query... (Ctrl+Enter to execute)',
+
+    // Actions bar
+    'action.executeShort': 'Execute',
+    'action.explain': 'EXPLAIN',
+    'action.explainTooltip': 'Show query execution plan',
+    'action.queryHistory': 'Query History',
+    'action.sqlTemplates': 'SQL Templates',
+    'action.chart': 'Chart',
+
+    // Task panel
+    'task.completed': 'Task completed successfully! 🎉',
+    'task.attempts': 'attempt',
+    'task.attemptsFew': 'attempts',
+    'task.attemptsMany': 'attempts',
+    'task.next.label': 'Next: {title}',
+    'task.next.level': 'Next level: {title}',
+    'task.showHint': 'Show hint',
+    'task.showSolution': 'Show solution',
+    'task.useSolution': 'Use solution',
+
+    // Results
+    'results.error': 'Error',
+    'results.success': 'Query executed successfully',
+    'results.verified': 'Result verified',
+    'results.notVerified': 'Result not verified',
+    'results.executionTime': 'Execution time',
+    'results.ms': 'ms',
+    'results.suggestion': 'Suggestion',
+
+    // Schema
+    'schema.title': 'Database Schema',
+    'schema.noSchema': 'Schema not loaded',
+    'schema.selectTable': 'Select a table',
+
+    // SQL Reference
+    'sqlReference.title': 'SQL Reference',
+    'sqlReference.select': 'Select a section',
+
+    // Welcome
+    'welcome.title': 'Welcome to SQL Trainer',
+    'welcome.description': 'Interactive platform for learning and practicing SQL',
+    'welcome.startTraining': 'Start Training',
+    'welcome.freeModeDesc': 'Write any SQL queries without restrictions',
   },
 };
 
@@ -200,8 +312,14 @@ export function getLocale(): Locale {
   return currentLocale;
 }
 
-export function t(key: string): string {
-  return translations[currentLocale]?.[key] || translations.ru[key] || key;
+export function t(key: string, params?: Record<string, string>): string {
+  let value = translations[currentLocale]?.[key] || translations.ru[key] || key;
+  if (params) {
+    Object.entries(params).forEach(([k, v]) => {
+      value = value.replace(`{${k}}`, v);
+    });
+  }
+  return value;
 }
 
 export function getPlural(key: string, count: number): string {
