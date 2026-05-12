@@ -187,8 +187,9 @@ function executeStatements(
         const statement = db.prepare(stmt);
         const result = statement.run();
         if (lastResult) {
+          const prev: QueryResult = lastResult;
           lastResult = {
-            ...lastResult,
+            ...prev,
             executionTime: performance.now() - startTime,
             affectedRows: result.changes,
           };
