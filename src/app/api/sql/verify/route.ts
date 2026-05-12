@@ -4,7 +4,7 @@ import { getTaskById } from '@/lib/training-tasks';
 
 function normalizeValue(val: unknown): string {
   if (val === null || val === undefined) return 'NULL';
-  if (typeof val === 'number') return String(Math.round(val * 1000) / 1000);
+  if (typeof val === 'number') return Number(val.toPrecision(10)).toString();
   return String(val).trim().toLowerCase();
 }
 
