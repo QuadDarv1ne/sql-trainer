@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useSQLTrainerStore, type QueryHistoryEntry } from '@/lib/store';
 import { History, CheckCircle2, XCircle, Clock, RotateCcw } from 'lucide-react';
+import { plural } from '@/lib/utils';
 interface QueryHistoryProps {
   onRestoreQuery: (sql: string) => void;
 }
@@ -87,7 +88,7 @@ export default function QueryHistory({ onRestoreQuery }: QueryHistoryProps) {
               <div className="flex w-full items-center gap-2 pl-5.5 text-[10px] text-muted-foreground">
                 <span>{entry.executionTime.toFixed(1)} мс</span>
                 {entry.rowCount !== undefined && (
-                  <span>• {entry.rowCount} строк</span>
+                  <span>• {entry.rowCount} {plural(entry.rowCount, 'строка', 'строки', 'строк')}</span>
                 )}
               </div>
             </DropdownMenuItem>

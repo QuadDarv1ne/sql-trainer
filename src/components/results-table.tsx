@@ -180,7 +180,7 @@ function exportCSV(columns: string[], rows: Record<string, unknown>[]) {
   const header = columns.map(c => `"${c}"`).join(',');
   const data = rows.map(row =>
     columns.map(col => {
-      const val = formatCellValue(row[col]);
+      const val = formatForCSV(row[col]);
       return val.includes(',') || val.includes('"')
         ? `"${val.replace(/"/g, '""')}"`
         : val;
@@ -203,4 +203,9 @@ function formatCellValue(value: unknown): string {
   if (typeof value === 'boolean') return value ? 'true' : 'false';
   if (typeof value === 'object') return JSON.stringify(value);
   return String(value);
+}
+
+function formatForCSV(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  return formatCellValue(value);
 }
