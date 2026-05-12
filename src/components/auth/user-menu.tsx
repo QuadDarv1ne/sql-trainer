@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User, Settings, LogOut, LayoutDashboard } from 'lucide-react';
+import { User, LayoutDashboard, LogOut, Settings, Shield } from 'lucide-react';
 import Link from 'next/link';
 
 export default function UserMenu() {
@@ -51,6 +51,12 @@ export default function UserMenu() {
           <Link href="/profile" className="cursor-pointer flex items-center gap-2">
             <User className="h-4 w-4" />
             Профиль
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/profile#security" className="cursor-pointer flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            Безопасность
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

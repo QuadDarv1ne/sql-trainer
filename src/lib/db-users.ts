@@ -31,6 +31,9 @@ function getDb(): Database.Database {
   return _db;
 }
 
+// Export for direct access when needed (e.g., account deletion)
+export { getDb };
+
 function initDatabase(): void {
   const db = getDb();
   db.exec(`
@@ -150,7 +153,7 @@ export async function getUserById(userId: string): Promise<{ id: string; email: 
   return user || null;
 }
 
-export async function updateUser(userId: string, data: { name?: string; phone?: string; avatar_url?: string }): Promise<boolean> {
+export async function updateUser(userId: string, data: { name?: string; phone?: string; avatar_url?: string; email?: string }): Promise<boolean> {
   const db = getDb();
   const fields: string[] = [];
   const values: unknown[] = [];
@@ -158,6 +161,7 @@ export async function updateUser(userId: string, data: { name?: string; phone?: 
   if (data.name !== undefined) { fields.push('name = ?'); values.push(data.name); }
   if (data.phone !== undefined) { fields.push('phone = ?'); values.push(data.phone); }
   if (data.avatar_url !== undefined) { fields.push('avatar_url = ?'); values.push(data.avatar_url); }
+  if (data.email !== undefined) { fields.push('email = ?'); values.push(data.email); }
 
   if (fields.length === 0) return false;
 

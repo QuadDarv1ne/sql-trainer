@@ -1,16 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
-import { Loader2, Mail, Lock, AlertCircle, CheckCircle2, KeyRound } from 'lucide-react';
+import { Loader2, Mail, Lock, AlertCircle, CheckCircle2, KeyRound, Eye, EyeOff } from 'lucide-react';
 
 type Step = 'request' | 'verify' | 'done';
+
+function getPasswordStrength(password: string): { score: number; label: string; color: string; requirements: { met: boolean; text: string }[] } {
+  const requirements = [
+    { met: password.length >= 6, text: 'Минимум 6 символов' },
+    { met: /[A-Z]/.test(password), text: 'Заглавная буква' },
+    { met: /[a-z]/.test(password), text: 'Строчная буква' },
+    { met: /\d/.test(password), text: 'Цифра' },
+    { met: /[^A-Za-z0-9]/.test(password), text: 'Спецсимвол' },
+  ];
+
+  const metCount = requirements.filter(r => r.met).length;
+  const score = Math.round((metCount / requirements.length) * 100);
+
+  let label = 'Слабый';
+  let color = 'text-red-500';
+  if (score >= 80) { label = 'Надёжный'; color = 'text-emerald-500'; }
+  else if (score >= 60) { label = 'Средний'; color = 'text-yellow-500'; }
+  else if (score >= 40) { label = 'Слабый'; color = 'text-orange-500'; }
+
+  return { score, label, color, requirements };
+}
 
 export default function ResetPasswordForm() {
   const router = useRouter();
@@ -22,6 +44,27 @@ export default function ResetPasswordForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [devCode, setDevCode] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [codeSent, setCodeSent] = useState(false);
+  const codeInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (step === 'verify' && codeInputRef.current) {
+      codeInputRef.current.focus();
+    }
+  }, [step]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown(prev => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
+  const passwordStrength = getPasswordStrength(newPassword);
 
   const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +87,8 @@ export default function ResetPasswordForm() {
       if (data.devCode) {
         setDevCode(data.devCode);
       }
+      setCodeSent(true);
+      setCooldown(60);
       setStep('verify');
     } catch {
       setError('Ошибка отправки кода. Попробуйте снова.');
@@ -87,6 +132,11 @@ export default function ResetPasswordForm() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleResendCode = async () => {
+    if (cooldown > 0) return;
+    await handleRequestCode({ preventDefault: () => {} } as React.FormEvent);
   };
 
   return (
@@ -158,14 +208,30 @@ export default function ResetPasswordForm() {
               </Alert>
             )}
             <div className="space-y-2">
-              <Label htmlFor="code">Код из письма</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="code">Код из письма</Label>
+                {codeSent && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto p-0 text-xs"
+                    onClick={handleResendCode}
+                    disabled={cooldown > 0}
+                  >
+                    {cooldown > 0 ? `Отправить повторно через ${cooldown}с` : 'Отправить повторно'}
+                  </Button>
+                )}
+              </div>
               <Input
+                ref={codeInputRef}
                 id="code"
                 placeholder="123456"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                 maxLength={6}
                 required
+                className="text-center text-lg tracking-widest font-mono"
               />
             </div>
             <div className="space-y-2">
@@ -174,15 +240,43 @@ export default function ResetPasswordForm() {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="newPassword"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Минимум 6 символов"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 pr-10"
                   required
                   minLength={6}
                 />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
               </div>
+              {newPassword && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Надёжность пароля</span>
+                    <span className={`font-medium ${passwordStrength.color}`}>
+                      {passwordStrength.label}
+                    </span>
+                  </div>
+                  <Progress value={passwordStrength.score} className="h-1.5" />
+                  <ul className="grid grid-cols-2 gap-1 text-xs">
+                    {passwordStrength.requirements.map((req, i) => (
+                      <li key={i} className={`flex items-center gap-1 ${req.met ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                        {req.met ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
+                        {req.text}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Подтверждение</Label>
@@ -190,19 +284,40 @@ export default function ResetPasswordForm() {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="confirmPassword"
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Повторите пароль"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 pr-10"
                   required
                   minLength={6}
                 />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
               </div>
+              {confirmPassword && newPassword !== confirmPassword && (
+                <p className="text-xs text-red-500 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  Пароли не совпадают
+                </p>
+              )}
+              {confirmPassword && newPassword === confirmPassword && (
+                <p className="text-xs text-emerald-600 flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" />
+                  Пароли совпадают
+                </p>
+              )}
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
-            <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={loading}>
+            <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={loading || newPassword !== confirmPassword}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Сменить пароль
             </Button>

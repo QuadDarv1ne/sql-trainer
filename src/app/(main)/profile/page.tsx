@@ -1,8 +1,9 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,8 +11,22 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import { Loader2, User, Mail, Phone, Calendar, Save } from 'lucide-react';
+import {
+  Loader2, User, Mail, Phone, Calendar, Save, Lock, Eye, EyeOff,
+  Trash2, AlertTriangle, Shield, CheckCircle2, AlertCircle,
+} from 'lucide-react';
 import ProgressStats from '@/components/profile/progress-stats';
 import AchievementsGrid from '@/components/profile/achievements-grid';
 import LeaderboardTable from '@/components/profile/leaderboard';
@@ -25,7 +40,29 @@ interface UserProfile {
   created_at: number;
 }
 
+function getPasswordStrength(password: string): { score: number; label: string; color: string; requirements: { met: boolean; text: string }[] } {
+  const requirements = [
+    { met: password.length >= 6, text: 'Минимум 6 символов' },
+    { met: /[A-Z]/.test(password), text: 'Заглавная буква' },
+    { met: /[a-z]/.test(password), text: 'Строчная буква' },
+    { met: /\d/.test(password), text: 'Цифра' },
+    { met: /[^A-Za-z0-9]/.test(password), text: 'Спецсимвол' },
+  ];
+
+  const metCount = requirements.filter(r => r.met).length;
+  const score = Math.round((metCount / requirements.length) * 100);
+
+  let label = 'Слабый';
+  let color = 'text-red-500';
+  if (score >= 80) { label = 'Надёжный'; color = 'text-emerald-500'; }
+  else if (score >= 60) { label = 'Средний'; color = 'text-yellow-500'; }
+  else if (score >= 40) { label = 'Слабый'; color = 'text-orange-500'; }
+
+  return { score, label, color, requirements };
+}
+
 export default function ProfilePage() {
+  const router = useRouter();
   const { data: session, update } = useSession();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -33,6 +70,35 @@ export default function ProfilePage() {
   const [editPhone, setEditPhone] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState('progress');
+
+  // Password change state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  // Email change state
+  const [newEmail, setNewEmail] = useState('');
+  const [emailPassword, setEmailPassword] = useState('');
+  const [showEmailPassword, setShowEmailPassword] = useState(false);
+  const [changingEmail, setChangingEmail] = useState(false);
+
+  // Delete account state
+  const [deletePassword, setDeletePassword] = useState('');
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
+  // Handle hash-based tab navigation
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash === 'security') {
+      setActiveTab('security');
+    }
+  }, []);
 
   useEffect(() => {
     fetch('/api/user/profile')
@@ -42,6 +108,7 @@ export default function ProfilePage() {
           setProfile(data.user);
           setEditName(data.user.name);
           setEditPhone(data.user.phone || '');
+          setNewEmail(data.user.email);
         }
       })
       .catch(() => toast.error('Не удалось загрузить профиль'))
@@ -72,6 +139,98 @@ export default function ProfilePage() {
     }
   };
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      toast.error('Пароли не совпадают');
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error('Пароль должен содержать минимум 6 символов');
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      const res = await fetch('/api/user/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Пароль успешно изменён');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        toast.error(data.error);
+      }
+    } catch {
+      toast.error('Ошибка смены пароля');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
+  const handleChangeEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newEmail || !emailPassword) {
+      toast.error('Заполните все поля');
+      return;
+    }
+
+    setChangingEmail(true);
+    try {
+      const res = await fetch('/api/user/change-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newEmail, password: emailPassword }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Email успешно изменён');
+        setProfile(prev => prev ? { ...prev, email: newEmail } : null);
+        update({ email: newEmail });
+        setEmailPassword('');
+      } else {
+        toast.error(data.error);
+      }
+    } catch {
+      toast.error('Ошибка смены email');
+    } finally {
+      setChangingEmail(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword) {
+      toast.error('Введите пароль для подтверждения');
+      return;
+    }
+
+    setDeletingAccount(true);
+    try {
+      const res = await fetch('/api/user/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmPassword: deletePassword }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Аккаунт удалён');
+        signOut({ redirect: false });
+        router.push('/');
+      } else {
+        toast.error(data.error);
+      }
+    } catch {
+      toast.error('Ошибка удаления аккаунта');
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -94,6 +253,8 @@ export default function ProfilePage() {
     month: 'long',
     day: 'numeric',
   });
+
+  const passwordStrength = getPasswordStrength(newPassword);
 
   return (
     <div className="h-full overflow-auto p-6">
@@ -163,12 +324,13 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Tabs: Progress, Achievements, Leaderboard */}
-        <Tabs defaultValue="progress">
-          <TabsList>
+        {/* Tabs: Progress, Achievements, Leaderboard, Security */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="progress">Прогресс</TabsTrigger>
             <TabsTrigger value="achievements">Достижения</TabsTrigger>
             <TabsTrigger value="leaderboard">Рейтинг</TabsTrigger>
+            <TabsTrigger value="security">Безопасность</TabsTrigger>
           </TabsList>
           <TabsContent value="progress">
             <ProgressStats />
@@ -178,6 +340,274 @@ export default function ProfilePage() {
           </TabsContent>
           <TabsContent value="leaderboard">
             <LeaderboardTable />
+          </TabsContent>
+          <TabsContent value="security">
+            <div className="space-y-6">
+              {/* Change Password */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Lock className="h-5 w-5" />
+                    Смена пароля
+                  </CardTitle>
+                  <CardDescription>Введите текущий пароль и новый пароль для смены</CardDescription>
+                </CardHeader>
+                <form onSubmit={handleChangePassword}>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="current-password">Текущий пароль</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="current-password"
+                          type={showCurrentPassword ? 'text' : 'password'}
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          className="pl-10 pr-10"
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        >
+                          {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="new-password">Новый пароль</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="new-password"
+                          type={showNewPassword ? 'text' : 'password'}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className="pl-10 pr-10"
+                          required
+                          minLength={6}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                        >
+                          {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                      {newPassword && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Надёжность пароля</span>
+                            <span className={`font-medium ${passwordStrength.color}`}>
+                              {passwordStrength.label}
+                            </span>
+                          </div>
+                          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                            <div
+                              className="h-full transition-all duration-300 rounded-full"
+                              style={{
+                                width: `${passwordStrength.score}%`,
+                                backgroundColor: passwordStrength.score >= 80 ? '#10b981' : passwordStrength.score >= 60 ? '#eab308' : '#ef4444',
+                              }}
+                            />
+                          </div>
+                          <ul className="grid grid-cols-2 gap-1 text-xs">
+                            {passwordStrength.requirements.map((req, i) => (
+                              <li key={i} className={`flex items-center gap-1 ${req.met ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                                {req.met ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
+                                {req.text}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password">Подтверждение пароля</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="confirm-password"
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className="pl-10 pr-10"
+                          required
+                          minLength={6}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                      {confirmPassword && newPassword !== confirmPassword && (
+                        <p className="text-xs text-red-500 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          Пароли не совпадают
+                        </p>
+                      )}
+                      {confirmPassword && newPassword === confirmPassword && (
+                        <p className="text-xs text-emerald-600 flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" />
+                          Пароли совпадают
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button
+                      type="submit"
+                      className="bg-emerald-600 hover:bg-emerald-700"
+                      disabled={changingPassword || newPassword !== confirmPassword || !currentPassword || !newPassword}
+                    >
+                      {changingPassword ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Shield className="mr-2 h-4 w-4" />}
+                      Сменить пароль
+                    </Button>
+                  </CardFooter>
+                </form>
+              </Card>
+
+              {/* Change Email */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Mail className="h-5 w-5" />
+                    Смена email
+                  </CardTitle>
+                  <CardDescription>Введите новый email и пароль для подтверждения</CardDescription>
+                </CardHeader>
+                <form onSubmit={handleChangeEmail}>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-email">Новый email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="new-email"
+                          type="email"
+                          value={newEmail}
+                          onChange={(e) => setNewEmail(e.target.value)}
+                          className="pl-10"
+                          placeholder="you@example.com"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email-password">Текущий пароль</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="email-password"
+                          type={showEmailPassword ? 'text' : 'password'}
+                          value={emailPassword}
+                          onChange={(e) => setEmailPassword(e.target.value)}
+                          className="pl-10 pr-10"
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                          onClick={() => setShowEmailPassword(!showEmailPassword)}
+                        >
+                          {showEmailPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button
+                      type="submit"
+                      className="bg-emerald-600 hover:bg-emerald-700"
+                      disabled={changingEmail || newEmail === profile.email || !emailPassword}
+                    >
+                      {changingEmail ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
+                      Сменить email
+                    </Button>
+                  </CardFooter>
+                </form>
+              </Card>
+
+              {/* Delete Account */}
+              <Card className="border-red-200 dark:border-red-900">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2 text-red-600">
+                    <AlertTriangle className="h-5 w-5" />
+                    Удаление аккаунта
+                  </CardTitle>
+                  <CardDescription>
+                    Это действие нельзя отменить. Все ваши данные, прогресс и достижения будут удалены навсегда.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="delete-password">Введите пароль для подтверждения</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="delete-password"
+                        type={showDeletePassword ? 'text' : 'password'}
+                        value={deletePassword}
+                        onChange={(e) => setDeletePassword(e.target.value)}
+                        className="pl-10 pr-10"
+                        placeholder="Ваш текущий пароль"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                        onClick={() => setShowDeletePassword(!showDeletePassword)}
+                      >
+                        {showDeletePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" disabled={!deletePassword}>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Удалить аккаунт
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Это действие нельзя отменить. Ваш аккаунт, прогресс, достижения и все связанные данные будут удалены навсегда.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Отмена</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteAccount}
+                          className="bg-red-600 hover:bg-red-700"
+                          disabled={deletingAccount}
+                        >
+                          {deletingAccount ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                          Удалить навсегда
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </CardFooter>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
