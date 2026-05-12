@@ -136,6 +136,57 @@ INSERT INTO assignments (employee_id, project_id, role, hours_worked) VALUES (20
 INSERT INTO assignments (employee_id, project_id, role, hours_worked) VALUES (24, 6, 'HR-специалист', 70);
 `;
 
+// Schema for INSERT/UPDATE/DELETE exercises — starts empty
+const EMPTY_ORDERS_SCHEMA = `
+CREATE TABLE products (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  price REAL NOT NULL,
+  stock INTEGER DEFAULT 0
+);
+
+CREATE TABLE orders (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  product_id INTEGER NOT NULL,
+  quantity INTEGER NOT NULL,
+  order_date TEXT NOT NULL,
+  customer_name TEXT NOT NULL,
+  FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+INSERT INTO products (id, name, price, stock) VALUES (1, 'Ноутбук', 75000, 10);
+INSERT INTO products (id, name, price, stock) VALUES (2, 'Мышь', 1500, 50);
+INSERT INTO products (id, name, price, stock) VALUES (3, 'Клавиатура', 3000, 30);
+INSERT INTO products (id, name, price, stock) VALUES (4, 'Монитор', 25000, 15);
+INSERT INTO products (id, name, price, stock) VALUES (5, 'Наушники', 5000, 40);
+`;
+
+// Schema for INDEX demonstration
+const INDEX_DEMO_SCHEMA = `
+CREATE TABLE books (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  author TEXT NOT NULL,
+  genre TEXT,
+  published_year INTEGER,
+  pages INTEGER,
+  rating REAL
+);
+
+INSERT INTO books (id, title, author, genre, published_year, pages, rating) VALUES (1, 'Война и мир', 'Толстой', 'роман', 1869, 1225, 4.8);
+INSERT INTO books (id, title, author, genre, published_year, pages, rating) VALUES (2, 'Преступление и наказание', 'Достоевский', 'роман', 1866, 671, 4.7);
+INSERT INTO books (id, title, author, genre, published_year, pages, rating) VALUES (3, 'Мастер и Маргарита', 'Булгаков', 'роман', 1967, 480, 4.9);
+INSERT INTO books (id, title, author, genre, published_year, pages, rating) VALUES (4, 'Евгений Онегин', 'Пушкин', 'поэма', 1833, 224, 4.6);
+INSERT INTO books (id, title, author, genre, published_year, pages, rating) VALUES (5, 'Герой нашего времени', 'Лермонтов', 'роман', 1840, 210, 4.5);
+INSERT INTO books (id, title, author, genre, published_year, pages, rating) VALUES (6, 'Анна Каренина', 'Толстой', 'роман', 1877, 864, 4.7);
+INSERT INTO books (id, title, author, genre, published_year, pages, rating) VALUES (7, 'Идиот', 'Достоевский', 'роман', 1869, 640, 4.4);
+INSERT INTO books (id, title, author, genre, published_year, pages, rating) VALUES (8, 'Отцы и дети', 'Тургенев', 'роман', 1862, 224, 4.3);
+INSERT INTO books (id, title, author, genre, published_year, pages, rating) VALUES (9, 'Мёртвые души', 'Гоголь', 'поэма', 1842, 349, 4.5);
+INSERT INTO books (id, title, author, genre, published_year, pages, rating) VALUES (10, 'Обломов', 'Гончаров', 'роман', 1859, 496, 4.2);
+INSERT INTO books (id, title, author, genre, published_year, pages, rating) VALUES (11, 'Тихий Дон', 'Шолохов', 'роман', 1940, 1888, 4.6);
+INSERT INTO books (id, title, author, genre, published_year, pages, rating) VALUES (12, 'Доктор Живаго', 'Пастернак', 'роман', 1957, 560, 4.4);
+`;
+
 export const TRAINING_TASKS: TrainingTask[] = [
   // ==================== BEGINNER TASKS ====================
   {
@@ -429,6 +480,104 @@ export const TRAINING_TASKS: TrainingTask[] = [
     hint: 'JOIN projects → assignments → employees, GROUP BY project, HAVING COUNT(DISTINCT department_id) >= 3.',
     sampleSolution: 'SELECT p.name as project_name, COUNT(DISTINCT e.department_id) as dept_count FROM projects p JOIN assignments a ON p.id = a.project_id JOIN employees e ON a.employee_id = e.id GROUP BY p.id, p.name HAVING COUNT(DISTINCT e.department_id) >= 3;',
     verificationQuery: 'SELECT 0 as expected_count;',
+  },
+
+  // ==================== NEW TOPIC TASKS ====================
+  {
+    id: 'intermediate-9',
+    title: 'Объединение UNION',
+    description: 'Объединить результаты двух запросов с UNION',
+    difficulty: 'intermediate',
+    dbType: 'sqlite',
+    schema: EMPLOYEES_SCHEMA,
+    taskText: 'Получите список всех уникальных имён из first_name и location из departments. Выведите один столбец name.',
+    hint: 'Используйте UNION для объединения двух SELECT с алиасом name.',
+    sampleSolution: "SELECT first_name as name FROM employees UNION SELECT location as name FROM departments;",
+    verificationQuery: 'SELECT COUNT(*) as count FROM (SELECT first_name as name FROM employees UNION SELECT location as name FROM departments);',
+  },
+  {
+    id: 'intermediate-10',
+    title: 'INTERSECT и EXCEPT',
+    description: 'Найти пересечение и разность множеств',
+    difficulty: 'intermediate',
+    dbType: 'sqlite',
+    schema: EMPLOYEES_SCHEMA,
+    taskText: 'Найдите сотрудников, которые НЕ участвуют ни в одном проекте. Выведите first_name и last_name.',
+    hint: 'Используйте EXCEPT: все сотрудники MINUS сотрудники в проектах.',
+    sampleSolution: 'SELECT first_name, last_name FROM employees EXCEPT SELECT e.first_name, e.last_name FROM employees e JOIN assignments a ON e.id = a.employee_id;',
+    verificationQuery: 'SELECT COUNT(*) as count FROM employees e WHERE e.id NOT IN (SELECT a.employee_id FROM assignments a);',
+  },
+  {
+    id: 'intermediate-11',
+    title: 'INSERT, UPDATE, DELETE',
+    description: 'Вставка, обновление и удаление данных',
+    difficulty: 'intermediate',
+    dbType: 'sqlite',
+    schema: EMPTY_ORDERS_SCHEMA,
+    taskText: 'Добавьте новый заказ: продукт "Мышь" (product_id=2), количество 3, дата "2024-01-15", покупатель "Иванов". Затем обновите stock у продукта "Мышь" (уменьшите на 3). Выведите итоговый stock продукта "Мышь".',
+    hint: 'Сначала INSERT INTO orders, затем UPDATE products SET stock = stock - 3, затем SELECT stock FROM products WHERE id = 2.',
+    sampleSolution: "INSERT INTO orders (product_id, quantity, order_date, customer_name) VALUES (2, 3, '2024-01-15', 'Иванов'); UPDATE products SET stock = stock - 3 WHERE id = 2; SELECT stock FROM products WHERE id = 2;",
+    verificationQuery: 'SELECT stock FROM products WHERE id = 2;',
+  },
+  {
+    id: 'advanced-9',
+    title: 'Представления (VIEW)',
+    description: 'Создание и использование VIEW',
+    difficulty: 'advanced',
+    dbType: 'sqlite',
+    schema: EMPLOYEES_SCHEMA,
+    taskText: 'Создайте представление active_employees, которое показывает только активных сотрудников (is_active = 1). Затем выберите все данные из этого представления.',
+    hint: 'CREATE VIEW name AS SELECT ... FROM ... WHERE is_active = 1, затем SELECT * FROM name.',
+    sampleSolution: 'CREATE VIEW active_employees AS SELECT * FROM employees WHERE is_active = 1; SELECT * FROM active_employees;',
+    verificationQuery: 'SELECT COUNT(*) as count FROM employees WHERE is_active = 1;',
+  },
+  {
+    id: 'advanced-10',
+    title: 'Индексы (INDEX)',
+    description: 'Создание и использование индексов',
+    difficulty: 'advanced',
+    dbType: 'sqlite',
+    schema: INDEX_DEMO_SCHEMA,
+    taskText: 'Создайте индекс idx_books_author на таблице books по столбцу author. Затем создайте составной индекс idx_books_genre_year по genre и published_year. Выведите все индексы для таблицы books.',
+    hint: 'CREATE INDEX idx_name ON table(column). Для просмотра: SELECT * FROM sqlite_master WHERE type="index" AND tbl_name="books".',
+    sampleSolution: "CREATE INDEX idx_books_author ON books(author); CREATE INDEX idx_books_genre_year ON books(genre, published_year); SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='books';",
+    verificationQuery: "SELECT COUNT(*) as count FROM sqlite_master WHERE type='index' AND tbl_name='books';",
+  },
+  {
+    id: 'intermediate-12',
+    title: 'FULL OUTER JOIN',
+    description: 'Полное внешнее соединение таблиц',
+    difficulty: 'intermediate',
+    dbType: 'sqlite',
+    schema: EMPLOYEES_SCHEMA,
+    taskText: 'Выведите все отделы и всех сотрудников, включая отделы без сотрудников и сотрудников без отдела. Используйте FULL OUTER JOIN эмуляцию через UNION двух LEFT/RIGHT JOIN. Выведите department_name и employee_name (first_name).',
+    hint: 'SQLite не поддерживает FULL OUTER JOIN. Эмулируйте: LEFT JOIN UNION RIGHT JOIN с COALESCE.',
+    sampleSolution: "SELECT d.name as department_name, e.first_name as employee_name FROM departments d LEFT JOIN employees e ON d.id = e.department_id UNION SELECT d.name, e.first_name FROM employees e LEFT JOIN departments d ON e.department_id = d.id;",
+    verificationQuery: 'SELECT COUNT(*) as count FROM departments UNION ALL SELECT first_name FROM employees;',
+  },
+  {
+    id: 'intermediate-13',
+    title: 'CROSS JOIN',
+    description: 'Декартово произведение таблиц',
+    difficulty: 'intermediate',
+    dbType: 'sqlite',
+    schema: EMPLOYEES_SCHEMA,
+    taskText: 'Создайте все возможные комбинации отделов и проектов (декартово произведение). Выведите название отдела и название проекта, отсортируйте по названию отдела.',
+    hint: 'CROSS JOIN создаёт все комбинации строк двух таблиц.',
+    sampleSolution: 'SELECT d.name as department_name, p.name as project_name FROM departments d CROSS JOIN projects p ORDER BY d.name, p.name;',
+    verificationQuery: 'SELECT COUNT(*) as count FROM departments CROSS JOIN projects;',
+  },
+  {
+    id: 'advanced-11',
+    title: 'Коррелированный подзапрос с EXISTS',
+    description: 'Подзапрос, зависящий от внешнего запроса',
+    difficulty: 'advanced',
+    dbType: 'sqlite',
+    schema: EMPLOYEES_SCHEMA,
+    taskText: 'Найдите отделы, в которых есть сотрудники с зарплатой больше 140000. Выведите название отдела. Используйте EXISTS.',
+    hint: 'EXISTS (SELECT 1 FROM employees WHERE department_id = departments.id AND salary > 140000).',
+    sampleSolution: "SELECT d.name FROM departments d WHERE EXISTS (SELECT 1 FROM employees e WHERE e.department_id = d.id AND e.salary > 140000);",
+    verificationQuery: "SELECT COUNT(*) as count FROM departments d WHERE EXISTS (SELECT 1 FROM employees e WHERE e.department_id = d.id AND e.salary > 140000);",
   },
 ];
 
