@@ -10,6 +10,7 @@ import { getTaskById, TRAINING_TASKS } from '@/lib/training-tasks';
 import { type DatabaseInfo } from '@/lib/sql-engine';
 import { plural } from '@/lib/utils';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 import ResultsTable from '@/components/results-table';
 import Sidebar from '@/components/sidebar';
 import TaskPanel from '@/components/task-panel';
@@ -130,7 +131,7 @@ export default function HomePage() {
           });
         }
       })
-      .catch(() => {});
+      .catch((e) => logger.error('Failed to sync server progress', e));
   }, [session?.user]);
 
   // Get current task
@@ -153,7 +154,7 @@ export default function HomePage() {
             setSchemaInfo(data.schema);
           }
         })
-        .catch(() => {});
+        .catch((e) => logger.error('Failed to initialize training schema', e));
     } else {
       setSchemaInfo(null);
     }
@@ -233,7 +234,7 @@ export default function HomePage() {
                   taskId: currentTaskId,
                   attempts: attemptCount + 1,
                 }),
-              }).catch(() => {});
+              }).catch((e) => logger.error('Failed to sync task progress', e));
             }
           }
         } catch {
@@ -354,7 +355,7 @@ export default function HomePage() {
             setSchemaInfo(data.schema);
           }
         })
-        .catch(() => {});
+        .catch((e) => logger.error('Failed to reset training schema', e));
     }
     setEditorContent('');
     setLastResult(null);

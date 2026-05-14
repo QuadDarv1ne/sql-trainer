@@ -6,7 +6,10 @@
     "dev": "node -e \"const net=require('net');const start=Number(process.env.PORT)||3000;const find=p=>new Promise(r=>{const s=net.createServer();s.listen(p,'127.0.0.1',()=>{s.close();r(p)});s.on('error',()=>r(find(p+1)))});find(start).then(p=>{console.log('Starting on port',p);require('child_process').spawn('npx',['next','dev','-p',String(p)],{stdio:'inherit',shell:true,env:{...process.env,NEXTAUTH_URL:'http://localhost:'+p}})})\" --",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest",
+    "test:ci": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@codemirror/lang-sql": "^6.10.0",
@@ -70,15 +73,21 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
+    "2": "^3.0.0",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.19.19",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.6",
     "eslint": "^9",
     "eslint-config-next": "^16.1.1",
+    "jsdom": "^29.1.1",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.5",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.6"
   }
 }

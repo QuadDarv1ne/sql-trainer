@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { TRAINING_TASKS, DIFFICULTY_LABELS, DIFFICULTY_COLORS } from '@/lib/training-tasks';
 import { Trophy, Target, Zap, Award, Calendar } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface ProgressData {
   task_id: string;
@@ -23,7 +24,7 @@ export default function ProgressStats() {
       .then((data) => {
         if (data.success) setProgress(data.progress);
       })
-      .catch(() => {})
+      .catch((e) => logger.error('Failed to fetch progress', e))
       .finally(() => setLoading(false));
   }, []);
 

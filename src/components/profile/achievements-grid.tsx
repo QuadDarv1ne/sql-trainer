@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import * as Icons from 'lucide-react';
 import { Loader2 } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface Achievement {
   id: string;
@@ -24,7 +25,7 @@ export default function AchievementsGrid() {
       .then((data) => {
         if (data.success) setAchievements(data.achievements);
       })
-      .catch(() => {})
+      .catch((e) => logger.error('Failed to fetch achievements', e))
       .finally(() => setLoading(false));
   }, []);
 
@@ -51,7 +52,7 @@ export default function AchievementsGrid() {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {achievements.map((a) => {
-        const IconComponent = (Icons as any)[a.icon] || Icons.Award;
+        const IconComponent = (Icons as Record<string, React.ComponentType<{ className?: string }>>)[a.icon] || Icons.Award;
         const earnedDate = new Date(a.earned_at).toLocaleDateString('ru-RU', {
           day: 'numeric',
           month: 'short',

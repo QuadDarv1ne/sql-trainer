@@ -6,8 +6,25 @@
  * - This file: NextAuth config (Edge-compatible, used by middleware)
  * - auth-internal.ts: Full config with DB access (used by API routes)
  */
-import NextAuth from 'next-auth';
+import NextAuth, { type DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import type { JWT } from 'next-auth/jwt';
+
+interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+}
+
+interface AuthSession {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string | null;
+  };
+}
 
 // Minimal config for Edge runtime (middleware)
 const nextAuthConfig = {
@@ -28,7 +45,7 @@ const nextAuthConfig = {
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }: { token: any; user?: any; trigger?: string; session?: any }) {
+    async jwt({ token, user, trigger, session }: { token: JWT; user?: AuthUser; trigger?: string; session?: AuthSession }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
@@ -41,12 +58,12 @@ const nextAuthConfig = {
       }
       return token;
     },
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }: { session: DefaultSession; token: JWT }) {
       if (token) {
-        session.user.id = token.id as string;
-        session.user.name = token.name as string;
-        session.user.email = token.email as string;
-        session.user.phone = token.phone as string | null;
+        (session as AuthSession).user.id = token.id;
+        (session as AuthSession).user.name = token.name as string;
+        (session as AuthSession).user.email = token.email as string;
+        (session as AuthSession).user.phone = token.phone as string | null;
       }
       return session;
     },

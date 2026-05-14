@@ -3,9 +3,26 @@
  * Used only by the API route handler (Node.js runtime).
  * The main auth.ts is Edge-compatible for middleware.
  */
-import NextAuth from 'next-auth';
+import NextAuth, { type DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { verifyPassword } from '@/lib/db-users';
+import type { JWT } from 'next-auth/jwt';
+
+interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+}
+
+interface AuthSession {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string | null;
+  };
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -40,25 +57,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger, session }: { token: JWT; user?: AuthUser; trigger?: string; session?: AuthSession }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
-        token.phone = (user as any).phone;
+        token.phone = user.phone;
       }
       if (trigger === 'update' && session) {
-        token.name = (session as any).name ?? token.name;
-        token.phone = (session as any).phone ?? token.phone;
+        token.name = session.name ?? token.name;
+        token.phone = session.phone ?? token.phone;
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: DefaultSession; token: JWT }) {
       if (token) {
-        (session as any).user.id = token.id as string;
-        (session as any).user.name = token.name as string;
-        (session as any).user.email = token.email as string;
-        (session as any).user.phone = token.phone as string | null;
+        (session as AuthSession).user.id = token.id;
+        (session as AuthSession).user.name = token.name as string;
+        (session as AuthSession).user.email = token.email as string;
+        (session as AuthSession).user.phone = token.phone as string | null;
       }
       return session;
     },

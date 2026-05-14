@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { useSession } from 'next-auth/react';
 import { Loader2, Trophy, Medal, Star } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface LeaderboardEntry {
   user_id: string;
@@ -25,7 +26,7 @@ export default function LeaderboardTable() {
       .then((data) => {
         if (data.success) setLeaderboard(data.leaderboard);
       })
-      .catch(() => {})
+      .catch((e) => logger.error('Failed to fetch leaderboard', e))
       .finally(() => setLoading(false));
   }, []);
 
