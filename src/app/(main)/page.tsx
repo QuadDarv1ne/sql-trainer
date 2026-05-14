@@ -261,8 +261,12 @@ export default function HomePage() {
     addQueryHistory,
     isTaskCompleted,
     markTaskCompleted,
+    updateStreak,
     attemptCount,
     setVerification,
+    session,
+    practiceMode.active,
+    nextPracticeTask,
   ]);
 
   // Keyboard shortcuts
@@ -370,17 +374,17 @@ export default function HomePage() {
       const currentDiff = currentTask.difficulty;
       const nextDiff = nextTask.difficulty;
 
-      let label = `Следующее: ${nextTask.title}`;
+      let label = t('task.next.label', { title: nextTask.title });
 
       if (currentDiff !== nextDiff) {
-        label = `Следующий уровень: ${nextTask.title}`;
+        label = t('task.next.level', { title: nextTask.title });
       }
 
       return { hasNext: true, label, isLastTask: false, allCompleted: false };
     }
 
     return { hasNext: false, label: '', isLastTask: true, allCompleted: allDone };
-  }, [currentTask, completedTasks]);
+  }, [currentTask, completedTasks, t]);
 
   // Find related tasks (same topic or similar title keywords)
   const relatedTasks = useMemo(() => {

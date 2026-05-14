@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeWithSchema } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 
+const MAX_SQL_LENGTH = 10000;
+
 function normalizeValue(val: unknown): string {
   if (val === null || val === undefined) return 'NULL';
   if (typeof val === 'number') return Number(val.toPrecision(10)).toString();
@@ -37,6 +39,13 @@ export async function POST(request: NextRequest) {
     if (!sql || typeof sql !== 'string') {
       return NextResponse.json(
         { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'SQL запрос обязателен' },
+        { status: 400 }
+      );
+    }
+
+    if (sql.length > MAX_SQL_LENGTH) {
+      return NextResponse.json(
+        { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Запрос слишком длинный' },
         { status: 400 }
       );
     }

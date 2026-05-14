@@ -3,7 +3,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import {
   TRAINING_TASKS,
@@ -13,6 +12,7 @@ import {
 } from '@/lib/training-tasks';
 import { useSQLTrainerStore } from '@/lib/store';
 import { useSession } from 'next-auth/react';
+import { t } from '@/lib/i18n';
 import {
   GraduationCap,
   ChevronDown,
@@ -99,7 +99,7 @@ export default function Sidebar() {
         <div className="mb-2 flex items-center justify-between">
           <span className="text-sm font-medium flex items-center gap-1.5">
             <Target className="h-4 w-4 text-emerald-500" />
-            Прогресс
+            {t('progress.label')}
           </span>
           <span className="text-xs text-muted-foreground">
             {completedCount}/{totalCount}
@@ -108,8 +108,8 @@ export default function Sidebar() {
         <Progress value={progressPercent} className="h-2" />
         <p className="mt-1.5 text-xs text-muted-foreground">
           {progressPercent === 100
-            ? '🎉 Все задания выполнены!'
-            : `${Math.round(progressPercent)}% завершено`}
+            ? t('progress.complete')
+            : `${Math.round(progressPercent)}% ${t('progress.percent')}`}
         </p>
 
         {/* Bookmark filter */}
@@ -126,7 +126,7 @@ export default function Sidebar() {
               showBookmarksOnly ? 'fill-amber-500 text-amber-500' : ''
             }`}
           />
-          {showBookmarksOnly ? 'Избранные' : 'Все задания'}
+          {showBookmarksOnly ? t('action.bookmarksOnly') : t('action.bookmarksAll')}
         </button>
       </div>
 
@@ -179,7 +179,7 @@ export default function Sidebar() {
                         >
                           <button
                             onClick={() => setCurrentTaskId(task.id)}
-                            aria-label={`${isDone ? 'Выполнено: ' : ''}${task.title}`}
+                            aria-label={`${isDone ? '✓ ' : ''}${task.title}`}
                             className={`flex flex-1 items-start gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted/50 ${
                               isActive
                                 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
@@ -203,7 +203,7 @@ export default function Sidebar() {
                                 ? 'text-amber-500'
                                 : 'text-muted-foreground/40'
                             }`}
-                            aria-label={isBookmarked ? 'Удалить из избранного' : 'Добавить в избранное'}
+                            aria-label={isBookmarked ? t('action.removeFromBookmark') : t('action.addToBookmark')}
                           >
                             <Bookmark
                               className={`h-3 w-3 ${isBookmarked ? 'fill-amber-500' : ''}`}
@@ -233,7 +233,7 @@ export default function Sidebar() {
           >
             <Link href="/profile">
               <User className="mr-2 h-4 w-4" />
-              Профиль
+              {t('action.profile')}
             </Link>
           </Button>
         )}
@@ -244,7 +244,7 @@ export default function Sidebar() {
           onClick={() => setCurrentTaskId(null)}
         >
           <GraduationCap className="mr-2 h-4 w-4" />
-          Свободный режим
+          {t('action.freeMode')}
         </Button>
       </div>
     </div>

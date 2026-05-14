@@ -44,6 +44,7 @@ function splitStatements(sql: string): string[] {
 
   for (let i = 0; i < sql.length; i++) {
     const char = sql[i];
+    const prev = i > 0 ? sql[i - 1] : '';
     const next = sql[i + 1];
 
     // Handle block comments
@@ -87,10 +88,13 @@ function splitStatements(sql: string): string[] {
     if (inString) {
       current += char;
       if (char === stringChar) {
-        // Check for escaped quote
+        // Check for escaped quote (both '' and \' styles)
         if (next === stringChar) {
           i++;
           current += next;
+        } else if (stringChar === "'" && prev === "\\") {
+          // Backslash-escaped quote
+          inString = false;
         } else {
           inString = false;
         }

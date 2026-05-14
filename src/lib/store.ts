@@ -5,6 +5,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { DbType, Difficulty } from './training-tasks';
+import { TRAINING_TASKS } from './training-tasks';
 
 export interface QueryHistoryEntry {
   sql: string;
@@ -254,14 +255,17 @@ export const useSQLTrainerStore = create<SQLTrainerState>()(
         completedInSession: [],
       },
       startPracticeMode: (difficulty = 'all') => {
-        const { TRAINING_TASKS } = require('./training-tasks');
         let pool = TRAINING_TASKS;
         if (difficulty !== 'all') {
           pool = TRAINING_TASKS.filter((t) => t.difficulty === difficulty);
         }
 
-        // Shuffle tasks
-        const shuffled = [...pool].sort(() => Math.random() - 0.5);
+        // Shuffle tasks using Fisher-Yates algorithm
+        const shuffled = [...pool];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
 
         set({
           practiceMode: {

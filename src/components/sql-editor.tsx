@@ -31,6 +31,7 @@ import {
   completionKeymap,
   CompletionContext,
   Completion,
+  CompletionResult,
 } from '@codemirror/autocomplete';
 import { searchKeymap } from '@codemirror/search';
 
@@ -94,7 +95,7 @@ const lightTheme = EditorView.theme({
  * Create a completion source that suggests table/column names from schema.
  */
 function createSchemaCompletion(schema: SchemaInfo | null) {
-  return (context: CompletionContext): Completion[] | null => {
+  return (context: CompletionContext): CompletionResult | null => {
     if (!schema || schema.tables.length === 0) return null;
 
     const word = context.matchBefore(/\w*/);
@@ -126,7 +127,7 @@ function createSchemaCompletion(schema: SchemaInfo | null) {
       });
     });
 
-    return completions;
+    return { from: word.from, options: completions };
   };
 }
 
@@ -252,26 +253,23 @@ export default function SQLEditor({
         bracketMatching(),
         closeBrackets(),
         highlightActiveLine(),
-        sql({
-          dialect: undefined,
-          schema: schemaRef.current
-            ? Object.fromEntries(
-                schemaRef.current.tables.map((t) => [
-                  t.name,
-                  { columns: t.columns.map((c) => c.name) },
-                ]),
-              ) as any
-            : undefined,
-        }),
+        sql(
+          schemaRef.current
+            ? {
+                schema: Object.fromEntries(
+                  schemaRef.current.tables.map((t) => [
+                    t.name,
+                    { columns: t.columns.map((c) => c.name) },
+                  ]),
+                ) as Record<string, { columns: string[] }>,
+              }
+            : undefined
+        ),
         autocompletion({
           override: [
             (context) => {
               const schemaCompletions = createSchemaCompletion(schemaRef.current);
-              const completions = schemaCompletions?.(context);
-              if (completions) {
-                return context.completionRange ? { from: context.from, options: completions } : null;
-              }
-              return null;
+              return schemaCompletions?.(context);
             },
           ],
         }),

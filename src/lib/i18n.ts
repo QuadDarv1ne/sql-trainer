@@ -32,6 +32,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.export': 'Экспорт / Импорт',
     'action.profile': 'Профиль',
     'action.close': 'Закрыть',
+    'action.bookmarksAll': 'Все задания',
+    'action.bookmarksOnly': 'Избранные',
+    'action.removeFromBookmark': 'Удалить из избранного',
+    'action.addToBookmark': 'Добавить в избранное',
     'action.explain': 'EXPLAIN',
     'action.explainTooltip': 'Показать план выполнения запроса',
 
@@ -105,10 +109,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'editor.placeholder.task': 'Напишите SQL запрос для: {title}...',
     'editor.placeholder.free': 'Напишите SQL запрос... (Ctrl+Enter для выполнения)',
 
-    // Actions bar
-    'action.executeShort': 'Выполнить',
-    'action.explain': 'EXPLAIN',
-    'action.explainTooltip': 'Показать план выполнения запроса',
+    // Actions bar (additional)
     'action.queryHistory': 'История запросов',
     'action.sqlTemplates': 'Шаблоны SQL',
     'action.chart': 'График',
@@ -174,6 +175,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.export': 'Export / Import',
     'action.profile': 'Profile',
     'action.close': 'Close',
+    'action.bookmarksAll': 'All Tasks',
+    'action.bookmarksOnly': 'Bookmarked',
+    'action.removeFromBookmark': 'Remove from bookmarks',
+    'action.addToBookmark': 'Add to bookmarks',
     'action.explain': 'EXPLAIN',
     'action.explainTooltip': 'Show query execution plan',
 
@@ -247,10 +252,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'editor.placeholder.task': 'Write SQL query for: {title}...',
     'editor.placeholder.free': 'Write SQL query... (Ctrl+Enter to execute)',
 
-    // Actions bar
-    'action.executeShort': 'Execute',
-    'action.explain': 'EXPLAIN',
-    'action.explainTooltip': 'Show query execution plan',
+    // Actions bar (additional)
     'action.queryHistory': 'Query History',
     'action.sqlTemplates': 'SQL Templates',
     'action.chart': 'Chart',
