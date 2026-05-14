@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { DIFFICULTY_LABELS, DIFFICULTY_COLORS, TRAINING_TASKS, type TrainingTask } from '@/lib/training-tasks';
+import { t } from '@/lib/i18n';
 import {
   BookOpen,
   CheckCircle2,
@@ -77,7 +78,7 @@ export default function TaskPanel({
           {isCompleted && (
             <Badge variant="outline" className="border-emerald-500 text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 className="mr-1 h-3 w-3" />
-              Выполнено
+              {t('task.completedBadge')}
             </Badge>
           )}
         </div>
@@ -111,10 +112,10 @@ export default function TaskPanel({
           <CardContent className="p-3 text-center">
             <PartyPopper className="mx-auto mb-1 h-6 w-6 text-emerald-500" />
             <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-              Поздравляем! 🎉
+              {t('task.congrats')}
             </p>
             <p className="mt-0.5 text-xs text-emerald-600/70 dark:text-emerald-500/70">
-              Вы выполнили все задания! Вы настоящий SQL-мастер.
+              {t('task.congratsDesc')}
             </p>
           </CardContent>
         </Card>
@@ -126,7 +127,7 @@ export default function TaskPanel({
       <div>
         <h4 className="mb-2 text-sm font-medium flex items-center gap-1.5">
           <ChevronRight className="h-4 w-4 text-emerald-500" />
-          Задание
+          {t('task.taskLabel')}
         </h4>
         <Card className="bg-muted/30">
           <CardContent className="p-3">
@@ -140,7 +141,7 @@ export default function TaskPanel({
         <div>
           <h4 className="mb-2 text-sm font-medium flex items-center gap-1.5">
             <BookOpen className="h-4 w-4 text-blue-500" />
-            Связанные задания
+            {t('task.related')}
           </h4>
           <div className="flex flex-col gap-1.5">
             {relatedTasks.map((relatedTask, index) => (
@@ -169,14 +170,14 @@ export default function TaskPanel({
           onClick={onShowHint}
         >
           <Lightbulb className="mr-2 h-4 w-4" />
-          Показать подсказку
+          {t('task.showHint')}
         </Button>
       ) : (
         <Card className="border-amber-300 bg-amber-50/50 dark:border-amber-700 dark:bg-amber-950/20">
           <CardHeader className="pb-2 pt-3 px-3">
             <CardTitle className="text-xs font-medium flex items-center gap-1.5 text-amber-700 dark:text-amber-400">
               <Lightbulb className="h-3.5 w-3.5" />
-              Подсказка
+              {t('task.hint')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 pt-0">
@@ -191,7 +192,7 @@ export default function TaskPanel({
         <div className="flex items-center justify-between mb-2">
           <h4 className="text-sm font-medium flex items-center gap-1.5">
             <Trophy className="h-4 w-4 text-amber-500" />
-            Пример решения
+            {t('task.solutionTitle')}
           </h4>
           <Button
             variant="ghost"
@@ -202,12 +203,12 @@ export default function TaskPanel({
             {solutionVisible ? (
               <>
                 <EyeOff className="mr-1 h-3 w-3" />
-                Скрыть
+                {t('task.solutionHide')}
               </>
             ) : (
               <>
                 <Eye className="mr-1 h-3 w-3" />
-                Показать
+                {t('task.solutionShow')}
               </>
             )}
           </Button>
@@ -225,7 +226,7 @@ export default function TaskPanel({
                 onClick={() => onUseSolution(task.sampleSolution)}
               >
                 <Copy className="mr-1.5 h-3 w-3" />
-                Вставить в редактор
+                {t('task.solutionUse')}
               </Button>
             </CardContent>
           </Card>

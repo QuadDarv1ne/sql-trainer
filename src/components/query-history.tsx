@@ -10,6 +10,7 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { useSQLTrainerStore, type QueryHistoryEntry } from '@/lib/store';
+import { t } from '@/lib/i18n';
 import { History, CheckCircle2, XCircle, Clock, RotateCcw } from 'lucide-react';
 import { plural } from '@/lib/utils';
 interface QueryHistoryProps {
@@ -40,12 +41,12 @@ export default function QueryHistory({ onRestoreQuery }: QueryHistoryProps) {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="h-7 text-xs" disabled={recentHistory.length === 0}>
           <History className="mr-1 h-3 w-3" />
-          История
+          {t('action.history')}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-80 max-h-96">
         <DropdownMenuLabel className="flex items-center justify-between">
-          <span>История запросов</span>
+          <span>{t('action.queryHistory')}</span>
           <Button
             variant="ghost"
             size="sm"
@@ -56,13 +57,13 @@ export default function QueryHistory({ onRestoreQuery }: QueryHistoryProps) {
             }}
           >
             <RotateCcw className="mr-1 h-2.5 w-2.5" />
-            Очистить
+            {t('action.clear')}
           </Button>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {recentHistory.length === 0 ? (
           <div className="px-2 py-4 text-center text-xs text-muted-foreground">
-            Нет выполненных запросов
+            {t('history.empty')}
           </div>
         ) : (
           recentHistory.map((entry, idx) => (

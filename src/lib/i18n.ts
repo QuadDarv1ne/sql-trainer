@@ -112,17 +112,26 @@ export const translations: Record<Locale, Record<string, string>> = {
 
     // Actions bar (additional)
     'action.queryHistory': 'История запросов',
+    'action.history': 'История',
     'action.sqlTemplates': 'Шаблоны SQL',
     'action.chart': 'График',
+    'history.empty': 'Нет выполненных запросов',
 
     // Task panel
     'task.completed': 'Задание выполнено верно! 🎉',
+    'task.completedBadge': 'Выполнено',
+    'task.congrats': 'Поздравляем! 🎉',
+    'task.congratsDesc': 'Вы выполнили все задания! Вы настоящий SQL-мастер.',
+    'task.taskLabel': 'Задание',
+    'task.solutionTitle': 'Пример решения',
+    'task.solutionShow': 'Показать',
+    'task.solutionHide': 'Скрыть',
+    'task.solutionUse': 'Вставить в редактор',
     'task.attempts': 'попытку',
     'task.attemptsFew': 'попытки',
     'task.attemptsMany': 'попыток',
     'task.next.label': 'Следующее: {title}',
     'task.next.level': 'Следующий уровень: {title}',
-    'task.showHint': 'Показать подсказку',
     'task.showSolution': 'Показать решение',
     'task.useSolution': 'Использовать решение',
 
@@ -261,17 +270,26 @@ export const translations: Record<Locale, Record<string, string>> = {
 
     // Actions bar (additional)
     'action.queryHistory': 'Query History',
+    'action.history': 'History',
     'action.sqlTemplates': 'SQL Templates',
     'action.chart': 'Chart',
+    'history.empty': 'No executed queries',
 
     // Task panel
     'task.completed': 'Task completed successfully! 🎉',
+    'task.completedBadge': 'Completed',
+    'task.congrats': 'Congratulations! 🎉',
+    'task.congratsDesc': 'You completed all tasks! You are a true SQL master.',
+    'task.taskLabel': 'Task',
+    'task.solutionTitle': 'Example Solution',
+    'task.solutionShow': 'Show',
+    'task.solutionHide': 'Hide',
+    'task.solutionUse': 'Insert into Editor',
     'task.attempts': 'attempt',
     'task.attemptsFew': 'attempts',
     'task.attemptsMany': 'attempts',
     'task.next.label': 'Next: {title}',
     'task.next.level': 'Next level: {title}',
-    'task.showHint': 'Show hint',
     'task.showSolution': 'Show solution',
     'task.useSolution': 'Use solution',
 
