@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, XCircle, Clock, AlertTriangle, Copy, Download, ShieldCheck, Lightbulb, ArrowUpDown, ArrowUp, ArrowDown, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
+import { t } from '@/lib/i18n';
 import { plural } from '@/lib/utils';
 import type { VerificationResult } from '@/lib/store';
 import QueryResultChart from '@/components/query-result-chart';
@@ -40,9 +41,8 @@ export default function ResultsTable({
   const [chartView, setChartView] = useState(false);
   const pageSize = 100;
 
-  const handleSort = (col: string) => {
+  const handleSort = useCallback((col: string) => {
     if (sortColumn === col) {
-      // Cycle through: asc -> desc -> null
       if (sortDirection === 'asc') {
         setSortDirection('desc');
       } else if (sortDirection === 'desc') {
@@ -55,37 +55,64 @@ export default function ResultsTable({
       setSortColumn(col);
       setSortDirection('asc');
     }
-  };
+  }, [sortColumn, sortDirection]);
 
-  const getSortedRows = () => {
+  const sortedRows = useMemo(() => {
     if (!sortColumn || !sortDirection || rows.length === 0) return rows;
-
     return [...rows].sort((a, b) => {
       const aVal = a[sortColumn];
       const bVal = b[sortColumn];
-
-      // Handle nulls
       if (aVal === null || aVal === undefined) return sortDirection === 'asc' ? -1 : 1;
       if (bVal === null || bVal === undefined) return sortDirection === 'asc' ? 1 : -1;
-
-      // Compare based on type
       let comparison = 0;
       if (typeof aVal === 'number' && typeof bVal === 'number') {
         comparison = aVal - bVal;
       } else {
         comparison = String(aVal).localeCompare(String(bVal), 'ru');
       }
-
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  };
+  }, [rows, sortColumn, sortDirection]);
 
-  const sortedRows = getSortedRows();
+  const paginatedRows = useMemo(() => {
+    return sortedRows.slice(
+      (currentPage - 1) * pageSize,
+      currentPage * pageSize
+    );
+  }, [sortedRows, currentPage]);
+
   const totalPages = Math.ceil(sortedRows.length / pageSize);
-  const paginatedRows = sortedRows.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+
+  const copyResults = useCallback(() => {
+    const header = columns.join('\t');
+    const data = sortedRows.map(row =>
+      columns.map(col => formatCellValue(row[col])).join('\t')
+    ).join('\n');
+    navigator.clipboard.writeText(header + '\n' + data).then(() => {
+      toast.success(t('results.copied'));
+    });
+  }, [columns, sortedRows]);
+
+  const exportCSV = useCallback(() => {
+    const header = columns.map(c => `"${c}"`).join(',');
+    const data = sortedRows.map(row =>
+      columns.map(col => {
+        const val = formatForCSV(row[col]);
+        return val.includes(',') || val.includes('"')
+          ? `"${val.replace(/"/g, '""')}"`
+          : val;
+      }).join(',')
+    ).join('\n');
+    const csv = '\uFEFF' + header + '\n' + data;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'query_result.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(t('results.downloaded'));
+  }, [columns, sortedRows]);
 
   // Reset page when data changes
   useEffect(() => {
@@ -177,24 +204,24 @@ export default function ResultsTable({
           )}
           {sortColumn && sortDirection && (
             <Badge variant="outline" className="text-xs">
-              Сортировка: {sortColumn} {sortDirection === 'asc' ? '↑' : '↓'}
+              {t('results.sorting')}: {sortColumn} {sortDirection === 'asc' ? '↑' : '↓'}
             </Badge>
           )}
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => copyResults(columns, sortedRows)}
+            onClick={copyResults}
             className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            title="Копировать все результаты"
-            aria-label="Копировать результат"
+            title={t('results.copyAll')}
+            aria-label={t('results.copyAll')}
           >
             <Copy className="h-3 w-3" />
           </button>
           <button
-            onClick={() => exportCSV(columns, sortedRows)}
+            onClick={exportCSV}
             className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            title="Экспорт CSV"
-            aria-label="Экспорт CSV"
+            title={t('results.exportCSV')}
+            aria-label={t('results.exportCSV')}
           >
             <Download className="h-3 w-3" />
           </button>
@@ -311,37 +338,6 @@ export default function ResultsTable({
       )}
     </div>
   );
-}
-
-function copyResults(columns: string[], rows: Record<string, unknown>[]) {
-  const header = columns.join('\t');
-  const data = rows.map(row =>
-    columns.map(col => formatCellValue(row[col])).join('\t')
-  ).join('\n');
-  navigator.clipboard.writeText(header + '\n' + data).then(() => {
-    toast.success('Результат скопирован в буфер обмена');
-  });
-}
-
-function exportCSV(columns: string[], rows: Record<string, unknown>[]) {
-  const header = columns.map(c => `"${c}"`).join(',');
-  const data = rows.map(row =>
-    columns.map(col => {
-      const val = formatForCSV(row[col]);
-      return val.includes(',') || val.includes('"')
-        ? `"${val.replace(/"/g, '""')}"`
-        : val;
-    }).join(',')
-  ).join('\n');
-  const csv = '\uFEFF' + header + '\n' + data;
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'query_result.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-  toast.success('CSV файл скачан');
 }
 
 function formatCellValue(value: unknown): string {

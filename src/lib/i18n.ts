@@ -61,6 +61,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'welcome.recommend': 'Рекомендуем далее',
     'welcome.recent': 'Последние выполненные',
     'welcome.tips': 'Советы по использованию',
+    'welcome.progressLabel': 'Общий прогресс',
     'welcome.streak.day': 'день',
     'welcome.streak.days': 'дня',
     'welcome.streak.daysMany': 'дней',
@@ -133,6 +134,11 @@ export const translations: Record<Locale, Record<string, string>> = {
     'results.executionTime': 'Время выполнения',
     'results.ms': 'мс',
     'results.suggestion': 'Рекомендация',
+    'results.sorting': 'Сортировка',
+    'results.copyAll': 'Копировать результат',
+    'results.exportCSV': 'Экспорт CSV',
+    'results.copied': 'Результат скопирован в буфер обмена',
+    'results.downloaded': 'CSV файл скачан',
 
     // Schema
     'schema.title': 'Схема базы данных',
@@ -204,6 +210,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'welcome.recommend': 'Recommended Next',
     'welcome.recent': 'Recently Completed',
     'welcome.tips': 'Tips',
+    'welcome.progressLabel': 'Overall Progress',
     'welcome.streak.day': 'day',
     'welcome.streak.days': 'days',
     'welcome.streak.daysMany': 'days',
@@ -276,6 +283,11 @@ export const translations: Record<Locale, Record<string, string>> = {
     'results.executionTime': 'Execution time',
     'results.ms': 'ms',
     'results.suggestion': 'Suggestion',
+    'results.sorting': 'Sorting',
+    'results.copyAll': 'Copy results',
+    'results.exportCSV': 'Export CSV',
+    'results.copied': 'Results copied to clipboard',
+    'results.downloaded': 'CSV file downloaded',
 
     // Schema
     'schema.title': 'Database Schema',

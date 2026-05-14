@@ -12,6 +12,7 @@ import {
   type Difficulty,
 } from '@/lib/training-tasks';
 import { useSQLTrainerStore } from '@/lib/store';
+import { t } from '@/lib/i18n';
 import { plural } from '@/lib/utils';
 import {
   Trophy,
@@ -113,10 +114,10 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
           <BookOpen className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
         </div>
         <h2 className="text-lg font-bold">
-          SQL <span className="text-emerald-600 dark:text-emerald-400">Тренажёр</span>
+          {t('app.title')}
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Интерактивная платформа для изучения SQL
+          {t('app.subtitle')}
         </p>
       </div>
 
@@ -126,7 +127,7 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Target className="h-4 w-4 text-emerald-500" />
-              <span className="text-sm font-medium">Общий прогресс</span>
+              <span className="text-sm font-medium">{t('welcome.progressLabel')}</span>
             </div>
             <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
               {completedCount}/{totalCount}
@@ -135,8 +136,8 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
           <Progress value={progressPercent} className="h-3" />
           <p className="mt-2 text-center text-xs text-muted-foreground">
             {progressPercent === 100
-              ? '🎉 Поздравляем! Все задания выполнены!'
-              : `${Math.round(progressPercent)}% завершено`}
+              ? t('progress.complete')
+              : `${Math.round(progressPercent)}% ${t('progress.percent')}`}
           </p>
         </CardContent>
       </Card>
@@ -203,7 +204,7 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
             <div className="mb-3 flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                Рекомендуем далее
+                {t('welcome.recommend')}
               </span>
             </div>
             <button
@@ -239,11 +240,11 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
           }}
         >
           <Rocket className="mr-2 h-4 w-4" />
-          Начать обучение
+          {t('welcome.startTraining')}
         </Button>
         <Button variant="outline" className="w-full" onClick={onFreeMode}>
           <GraduationCap className="mr-2 h-4 w-4" />
-          Свободный режим
+          {t('action.freeMode')}
         </Button>
         <PracticeModeDialog />
       </div>
@@ -253,7 +254,7 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
         <div>
           <h4 className="mb-2 text-xs font-medium text-muted-foreground flex items-center gap-1.5">
             <Trophy className="h-3.5 w-3.5 text-amber-500" />
-            Последние выполненные
+            {t('welcome.recent')}
           </h4>
           <div className="space-y-1.5">
             {lastCompleted.map((task) => {
@@ -290,7 +291,7 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
       <div>
         <h4 className="mb-2 text-xs font-medium text-muted-foreground flex items-center gap-1.5">
           <Keyboard className="h-3.5 w-3.5" />
-          Советы по использованию
+          {t('welcome.tips')}
         </h4>
         <Card className="bg-muted/30">
           <CardContent className="p-3 space-y-1.5">
