@@ -88,6 +88,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'export.select': 'выберите',
     'export.success': 'Прогресс успешно загружен!',
     'export.warning': 'Внимание: Импорт заменит ваш текущий прогресс данными из файла',
+    'export.error.invalidFormat': 'Неверный формат данных',
+    'export.error.incompatibleVersion': 'Несовместимая версия файла',
 
     // Chart
     'chart.noData': 'Нет числовых данных для визуализации',
@@ -246,6 +248,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'export.select': 'select',
     'export.success': 'Progress loaded successfully!',
     'export.warning': 'Warning: Import will replace your current progress with data from the file',
+    'export.error.invalidFormat': 'Invalid data format',
+    'export.error.incompatibleVersion': 'Incompatible file version',
 
     // Chart
     'chart.noData': 'No numeric data for visualization',

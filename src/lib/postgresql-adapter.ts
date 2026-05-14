@@ -1,6 +1,19 @@
 /**
  * PostgreSQL to SQLite syntax adapter.
  * Transforms PostgreSQL-specific SQL syntax into SQLite-compatible syntax.
+ *
+ * ⚠️ Unsupported PostgreSQL functions (mapped to null):
+ * - Date/Time: DATE_TRUNC, EXTRACT, AGE, DATE_PART, MAKE_DATE, MAKE_TIME, MAKE_TIMESTAMP
+ * - String: LEFT, RIGHT, LPAD, RPAD, REPEAT
+ * - Math: CBRT, TRUNC, PI, LN, LOG, LOG10, EXP
+ * - Conditional: GREATEST, LEAST
+ * - Aggregation: GENERATE_SERIES
+ * - JSON: ROW_TO_JSON, ARRAY_TO_JSON, JSON_BUILD_OBJECT, JSON_AGG
+ * - Other: PG_SLEEP
+ *
+ * These functions will be silently removed from queries, which may cause
+ * incorrect results when using PostgreSQL mode. Users should be aware of
+ * these limitations when writing queries in training mode.
  */
 
 // Map of PostgreSQL data types to SQLite equivalents

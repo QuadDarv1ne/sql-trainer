@@ -6,6 +6,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { DbType, Difficulty } from './training-tasks';
 import { TRAINING_TASKS } from './training-tasks';
+import { t } from './i18n';
 
 export interface QueryHistoryEntry {
   sql: string;
@@ -226,10 +227,10 @@ export const useSQLTrainerStore = create<SQLTrainerState>()(
       },
       importProgress: (data: ExportData) => {
         if (!data || typeof data !== 'object') {
-          return { success: false, error: 'Неверный формат данных' };
+          return { success: false, error: t('export.error.invalidFormat') };
         }
         if (data.version !== 1) {
-          return { success: false, error: 'Несовместимая версия файла' };
+          return { success: false, error: t('export.error.incompatibleVersion') };
         }
 
         set({
