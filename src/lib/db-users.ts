@@ -8,6 +8,9 @@ import bcrypt from 'bcryptjs';
 import path from 'path';
 import fs from 'fs';
 
+export type UserRole = 'student' | 'teacher' | 'admin';
+const VALID_ROLES: UserRole[] = ['student', 'teacher', 'admin'];
+
 const DB_PATH = path.join(process.cwd(), 'data', 'users.db');
 
 // Singleton connection — reused across all calls to avoid SQLITE_BUSY
@@ -44,6 +47,7 @@ function initDatabase(): void {
       name TEXT NOT NULL,
       password_hash TEXT NOT NULL,
       avatar_url TEXT,
+      role TEXT NOT NULL DEFAULT 'student',
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     );
@@ -82,6 +86,13 @@ function initDatabase(): void {
     );
   `);
 
+  // Migration: add role column if it doesn't exist (for existing databases)
+  const columns = db.pragma("table_info(users)") as { name: string }[];
+  const hasRole = columns.some(c => c.name === 'role');
+  if (!hasRole) {
+    db.exec("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'student'");
+  }
+
   seedAchievements(db);
 }
 
@@ -113,42 +124,46 @@ function seedAchievements(db: Database.Database): void {
 }
 
 // User CRUD
-export async function createUser(email: string, name: string, password: string, phone?: string): Promise<{ id: string; email: string; name: string; phone: string | null } | null> {
+export async function createUser(email: string, name: string, password: string, phone?: string, role: UserRole = 'student'): Promise<{ id: string; email: string; name: string; phone: string | null; role: UserRole } | null> {
   const db = getDb();
   const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
   if (existing) return null;
+
+  if (!VALID_ROLES.includes(role)) {
+    throw new Error(`Invalid role: ${role}`);
+  }
 
   const id = crypto.randomUUID();
   const now = Date.now();
   const hash = await bcrypt.hash(password, 12);
 
-  db.prepare('INSERT INTO users (id, email, name, password_hash, phone, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)').run(
-    id, email, name, hash, phone || null, now, now
+  db.prepare('INSERT INTO users (id, email, name, password_hash, phone, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(
+    id, email, name, hash, phone || null, role, now, now
   );
 
-  return { id, email, name, phone: phone || null };
+  return { id, email, name, phone: phone || null, role };
 }
 
-export async function findUserByEmail(email: string): Promise<{ id: string; email: string; name: string; phone: string | null; password_hash: string } | null> {
+export async function findUserByEmail(email: string): Promise<{ id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole } | null> {
   const db = getDb();
-  const user = db.prepare('SELECT id, email, name, phone, password_hash FROM users WHERE email = ?').get(email) as
-    | { id: string; email: string; name: string; phone: string | null; password_hash: string }
+  const user = db.prepare('SELECT id, email, name, phone, password_hash, role FROM users WHERE email = ?').get(email) as
+    | { id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole }
     | undefined;
   return user || null;
 }
 
-export async function verifyPassword(email: string, password: string): Promise<{ id: string; email: string; name: string; phone: string | null } | null> {
+export async function verifyPassword(email: string, password: string): Promise<{ id: string; email: string; name: string; phone: string | null; role: UserRole } | null> {
   const user = await findUserByEmail(email);
   if (!user) return null;
   const valid = await bcrypt.compare(password, user.password_hash);
   if (!valid) return null;
-  return { id: user.id, email: user.email, name: user.name, phone: user.phone };
+  return { id: user.id, email: user.email, name: user.name, phone: user.phone, role: user.role };
 }
 
-export async function getUserById(userId: string): Promise<{ id: string; email: string; name: string; phone: string | null; avatar_url: string | null; created_at: number } | null> {
+export async function getUserById(userId: string): Promise<{ id: string; email: string; name: string; phone: string | null; avatar_url: string | null; role: UserRole; created_at: number } | null> {
   const db = getDb();
-  const user = db.prepare('SELECT id, email, name, phone, avatar_url, created_at FROM users WHERE id = ?').get(userId) as
-    | { id: string; email: string; name: string; phone: string | null; avatar_url: string | null; created_at: number }
+  const user = db.prepare('SELECT id, email, name, phone, avatar_url, role, created_at FROM users WHERE id = ?').get(userId) as
+    | { id: string; email: string; name: string; phone: string | null; avatar_url: string | null; role: UserRole; created_at: number }
     | undefined;
   return user || null;
 }
@@ -320,6 +335,106 @@ export function getLeaderboard(limit = 50): LeaderboardEntry[] {
     ORDER BY tasks_completed DESC, total_attempts ASC
     LIMIT ?
   `).all(limit) as LeaderboardEntry[];
+}
+
+// Admin functions
+export interface UserSummary {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  role: UserRole;
+  created_at: number;
+  tasks_completed: number;
+}
+
+export function getAllUsers(): UserSummary[] {
+  const db = getDb();
+  return db.prepare(`
+    SELECT u.id, u.name, u.email, u.phone, u.role, u.created_at,
+           COUNT(up.task_id) as tasks_completed
+    FROM users u
+    LEFT JOIN user_progress up ON u.id = up.user_id
+    GROUP BY u.id, u.name, u.email, u.phone, u.role, u.created_at
+    ORDER BY u.created_at DESC
+  `).all() as UserSummary[];
+}
+
+export function updateUserRole(userId: string, role: UserRole): boolean {
+  if (!VALID_ROLES.includes(role)) {
+    throw new Error(`Invalid role: ${role}`);
+  }
+  const db = getDb();
+  const result = db.prepare('UPDATE users SET role = ?, updated_at = ? WHERE id = ?').run(role, Date.now(), userId);
+  return result.changes > 0;
+}
+
+export function deleteUser(userId: string): boolean {
+  const db = getDb();
+  const result = db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+  return result.changes > 0;
+}
+
+export interface StudentProgress {
+  user_id: string;
+  name: string;
+  email: string;
+  tasks_completed: number;
+  total_attempts: number;
+  last_active: number | null;
+}
+
+export function getTeacherStudentProgress(): StudentProgress[] {
+  const db = getDb();
+  return db.prepare(`
+    SELECT u.id as user_id, u.name, u.email,
+           COUNT(up.task_id) as tasks_completed,
+           COALESCE(SUM(up.attempts), 0) as total_attempts,
+           MAX(up.completed_at) as last_active
+    FROM users u
+    LEFT JOIN user_progress up ON u.id = up.user_id
+    WHERE u.role = 'student'
+    GROUP BY u.id, u.name, u.email
+    ORDER BY tasks_completed DESC, total_attempts ASC
+  `).all() as StudentProgress[];
+}
+
+// Database stats for admin
+export interface DBStats {
+  totalUsers: number;
+  studentsCount: number;
+  teachersCount: number;
+  adminsCount: number;
+  totalCompletions: number;
+  achievementsAwarded: number;
+  dbSizeBytes: number;
+}
+
+export function getDBStats(): DBStats {
+  const db = getDb();
+  const totalUsers = db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number };
+  const studentsCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'student'").get() as { count: number };
+  const teachersCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'teacher'").get() as { count: number };
+  const adminsCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'admin'").get() as { count: number };
+  const totalCompletions = db.prepare('SELECT COUNT(*) as count FROM user_progress').get() as { count: number };
+  const achievementsAwarded = db.prepare('SELECT COUNT(*) as count FROM user_achievements').get() as { count: number };
+
+  let dbSizeBytes = 0;
+  try {
+    dbSizeBytes = fs.statSync(DB_PATH).size;
+  } catch {
+    // File doesn't exist yet
+  }
+
+  return {
+    totalUsers: totalUsers.count,
+    studentsCount: studentsCount.count,
+    teachersCount: teachersCount.count,
+    adminsCount: adminsCount.count,
+    totalCompletions: totalCompletions.count,
+    achievementsAwarded: achievementsAwarded.count,
+    dbSizeBytes,
+  };
 }
 
 // Initialize on import

@@ -12,8 +12,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User, LayoutDashboard, LogOut, Settings, Shield } from 'lucide-react';
+import RoleBadge from '@/components/auth/role-badge';
+import { User, LayoutDashboard, LogOut, Settings, Shield, Users, GraduationCap } from 'lucide-react';
 import Link from 'next/link';
+import type { Role } from '@/lib/rbac';
 
 export default function UserMenu() {
   const { data: session } = useSession();
@@ -27,6 +29,10 @@ export default function UserMenu() {
     .join('')
     .toUpperCase()
     .slice(0, 2);
+
+  const userRole = (session.user as { role?: Role })?.role || 'student';
+  const isAdmin = userRole === 'admin';
+  const isTeacher = userRole === 'teacher' || isAdmin;
 
   return (
     <DropdownMenu>
@@ -42,11 +48,35 @@ export default function UserMenu() {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           <div className="flex flex-col gap-0.5">
-            <span className="font-medium">{session.user.name}</span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{session.user.name}</span>
+              <RoleBadge role={userRole} size="sm" />
+            </div>
             <span className="text-xs text-muted-foreground">{session.user.email}</span>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {(isAdmin || isTeacher) && (
+          <>
+            {isAdmin && (
+              <DropdownMenuItem asChild>
+                <Link href="/admin" className="cursor-pointer flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Панель администратора
+                </Link>
+              </DropdownMenuItem>
+            )}
+            {isTeacher && (
+              <DropdownMenuItem asChild>
+                <Link href="/teacher" className="cursor-pointer flex items-center gap-2">
+                  <GraduationCap className="h-4 w-4" />
+                  Панель преподавателя
+                </Link>
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem asChild>
           <Link href="/profile" className="cursor-pointer flex items-center gap-2">
             <User className="h-4 w-4" />

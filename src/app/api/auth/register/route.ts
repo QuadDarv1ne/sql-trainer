@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createUser } from '@/lib/db-users';
+import type { UserRole } from '@/lib/db-users';
+
+const VALID_ROLES: UserRole[] = ['student', 'teacher', 'admin'];
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, password, phone } = body;
+    const { name, email, password, phone, role } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -28,7 +31,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await createUser(email, name, password, phone);
+    const userRole: UserRole = role && VALID_ROLES.includes(role) ? role : 'student';
+
+    const user = await createUser(email, name, password, phone, userRole);
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'Пользователь с таким email уже существует' },
@@ -38,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      user: { id: user.id, name: user.name, email: user.email, phone: user.phone },
+      user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role },
     });
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'Внутренняя ошибка сервера';

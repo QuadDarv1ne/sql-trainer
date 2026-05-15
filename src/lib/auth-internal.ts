@@ -7,6 +7,7 @@ import NextAuth, { type DefaultSession } from 'next-auth';
 import type { User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { verifyPassword } from '@/lib/db-users';
+import type { UserRole } from '@/lib/db-users';
 import type { JWT } from 'next-auth/jwt';
 
 interface AuthUser {
@@ -14,6 +15,7 @@ interface AuthUser {
   name: string;
   email: string;
   phone?: string | null;
+  role: UserRole;
 }
 
 interface AuthSession {
@@ -22,6 +24,7 @@ interface AuthSession {
     name: string;
     email: string;
     phone?: string | null;
+    role: UserRole;
   };
 }
 
@@ -50,6 +53,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
           name: user.name,
           email: user.email,
           phone: user.phone,
+          role: user.role,
         };
       },
     }),
@@ -64,6 +68,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
         token.name = user.name;
         token.email = user.email;
         token.phone = user.phone;
+        token.role = (user as AuthUser).role;
       }
       if (trigger === 'update' && session) {
         token.name = session.name ?? token.name;
@@ -77,6 +82,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
         (session as AuthSession).user.name = token.name as string;
         (session as AuthSession).user.email = token.email as string;
         (session as AuthSession).user.phone = token.phone as string | null;
+        (session as AuthSession).user.role = token.role as UserRole;
       }
       return session;
     },

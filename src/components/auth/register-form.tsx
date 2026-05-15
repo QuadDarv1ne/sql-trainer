@@ -8,8 +8,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Link from 'next/link';
-import { Loader2, Mail, Lock, User, Phone, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, Mail, Lock, User, Phone, AlertCircle, CheckCircle2, Shield } from 'lucide-react';
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -18,6 +25,7 @@ export default function RegisterForm() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState('student');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -42,7 +50,7 @@ export default function RegisterForm() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, phone: phone || undefined }),
+        body: JSON.stringify({ name, email, password, phone: phone || undefined, role }),
       });
 
       const data = await res.json();
@@ -137,6 +145,22 @@ export default function RegisterForm() {
                 onChange={(e) => setPhone(e.target.value)}
                 className="pl-10"
               />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="role">Роль</Label>
+            <div className="relative">
+              <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger id="role" className="pl-10">
+                  <SelectValue placeholder="Выберите роль" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="student">Студент</SelectItem>
+                  <SelectItem value="teacher">Преподаватель</SelectItem>
+                  <SelectItem value="admin">Администратор</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div className="space-y-2">
