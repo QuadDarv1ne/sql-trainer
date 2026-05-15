@@ -453,6 +453,68 @@ export function executeWithSchema(
   }
 }
 
+/**
+ * Initialize schema once, then execute multiple SQL inputs on the same database.
+ * Returns an array of QueryResult corresponding to each input SQL.
+ * This is essential for verification of DML tasks where INSERTs/UPDATEs must
+ * persist across the user's query and the solution's SELECT.
+ */
+export function executeWithSchemaMulti(
+  sqlInputs: string[],
+  schemaSql: string,
+  dbType: 'sqlite' | 'postgresql' = 'sqlite'
+): QueryResult[] {
+  const startTime = performance.now();
+  const db = new Database(':memory:');
+  db.pragma('foreign_keys = ON');
+
+  try {
+    let processedSchema = schemaSql;
+    if (dbType === 'postgresql') {
+      processedSchema = adaptPostgreSQLToSQLite(schemaSql);
+    }
+
+    try {
+      db.exec(processedSchema);
+    } catch (schemaErr: unknown) {
+      const msg = schemaErr instanceof Error ? schemaErr.message : String(schemaErr);
+      const errorResult: QueryResult = {
+        success: false,
+        columns: [],
+        rows: [],
+        error: `Ошибка создания схемы: ${msg}`,
+        executionTime: performance.now() - startTime,
+      };
+      return sqlInputs.map(() => ({ ...errorResult }));
+    }
+
+    const results: QueryResult[] = [];
+    for (const sql of sqlInputs) {
+      let processedSql = sql;
+      if (dbType === 'postgresql') {
+        processedSql = adaptPostgreSQLToSQLite(sql);
+      }
+
+      const statements = splitStatements(processedSql);
+      results.push(executeStatements(db, statements, startTime));
+    }
+
+    return results;
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    const errorResult: QueryResult = {
+      success: false,
+      columns: [],
+      rows: [],
+      error: errorMsg,
+      executionTime: performance.now() - startTime,
+    };
+    return sqlInputs.map(() => ({ ...errorResult }));
+  } finally {
+    db.close();
+  }
+}
+
 export function getSchemaInfo(
   schemaSql: string,
   dbType: 'sqlite' | 'postgresql' = 'sqlite'
