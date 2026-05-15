@@ -6,15 +6,12 @@
 
 export const logger = {
   error: (message: string, error?: unknown) => {
-    // eslint-disable-next-line no-console
     console.error(`[ERROR] ${message}`, error ?? '');
   },
   warn: (message: string, ...args: unknown[]) => {
-    // eslint-disable-next-line no-console
     console.warn(`[WARN] ${message}`, ...args);
   },
   info: (message: string, ...args: unknown[]) => {
-    // eslint-disable-next-line no-console
     console.info(`[INFO] ${message}`, ...args);
   },
 };

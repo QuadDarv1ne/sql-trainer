@@ -70,7 +70,14 @@ export default function ProfilePage() {
   const [editPhone, setEditPhone] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('progress');
+  // Initialize active tab from URL hash
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#', '');
+      if (hash === 'security') return 'security';
+    }
+    return 'progress';
+  });
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -91,14 +98,6 @@ export default function ProfilePage() {
   const [deletePassword, setDeletePassword] = useState('');
   const [showDeletePassword, setShowDeletePassword] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
-
-  // Handle hash-based tab navigation
-  useEffect(() => {
-    const hash = window.location.hash.replace('#', '');
-    if (hash === 'security') {
-      setActiveTab('security');
-    }
-  }, []);
 
   useEffect(() => {
     fetch('/api/user/profile')

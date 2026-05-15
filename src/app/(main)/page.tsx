@@ -109,12 +109,8 @@ export default function HomePage() {
   const { data: session } = useSession();
   const [schemaInfo, setSchemaInfo] = useState<DatabaseInfo | null>(null);
   const [attemptCount, setAttemptCount] = useState(0);
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(() => typeof window !== 'undefined');
   const [explainPlan, setExplainPlan] = useState<string | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Load server progress on mount for authenticated users
   useEffect(() => {
@@ -142,23 +138,33 @@ export default function HomePage() {
 
   // Load schema when task changes
   useEffect(() => {
-    if (currentTask) {
-      fetch('/api/sql/init-training', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ taskId: currentTask.id, dbType }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success && data.schema) {
-            setSchemaInfo(data.schema);
-          }
-        })
-        .catch((e) => logger.error('Failed to initialize training schema', e));
-    } else {
-      setSchemaInfo(null);
+    if (!currentTask) {
+      return;
     }
-    setAttemptCount(0);
+
+    let cancelled = false;
+
+    const loadSchema = async () => {
+      setAttemptCount(0);
+      setSchemaInfo(null);
+
+      try {
+        const res = await fetch('/api/sql/init-training', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ taskId: currentTask.id, dbType }),
+        });
+        const data = await res.json();
+        if (!cancelled && data.success && data.schema) {
+          setSchemaInfo(data.schema);
+        }
+      } catch (e) {
+        logger.error('Failed to initialize training schema', e);
+      }
+    };
+
+    loadSchema();
+    return () => { cancelled = true; };
   }, [currentTask, dbType]);
 
   // Execute query
@@ -385,7 +391,7 @@ export default function HomePage() {
     }
 
     return { hasNext: false, label: '', isLastTask: true, allCompleted: allDone };
-  }, [currentTask, completedTasks, t]);
+  }, [currentTask, completedTasks]);
 
   // Find related tasks (same topic or similar title keywords)
   const relatedTasks = useMemo(() => {

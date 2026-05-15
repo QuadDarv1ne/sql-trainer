@@ -41,6 +41,11 @@ export default function ResultsTable({
   const [chartView, setChartView] = useState(false);
   const pageSize = 100;
 
+  // Reset page when data changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rows]);
+
   const handleSort = useCallback((col: string) => {
     if (sortColumn === col) {
       if (sortDirection === 'asc') {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,13 +17,8 @@ const LOCALES: { code: Locale; label: string; flag: string }[] = [
 ];
 
 export default function LocaleSelector() {
-  const [locale, setLocalLocale] = useState<Locale>('ru');
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setLocalLocale(getLocale());
-    setMounted(true);
-  }, []);
+  const [locale, setLocalLocale] = useState<Locale>(() => getLocale());
+  const [mounted, setMounted] = useState(() => typeof window !== 'undefined');
 
   const handleLocaleChange = (newLocale: Locale) => {
     setLocale(newLocale);
