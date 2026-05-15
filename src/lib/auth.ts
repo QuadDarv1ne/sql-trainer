@@ -9,6 +9,7 @@
 import NextAuth, { type DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { JWT } from 'next-auth/jwt';
+import type { User } from 'next-auth';
 
 interface AuthUser {
   id: string;
@@ -45,7 +46,7 @@ const nextAuthConfig = {
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }: { token: JWT; user?: AuthUser; trigger?: string; session?: AuthSession }) {
+    async jwt({ token, user, trigger, session }: { token: JWT; user?: User; trigger?: 'signIn' | 'signUp' | 'update'; session?: { name?: string; phone?: string | null } }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;

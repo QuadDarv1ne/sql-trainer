@@ -52,7 +52,7 @@ export default function AchievementsGrid() {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {achievements.map((a) => {
-        const IconComponent = (Icons as Record<string, React.ComponentType<{ className?: string }>>)[a.icon] || Icons.Award;
+        const IconComponent = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[a.icon] || Icons.Award;
         const earnedDate = new Date(a.earned_at).toLocaleDateString('ru-RU', {
           day: 'numeric',
           month: 'short',

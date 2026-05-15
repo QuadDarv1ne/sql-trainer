@@ -4,6 +4,7 @@
  * The main auth.ts is Edge-compatible for middleware.
  */
 import NextAuth, { type DefaultSession } from 'next-auth';
+import type { User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { verifyPassword } from '@/lib/db-users';
 import type { JWT } from 'next-auth/jwt';
@@ -24,7 +25,7 @@ interface AuthSession {
   };
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -57,7 +58,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }: { token: JWT; user?: AuthUser; trigger?: string; session?: AuthSession }) {
+    async jwt({ token, user, trigger, session }: { token: JWT; user?: User; trigger?: 'signIn' | 'signUp' | 'update'; session?: { name?: string; phone?: string | null } }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
