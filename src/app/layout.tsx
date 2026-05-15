@@ -3,12 +3,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "next-themes";
 import ServiceWorkerRegister from "@/components/service-worker-register";
-import dynamic from "next/dynamic";
-
-// Dynamic import for PWA install prompt (client-side only)
-const PwaInstallPrompt = dynamic(() => import("@/components/pwa-install-prompt"), {
-  ssr: false,
-});
+import PwaInstallPrompt from "@/components/pwa-install-prompt";
 
 export const viewport: Viewport = {
   themeColor: "#10b981",

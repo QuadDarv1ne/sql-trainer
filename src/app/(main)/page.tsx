@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useTheme } from 'next-themes';
 import { useSession } from 'next-auth/react';
@@ -109,7 +109,7 @@ export default function HomePage() {
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
   const [schemaInfo, setSchemaInfo] = useState<DatabaseInfo | null>(null);
-  const [attemptCount, setAttemptCount] = useState(0);
+  const attemptCountRef = useRef(0);
   const [mounted, setMounted] = useState(() => typeof window !== 'undefined');
   const [explainPlan, setExplainPlan] = useState<string | null>(null);
   const [explainSuggestions, setExplainSuggestions] = useState<string[]>([]);
@@ -147,7 +147,7 @@ export default function HomePage() {
     let cancelled = false;
 
     const loadSchema = async () => {
-      setAttemptCount(0);
+      attemptCountRef.current = 0;
       setSchemaInfo(null);
 
       try {
@@ -174,7 +174,7 @@ export default function HomePage() {
     if (!editorContent.trim() || isExecuting) return;
 
     setIsExecuting(true);
-    setAttemptCount((prev) => prev + 1);
+    attemptCountRef.current += 1;
     setVerification(null);
 
     try {
@@ -222,10 +222,10 @@ export default function HomePage() {
 
           // Mark task as completed only when verified
           if (verifyData.verified && !isTaskCompleted(currentTaskId)) {
-            markTaskCompleted(currentTaskId, attemptCount + 1);
+            markTaskCompleted(currentTaskId, attemptCountRef.current);
             updateStreak();
             toast.success(t('task.completed'), {
-              description: `${attemptCount + 1} ${plural(attemptCount + 1, t('task.attempts'), t('task.attemptsFew'), t('task.attemptsMany'))}`,
+              description: `${attemptCountRef.current} ${plural(attemptCountRef.current, t('task.attempts'), t('task.attemptsFew'), t('task.attemptsMany'))}`,
             });
 
             // Auto-advance in practice mode
@@ -240,7 +240,7 @@ export default function HomePage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   taskId: currentTaskId,
-                  attempts: attemptCount + 1,
+                  attempts: attemptCountRef.current,
                 }),
               })
                 .then(() =>
@@ -261,8 +261,10 @@ export default function HomePage() {
                 .catch((e) => logger.error('Failed to check achievements', e));
             }
           }
-        } catch {
-          // Verification failed silently — still show results
+        } catch (e) {
+          // Verification failed — still show results but notify user
+          logger.error('Task verification failed', e);
+          toast.error(t('task.verificationError', { default: 'Не удалось проверить результат запроса' }));
         }
       }
     } catch {
@@ -287,7 +289,6 @@ export default function HomePage() {
     isTaskCompleted,
     markTaskCompleted,
     updateStreak,
-    attemptCount,
     setVerification,
     session,
     practiceMode.active,

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { TRAINING_TASKS, DIFFICULTY_LABELS, DIFFICULTY_COLORS } from '@/lib/training-tasks';
 import { Trophy, Target, Zap, Award, Calendar } from 'lucide-react';
 import { logger } from '@/lib/logger';
@@ -28,7 +29,22 @@ export default function ProgressStats() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(5)].map((_, i) => (
+          <Card key={i}>
+            <CardHeader className="pb-2">
+              <Skeleton className="h-4 w-24" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-16" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   const totalTasks = TRAINING_TASKS.length;
   const completedCount = progress.length;

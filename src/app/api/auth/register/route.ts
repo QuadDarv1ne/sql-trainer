@@ -2,12 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createUser } from '@/lib/db-users';
 import type { UserRole } from '@/lib/db-users';
 
-const VALID_ROLES: UserRole[] = ['student', 'teacher', 'admin'];
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, password, phone, role } = body;
+    const { name, email, password, phone } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -31,7 +29,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userRole: UserRole = role && VALID_ROLES.includes(role) ? role : 'student';
+    // Always assign 'student' role — role changes must be done by admin
+    const userRole: UserRole = 'student';
 
     const user = await createUser(email, name, password, phone, userRole);
     if (!user) {

@@ -155,6 +155,7 @@ export default function SQLEditor({
   const onRunRef = useRef(onRun);
   const schemaRef = useRef(schema);
   const themeRef = useRef(theme);
+  const initialValueRef = useRef(value);
 
   // Compute isDark directly from theme
   const isDark = theme !== 'light';
@@ -242,7 +243,7 @@ export default function SQLEditor({
     ]);
 
     const state = EditorState.create({
-      doc: value,
+      doc: initialValueRef.current,
       extensions: [
         lineNumbers(),
         highlightActiveLineGutter(),

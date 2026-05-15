@@ -149,6 +149,7 @@ export default function TaskPanel({
                 key={relatedTask.id}
                 onClick={() => onNextRelated?.(index)}
                 className="flex items-center gap-2 rounded-md border border-border/50 bg-muted/20 px-3 py-2 text-left text-sm transition-colors hover:bg-muted/40"
+                aria-label={`Перейти к заданию: ${relatedTask.title}, сложность: ${DIFFICULTY_LABELS[relatedTask.difficulty]}`}
               >
                 <Badge className={DIFFICULTY_COLORS[relatedTask.difficulty]} variant="outline">
                   {DIFFICULTY_LABELS[relatedTask.difficulty]}

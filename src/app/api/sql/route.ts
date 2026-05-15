@@ -58,15 +58,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate SQL safety in training mode (when taskId is provided)
-    if (taskId) {
-      const blockReason = validateTrainingSql(sql);
-      if (blockReason) {
-        return NextResponse.json(
-          { success: false, error: blockReason, columns: [], rows: [], executionTime: 0 },
-          { status: 403 }
-        );
-      }
+    // Validate SQL safety in ALL modes (blocked patterns apply universally)
+    const blockReason = validateTrainingSql(sql);
+    if (blockReason) {
+      return NextResponse.json(
+        { success: false, error: blockReason, columns: [], rows: [], executionTime: 0 },
+        { status: 403 }
+      );
     }
 
     const effectiveDbType = VALID_DB_TYPES.includes(dbType as typeof VALID_DB_TYPES[number]) ? dbType : 'sqlite';

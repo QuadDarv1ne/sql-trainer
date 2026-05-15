@@ -6,7 +6,7 @@
  * - API requests: Network-first, fallback to JSON error
  * - Navigation: Network-first, fallback to offline page
  *
- * Run `node scripts/generate-icons.mjs` to generate PNG icons from SVG.
+ * Run `npm run generate:pwa-assets` to regenerate PNG icons and screenshots.
  */
 
 const CACHE_NAME = 'sql-trainer-v1';

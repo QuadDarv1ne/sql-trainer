@@ -25,7 +25,7 @@ import {
 import { toast } from 'sonner';
 import {
   Loader2, User, Mail, Phone, Calendar, Save, Lock, Eye, EyeOff,
-  Trash2, AlertTriangle, Shield, CheckCircle2, AlertCircle,
+  Trash2, AlertTriangle, Shield, CheckCircle2, AlertCircle, RotateCcw,
 } from 'lucide-react';
 import ProgressStats from '@/components/profile/progress-stats';
 import AchievementsGrid from '@/components/profile/achievements-grid';
@@ -238,7 +238,21 @@ export default function ProfilePage() {
     );
   }
 
-  if (!profile) return null;
+  if (!profile) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
+        <AlertCircle className="h-12 w-12 text-destructive" />
+        <h2 className="text-lg font-semibold">Не удалось загрузить профиль</h2>
+        <p className="max-w-md text-sm text-muted-foreground">
+          Произошла ошибка при загрузке данных профиля. Попробуйте обновить страницу.
+        </p>
+        <Button onClick={() => window.location.reload()}>
+          <RotateCcw className="mr-2 h-4 w-4" />
+          Обновить страницу
+        </Button>
+      </div>
+    );
+  }
 
   const initials = profile.name
     .split(' ')

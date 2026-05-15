@@ -264,7 +264,16 @@ export default function ResultsTable({
                     key={col}
                     className="whitespace-nowrap text-xs font-medium text-emerald-600 dark:text-emerald-400 cursor-pointer hover:bg-muted/50 select-none"
                     onClick={() => handleSort(col)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleSort(col);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
                     title="Нажмите для сортировки"
+                    aria-label={`Сортировать по столбцу ${col}. ${isSorted && dir === 'asc' ? 'Текущая сортировка: по возрастанию' : isSorted && dir === 'desc' ? 'Текущая сортировка: по убыванию' : 'Не отсортировано'}`}
                   >
                     <div className="flex items-center gap-1">
                       {col}

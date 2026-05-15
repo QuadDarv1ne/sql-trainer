@@ -5,16 +5,21 @@ import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
 
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-  const userRole = (session.user as { role?: Role }).role;
-  if (!userRole || !hasRole(userRole, 'teacher')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
+    const userRole = (session.user as { role?: Role }).role;
+    if (!userRole || !hasRole(userRole, 'teacher')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
-  const students = getTeacherStudentProgress();
-  return NextResponse.json({ students });
+    const students = getTeacherStudentProgress();
+    return NextResponse.json({ students });
+  } catch (error) {
+    console.error('[API Error] GET /api/teacher/students/progress:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

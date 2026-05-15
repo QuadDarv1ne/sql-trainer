@@ -47,6 +47,7 @@
       transition: background 0.2s;
     }
     button:hover { background: #059669; }
+    button:focus-visible { outline: 2px solid #10b981; outline-offset: 2px; }
   </style>
 </head>
 <body>
@@ -58,7 +59,7 @@
     </div>
     <h1>Нет подключения к интернету</h1>
     <p>Проверьте ваше подключение к сети и попробуйте снова. Некоторые функции могут работать в离线 режиме.</p>
-    <button onclick="window.location.reload()">Попробовать снова</button>
+    <button onclick="window.location.reload()" aria-label="Перезагрузить страницу и попробовать снова">Попробовать снова</button>
   </div>
 </body>
 </html>
