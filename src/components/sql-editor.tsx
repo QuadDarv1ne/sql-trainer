@@ -149,7 +149,6 @@ export default function SQLEditor({
   schema = null,
 }: SQLEditorProps) {
   const { theme } = useTheme();
-  const [isDark, setIsDark] = useState(() => theme !== 'light');
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);
@@ -157,10 +156,11 @@ export default function SQLEditor({
   const schemaRef = useRef(schema);
   const themeRef = useRef(theme);
 
-  // Sync theme updates to isDark state
+  // Compute isDark directly from theme
+  const isDark = theme !== 'light';
+
   useEffect(() => {
     themeRef.current = theme;
-    setIsDark(theme !== 'light');
   }, [theme]);
 
   useEffect(() => {

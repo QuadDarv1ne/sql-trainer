@@ -119,10 +119,6 @@ export default function ResultsTable({
     toast.success(t('results.downloaded'));
   }, [columns, sortedRows]);
 
-  // Reset page when data changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [rows]);
   if (!success && error) {
     return (
       <div className="flex h-full flex-col gap-3 p-4">

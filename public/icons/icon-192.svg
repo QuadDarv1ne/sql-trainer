@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="43" fill="#09090b"/>
+  <rect x="45" y="45" width="102" height="102" rx="22" fill="#10b981"/>
+  <g transform="translate(96, 96) scale(0.375)" fill="white">
+    <path d="M-48-40c0-8.8 36-16 80-16s80 7.2 80 16v80c0 8.8-36 16-80 16s-80-7.2-80-16v-80z" opacity="0.9"/>
+    <path d="M-48 0v80c0 8.8 36 16 80 16s80-7.2 80-16V0" opacity="0.7"/>
+    <path d="M-48 40v80c0 8.8 36 16 80 16s80-7.2 80-16V40" opacity="0.5"/>
+    <line x1="0" y1="-40" x2="0" y2="120" stroke="white" stroke-width="4"/>
+  </g>
+</svg>

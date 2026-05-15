@@ -247,6 +247,17 @@ export async function getUserAchievements(userId: string): Promise<{ id: string;
   `).all(userId) as { id: string; title: string; description: string; icon: string; earned_at: number }[];
 }
 
+export async function getAchievementDetails(achievementIds: string[]) {
+  const db = getDb();
+  const details: { id: string; title: string; description: string; icon: string }[] = [];
+  for (const id of achievementIds) {
+    const row = db.prepare('SELECT id, title, description, icon FROM achievements WHERE id = ?').get(id) as
+      { id: string; title: string; description: string; icon: string } | undefined;
+    if (row) details.push(row);
+  }
+  return details;
+}
+
 export async function checkAndAwardAchievements(userId: string): Promise<string[]> {
   const db = getDb();
   const achievements = db.prepare('SELECT id, condition_type, condition_value FROM achievements').all() as

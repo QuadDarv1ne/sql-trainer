@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import UserTable from '@/components/admin/user-table';
@@ -10,16 +10,15 @@ import type { Role } from '@/lib/rbac';
 export default function AdminPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [authorized, setAuthorized] = useState(false);
 
-  useEffect(() => {
-    if (status === 'loading') return;
+  const authorized = useMemo(() => {
+    if (status === 'loading') return false;
     const userRole = (session?.user as { role?: Role })?.role;
     if (userRole !== 'admin') {
       router.push('/');
-      return;
+      return false;
     }
-    setAuthorized(true);
+    return true;
   }, [session, status, router]);
 
   if (!authorized) return null;

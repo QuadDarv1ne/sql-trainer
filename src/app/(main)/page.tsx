@@ -53,6 +53,7 @@ import {
   Menu,
   Search,
   Shuffle,
+  Lightbulb,
 } from 'lucide-react';
 
 // Dynamic import for SQL Editor (no SSR)
@@ -111,6 +112,7 @@ export default function HomePage() {
   const [attemptCount, setAttemptCount] = useState(0);
   const [mounted, setMounted] = useState(() => typeof window !== 'undefined');
   const [explainPlan, setExplainPlan] = useState<string | null>(null);
+  const [explainSuggestions, setExplainSuggestions] = useState<string[]>([]);
 
   // Load server progress on mount for authenticated users
   useEffect(() => {
@@ -240,7 +242,23 @@ export default function HomePage() {
                   taskId: currentTaskId,
                   attempts: attemptCount + 1,
                 }),
-              }).catch((e) => logger.error('Failed to sync task progress', e));
+              })
+                .then(() =>
+                  // Check for new achievements after progress sync
+                  fetch('/api/user/achievements?check=true')
+                )
+                .then((res) => res.json())
+                .then((data) => {
+                  if (data.success && data.newAchievements?.length > 0) {
+                    data.newAchievements.forEach((achievement: { id: string; title: string }) => {
+                      toast.success(t('achievement.toast.title'), {
+                        description: t('achievement.toast.description', { title: achievement.title }),
+                        duration: 5000,
+                      });
+                    });
+                  }
+                })
+                .catch((e) => logger.error('Failed to check achievements', e));
             }
           }
         } catch {
@@ -317,6 +335,7 @@ export default function HomePage() {
     setLastResult(null);
     setVerification(null);
     setExplainPlan(null);
+    setExplainSuggestions([]);
   };
 
   // Explain query
@@ -337,11 +356,14 @@ export default function HomePage() {
 
       if (data.success && data.plan) {
         setExplainPlan(data.plan);
+        setExplainSuggestions(data.suggestions || []);
       } else {
         setExplainPlan(`${t('results.error')}: ${data.error}`);
+        setExplainSuggestions([]);
       }
     } catch {
       setExplainPlan(t('results.error'));
+      setExplainSuggestions([]);
     } finally {
       setIsExecuting(false);
     }
@@ -693,6 +715,22 @@ export default function HomePage() {
                       <pre className="whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 text-xs font-mono">
                         {explainPlan}
                       </pre>
+                      {explainSuggestions.length > 0 && (
+                        <div className="mt-4 space-y-2">
+                          <h4 className="text-sm font-medium flex items-center gap-1.5">
+                            <Lightbulb className="h-4 w-4 text-amber-500" />
+                            Рекомендации по оптимизации
+                          </h4>
+                          <ul className="space-y-1.5">
+                            {explainSuggestions.map((s, i) => (
+                              <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                                <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-amber-500" />
+                                {s}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : lastResult ? (

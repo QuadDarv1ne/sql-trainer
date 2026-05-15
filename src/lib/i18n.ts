@@ -165,6 +165,15 @@ export const translations: Record<Locale, Record<string, string>> = {
     'welcome.description': 'Интерактивная платформа для изучения и практики SQL',
     'welcome.startTraining': 'Начать обучение',
     'welcome.freeModeDesc': 'Пишите любые SQL-запросы без ограничений',
+
+    // PWA
+    'pwa.install.title': 'Установить SQL Trainer',
+    'pwa.install.description': 'Установите приложение на устройство для быстрого доступа и офлайн-работы',
+    'pwa.install.button': 'Установить',
+
+    // Achievements
+    'achievement.toast.title': '🏆 Новое достижение!',
+    'achievement.toast.description': 'Вы получили бейд "{title}"',
   },
   en: {
     // Header
@@ -325,6 +334,15 @@ export const translations: Record<Locale, Record<string, string>> = {
     'welcome.description': 'Interactive platform for learning and practicing SQL',
     'welcome.startTraining': 'Start Training',
     'welcome.freeModeDesc': 'Write any SQL queries without restrictions',
+
+    // PWA
+    'pwa.install.title': 'Install SQL Trainer',
+    'pwa.install.description': 'Install the app on your device for quick access and offline work',
+    'pwa.install.button': 'Install',
+
+    // Achievements
+    'achievement.toast.title': '🏆 New Achievement!',
+    'achievement.toast.description': 'You earned the "{title}" badge',
   },
 };
 

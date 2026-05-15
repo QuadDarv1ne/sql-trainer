@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { getUserAchievements, checkAndAwardAchievements } from '@/lib/db-users';
+import { getUserAchievements, checkAndAwardAchievements, getAchievementDetails } from '@/lib/db-users';
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -12,8 +12,12 @@ export async function GET(request: NextRequest) {
   const checkNew = searchParams.get('check') === 'true';
 
   if (checkNew) {
-    const newAchievements = await checkAndAwardAchievements(session.user.id);
-    return NextResponse.json({ success: true, newAchievements });
+    const newAchievementIds = await checkAndAwardAchievements(session.user.id);
+    if (newAchievementIds.length === 0) {
+      return NextResponse.json({ success: true, newAchievements: [] });
+    }
+    const details = await getAchievementDetails(newAchievementIds);
+    return NextResponse.json({ success: true, newAchievements: details });
   }
 
   const achievements = await getUserAchievements(session.user.id);
