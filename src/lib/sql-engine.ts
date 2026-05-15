@@ -51,29 +51,31 @@ function splitStatements(sql: string): string[] {
     if (inBlockComment) {
       if (char === '*' && next === '/') {
         inBlockComment = false;
-        i++;
+        i++; // skip both * and /
       }
-      current += char;
+      // Don't add comment characters to current
       continue;
     }
 
     if (char === '-' && next === '-' && !inString) {
       inComment = true;
-      current += char;
+      // Don't add comment characters to current
       continue;
     }
 
     if (inComment) {
-      current += char;
       if (char === '\n') {
         inComment = false;
+        current += char; // preserve newline
       }
+      // Don't add comment characters to current
       continue;
     }
 
     if (char === '/' && next === '*' && !inString) {
       inBlockComment = true;
-      current += char;
+      i++; // skip both / and *
+      // Don't add comment characters to current
       continue;
     }
 
@@ -124,8 +126,39 @@ function splitStatements(sql: string): string[] {
   return statements;
 }
 
+/**
+ * Strip leading SQL comments (line and block) to get the actual first token.
+ */
+function stripLeadingComments(sql: string): string {
+  let result = sql.trim();
+
+  // Strip leading comments (both line and block, in any order)
+  let changed = true;
+  while (changed) {
+    changed = false;
+    if (result.startsWith('/*')) {
+      const end = result.indexOf('*/');
+      if (end === -1) {
+        return '';
+      }
+      result = result.slice(end + 2).trim();
+      changed = true;
+    } else if (result.startsWith('--')) {
+      const newline = result.indexOf('\n');
+      if (newline === -1) {
+        return '';
+      }
+      result = result.slice(newline + 1).trim();
+      changed = true;
+    }
+  }
+
+  return result;
+}
+
 function isSelectQuery(sql: string): boolean {
-  const trimmed = sql.trim().toUpperCase();
+  const trimmed = stripLeadingComments(sql).toUpperCase();
+  if (!trimmed) return false;
   return (
     trimmed.startsWith('SELECT') ||
     trimmed.startsWith('PRAGMA') ||
@@ -134,8 +167,12 @@ function isSelectQuery(sql: string): boolean {
   );
 }
 
+function isEmptyOrComment(sql: string): boolean {
+  return !stripLeadingComments(sql);
+}
+
 function isDDL(sql: string): boolean {
-  const trimmed = sql.trim().toUpperCase();
+  const trimmed = stripLeadingComments(sql).toUpperCase();
   return (
     trimmed.startsWith('CREATE') ||
     trimmed.startsWith('DROP') ||
@@ -265,6 +302,11 @@ function executeStatements(
   let lastResult: QueryResult | null = null;
 
   for (const stmt of statements) {
+    // Skip empty or comment-only statements
+    if (isEmptyOrComment(stmt)) {
+      continue;
+    }
+
     try {
       if (isSelectQuery(stmt)) {
         const statement = db.prepare(stmt);
@@ -298,23 +340,14 @@ function executeStatements(
       } else {
         const statement = db.prepare(stmt);
         const result = statement.run();
-        if (lastResult) {
-          const prev: QueryResult = lastResult;
-          lastResult = {
-            ...prev,
-            executionTime: performance.now() - startTime,
-            affectedRows: result.changes,
-          };
-        } else {
-          lastResult = {
-            success: true,
-            columns: [],
-            rows: [],
-            executionTime: performance.now() - startTime,
-            message: `Запрос выполнен. Изменено строк: ${result.changes}`,
-            affectedRows: result.changes,
-          };
-        }
+        lastResult = {
+          success: true,
+          columns: [],
+          rows: [],
+          executionTime: performance.now() - startTime,
+          message: `Запрос выполнен. Изменено строк: ${result.changes}`,
+          affectedRows: result.changes,
+        };
       }
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : String(err);
