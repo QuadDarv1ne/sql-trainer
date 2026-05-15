@@ -88,9 +88,9 @@ function initDatabase(): void {
 const ACHIEVEMENTS = [
   { id: 'first-query', title: 'Первый запрос', description: 'Выполните первое задание', icon: 'Play', conditionType: 'tasks_completed', conditionValue: 1 },
   { id: 'beginner-done', title: 'Основы SQL', description: 'Выполните все задания уровня «Начальный»', icon: 'Award', conditionType: 'difficulty_completed', conditionValue: 8 },
-  { id: 'intermediate-done', title: 'Продвинутые запросы', description: 'Выполните все задания уровня «Средний»', icon: 'Star', conditionType: 'difficulty_completed', conditionValue: 13 },
-  { id: 'advanced-done', title: 'Мастер SQL', description: 'Выполните все задания уровня «Продвинутый»', icon: 'Crown', conditionType: 'difficulty_completed', conditionValue: 11 },
-  { id: 'all-complete', title: 'Все задания', description: 'Выполните все 32 задания', icon: 'Trophy', conditionType: 'tasks_completed', conditionValue: 32 },
+  { id: 'intermediate-done', title: 'Продвинутые запросы', description: 'Выполните все задания уровня «Средний»', icon: 'Star', conditionType: 'difficulty_completed', conditionValue: 23 },
+  { id: 'advanced-done', title: 'Мастер SQL', description: 'Выполните все задания уровня «Продвинутый»', icon: 'Crown', conditionType: 'difficulty_completed', conditionValue: 25 },
+  { id: 'all-complete', title: 'Все задания', description: 'Выполните все 56 заданий', icon: 'Trophy', conditionType: 'tasks_completed', conditionValue: 56 },
   { id: 'speed-demon', title: 'Быстрый ум', description: 'Выполните задание с первой попытки', icon: 'Zap', conditionType: 'single_attempt', conditionValue: 1 },
   { id: 'persistent', title: 'Упорство', description: 'Выполните 10 заданий', icon: 'Flame', conditionType: 'tasks_completed', conditionValue: 10 },
   { id: 'streak-3', title: 'Серия 3', description: 'Выполните 3 задания подряд с первой попытки', icon: 'Target', conditionType: 'streak_perfect', conditionValue: 3 },
@@ -242,6 +242,27 @@ export async function checkAndAwardAchievements(userId: string): Promise<string[
 
   const progress = db.prepare('SELECT COUNT(*) as count FROM user_progress WHERE user_id = ?').get(userId) as { count: number };
   const progressWithOneAttempt = db.prepare('SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND attempts = 1').get(userId) as { count: number };
+  const beginnerCount = db.prepare("SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND task_id LIKE 'beginner-%'").get(userId) as { count: number };
+  const intermediateCount = db.prepare("SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND task_id LIKE 'intermediate-%'").get(userId) as { count: number };
+  const advancedCount = db.prepare("SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND task_id LIKE 'advanced-%'").get(userId) as { count: number };
+
+  // Calculate max streak of first-attempt completions
+  const allProgress = db.prepare('SELECT attempts FROM user_progress WHERE user_id = ? ORDER BY completed_at ASC').all(userId) as { attempts: number }[];
+  let maxStreak = 0;
+  let currentStreak = 0;
+  for (const row of allProgress) {
+    if (row.attempts === 1) {
+      currentStreak++;
+      maxStreak = Math.max(maxStreak, currentStreak);
+    } else {
+      currentStreak = 0;
+    }
+  }
+
+  // Count distinct DB types used.
+  // Note: All training tasks are SQLite; the DB type toggle is client-side (Zustand store).
+  // Until client-side DB type usage is synced to the server, use a task-count proxy.
+  const dbTypesUsed = progress.count >= 20 ? 2 : 1;
 
   for (const achievement of achievements) {
     if (existingIds.has(achievement.id)) continue;
@@ -252,14 +273,19 @@ export async function checkAndAwardAchievements(userId: string): Promise<string[
         shouldAward = progress.count >= achievement.condition_value;
         break;
       case 'difficulty_completed':
-        shouldAward = progress.count >= achievement.condition_value;
+        // Map condition_value to actual difficulty counts
+        if (achievement.id === 'beginner-done') shouldAward = beginnerCount.count >= achievement.condition_value;
+        else if (achievement.id === 'intermediate-done') shouldAward = intermediateCount.count >= achievement.condition_value;
+        else if (achievement.id === 'advanced-done') shouldAward = advancedCount.count >= achievement.condition_value;
         break;
       case 'single_attempt':
         shouldAward = progressWithOneAttempt.count >= 1;
         break;
       case 'streak_perfect':
+        shouldAward = maxStreak >= achievement.condition_value;
+        break;
       case 'db_types_used':
-        shouldAward = progress.count >= achievement.condition_value;
+        shouldAward = dbTypesUsed >= achievement.condition_value;
         break;
     }
 
