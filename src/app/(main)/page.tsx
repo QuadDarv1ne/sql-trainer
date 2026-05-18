@@ -12,6 +12,7 @@ import { plural } from '@/lib/utils';
 import { t } from '@/lib/i18n';
 import { logger } from '@/lib/logger';
 import ResultsTable from '@/components/results-table';
+import { formatSQL } from '@/components/sql-editor';
 import Sidebar from '@/components/sidebar';
 import TaskPanel from '@/components/task-panel';
 import DbSelector from '@/components/db-selector';
@@ -334,6 +335,10 @@ export default function HomePage() {
         e.preventDefault();
         setSolutionVisible(!solutionVisible);
       }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
+        e.preventDefault();
+        setEditorContent(formatSQL(editorContent));
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -346,6 +351,7 @@ export default function HomePage() {
     setEditorContent,
     setLastResult,
     setVerification,
+    editorContent,
   ]);
 
   // Clear editor
@@ -715,6 +721,7 @@ export default function HomePage() {
                   value={editorContent}
                   onChange={setEditorContent}
                   onRun={executeQuery}
+                  onFormatSQL={() => setEditorContent(formatSQL(editorContent))}
                   height="100%"
                   placeholder={
                     currentTask

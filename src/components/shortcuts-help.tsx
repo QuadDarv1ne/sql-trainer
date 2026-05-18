@@ -26,6 +26,7 @@ const SHORTCUTS = [
       { keys: 'Ctrl + Shift + Z', description: 'Повторить' },
       { keys: 'Ctrl + F', description: 'Найти' },
       { keys: 'Ctrl + /', description: 'Комментарий' },
+      { keys: 'Ctrl + Shift + F', description: 'Форматировать SQL' },
     ],
   },
   {
