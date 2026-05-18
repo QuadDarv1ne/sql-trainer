@@ -26,10 +26,13 @@ import { toast } from 'sonner';
 import {
   Loader2, User, Mail, Phone, Calendar, Save, Lock, Eye, EyeOff,
   Trash2, AlertTriangle, Shield, CheckCircle2, AlertCircle, RotateCcw,
+  Bookmark, Copy,
 } from 'lucide-react';
 import ProgressStats from '@/components/profile/progress-stats';
 import AchievementsGrid from '@/components/profile/achievements-grid';
 import LeaderboardTable from '@/components/profile/leaderboard';
+import { useSQLTrainerStore } from '@/lib/store';
+import { t } from '@/lib/i18n';
 
 interface UserProfile {
   id: string;
@@ -59,6 +62,83 @@ function getPasswordStrength(password: string): { score: number; label: string; 
   else if (score >= 40) { label = 'Слабый'; color = 'text-orange-500'; }
 
   return { score, label, color, requirements };
+}
+
+function SavedQueriesSection() {
+  const { savedQueries, deleteSavedQuery } = useSQLTrainerStore();
+
+  const copyToClipboard = (sql: string) => {
+    navigator.clipboard.writeText(sql).then(() => {
+      toast.success('SQL скопирован в буфер обмена');
+    }).catch(() => {
+      toast.error('Не удалось скопировать');
+    });
+  };
+
+  if (savedQueries.length === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+          <Bookmark className="h-12 w-12 text-muted-foreground/30" />
+          <h3 className="text-lg font-semibold">{t('savedQueries.empty')}</h3>
+          <p className="text-sm text-muted-foreground">
+            Сохраняйте запросы с главной страницы для быстрого доступа
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {savedQueries.map((query) => (
+        <Card key={query.id}>
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <Bookmark className="h-4 w-4 text-emerald-500" />
+                  <h4 className="font-medium truncate">{query.title}</h4>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {new Date(query.createdAt).toLocaleDateString('ru-RU', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </p>
+                <pre className="mt-2 max-h-24 overflow-auto rounded-md bg-muted p-3 text-xs font-mono">
+                  {query.sql}
+                </pre>
+              </div>
+              <div className="flex shrink-0 gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => copyToClipboard(query.sql)}
+                  title="Копировать SQL"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => deleteSavedQuery(query.id)}
+                  title="Удалить"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
 }
 
 export default function ProfilePage() {
@@ -343,6 +423,7 @@ export default function ProfilePage() {
             <TabsTrigger value="progress">Прогресс</TabsTrigger>
             <TabsTrigger value="achievements">Достижения</TabsTrigger>
             <TabsTrigger value="leaderboard">Рейтинг</TabsTrigger>
+            <TabsTrigger value="saved">Запросы</TabsTrigger>
             <TabsTrigger value="security">Безопасность</TabsTrigger>
           </TabsList>
           <TabsContent value="progress">
@@ -353,6 +434,9 @@ export default function ProfilePage() {
           </TabsContent>
           <TabsContent value="leaderboard">
             <LeaderboardTable />
+          </TabsContent>
+          <TabsContent value="saved">
+            <SavedQueriesSection />
           </TabsContent>
           <TabsContent value="security">
             <div className="space-y-6">

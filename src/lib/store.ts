@@ -129,6 +129,9 @@ export interface ExportData {
   streak: StreakInfo;
   queryHistory: QueryHistoryEntry[];
   savedQueries: SavedQuery[];
+  userStats: UserStats;
+  achievements: string[];
+  unlockedAchievements: Achievement[];
 }
 
 export interface VerificationResult {
@@ -405,6 +408,89 @@ export const useSQLTrainerStore = create<SQLTrainerState>()(
         });
       },
 
+      // XP and levels
+      userStats: {
+        xp: 0,
+        level: 1,
+        levelProgress: 0,
+        explainCount: 0,
+      },
+      addXP: (amount) => {
+        const { userStats } = get();
+        const newXP = userStats.xp + amount;
+        const { level, progress, xpToNext } = get().calculateLevel(newXP);
+        set({
+          userStats: {
+            ...userStats,
+            xp: newXP,
+            level,
+            levelProgress: progress,
+          },
+        });
+        return { level, progress, xpToNext };
+      },
+      calculateLevel: (totalXP) => {
+        // Level thresholds: each level requires level * 100 XP
+        let level = 1;
+        let xpNeeded = 100; // XP needed for level 2
+        let cumulativeXP = 0;
+
+        while (totalXP >= cumulativeXP + xpNeeded && level < 20) {
+          cumulativeXP += xpNeeded;
+          level++;
+          xpNeeded = level * 100;
+        }
+
+        const remainingXP = totalXP - cumulativeXP;
+        const progress = Math.round((remainingXP / xpNeeded) * 100);
+        const xpToNext = xpNeeded - remainingXP;
+
+        return { level, progress, xpToNext };
+      },
+      incrementExplainCount: () => {
+        const { userStats } = get();
+        const newCount = userStats.explainCount + 1;
+        set({
+          userStats: {
+            ...userStats,
+            explainCount: newCount,
+          },
+        });
+      },
+
+      // Achievements
+      achievements: [],
+      unlockedAchievements: [],
+
+      // Reset progress
+      resetTaskProgress: (taskId) => {
+        set((state) => ({
+          completedTasks: state.completedTasks.filter((t) => t.taskId !== taskId),
+        }));
+      },
+      resetAllProgress: () => {
+        set({
+          completedTasks: [],
+          bookmarkedTasks: [],
+          queryHistory: [],
+          savedQueries: [],
+          streak: {
+            currentStreak: 0,
+            longestStreak: 0,
+            lastPracticeDate: '',
+            totalPracticeDays: 0,
+          },
+          userStats: {
+            xp: 0,
+            level: 1,
+            levelProgress: 0,
+            explainCount: 0,
+          },
+          achievements: [],
+          unlockedAchievements: [],
+        });
+      },
+
       // Export/Import
       exportProgress: () => {
         const state = get();
@@ -416,6 +502,9 @@ export const useSQLTrainerStore = create<SQLTrainerState>()(
           streak: state.streak,
           queryHistory: state.queryHistory,
           savedQueries: state.savedQueries,
+          userStats: state.userStats,
+          achievements: state.achievements,
+          unlockedAchievements: state.unlockedAchievements,
         };
       },
       importProgress: (data: ExportData) => {
@@ -437,6 +526,14 @@ export const useSQLTrainerStore = create<SQLTrainerState>()(
           },
           queryHistory: Array.isArray(data.queryHistory) ? data.queryHistory : [],
           savedQueries: Array.isArray(data.savedQueries) ? data.savedQueries : [],
+          userStats: data.userStats || {
+            xp: 0,
+            level: 1,
+            levelProgress: 0,
+            explainCount: 0,
+          },
+          achievements: Array.isArray(data.achievements) ? data.achievements : [],
+          unlockedAchievements: Array.isArray(data.unlockedAchievements) ? data.unlockedAchievements : [],
         });
 
         return { success: true };
@@ -556,6 +653,9 @@ export const useSQLTrainerStore = create<SQLTrainerState>()(
         bookmarkedTasks: state.bookmarkedTasks,
         streak: state.streak,
         savedQueries: state.savedQueries,
+        userStats: state.userStats,
+        achievements: state.achievements,
+        unlockedAchievements: state.unlockedAchievements,
       }),
     }
   )
