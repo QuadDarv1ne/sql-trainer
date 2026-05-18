@@ -105,7 +105,23 @@ export default function HomePage() {
     streak,
     practiceMode,
     nextPracticeTask,
+    unlockedAchievements,
+    userStats,
   } = useSQLTrainerStore();
+
+  // Show toast notifications for newly unlocked achievements
+  const [shownAchievementIds, setShownAchievementIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    for (const achievement of unlockedAchievements) {
+      if (achievement.unlockedAt && !shownAchievementIds.has(achievement.id)) {
+        toast.success(t('achievement.toast.title'), {
+          description: t('achievement.toast.description', { title: achievement.title }),
+          duration: 5000,
+        });
+        setShownAchievementIds((prev) => new Set(prev).add(achievement.id));
+      }
+    }
+  }, [unlockedAchievements, shownAchievementIds]);
 
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
@@ -546,6 +562,22 @@ export default function HomePage() {
             <h1 className="text-sm font-bold tracking-tight hidden sm:block">
               SQL <span className="text-emerald-600">Trainer</span>
             </h1>
+          </div>
+
+          {/* Level badge */}
+          <div className="hidden sm:flex items-center gap-2 rounded-md bg-muted px-2 py-0.5">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
+              {userStats.level}
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="text-[10px] font-medium text-muted-foreground">Ур. {userStats.level}</span>
+              <div className="h-1 w-16 rounded-full bg-muted-foreground/20 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-emerald-500 transition-all duration-300"
+                  style={{ width: `${userStats.levelProgress}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
 

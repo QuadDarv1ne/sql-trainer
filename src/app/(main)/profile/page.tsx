@@ -65,7 +65,7 @@ function getPasswordStrength(password: string): { score: number; label: string; 
 }
 
 function SavedQueriesSection() {
-  const { savedQueries, deleteSavedQuery } = useSQLTrainerStore();
+  const { savedQueries, deleteSavedQuery, resetAllProgress } = useSQLTrainerStore();
 
   const copyToClipboard = (sql: string) => {
     navigator.clipboard.writeText(sql).then(() => {
@@ -75,22 +75,30 @@ function SavedQueriesSection() {
     });
   };
 
+  const handleResetAll = () => {
+    resetAllProgress();
+    toast.success('Прогресс сброшен');
+  };
+
   if (savedQueries.length === 0) {
     return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center">
-          <Bookmark className="h-12 w-12 text-muted-foreground/30" />
-          <h3 className="text-lg font-semibold">{t('savedQueries.empty')}</h3>
-          <p className="text-sm text-muted-foreground">
-            Сохраняйте запросы с главной страницы для быстрого доступа
-          </p>
-        </CardContent>
-      </Card>
+      <div className="space-y-4">
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+            <Bookmark className="h-12 w-12 text-muted-foreground/30" />
+            <h3 className="text-lg font-semibold">{t('savedQueries.empty')}</h3>
+            <p className="text-sm text-muted-foreground">
+              Сохраняйте запросы с главной страницы для быстрого доступа
+            </p>
+          </CardContent>
+        </Card>
+        <ResetProgressCard onReset={handleResetAll} />
+      </div>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {savedQueries.map((query) => (
         <Card key={query.id}>
           <CardContent className="p-4">
@@ -137,7 +145,51 @@ function SavedQueriesSection() {
           </CardContent>
         </Card>
       ))}
+      <ResetProgressCard onReset={handleResetAll} />
     </div>
+  );
+}
+
+function ResetProgressCard({ onReset }: { onReset: () => void }) {
+  return (
+    <Card className="border-orange-200 dark:border-orange-900">
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center gap-2 text-orange-600">
+          <RotateCcw className="h-5 w-5" />
+          Сброс прогресса
+        </CardTitle>
+        <CardDescription>
+          Это действие сбросит весь ваш прогресс, достижения и сохранённые запросы
+        </CardDescription>
+      </CardHeader>
+      <CardFooter>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" className="text-orange-600 border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-950">
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Сбросить прогресс
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Все выполненные задания, достижения, серия практики, XP, уровни и сохранённые запросы будут удалены. Это действие нельзя отменить.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Отмена</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={onReset}
+                className="bg-orange-600 hover:bg-orange-700"
+              >
+                Сбросить
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </CardFooter>
+    </Card>
   );
 }
 

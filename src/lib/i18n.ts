@@ -185,6 +185,25 @@ export const translations: Record<Locale, Record<string, string>> = {
     'savedQueries.namePlaceholder': 'Например: Сотрудники с высокой зарплатой',
     'savedQueries.sqlLabel': 'SQL',
     'savedQueries.saveButton': 'Сохранить',
+
+    // ER Diagram
+    'erDiagram.viewList': 'Список',
+    'erDiagram.viewDiagram': 'Диаграмма',
+    'erDiagram.zoomIn': 'Приблизить',
+    'erDiagram.zoomOut': 'Отдалить',
+    'erDiagram.reset': 'Сбросить вид',
+
+    // Level
+    'level.label': 'Ур.',
+    'level.xpToNext': '{xp} XP до следующего уровня',
+
+    // Reset progress
+    'resetProgress.title': 'Сброс прогресса',
+    'resetProgress.description': 'Это действие сбросит весь ваш прогресс, достижения и сохранённые запросы',
+    'resetProgress.button': 'Сбросить прогресс',
+    'resetProgress.confirmTitle': 'Вы уверены?',
+    'resetProgress.confirmDescription': 'Все выполненные задания, достижения, серия практики, XP, уровни и сохранённые запросы будут удалены. Это действие нельзя отменить.',
+    'resetProgress.success': 'Прогресс сброшен',
   },
   en: {
     // Header
@@ -365,6 +384,25 @@ export const translations: Record<Locale, Record<string, string>> = {
     'savedQueries.namePlaceholder': 'e.g. Employees with high salary',
     'savedQueries.sqlLabel': 'SQL',
     'savedQueries.saveButton': 'Save',
+
+    // ER Diagram
+    'erDiagram.viewList': 'List',
+    'erDiagram.viewDiagram': 'Diagram',
+    'erDiagram.zoomIn': 'Zoom in',
+    'erDiagram.zoomOut': 'Zoom out',
+    'erDiagram.reset': 'Reset view',
+
+    // Level
+    'level.label': 'Lvl',
+    'level.xpToNext': '{xp} XP to next level',
+
+    // Reset progress
+    'resetProgress.title': 'Reset Progress',
+    'resetProgress.description': 'This will reset all your progress, achievements and saved queries',
+    'resetProgress.button': 'Reset Progress',
+    'resetProgress.confirmTitle': 'Are you sure?',
+    'resetProgress.confirmDescription': 'All completed tasks, achievements, practice streak, XP, levels and saved queries will be deleted. This action cannot be undone.',
+    'resetProgress.success': 'Progress reset',
   },
 };
 
