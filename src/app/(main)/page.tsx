@@ -107,6 +107,7 @@ export default function HomePage() {
     nextPracticeTask,
     unlockedAchievements,
     userStats,
+    incrementExplainCount,
   } = useSQLTrainerStore();
 
   // Show toast notifications for newly unlocked achievements
@@ -375,6 +376,7 @@ export default function HomePage() {
       if (data.success && data.plan) {
         setExplainPlan(data.plan);
         setExplainSuggestions(data.suggestions || []);
+        incrementExplainCount();
       } else {
         setExplainPlan(`${t('results.error')}: ${data.error}`);
         setExplainSuggestions([]);

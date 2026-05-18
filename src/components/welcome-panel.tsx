@@ -175,20 +175,20 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold text-amber-700 dark:text-amber-400">
-                    {streak.currentStreak} {plural(streak.currentStreak, 'день', 'дня', 'дней')}
+                    {streak.currentStreak} {plural(streak.currentStreak, t('welcome.streak.day'), t('welcome.streak.days'), t('welcome.streak.daysMany'))}
                   </span>
                   <span className="text-xs text-amber-600/70 dark:text-amber-500/70">
-                    серия
+                    {t('welcome.streak.label')}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-[10px] text-amber-600/60 dark:text-amber-500/60">
                   <div className="flex items-center gap-1">
                     <Award className="h-3 w-3" />
-                    Рекорд: {streak.longestStreak} {plural(streak.longestStreak, 'день', 'дня', 'дней')}
+                    {t('welcome.streak.record')}: {streak.longestStreak} {plural(streak.longestStreak, t('welcome.streak.day'), t('welcome.streak.days'), t('welcome.streak.daysMany'))}
                   </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    Всего: {streak.totalPracticeDays} {plural(streak.totalPracticeDays, 'день', 'дня', 'дней')}
+                    {t('welcome.streak.total')}: {streak.totalPracticeDays} {plural(streak.totalPracticeDays, t('welcome.streak.day'), t('welcome.streak.days'), t('welcome.streak.daysMany'))}
                   </div>
                 </div>
               </div>
@@ -300,24 +300,24 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
               <kbd className="shrink-0 rounded border border-border bg-background px-1.5 py-0.5 font-mono text-[10px]">
                 Ctrl+↵
               </kbd>
-              <span className="text-muted-foreground">Выполнить запрос</span>
+              <span className="text-muted-foreground">{t('shortcuts.execute')}</span>
             </div>
             <div className="flex items-start gap-2 text-xs">
               <kbd className="shrink-0 rounded border border-border bg-background px-1.5 py-0.5 font-mono text-[10px]">
                 Ctrl+L
               </kbd>
-              <span className="text-muted-foreground">Очистить редактор</span>
+              <span className="text-muted-foreground">{t('action.clear')}</span>
             </div>
             <div className="flex items-start gap-2 text-xs">
               <kbd className="shrink-0 rounded border border-border bg-background px-1.5 py-0.5 font-mono text-[10px]">
                 Tab
               </kbd>
-              <span className="text-muted-foreground">Отступ в редакторе</span>
+              <span className="text-muted-foreground">{t('shortcuts.indent')}</span>
             </div>
             <div className="flex items-start gap-2 text-xs">
               <Sparkles className="h-3 w-3 shrink-0 mt-0.5 text-amber-500" />
               <span className="text-muted-foreground">
-                Используйте подсказки и справочник SQL для помощи
+                {t('welcome.tip')}
               </span>
             </div>
           </CardContent>

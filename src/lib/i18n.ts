@@ -102,6 +102,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'shortcuts.execution': 'Выполнение',
     'shortcuts.editor': 'Редактор',
     'shortcuts.navigation': 'Навигация',
+    'shortcuts.execute': 'Выполнить запрос',
+    'shortcuts.indent': 'Отступ в редакторе',
 
     // Header
     'header.tasks': 'Задания',
@@ -165,6 +167,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'welcome.description': 'Интерактивная платформа для изучения и практики SQL',
     'welcome.startTraining': 'Начать обучение',
     'welcome.freeModeDesc': 'Пишите любые SQL-запросы без ограничений',
+    'welcome.tip': 'Используйте подсказки и справочник SQL для помощи',
 
     // PWA
     'pwa.install.title': 'Установить SQL Trainer',
@@ -301,6 +304,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'shortcuts.execution': 'Execution',
     'shortcuts.editor': 'Editor',
     'shortcuts.navigation': 'Navigation',
+    'shortcuts.execute': 'Execute query',
+    'shortcuts.indent': 'Indent in editor',
 
     // Header
     'header.tasks': 'Tasks',
@@ -364,6 +369,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'welcome.description': 'Interactive platform for learning and practicing SQL',
     'welcome.startTraining': 'Start Training',
     'welcome.freeModeDesc': 'Write any SQL queries without restrictions',
+    'welcome.tip': 'Use hints and SQL reference for help',
 
     // PWA
     'pwa.install.title': 'Install SQL Trainer',
