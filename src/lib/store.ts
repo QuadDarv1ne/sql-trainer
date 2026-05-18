@@ -29,6 +29,98 @@ export interface StreakInfo {
   totalPracticeDays: number;
 }
 
+export interface UserStats {
+  xp: number;
+  level: number;
+  levelProgress: number;
+  explainCount: number;
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlockedAt?: number;
+}
+
+export const ACHIEVEMENTS: Record<string, Omit<Achievement, 'unlockedAt'>> = {
+  FIRST_QUERY: {
+    id: 'first_query',
+    title: 'Первый шаг',
+    description: 'Выполните первый SQL запрос',
+    icon: '🎯',
+  },
+  BEGINNER_COMPLETE: {
+    id: 'beginner_complete',
+    title: 'Новичок',
+    description: 'Завершите все задачи начального уровня',
+    icon: '🌱',
+  },
+  INTERMEDIATE_COMPLETE: {
+    id: 'intermediate_complete',
+    title: 'Профессионал',
+    description: 'Завершите все задачи среднего уровня',
+    icon: '⭐',
+  },
+  ADVANCED_COMPLETE: {
+    id: 'advanced_complete',
+    title: 'Эксперт',
+    description: 'Завершите все задачи продвинутого уровня',
+    icon: '🏆',
+  },
+  PERFECT_SCORE: {
+    id: 'perfect_score',
+    title: 'Идеально!',
+    description: 'Решите задачу с первой попытки',
+    icon: '💯',
+  },
+  MARATHON: {
+    id: 'marathon',
+    title: 'Марафон',
+    description: 'Решите 10 задач подряд',
+    icon: '🔥',
+  },
+  MASTER: {
+    id: 'master',
+    title: 'Мастер SQL',
+    description: 'Завершите все задачи',
+    icon: '👑',
+  },
+  EXPLAIN_MASTER: {
+    id: 'explain_master',
+    title: 'Аналитик',
+    description: 'Используйте EXPLAIN 10 раз',
+    icon: '📊',
+  },
+  HISTORY_KEEPER: {
+    id: 'history_keeper',
+    title: 'Хранитель',
+    description: 'Сохраните 20 запросов в истории',
+    icon: '📚',
+  },
+  STREAK_3: {
+    id: 'streak_3',
+    title: 'На ходу',
+    description: 'Серия практики 3 дня',
+    icon: '🔥',
+  },
+  STREAK_5: {
+    id: 'streak_5',
+    title: 'Неостановимый',
+    description: 'Серия практики 5 дней',
+    icon: '💥',
+  },
+} as const;
+
+export interface SavedQuery {
+  id: string;
+  title: string;
+  sql: string;
+  taskId: string | null;
+  createdAt: number;
+}
+
 export interface ExportData {
   version: number;
   exportedAt: string;
@@ -36,6 +128,7 @@ export interface ExportData {
   bookmarkedTasks: string[];
   streak: StreakInfo;
   queryHistory: QueryHistoryEntry[];
+  savedQueries: SavedQuery[];
 }
 
 export interface VerificationResult {
@@ -93,9 +186,28 @@ interface SQLTrainerState {
   streak: StreakInfo;
   updateStreak: () => void;
 
+  // XP and levels
+  userStats: UserStats;
+  addXP: (amount: number) => void;
+  calculateLevel: (totalXP: number) => { level: number; progress: number; xpToNext: number };
+  incrementExplainCount: () => void;
+
+  // Achievements
+  achievements: string[];
+  unlockedAchievements: Achievement[];
+
+  // Reset progress
+  resetTaskProgress: (taskId: string) => void;
+  resetAllProgress: () => void;
+
   // Export/Import
   exportProgress: () => ExportData;
   importProgress: (data: ExportData) => { success: boolean; error?: string };
+
+  // Saved queries
+  savedQueries: SavedQuery[];
+  saveQuery: (query: Omit<SavedQuery, 'id' | 'createdAt'>) => void;
+  deleteSavedQuery: (id: string) => void;
 
   // Practice mode
   practiceMode: {
@@ -155,12 +267,92 @@ export const useSQLTrainerStore = create<SQLTrainerState>()(
       // Training progress
       completedTasks: [],
       markTaskCompleted: (taskId, attempts) =>
-        set((state) => ({
-          completedTasks: [
-            ...state.completedTasks.filter((t) => t.taskId !== taskId),
-            { taskId, completedAt: Date.now(), attempts },
-          ],
-        })),
+        set((state) => {
+          const { completedTasks, achievements, unlockedAchievements, queryHistory, userStats } = state;
+
+          const newAchievementIds: string[] = [];
+          const achievementSet = new Set(achievements);
+
+          // Count tasks by difficulty (including current)
+          const currentTasks = completedTasks.filter((t) => t.taskId !== taskId);
+          const beginnerCount = currentTasks.filter((t) => t.taskId.startsWith('beginner-')).length + (taskId.startsWith('beginner-') ? 1 : 0);
+          const intermediateCount = currentTasks.filter((t) => t.taskId.startsWith('intermediate-')).length + (taskId.startsWith('intermediate-') ? 1 : 0);
+          const advancedCount = currentTasks.filter((t) => t.taskId.startsWith('advanced-')).length + (taskId.startsWith('advanced-') ? 1 : 0);
+          const totalCount = currentTasks.length + 1;
+
+          // Check achievements
+          if (completedTasks.length === 0 && !achievementSet.has(ACHIEVEMENTS.FIRST_QUERY.id)) {
+            newAchievementIds.push(ACHIEVEMENTS.FIRST_QUERY.id);
+            achievementSet.add(ACHIEVEMENTS.FIRST_QUERY.id);
+          }
+
+          if (attempts === 1 && !achievementSet.has(ACHIEVEMENTS.PERFECT_SCORE.id)) {
+            newAchievementIds.push(ACHIEVEMENTS.PERFECT_SCORE.id);
+            achievementSet.add(ACHIEVEMENTS.PERFECT_SCORE.id);
+          }
+
+          const beginnerTotal = TRAINING_TASKS.filter((t) => t.difficulty === 'beginner').length;
+          if (beginnerCount === beginnerTotal && !achievementSet.has(ACHIEVEMENTS.BEGINNER_COMPLETE.id)) {
+            newAchievementIds.push(ACHIEVEMENTS.BEGINNER_COMPLETE.id);
+            achievementSet.add(ACHIEVEMENTS.BEGINNER_COMPLETE.id);
+          }
+
+          const intermediateTotal = TRAINING_TASKS.filter((t) => t.difficulty === 'intermediate').length;
+          if (intermediateCount === intermediateTotal && !achievementSet.has(ACHIEVEMENTS.INTERMEDIATE_COMPLETE.id)) {
+            newAchievementIds.push(ACHIEVEMENTS.INTERMEDIATE_COMPLETE.id);
+            achievementSet.add(ACHIEVEMENTS.INTERMEDIATE_COMPLETE.id);
+          }
+
+          const advancedTotal = TRAINING_TASKS.filter((t) => t.difficulty === 'advanced').length;
+          if (advancedCount === advancedTotal && !achievementSet.has(ACHIEVEMENTS.ADVANCED_COMPLETE.id)) {
+            newAchievementIds.push(ACHIEVEMENTS.ADVANCED_COMPLETE.id);
+            achievementSet.add(ACHIEVEMENTS.ADVANCED_COMPLETE.id);
+          }
+
+          if (totalCount === TRAINING_TASKS.length && !achievementSet.has(ACHIEVEMENTS.MASTER.id)) {
+            newAchievementIds.push(ACHIEVEMENTS.MASTER.id);
+            achievementSet.add(ACHIEVEMENTS.MASTER.id);
+          }
+
+          if (totalCount === 10 && !achievementSet.has(ACHIEVEMENTS.MARATHON.id)) {
+            newAchievementIds.push(ACHIEVEMENTS.MARATHON.id);
+            achievementSet.add(ACHIEVEMENTS.MARATHON.id);
+          }
+
+          if (queryHistory.length >= 20 && !achievementSet.has(ACHIEVEMENTS.HISTORY_KEEPER.id)) {
+            newAchievementIds.push(ACHIEVEMENTS.HISTORY_KEEPER.id);
+            achievementSet.add(ACHIEVEMENTS.HISTORY_KEEPER.id);
+          }
+
+          // Calculate XP based on difficulty and attempts
+          const task = TRAINING_TASKS.find((t) => t.id === taskId);
+          const xpBase = task?.difficulty === 'advanced' ? 30 : task?.difficulty === 'intermediate' ? 20 : 10;
+          const xpMultiplier = attempts === 1 ? 2 : attempts <= 3 ? 1.5 : 1;
+          const xpGained = Math.round(xpBase * xpMultiplier);
+
+          const newXP = userStats.xp + xpGained;
+          const { level, progress } = get().calculateLevel(newXP);
+
+          const newAchievements = newAchievementIds.map((id) => ({
+            ...ACHIEVEMENTS[id],
+            unlockedAt: Date.now(),
+          }));
+
+          return {
+            completedTasks: [
+              ...currentTasks,
+              { taskId, completedAt: Date.now(), attempts },
+            ],
+            achievements: [...achievementSet],
+            unlockedAchievements: [...unlockedAchievements, ...newAchievements],
+            userStats: {
+              ...userStats,
+              xp: newXP,
+              level,
+              levelProgress: progress,
+            },
+          };
+        }),
       isTaskCompleted: (taskId) => get().completedTasks.some((t) => t.taskId === taskId),
 
       // Bookmarked tasks
@@ -223,6 +415,7 @@ export const useSQLTrainerStore = create<SQLTrainerState>()(
           bookmarkedTasks: state.bookmarkedTasks,
           streak: state.streak,
           queryHistory: state.queryHistory,
+          savedQueries: state.savedQueries,
         };
       },
       importProgress: (data: ExportData) => {
@@ -243,10 +436,25 @@ export const useSQLTrainerStore = create<SQLTrainerState>()(
             totalPracticeDays: 0,
           },
           queryHistory: Array.isArray(data.queryHistory) ? data.queryHistory : [],
+          savedQueries: Array.isArray(data.savedQueries) ? data.savedQueries : [],
         });
 
         return { success: true };
       },
+
+      // Saved queries
+      savedQueries: [],
+      saveQuery: (query) =>
+        set((state) => ({
+          savedQueries: [
+            { ...query, id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`, createdAt: Date.now() },
+            ...state.savedQueries,
+          ].slice(0, 50),
+        })),
+      deleteSavedQuery: (id) =>
+        set((state) => ({
+          savedQueries: state.savedQueries.filter((q) => q.id !== id),
+        })),
 
       // Practice mode
       practiceMode: {
@@ -347,6 +555,7 @@ export const useSQLTrainerStore = create<SQLTrainerState>()(
         queryHistory: state.queryHistory,
         bookmarkedTasks: state.bookmarkedTasks,
         streak: state.streak,
+        savedQueries: state.savedQueries,
       }),
     }
   )

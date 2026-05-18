@@ -174,6 +174,17 @@ export const translations: Record<Locale, Record<string, string>> = {
     // Achievements
     'achievement.toast.title': '🏆 Новое достижение!',
     'achievement.toast.description': 'Вы получили бейд "{title}"',
+
+    // Saved Queries
+    'savedQueries.title': 'Сохранённые',
+    'savedQueries.dropdownTitle': 'Сохранённые запросы',
+    'savedQueries.empty': 'Нет сохранённых запросов',
+    'savedQueries.saveCurrent': 'Сохранить текущий запрос',
+    'savedQueries.saveTitle': 'Сохранить запрос',
+    'savedQueries.nameLabel': 'Название',
+    'savedQueries.namePlaceholder': 'Например: Сотрудники с высокой зарплатой',
+    'savedQueries.sqlLabel': 'SQL',
+    'savedQueries.saveButton': 'Сохранить',
   },
   en: {
     // Header
@@ -343,6 +354,17 @@ export const translations: Record<Locale, Record<string, string>> = {
     // Achievements
     'achievement.toast.title': '🏆 New Achievement!',
     'achievement.toast.description': 'You earned the "{title}" badge',
+
+    // Saved Queries
+    'savedQueries.title': 'Saved',
+    'savedQueries.dropdownTitle': 'Saved Queries',
+    'savedQueries.empty': 'No saved queries',
+    'savedQueries.saveCurrent': 'Save current query',
+    'savedQueries.saveTitle': 'Save Query',
+    'savedQueries.nameLabel': 'Name',
+    'savedQueries.namePlaceholder': 'e.g. Employees with high salary',
+    'savedQueries.sqlLabel': 'SQL',
+    'savedQueries.saveButton': 'Save',
   },
 };
 

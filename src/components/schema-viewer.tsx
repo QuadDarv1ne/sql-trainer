@@ -15,9 +15,12 @@ import {
   Eye,
   ChevronDown,
   ChevronUp,
+  GitBranch,
+  List,
 } from 'lucide-react';
 import type { DatabaseInfo, TableInfo, ColumnInfo } from '@/lib/sql-engine';
 import { plural } from '@/lib/utils';
+import ERDiagram from '@/components/er-diagram';
 
 interface SchemaViewerProps {
   schema: DatabaseInfo | null;
@@ -47,6 +50,8 @@ function getTypeColor(type: string) {
 }
 
 export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerProps) {
+  const [viewMode, setViewMode] = useState<'list' | 'diagram'>('list');
+
   if (!schema || schema.tables.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
@@ -64,21 +69,47 @@ export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerPro
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-border px-4 py-3">
-        <h3 className="flex items-center gap-1.5 text-sm font-medium">
-          <TableIcon className="h-4 w-4 text-emerald-500" />
-          Структура базы данных
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-1.5 text-sm font-medium">
+            <TableIcon className="h-4 w-4 text-emerald-500" />
+            Структура базы данных
+          </h3>
+          <div className="flex gap-1">
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={() => setViewMode('list')}
+            >
+              <List className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant={viewMode === 'diagram' ? 'default' : 'ghost'}
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={() => setViewMode('diagram')}
+            >
+              <GitBranch className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
         <p className="mt-0.5 text-xs text-muted-foreground">
           {schema.tables.length}{' '}
           {plural(schema.tables.length, 'таблица', 'таблицы', 'таблиц')}
         </p>
       </div>
       <ScrollArea className="flex-1">
-        <div className="space-y-3 p-3">
-          {schema.tables.map((table) => (
-            <TableCard key={table.name} table={table} onPreview={onPreviewTable} />
-          ))}
-        </div>
+        {viewMode === 'diagram' ? (
+          <div className="p-3">
+            <ERDiagram schema={schema} />
+          </div>
+        ) : (
+          <div className="space-y-3 p-3">
+            {schema.tables.map((table) => (
+              <TableCard key={table.name} table={table} onPreview={onPreviewTable} />
+            ))}
+          </div>
+        )}
       </ScrollArea>
     </div>
   );

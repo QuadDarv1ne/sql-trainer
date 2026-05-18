@@ -18,6 +18,7 @@ import DbSelector from '@/components/db-selector';
 import SchemaViewer from '@/components/schema-viewer';
 import QueryHistory from '@/components/query-history';
 import SqlTemplates from '@/components/sql-templates';
+import SavedQueries from '@/components/saved-queries';
 import ShortcutsHelp from '@/components/shortcuts-help';
 import LocaleSelector from '@/components/locale-selector';
 import UserMenu from '@/components/auth/user-menu';
@@ -645,6 +646,8 @@ export default function HomePage() {
             )}
 
             <QueryHistory onRestoreQuery={handleRestoreQuery} />
+
+            <SavedQueries onLoadQuery={handleRestoreQuery} />
 
             <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={clearEditor}>
               <Trash2 className="mr-1 h-3 w-3" />
