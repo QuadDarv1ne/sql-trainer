@@ -71,7 +71,7 @@ export default function QueryHistory({ onRestoreQuery }: QueryHistoryProps) {
               key={entry.timestamp + '-' + idx}
               className="flex flex-col items-start gap-1 py-2 px-3 cursor-pointer"
               onClick={() => onRestoreQuery(entry.sql)}
-              aria-label={`Восстановить запрос: ${truncateSql(entry.sql, 40)}`}
+              aria-label={t('history.restoreQuery', { sql: truncateSql(entry.sql, 40) })}
             >
               <div className="flex w-full items-center gap-2">
                 {entry.success ? (

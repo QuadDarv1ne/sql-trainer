@@ -232,13 +232,19 @@ function compareResults(
 
   // Check row count first
   if (userRowCount !== expectedRowCount) {
+    let detail = '';
+    if (userRowCount === 0) {
+      detail = `Запрос вернул 0 строк. Ожидается: ${expectedRowCount}. Проверьте условие WHERE и JOIN.`;
+    } else if (userRowCount > expectedRowCount) {
+      detail = `Запрос вернул ${userRowCount} строк, ожидается ${expectedRowCount}. Возможно, дублируются строки из-за JOIN или недостаточно строгих условий.`;
+    } else {
+      detail = `Запрос вернул ${userRowCount} строк, ожидается ${expectedRowCount}. Возможно, пропущены некоторые строки в условии WHERE.`;
+    }
     return NextResponse.json({
       verified: false,
       userRowCount,
       expectedRowCount,
-      message: userRowCount === 0
-        ? `⚠️ Запрос вернул 0 строк. Ожидается: ${expectedRowCount}`
-        : `⚠️ Количество строк не совпадает: ${userRowCount} вместо ${expectedRowCount}`,
+      message: `⚠️ Количество строк не совпадает: ${detail}`,
     });
   }
 
@@ -247,7 +253,7 @@ function compareResults(
       verified: false,
       userRowCount: 0,
       expectedRowCount: 0,
-      message: '⚠️ Запрос вернул 0 строк',
+      message: '⚠️ Запрос вернул 0 строк. Проверьте, что данные существуют в таблицах.',
     });
   }
 
@@ -257,6 +263,28 @@ function compareResults(
   const columnsMatch =
     userColumns.length === expectedColumns.length &&
     userColumns.every((col, i) => col === expectedColumns[i]);
+
+  // If columns don't match, provide details
+  if (!columnsMatch) {
+    const missingCols = expectedColumns.filter(c => !userColumns.includes(c));
+    const extraCols = userColumns.filter(c => !expectedColumns.includes(c));
+    let colDetail = '';
+    if (missingCols.length > 0) {
+      colDetail += ` Не хватает столбцов: ${missingCols.join(', ')}.`;
+    }
+    if (extraCols.length > 0) {
+      colDetail += ` Лишние столбцы: ${extraCols.join(', ')}.`;
+    }
+    if (userResult.columns.length !== solutionResult.columns.length) {
+      colDetail += ` Ожидается ${expectedColumns.length} столбцов, получено ${userColumns.length}.`;
+    }
+    return NextResponse.json({
+      verified: false,
+      userRowCount,
+      expectedRowCount,
+      message: `⚠️ Столбцы не совпадают.${colDetail} Проверьте SELECT clause.`,
+    });
+  }
 
   // Normalize and compare data rows (order-insensitive)
   const userRowsNormalized = userResult.rows
@@ -277,12 +305,31 @@ function compareResults(
     });
   }
 
-  // If row count matches but content differs
+  // If row count matches but content differs — find first difference
+  let diffDetail = '';
+  for (let i = 0; i < Math.min(userRowsNormalized.length, expectedRowsNormalized.length); i++) {
+    if (userRowsNormalized[i] !== expectedRowsNormalized[i]) {
+      const cols = userResult.columns;
+      const userRow = userResult.rows[i];
+      const expectedRow = solutionResult.rows[i];
+      const diffCols: string[] = [];
+      for (const col of cols) {
+        const uVal = normalizeValue(userRow[col]);
+        const eVal = normalizeValue(expectedRow[col]);
+        if (uVal !== eVal) {
+          diffCols.push(`${col}: получено "${uVal}", ожидается "${eVal}"`);
+        }
+      }
+      diffDetail = ` Строка ${i + 1}: ${diffCols.slice(0, 3).join('; ')}.`;
+      break;
+    }
+  }
+
   let message = `⚠️ Количество строк совпадает (${userRowCount}), но `;
-  if (!columnsMatch) {
-    message += 'столбцы или данные не совпадают с ожидаемым результатом';
+  if (diffDetail) {
+    message += `данные отличаются.${diffDetail} Проверьте вычисления, агрегации и JOIN.`;
   } else {
-    message += 'данные не совпадают с ожидаемым результатом';
+    message += 'порядок или данные не совпадают. Проверьте SORT ORDER и значения.';
   }
 
   return NextResponse.json({

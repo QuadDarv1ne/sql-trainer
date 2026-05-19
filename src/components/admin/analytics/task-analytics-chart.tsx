@@ -26,6 +26,8 @@ import {
 } from 'recharts';
 import { TRAINING_TASKS, DIFFICULTY_LABELS, type Difficulty } from '@/lib/training-tasks';
 import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
 
 interface TaskAnalyticsEntry {
   task_id: string;
@@ -46,9 +48,14 @@ export default function TaskAnalyticsChart() {
   const [data, setData] = useState<TaskAnalyticsEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/tasks')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/tasks?${params}`)
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
@@ -56,7 +63,7 @@ export default function TaskAnalyticsChart() {
       .then((data) => setData(data.tasks))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [startDate, endDate]);
 
   const enrichedData = useMemo(() => {
     return data.map((task) => {
@@ -90,7 +97,7 @@ export default function TaskAnalyticsChart() {
       </Alert>
     );
   }
-  if (!enrichedData.length) return <p className="text-center py-4">{t('analytics.noData')}</p>;
+  if (!enrichedData.length) return <EmptyState />;
 
   const chartData = top15ByAttempts.map((task) => ({
     name: task.title?.slice(0, 20) || task.task_id,

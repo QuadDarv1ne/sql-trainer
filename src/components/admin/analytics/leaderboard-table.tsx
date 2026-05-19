@@ -25,6 +25,9 @@ import {
 } from '@/components/ui/select';
 import StudentDetailDialog from './student-detail-dialog';
 import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
+import { TRAINING_TASKS } from '@/lib/training-tasks';
 
 interface LeaderboardEntry {
   rank: number;
@@ -58,9 +61,14 @@ export default function LeaderboardTable() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/leaderboard')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/leaderboard?${params}`)
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
@@ -68,7 +76,7 @@ export default function LeaderboardTable() {
       .then((data) => setData(data.leaderboard))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [startDate, endDate]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -115,7 +123,7 @@ export default function LeaderboardTable() {
       </Alert>
     );
   }
-  if (!data.length) return <p className="text-center py-4">{t('analytics.noData')}</p>;
+  if (!data.length) return <EmptyState />;
 
   const sortCols: { key: SortKey; label: string; className?: string }[] = [
     { key: 'rank', label: t('analytics.leaderboard.rank'), className: 'w-16' },
@@ -186,7 +194,7 @@ export default function LeaderboardTable() {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Badge variant="secondary">{entry.tasks_completed}/56</Badge>
+                      <Badge variant="secondary">{entry.tasks_completed}/{TRAINING_TASKS.length}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       {Math.round(entry.avg_attempts * 10) / 10}
@@ -216,7 +224,7 @@ export default function LeaderboardTable() {
             <span className="text-sm text-muted-foreground">
               {filteredAndSorted.length === 0
                 ? t('analytics.leaderboard.noResults')
-                : `${(safePage - 1) * pageSize + 1}–${Math.min(safePage * pageSize, filteredAndSorted.length)} из ${filteredAndSorted.length}`}
+                : `${(safePage - 1) * pageSize + 1}–${Math.min(safePage * pageSize, filteredAndSorted.length)} ${t('teacher.progress.of')} ${filteredAndSorted.length}`}
             </span>
             <div className="flex items-center gap-2">
               <Select value={String(pageSize)} onValueChange={v => { setPageSize(Number(v)); setPage(1); }}>

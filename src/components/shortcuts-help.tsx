@@ -9,40 +9,41 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { HelpCircle, Keyboard } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 const SHORTCUTS = [
   {
-    category: 'Выполнение',
+    category: t('shortcuts.execution'),
     items: [
-      { keys: 'Ctrl + Enter', description: 'Выполнить запрос' },
-      { keys: 'Ctrl + L', description: 'Очистить редактор' },
+      { keys: 'Ctrl + Enter', description: t('shortcuts.execute') },
+      { keys: 'Ctrl + L', description: t('shortcuts.clearEditor') },
     ],
   },
   {
-    category: 'Редактор',
+    category: t('shortcuts.editor'),
     items: [
-      { keys: 'Tab', description: 'Отступ (2 пробела)' },
-      { keys: 'Ctrl + Z', description: 'Отменить' },
-      { keys: 'Ctrl + Shift + Z', description: 'Повторить' },
-      { keys: 'Ctrl + F', description: 'Найти' },
-      { keys: 'Ctrl + /', description: 'Комментарий' },
-      { keys: 'Ctrl + Shift + F', description: 'Форматировать SQL' },
+      { keys: 'Tab', description: t('shortcuts.indentDesc') },
+      { keys: 'Ctrl + Z', description: t('shortcuts.undo') },
+      { keys: 'Ctrl + Shift + Z', description: t('shortcuts.redo') },
+      { keys: 'Ctrl + F', description: t('shortcuts.find') },
+      { keys: 'Ctrl + /', description: t('shortcuts.comment') },
+      { keys: 'Ctrl + Shift + F', description: t('shortcuts.formatSql') },
     ],
   },
   {
-    category: 'Подсказки',
+    category: t('shortcuts.hints'),
     items: [
-      { keys: 'Ctrl + Shift + H', description: 'Показать подсказку к заданию' },
-      { keys: 'Ctrl + Shift + S', description: 'Показать решение' },
+      { keys: 'Ctrl + Shift + H', description: t('shortcuts.showHint') },
+      { keys: 'Ctrl + Shift + S', description: t('shortcuts.showSolution') },
     ],
   },
   {
-    category: 'Навигация',
+    category: t('shortcuts.navigation'),
     items: [
-      { keys: 'Ctrl + G', description: 'Перейти к строке' },
-      { keys: 'Home / End', description: 'Начало / конец строки' },
-      { keys: 'Ctrl + Home / End', description: 'Начало / конец документа' },
-      { keys: 'Ctrl + D', description: 'Выделить следующее вхождение' },
+      { keys: 'Ctrl + G', description: t('shortcuts.goToLine') },
+      { keys: 'Home / End', description: t('shortcuts.lineStartEnd') },
+      { keys: 'Ctrl + Home / End', description: t('shortcuts.documentStartEnd') },
+      { keys: 'Ctrl + D', description: t('shortcuts.selectNext') },
     ],
   },
 ];
@@ -59,7 +60,7 @@ export default function ShortcutsHelp() {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Keyboard className="h-5 w-5 text-emerald-500" />
-            Горячие клавиши
+            {t('shortcuts.title')}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 pt-2">

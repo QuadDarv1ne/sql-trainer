@@ -6,6 +6,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Lightbulb, ListChecks } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
 
 interface Recommendation {
   user_id: string;
@@ -34,18 +36,23 @@ export default function RecommendationsPanel() {
   const [data, setData] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/recommendations')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/recommendations?${params}`)
       .then((r) => r.ok ? r.json() : Promise.reject())
       .then((data) => setData(data.recommendations))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
-  if (!data.length) return <Card><CardContent className="p-6 text-center text-muted-foreground">{t('analytics.recommendations.noRecommendations')}</CardContent></Card>;
+  if (!data.length) return <EmptyState title={t('analytics.recommendations.noRecommendations')} />;
 
   return (
     <Card>

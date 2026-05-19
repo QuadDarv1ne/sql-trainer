@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -13,7 +12,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { AlertCircle, TrendingUp, Activity } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import DataCard from '@/components/ui/data-card';
+import { TrendingUp, Activity, AlertCircle } from 'lucide-react';
 import { t } from '@/lib/i18n';
 
 interface EngagementMetric {
@@ -32,27 +33,58 @@ export default function StudentEngagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
+    setLoading(true);
+    setError('');
     fetch('/api/teacher/engagement')
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((data) => setData(data.metrics))
+      .then((res) => setData(res.metrics))
       .catch(() => setError(t('teacher.error')))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="text-center py-4">{t('teacher.loading')}</p>;
-  if (error) {
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  if (loading) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
+      <div className="space-y-6">
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[1, 2, 3].map(i => (
+            <Card key={i}>
+              <CardContent className="p-4 flex items-center gap-3">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-6 w-12" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Card>
+          <CardHeader><Skeleton className="h-6 w-48" /></CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map(i => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
-  if (!data.length) return <p className="text-center py-4">{t('teacher.noData')}</p>;
+
+  if (error) {
+    return <DataCard loading={false} error={error} hasData={false} onRetry={loadData} />;
+  }
+
+  if (!data.length) return <p className="text-center py-4 text-muted-foreground">{t('teacher.noData')}</p>;
 
   const levelLabels: Record<string, string> = {
     high: t('teacher.engagement.high'),
@@ -144,7 +176,7 @@ export default function StudentEngagement() {
                     </TableCell>
                     <TableCell className="text-right">{metric.velocity} {t('teacher.engagement.perWeek')}</TableCell>
                     <TableCell className="text-right">
-                      {metric.last_active_days >= 999 ? '—' : `${metric.last_active_days} дн.`}
+                      {metric.last_active_days >= 999 ? '—' : `${metric.last_active_days} ${t('teacher.engagement.daysAbbr')}`}
                     </TableCell>
                   </TableRow>
                 ))}

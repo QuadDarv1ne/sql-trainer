@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDailyActivity, getDailyActivityWithFilters } from '@/lib/db-users';
 import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
+import { parseDateParams } from '@/lib/api-auth';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,16 +18,18 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams;
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
+    const { startDate, endDate } = parseDateParams(searchParams);
 
     let activity;
     if (startDate && endDate) {
-      activity = getDailyActivityWithFilters(30, { start_date: parseInt(startDate), end_date: parseInt(endDate) });
+      activity = getDailyActivityWithFilters(30, { start_date: startDate, end_date: endDate });
     } else {
       activity = getDailyActivity(30);
     }
-    return NextResponse.json({ activity });
+    return NextResponse.json({
+      activity,
+      dateRange: startDate && endDate ? { startDate, endDate } : null,
+    });
   } catch (error) {
     console.error('[API Error] GET /api/admin/analytics/activity:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

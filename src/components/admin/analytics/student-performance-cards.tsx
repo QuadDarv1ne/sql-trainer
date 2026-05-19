@@ -16,6 +16,9 @@ import {
 import { AlertCircle, TrendingUp, TrendingDown, Minus, Target } from 'lucide-react';
 import StudentDetailDialog from './student-detail-dialog';
 import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
+import { TRAINING_TASKS } from '@/lib/training-tasks';
 
 interface StudentPerformanceCard {
   user_id: string;
@@ -48,9 +51,14 @@ export default function StudentPerformanceCards() {
   const [error, setError] = useState('');
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/students')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/students?${params}`)
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
@@ -58,7 +66,7 @@ export default function StudentPerformanceCards() {
       .then((data) => setData(data.students))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [startDate, endDate]);
 
   const handleViewDetails = (userId: string) => {
     setSelectedStudentId(userId);
@@ -74,7 +82,7 @@ export default function StudentPerformanceCards() {
       </Alert>
     );
   }
-  if (!data.length) return <p className="text-center py-4">{t('analytics.noData')}</p>;
+  if (!data.length) return <EmptyState />;
 
   const difficultyLabels: Record<string, string> = {
     beginner: t('analytics.student.beginner'),
@@ -113,7 +121,7 @@ export default function StudentPerformanceCards() {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Badge variant="secondary">{student.tasks_completed}/56</Badge>
+                      <Badge variant="secondary">{student.tasks_completed}/{TRAINING_TASKS.length}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       {Math.round(student.avg_attempts * 10) / 10}

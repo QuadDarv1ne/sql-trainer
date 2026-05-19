@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/table';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
 
 interface ErrorPatternEntry {
   task_id: string;
@@ -29,9 +31,14 @@ export default function ErrorPatternsTable() {
   const [data, setData] = useState<ErrorPatternEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/error-patterns')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/error-patterns?${params}`)
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
@@ -39,7 +46,7 @@ export default function ErrorPatternsTable() {
       .then((data) => setData(data.patterns))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) {
@@ -50,7 +57,7 @@ export default function ErrorPatternsTable() {
       </Alert>
     );
   }
-  if (!data.length) return <p className="text-center py-4">{t('analytics.noData')}</p>;
+  if (!data.length) return <EmptyState />;
 
   const difficultyLabels: Record<string, string> = {
     beginner: t('analytics.student.beginner'),
@@ -69,7 +76,7 @@ export default function ErrorPatternsTable() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <AlertTriangle className="h-5 w-5 text-amber-600" />
-          Анализ ошибок по заданиям
+          {t('analytics.errors.patternTitle')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -77,11 +84,11 @@ export default function ErrorPatternsTable() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Задание</TableHead>
-                <TableHead>Уровень</TableHead>
-                <TableHead className="text-right">Ср. попытки</TableHead>
-                <TableHead className="text-right">Макс. попытки</TableHead>
-                <TableHead className="text-right">Трудности (%)</TableHead>
+                <TableHead>{t('analytics.errors.task')}</TableHead>
+                <TableHead>{t('analytics.errors.level')}</TableHead>
+                <TableHead className="text-right">{t('analytics.errors.avgAttempts')}</TableHead>
+                <TableHead className="text-right">{t('analytics.errors.maxAttempts')}</TableHead>
+                <TableHead className="text-right">{t('analytics.errors.failureRate')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

@@ -234,7 +234,7 @@ export default function UserTable() {
           <span className="text-sm text-muted-foreground">
             {filteredAndSorted.length === 0
               ? t('admin.users.noResults')
-              : `${(safePage - 1) * pageSize + 1}–${Math.min(safePage * pageSize, filteredAndSorted.length)} из ${filteredAndSorted.length}`}
+              : `${(safePage - 1) * pageSize + 1}–${Math.min(safePage * pageSize, filteredAndSorted.length)} ${t('teacher.progress.of')} ${filteredAndSorted.length}`}
           </span>
           <div className="flex items-center gap-2">
             <Select value={String(pageSize)} onValueChange={v => { setPageSize(Number(v)); setPage(1); }}>

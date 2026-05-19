@@ -12,6 +12,8 @@ import {
   generateStudentAlerts,
   getWeeklyProgress,
   getCohortAnalysis,
+  getStudentGradeDistribution,
+  getStudentGrowthTrends,
 } from '@/lib/db-users';
 import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
@@ -83,6 +85,14 @@ export async function GET(request: NextRequest) {
 
     if (includeAttempts || exportAll || requestedSections.includes('alerts')) {
       data.alerts = generateStudentAlerts();
+    }
+
+    if (exportAll || requestedSections.includes('grade')) {
+      data.grade = getStudentGradeDistribution();
+    }
+
+    if (exportAll || requestedSections.includes('growth')) {
+      data.growth = getStudentGrowthTrends(12);
     }
 
     return NextResponse.json({ data });

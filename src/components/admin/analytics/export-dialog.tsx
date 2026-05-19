@@ -35,13 +35,18 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
   const [includeAttempts, setIncludeAttempts] = useState(true);
 
   const sections = [
-    { key: 'activity', label: 'Activity data', checked: true },
-    { key: 'tasks', label: 'Task analytics', checked: true },
-    { key: 'distribution', label: 'Completion distribution', checked: true },
-    { key: 'difficulty', label: 'Difficulty comparison', checked: true },
-    { key: 'leaderboard', label: 'Leaderboard', checked: true },
-    { key: 'students', label: 'Student performance', checked: true },
-    { key: 'classReport', label: 'Class report', checked: true },
+    { key: 'activity', label: t('analytics.export.section.activity'), checked: true },
+    { key: 'tasks', label: t('analytics.export.section.tasks'), checked: true },
+    { key: 'distribution', label: t('analytics.export.section.distribution'), checked: true },
+    { key: 'difficulty', label: t('analytics.export.section.difficulty'), checked: true },
+    { key: 'leaderboard', label: t('analytics.export.section.leaderboard'), checked: true },
+    { key: 'students', label: t('analytics.export.section.students'), checked: true },
+    { key: 'classReport', label: t('analytics.export.section.classReport'), checked: true },
+    { key: 'skills', label: t('analytics.export.section.skills'), checked: false },
+    { key: 'funnel', label: t('analytics.export.section.funnel'), checked: false },
+    { key: 'mastery', label: t('analytics.export.section.mastery'), checked: false },
+    { key: 'grade', label: t('analytics.export.section.grade'), checked: false },
+    { key: 'growth', label: t('analytics.export.section.growth'), checked: false },
   ];
 
   const [selectedSections, setSelectedSections] = useState<Record<string, boolean>>(
@@ -144,18 +149,18 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
             {t('analytics.lms.title')}
           </DialogTitle>
           <DialogDescription>
-            Выберите формат и данные для экспорта
+            {t('teacher.export.description')}
           </DialogDescription>
         </DialogHeader>
 
         <RadioGroup value={activeTab} onValueChange={v => setActiveTab(v as 'analytics' | 'lms')} className="flex gap-4">
           <div className="flex items-center gap-2">
             <RadioGroupItem value="analytics" id="analytics" />
-            <Label htmlFor="analytics">Аналитика</Label>
+            <Label htmlFor="analytics">{t('admin.tabs.analytics')}</Label>
           </div>
           <div className="flex items-center gap-2">
             <RadioGroupItem value="lms" id="lms" />
-            <Label htmlFor="lms">LMS</Label>
+            <Label htmlFor="lms">{t('analytics.export.tab.lms')}</Label>
           </div>
         </RadioGroup>
 
@@ -164,31 +169,31 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
         {activeTab === 'analytics' && (
           <div className="space-y-4">
             <div>
-              <Label className="text-base">Формат</Label>
+              <Label className="text-base">{t('teacher.export.format')}</Label>
               <RadioGroup value={format} onValueChange={v => setFormat(v as typeof format)} className="flex gap-4 mt-2">
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="csv" id="csv" />
                   <Label htmlFor="csv" className="flex items-center gap-1">
-                    <FileText className="h-4 w-4" /> CSV
+                    <FileText className="h-4 w-4" /> {t('analytics.export.format.csv')}
                   </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="excel" id="excel" />
                   <Label htmlFor="excel" className="flex items-center gap-1">
-                    <FileSpreadsheet className="h-4 w-4" /> Excel
+                    <FileSpreadsheet className="h-4 w-4" /> {t('analytics.export.format.excel')}
                   </Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="json" id="json" />
                   <Label htmlFor="json" className="flex items-center gap-1">
-                    <FileText className="h-4 w-4" /> JSON
+                    <FileText className="h-4 w-4" /> {t('analytics.export.format.json')}
                   </Label>
                 </div>
               </RadioGroup>
             </div>
 
             <div>
-              <Label className="text-base">Разделы для экспорта</Label>
+              <Label className="text-base">{t('analytics.export.sectionsTitle')}</Label>
               <div className="grid grid-cols-2 gap-2 mt-2">
                 {sections.map(section => (
                   <div key={section.key} className="flex items-center gap-2">
@@ -207,12 +212,12 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Экспорт...
+                  {t('teacher.export.exporting')}
                 </>
               ) : (
                 <>
                   <Download className="h-4 w-4 mr-2" />
-                  Экспортировать
+                  {t('teacher.export.button')}
                 </>
               )}
             </Button>
@@ -226,15 +231,15 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
               <RadioGroup value={lmsFormat} onValueChange={v => setLmsFormat(v as typeof lmsFormat)} className="flex gap-4 mt-2">
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="csv" id="lms-csv" />
-                  <Label htmlFor="lms-csv">CSV</Label>
+                  <Label htmlFor="lms-csv">{t('analytics.export.format.csv')}</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="json" id="lms-json" />
-                  <Label htmlFor="lms-json">JSON</Label>
+                  <Label htmlFor="lms-json">{t('analytics.export.format.json')}</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="xml" id="lms-xml" />
-                  <Label htmlFor="lms-xml">XML (IMS Global)</Label>
+                  <Label htmlFor="lms-xml">{t('analytics.lms.format.xml')}</Label>
                 </div>
               </RadioGroup>
             </div>
@@ -270,7 +275,7 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Экспорт...
+                  {t('teacher.export.exporting')}
                 </>
               ) : (
                 <>

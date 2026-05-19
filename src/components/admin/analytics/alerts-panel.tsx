@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle, AlertTriangle, CheckCircle, TrendingUp, Award, Eye } from 'lucide-react';
 import StudentDetailDialog from './student-detail-dialog';
 import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
 
 interface StudentAlert {
   user_id: string;
@@ -42,18 +44,23 @@ export default function AlertsPanel() {
   const [error, setError] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/alerts')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/alerts?${params}`)
       .then((r) => r.ok ? r.json() : Promise.reject())
       .then((data) => setAlerts(data.alerts))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
-  if (!alerts.length) return <Card><CardContent className="p-6 text-center text-muted-foreground">{t('analytics.alerts.noAlerts')}</CardContent></Card>;
+  if (!alerts.length) return <EmptyState icon="alert" title={t('analytics.alerts.noAlerts')} />;
 
   const alertTypeLabels: Record<string, string> = {
     at_risk: t('analytics.alerts.atRisk'),

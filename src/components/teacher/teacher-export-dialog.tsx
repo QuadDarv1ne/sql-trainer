@@ -29,6 +29,9 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
   const [includeProgress, setIncludeProgress] = useState(true);
   const [includeEngagement, setIncludeEngagement] = useState(true);
   const [includeAnalytics, setIncludeAnalytics] = useState(true);
+  const [includeSkills, setIncludeSkills] = useState(false);
+  const [includeFunnel, setIncludeFunnel] = useState(false);
+  const [includeMastery, setIncludeMastery] = useState(false);
 
   const handleExport = async () => {
     setLoading(true);
@@ -37,6 +40,9 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
         includeProgress: String(includeProgress),
         includeEngagement: String(includeEngagement),
         includeAnalytics: String(includeAnalytics),
+        includeSkills: String(includeSkills),
+        includeFunnel: String(includeFunnel),
+        includeMastery: String(includeMastery),
       });
 
       if (format === 'pdf') {
@@ -126,15 +132,15 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
             <RadioGroup value={format} onValueChange={v => setFormat(v as typeof format)} className="flex gap-4 mt-2">
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="csv" id="t-csv" />
-                <Label htmlFor="t-csv">CSV</Label>
+                <Label htmlFor="t-csv">{t('analytics.export.format.csv')}</Label>
               </div>
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="excel" id="t-excel" />
-                <Label htmlFor="t-excel">Excel</Label>
+                <Label htmlFor="t-excel">{t('analytics.export.format.excel')}</Label>
               </div>
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="pdf" id="t-pdf" />
-                <Label htmlFor="t-pdf">PDF</Label>
+                <Label htmlFor="t-pdf">{t('analytics.export.format.pdf')}</Label>
               </div>
             </RadioGroup>
           </div>
@@ -165,6 +171,31 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
                 onCheckedChange={v => setIncludeAnalytics(!!v)}
               />
               <Label htmlFor="t-analytics">{t('teacher.tabs.analytics')}</Label>
+            </div>
+            <Separator />
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="t-skills"
+                checked={includeSkills}
+                onCheckedChange={v => setIncludeSkills(!!v)}
+              />
+              <Label htmlFor="t-skills">{t('admin.tabs.skills')}</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="t-funnel"
+                checked={includeFunnel}
+                onCheckedChange={v => setIncludeFunnel(!!v)}
+              />
+              <Label htmlFor="t-funnel">{t('admin.tabs.funnel')}</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="t-mastery"
+                checked={includeMastery}
+                onCheckedChange={v => setIncludeMastery(!!v)}
+              />
+              <Label htmlFor="t-mastery">{t('admin.tabs.mastery')}</Label>
             </div>
           </div>
 

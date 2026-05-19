@@ -10,26 +10,27 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
 import { Loader2, Mail, Lock, AlertCircle, CheckCircle2, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 type Step = 'request' | 'verify' | 'done';
 
 function getPasswordStrength(password: string): { score: number; label: string; color: string; requirements: { met: boolean; text: string }[] } {
   const requirements = [
-    { met: password.length >= 6, text: 'Минимум 6 символов' },
-    { met: /[A-Z]/.test(password), text: 'Заглавная буква' },
-    { met: /[a-z]/.test(password), text: 'Строчная буква' },
-    { met: /\d/.test(password), text: 'Цифра' },
-    { met: /[^A-Za-z0-9]/.test(password), text: 'Спецсимвол' },
+    { met: password.length >= 6, text: t('auth.passwordPlaceholder') },
+    { met: /[A-Z]/.test(password), text: t('profile.req.uppercase') },
+    { met: /[a-z]/.test(password), text: t('profile.req.lowercase') },
+    { met: /\d/.test(password), text: t('profile.req.digit') },
+    { met: /[^A-Za-z0-9]/.test(password), text: t('profile.req.special') },
   ];
 
   const metCount = requirements.filter(r => r.met).length;
   const score = Math.round((metCount / requirements.length) * 100);
 
-  let label = 'Слабый';
+  let label = t('auth.strength.weak');
   let color = 'text-red-500';
-  if (score >= 80) { label = 'Надёжный'; color = 'text-emerald-500'; }
-  else if (score >= 60) { label = 'Средний'; color = 'text-yellow-500'; }
-  else if (score >= 40) { label = 'Слабый'; color = 'text-orange-500'; }
+  if (score >= 80) { label = t('auth.strength.strong'); color = 'text-emerald-500'; }
+  else if (score >= 60) { label = t('auth.strength.fair'); color = 'text-yellow-500'; }
+  else if (score >= 40) { label = t('auth.strength.weak'); color = 'text-orange-500'; }
 
   return { score, label, color, requirements };
 }
@@ -91,7 +92,7 @@ export default function ResetPasswordForm() {
       setCooldown(60);
       setStep('verify');
     } catch {
-      setError('Ошибка отправки кода. Попробуйте снова.');
+      setError(t('auth.registerError'));
     } finally {
       setLoading(false);
     }
@@ -102,12 +103,12 @@ export default function ResetPasswordForm() {
     setError('');
 
     if (newPassword !== confirmPassword) {
-      setError('Пароли не совпадают');
+      setError(t('auth.passwordsNoMatch'));
       return;
     }
 
     if (newPassword.length < 6) {
-      setError('Пароль должен содержать минимум 6 символов');
+      setError(t('auth.passwordTooShort'));
       return;
     }
 
@@ -128,7 +129,7 @@ export default function ResetPasswordForm() {
 
       setStep('done');
     } catch {
-      setError('Ошибка сброса пароля. Попробуйте снова.');
+      setError(t('auth.registerError'));
     } finally {
       setLoading(false);
     }
@@ -142,11 +143,11 @@ export default function ResetPasswordForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">Восстановление пароля</CardTitle>
+        <CardTitle className="text-2xl font-bold">{t('auth.resetPassword')}</CardTitle>
         <CardDescription>
-          {step === 'request' && 'Введите email для получения кода'}
-          {step === 'verify' && 'Введите код и новый пароль'}
-          {step === 'done' && 'Пароль успешно изменён'}
+          {step === 'request' && t('auth.resetPasswordDesc')}
+          {step === 'verify' && t('profile.changePasswordDesc')}
+          {step === 'done' && t('auth.passwordChangeSuccess')}
         </CardDescription>
       </CardHeader>
 
@@ -160,7 +161,7 @@ export default function ResetPasswordForm() {
               </Alert>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -178,11 +179,11 @@ export default function ResetPasswordForm() {
           <CardFooter className="flex flex-col gap-3">
             <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Отправить код
+              {t('auth.sendCode')}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
               <Link href="/login" className="text-emerald-600 hover:underline">
-                ← Назад к входу
+                {t('auth.backToLogin')}
               </Link>
             </p>
           </CardFooter>
@@ -202,14 +203,14 @@ export default function ResetPasswordForm() {
               <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/20">
                 <KeyRound className="h-4 w-4 text-amber-600" />
                 <AlertDescription>
-                  <span className="font-medium">MVP: Код восстановления</span>
+                  <span className="font-medium">{t('auth.resetCode')}</span>
                   <span className="block mt-1 font-mono text-lg">{devCode}</span>
                 </AlertDescription>
               </Alert>
             )}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="code">Код из письма</Label>
+                <Label htmlFor="code">{t('auth.resetCode')}</Label>
                 {codeSent && (
                   <Button
                     type="button"
@@ -219,7 +220,7 @@ export default function ResetPasswordForm() {
                     onClick={handleResendCode}
                     disabled={cooldown > 0}
                   >
-                    {cooldown > 0 ? `Отправить повторно через ${cooldown}с` : 'Отправить повторно'}
+                    {cooldown > 0 ? `${t('auth.sendCode')} ${cooldown}с` : t('auth.sendCode')}
                   </Button>
                 )}
               </div>
@@ -235,13 +236,13 @@ export default function ResetPasswordForm() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="newPassword">Новый пароль</Label>
+              <Label htmlFor="newPassword">{t('auth.newPassword')}</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="newPassword"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Минимум 6 символов"
+                  placeholder={t('auth.passwordPlaceholder')}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="pl-10 pr-10"
@@ -261,7 +262,7 @@ export default function ResetPasswordForm() {
               {newPassword && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Надёжность пароля</span>
+                    <span className="text-muted-foreground">{t('auth.passwordStrength')}</span>
                     <span className={`font-medium ${passwordStrength.color}`}>
                       {passwordStrength.label}
                     </span>
@@ -279,13 +280,13 @@ export default function ResetPasswordForm() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Подтверждение</Label>
+              <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="Повторите пароль"
+                  placeholder={t('auth.confirmPasswordPlaceholder')}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="pl-10 pr-10"
@@ -305,13 +306,13 @@ export default function ResetPasswordForm() {
               {confirmPassword && newPassword !== confirmPassword && (
                 <p className="text-xs text-red-500 flex items-center gap-1">
                   <AlertCircle className="h-3 w-3" />
-                  Пароли не совпадают
+                  {t('auth.passwordsNoMatchLive')}
                 </p>
               )}
               {confirmPassword && newPassword === confirmPassword && (
                 <p className="text-xs text-emerald-600 flex items-center gap-1">
                   <CheckCircle2 className="h-3 w-3" />
-                  Пароли совпадают
+                  {t('auth.passwordsMatch')}
                 </p>
               )}
             </div>
@@ -319,7 +320,7 @@ export default function ResetPasswordForm() {
           <CardFooter className="flex flex-col gap-3">
             <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={loading || newPassword !== confirmPassword}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Сменить пароль
+              {t('auth.changePasswordBtn')}
             </Button>
           </CardFooter>
         </form>
@@ -328,12 +329,12 @@ export default function ResetPasswordForm() {
       {step === 'done' && (
         <CardContent className="flex flex-col items-center justify-center py-6">
           <CheckCircle2 className="h-12 w-12 text-emerald-500 mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Пароль изменён!</h3>
+          <h3 className="text-lg font-semibold mb-2">{t('auth.passwordChangeSuccess')}</h3>
           <p className="text-sm text-muted-foreground text-center mb-4">
-            Теперь вы можете войти с новым паролем
+            {t('auth.loginDesc')}
           </p>
           <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={() => router.push('/login')}>
-            Перейти ко входу
+            {t('auth.loginLink')}
           </Button>
         </CardContent>
       )}

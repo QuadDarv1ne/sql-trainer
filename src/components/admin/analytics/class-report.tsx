@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle, Users, TrendingUp, Award, Clock, FileText, Download } from 'lucide-react';
 import { generateClassReportPDF } from '@/lib/pdf-report';
 import { t, getLocale } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
 
 interface ClassReport {
   total_students: number;
@@ -25,14 +27,19 @@ export default function ClassReport() {
   const [report, setReport] = useState<ClassReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/class-report')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/class-report?${params}`)
       .then((r) => r.ok ? r.json() : Promise.reject())
       .then((data) => setReport(data.report))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [startDate, endDate]);
 
   const handleGeneratePDF = () => {
     if (report) {
@@ -47,7 +54,7 @@ export default function ClassReport() {
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
-  if (!report) return <p className="text-center py-4">{t('analytics.noData')}</p>;
+  if (!report) return <EmptyState />;
 
   const stats = [
     { label: t('analytics.classReport.totalStudents'), value: report.total_students, icon: Users, color: 'text-blue-600' },

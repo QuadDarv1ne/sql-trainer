@@ -1,30 +1,27 @@
-import { auth } from '@/lib/auth';
+import { requireTeacher } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   getTeacherStudentProgress,
   getStudentEngagementMetrics,
   getTaskAnalytics,
   getErrorPatternAnalysis,
+  getStudentSkillBreakdown,
+  getTaskCompletionFunnel,
+  getMasteryProgression,
 } from '@/lib/db-users';
-import type { Role } from '@/lib/rbac';
-import { hasRole } from '@/lib/rbac';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userRole = (session.user as { role?: Role }).role;
-    if (!userRole || !hasRole(userRole, 'teacher')) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    const { error } = await requireTeacher();
+    if (error) return error;
 
     const searchParams = request.nextUrl.searchParams;
     const includeProgress = searchParams.get('includeProgress') !== 'false';
     const includeEngagement = searchParams.get('includeEngagement') !== 'false';
     const includeAnalytics = searchParams.get('includeAnalytics') !== 'false';
+    const includeSkills = searchParams.get('includeSkills') === 'true';
+    const includeFunnel = searchParams.get('includeFunnel') === 'true';
+    const includeMastery = searchParams.get('includeMastery') === 'true';
 
     const data: Record<string, unknown> = {};
 
@@ -39,6 +36,18 @@ export async function GET(request: NextRequest) {
     if (includeAnalytics) {
       data.tasks = getTaskAnalytics();
       data.errorPatterns = getErrorPatternAnalysis();
+    }
+
+    if (includeSkills) {
+      data.skills = getStudentSkillBreakdown();
+    }
+
+    if (includeFunnel) {
+      data.funnel = getTaskCompletionFunnel();
+    }
+
+    if (includeMastery) {
+      data.mastery = getMasteryProgression();
     }
 
     return NextResponse.json({ data });

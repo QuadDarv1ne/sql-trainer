@@ -1,0 +1,180 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import { t } from '@/lib/i18n';
+import { Deadline } from '@/lib/db-users';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { CreateDeadlineDialog } from '@/components/admin/create-deadline-dialog';
+
+const typeLabels: Record<Deadline['type'], string> = {
+  course: 'deadline.type.course',
+  exam: 'deadline.type.exam',
+  task: 'deadline.type.task',
+  inactivity: 'deadline.type.inactivity',
+};
+
+const targetLabels: Record<Deadline['target_type'], string> = {
+  all_students: 'deadline.target.all',
+  group: 'deadline.target.group',
+  individual: 'deadline.target.individual',
+};
+
+function formatDate(ts: number): string {
+  return new Date(ts).toLocaleDateString('ru-RU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+function getTimeStatus(dueAt: number): { label: string; variant: 'destructive' | 'default' | 'secondary' } {
+  const now = Date.now();
+  const hoursLeft = (dueAt - now) / 3600000;
+  if (hoursLeft < 0) return { label: t('reminder.overdue'), variant: 'destructive' };
+  if (hoursLeft < 24) return { label: t('reminder.dueSoon'), variant: 'destructive' };
+  if (hoursLeft < 72) return { label: t('reminder.dueSoon'), variant: 'default' };
+  return { label: `${Math.round(hoursLeft)}ч`, variant: 'secondary' };
+}
+
+export function TeacherDeadlineManager() {
+  const [deadlines, setDeadlines] = useState<Deadline[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const fetchDeadlines = async () => {
+    try {
+      const res = await fetch('/api/admin/deadlines');
+      const data = await res.json();
+      if (res.ok) setDeadlines(data.deadlines || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchDeadlines(); }, []);
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      const res = await fetch(`/api/admin/deadlines/${deleteId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toast.success(t('deadline.deleted'));
+      fetchDeadlines();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setDeleteId(null);
+    }
+  };
+
+  if (loading) return <div className="p-8 text-center">{t('teacher.loading')}</div>;
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>{t('deadline.title')}</CardTitle>
+        <Button onClick={() => setDialogOpen(true)}>{t('deadline.create')}</Button>
+      </CardHeader>
+      <CardContent>
+        {deadlines.length === 0 ? (
+          <div className="py-8 text-center text-muted-foreground">
+            <p>{t('deadline.noDeadlines')}</p>
+            <p className="text-sm mt-1">{t('deadline.noDeadlinesDesc')}</p>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('deadline.titleLabel')}</TableHead>
+                <TableHead>{t('deadline.type')}</TableHead>
+                <TableHead>{t('deadline.target')}</TableHead>
+                <TableHead>{t('deadline.dueDate')}</TableHead>
+                <TableHead>Статус</TableHead>
+                <TableHead className="text-right">{t('admin.users.actions')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {deadlines.map(d => {
+                const status = getTimeStatus(d.due_at);
+                return (
+                  <TableRow key={d.id}>
+                    <TableCell className="font-medium">
+                      <div>{d.title}</div>
+                      {d.description && (
+                        <div className="text-sm text-muted-foreground">{d.description}</div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{t(typeLabels[d.type])}</Badge>
+                    </TableCell>
+                    <TableCell>{t(targetLabels[d.target_type])}</TableCell>
+                    <TableCell>{formatDate(d.due_at)}</TableCell>
+                    <TableCell>
+                      <Badge variant={status.variant}>{status.label}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive"
+                        onClick={() => setDeleteId(d.id)}
+                      >
+                        {t('deadline.delete')}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+
+      <CreateDeadlineDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSuccess={fetchDeadlines}
+      />
+
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('deadline.delete')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('deadline.confirmDelete')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('action.close')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>{t('deadline.delete')}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Card>
+  );
+}

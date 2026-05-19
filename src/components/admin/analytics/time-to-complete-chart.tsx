@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
 import {
   BarChart,
   Bar,
@@ -36,9 +39,14 @@ export default function TimeToCompleteChart() {
   const [data, setData] = useState<TimeEstimate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/time-estimates')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/time-estimates?${params}`)
       .then((res) => res.json())
       .then((data) => {
         setData(data.estimates || []);
@@ -48,13 +56,13 @@ export default function TimeToCompleteChart() {
         setError(err.message);
         setLoading(false);
       });
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Оценка времени выполнения</CardTitle>
+          <CardTitle>{t('analytics.timeToComplete.title')}</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -67,7 +75,7 @@ export default function TimeToCompleteChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Оценка времени выполнения</CardTitle>
+          <CardTitle>{t('analytics.timeToComplete.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <Alert variant="destructive">
@@ -83,10 +91,10 @@ export default function TimeToCompleteChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Оценка времени выполнения</CardTitle>
+          <CardTitle>{t('analytics.timeToComplete.title')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center text-muted-foreground py-8">Нет данных для отображения</p>
+          <EmptyState />
         </CardContent>
       </Card>
     );
@@ -110,13 +118,13 @@ export default function TimeToCompleteChart() {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Оценка времени выполнения</CardTitle>
+          <CardTitle>{t('analytics.timeToComplete.title')}</CardTitle>
           <div className="flex gap-2">
             <Badge variant="secondary">
-              {totalTasks} задач
+              {totalTasks} {t('analytics.timeToComplete.tasks')}
             </Badge>
             <Badge variant="secondary">
-              {avgTime} мин среднее
+              {t('analytics.timeToComplete.avgMinutes', { min: String(avgTime) })}
             </Badge>
           </div>
         </div>
@@ -126,28 +134,28 @@ export default function TimeToCompleteChart() {
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="text-center p-3 rounded-lg bg-muted/50">
             <p className="text-2xl font-bold">{minTime}</p>
-            <p className="text-xs text-muted-foreground">Мин. время (мин)</p>
+            <p className="text-xs text-muted-foreground">{t('analytics.timeToComplete.minLabel')}</p>
           </div>
           <div className="text-center p-3 rounded-lg bg-muted/50">
             <p className="text-2xl font-bold">{avgTime}</p>
-            <p className="text-xs text-muted-foreground">Среднее (мин)</p>
+            <p className="text-xs text-muted-foreground">{t('analytics.timeToComplete.avgLabel')}</p>
           </div>
           <div className="text-center p-3 rounded-lg bg-muted/50">
             <p className="text-2xl font-bold">{maxTime}</p>
-            <p className="text-xs text-muted-foreground">Макс. время (мин)</p>
+            <p className="text-xs text-muted-foreground">{t('analytics.timeToComplete.maxLabel')}</p>
           </div>
         </div>
 
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={chartData} layout="vertical" margin={{ left: 20 }}>
             <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-            <XAxis type="number" tick={{ fontSize: 12 }} label={{ value: 'Минуты', position: 'insideBottom', offset: -5 }} />
+            <XAxis type="number" tick={{ fontSize: 12 }} label={{ value: t('analytics.timeToComplete.axisLabel'), position: 'insideBottom', offset: -5 }} />
             <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11 }} />
             <Tooltip />
             <Legend />
             <Bar
               dataKey="time"
-              name="Время (мин)"
+              name={t('analytics.timeToComplete.legendLabel')}
               radius={[0, 4, 4, 0]}
             >
               {chartData.map((entry, index) => (

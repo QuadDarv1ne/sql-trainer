@@ -16,6 +16,8 @@ import {
   Legend,
 } from 'recharts';
 import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
 
 interface DifficultyComparisonEntry {
   difficulty: string;
@@ -31,9 +33,14 @@ export default function DifficultyComparisonChart() {
   const [data, setData] = useState<DifficultyComparisonEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/difficulty')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/difficulty?${params}`)
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
@@ -41,7 +48,7 @@ export default function DifficultyComparisonChart() {
       .then((data) => setData(data.comparison))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) {
@@ -52,7 +59,7 @@ export default function DifficultyComparisonChart() {
       </Alert>
     );
   }
-  if (!data.length) return <p className="text-center py-4">{t('analytics.noData')}</p>;
+  if (!data.length) return <EmptyState />;
 
   const difficultyLabels: Record<string, string> = {
     beginner: t('analytics.student.beginner'),

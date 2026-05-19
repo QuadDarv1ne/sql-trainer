@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Lightbulb } from 'lucide-react';
+import DataCard from '@/components/ui/data-card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Lightbulb } from 'lucide-react';
 import { t } from '@/lib/i18n';
 
 interface Recommendation {
@@ -16,9 +17,9 @@ interface Recommendation {
 }
 
 const priorityLabels: Record<string, string> = {
-  high: 'Высокий',
-  medium: 'Средний',
-  low: 'Низкий',
+  high: t('analytics.churn.high'),
+  medium: t('analytics.churn.medium'),
+  low: t('analytics.churn.low'),
 };
 
 const priorityColors: Record<string, string> = {
@@ -32,7 +33,9 @@ export default function TeacherRecommendations() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
+    setLoading(true);
+    setError('');
     fetch('/api/teacher/recommendations')
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
@@ -43,16 +46,42 @@ export default function TeacherRecommendations() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="text-center py-4">{t('teacher.loading')}</p>;
-  if (error) {
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  if (loading) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-5 w-5 rounded" />
+            <Skeleton className="h-6 w-48" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="rounded-lg border p-4 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <Skeleton className="h-5 w-40" />
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                </div>
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     );
   }
-  if (!data.length) return <p className="text-center py-4">{t('teacher.noData')}</p>;
+
+  if (error) {
+    return <DataCard loading={false} error={error} hasData={false} onRetry={loadData} />;
+  }
+
+  if (!data.length) return <p className="text-center py-4 text-muted-foreground">{t('teacher.noData')}</p>;
 
   return (
     <Card>

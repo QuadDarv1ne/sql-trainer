@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/table';
 import { AlertCircle, TrendingDown, TrendingUp, Minus, Shield } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
 
 interface ChurnPrediction {
   user_id: string;
@@ -38,9 +40,14 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState<string>('all');
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch(apiEndpoint)
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`${apiEndpoint}?${params}`)
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
@@ -48,7 +55,7 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
       .then((data) => setData(data.predictions))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  }, [apiEndpoint]);
+  }, [apiEndpoint, startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) {
@@ -59,15 +66,15 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
       </Alert>
     );
   }
-  if (!data.length) return <p className="text-center py-4">{t('analytics.noData')}</p>;
+  if (!data.length) return <EmptyState />;
 
   const filtered = filter === 'all' ? data : data.filter(d => d.risk_level === filter);
 
   const riskLevels = [
-    { key: 'critical', label: 'Критический', count: data.filter(d => d.risk_level === 'critical').length, color: 'text-red-700', bg: 'bg-red-100 dark:bg-red-950' },
-    { key: 'high', label: 'Высокий', count: data.filter(d => d.risk_level === 'high').length, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/50' },
-    { key: 'medium', label: 'Средний', count: data.filter(d => d.risk_level === 'medium').length, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/50' },
-    { key: 'low', label: 'Низкий', count: data.filter(d => d.risk_level === 'low').length, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/50' },
+    { key: 'critical', label: t('analytics.churn.critical'), count: data.filter(d => d.risk_level === 'critical').length, color: 'text-red-700', bg: 'bg-red-100 dark:bg-red-950' },
+    { key: 'high', label: t('analytics.churn.high'), count: data.filter(d => d.risk_level === 'high').length, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/50' },
+    { key: 'medium', label: t('analytics.churn.medium'), count: data.filter(d => d.risk_level === 'medium').length, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/50' },
+    { key: 'low', label: t('analytics.churn.low'), count: data.filter(d => d.risk_level === 'low').length, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/50' },
   ];
 
   const riskColors: Record<string, string> = {
@@ -111,7 +118,7 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingDown className="h-5 w-5 text-red-600" />
-            Прогнозирование отсева
+            {t('analytics.churn.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -119,12 +126,12 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Студент</TableHead>
-                  <TableHead className="text-right">Риск</TableHead>
-                  <TableHead>Факторы</TableHead>
-                  <TableHead>Тренд</TableHead>
-                  <TableHead className="text-right">Прогресс</TableHead>
-                  <TableHead>Рекомендация</TableHead>
+                  <TableHead>{t('analytics.churn.student')}</TableHead>
+                  <TableHead className="text-right">{t('analytics.churn.risk')}</TableHead>
+                  <TableHead>{t('analytics.churn.factors')}</TableHead>
+                  <TableHead>{t('analytics.churn.trend')}</TableHead>
+                  <TableHead className="text-right">{t('analytics.churn.progress')}</TableHead>
+                  <TableHead>{t('analytics.churn.recommendation')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -150,7 +157,7 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
                           <p key={i} className="text-xs text-muted-foreground truncate">{factor}</p>
                         ))}
                         {prediction.risk_factors.length > 2 && (
-                          <p className="text-xs text-muted-foreground">+{prediction.risk_factors.length - 2} ещё</p>
+                          <p className="text-xs text-muted-foreground">+{prediction.risk_factors.length - 2} {t('analytics.churn.more')}</p>
                         )}
                       </div>
                     </TableCell>
@@ -158,7 +165,7 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
                       <div className="flex items-center gap-1">
                         {trendIcons[prediction.velocity_trend]}
                         <span className="text-xs">
-                          {prediction.velocity_trend === 'improving' ? 'Рост' : prediction.velocity_trend === 'declining' ? 'Спад' : 'Стабильно'}
+                          {prediction.velocity_trend === 'improving' ? t('analytics.churn.improving') : prediction.velocity_trend === 'declining' ? t('analytics.churn.declining') : t('analytics.churn.stable')}
                         </span>
                       </div>
                     </TableCell>

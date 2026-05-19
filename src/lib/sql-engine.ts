@@ -291,6 +291,21 @@ function getSuggestionForError(error: string, sql: string): string | undefined {
 /** Maximum number of rows returned by a query */
 const MAX_ROWS = 1000;
 
+/** Maximum query execution time in milliseconds */
+const MAX_EXECUTION_TIME_MS = 5000;
+
+/**
+ * Check if execution has exceeded the time limit.
+ */
+function checkTimeout(startTime: number): void {
+  const elapsed = performance.now() - startTime;
+  if (elapsed > MAX_EXECUTION_TIME_MS) {
+    throw new Error(
+      `Превышено время выполнения запроса (${MAX_EXECUTION_TIME_MS / 1000}с). Проверьте запрос на рекурсивные CTE или слишком большие JOIN.`
+    );
+  }
+}
+
 /**
  * Execute prepared statements against an already-initialized database.
  * Shared logic between executeQuery and executeWithSchema.
@@ -303,6 +318,9 @@ function executeStatements(
   let lastResult: QueryResult | null = null;
 
   for (const stmt of statements) {
+    // Check execution timeout
+    checkTimeout(startTime);
+
     // Skip empty or comment-only statements
     if (isEmptyOrComment(stmt)) {
       continue;

@@ -28,6 +28,7 @@ import { CATEGORY_ICONS } from '@/lib/category-icons';
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import ExportImportDialog from '@/components/export-import-dialog';
+import { ReminderBell } from '@/components/reminders/reminder-bell';
 
 const CATEGORY_LABELS: Record<TaskCategory | 'base', string> = {
   base: 'Базовые',
@@ -188,9 +189,12 @@ export default function Sidebar() {
             <Target className="h-4 w-4 text-emerald-500" />
             {t('progress.label')}
           </span>
-          <span className="text-xs text-muted-foreground">
-            {completedCount}/{totalCount}
-          </span>
+          <div className="flex items-center gap-1">
+            <ReminderBell />
+            <span className="text-xs text-muted-foreground">
+              {completedCount}/{totalCount}
+            </span>
+          </div>
         </div>
         <Progress value={progressPercent} className="h-2" />
         <p className="mt-1.5 text-xs text-muted-foreground">

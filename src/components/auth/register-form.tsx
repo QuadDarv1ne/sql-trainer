@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import Link from 'next/link';
 import { Loader2, Mail, Lock, User, Phone, AlertCircle, CheckCircle2, Shield } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -35,12 +36,12 @@ export default function RegisterForm() {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Пароли не совпадают');
+      setError(t('auth.passwordsNoMatch'));
       return;
     }
 
     if (password.length < 6) {
-      setError('Пароль должен содержать минимум 6 символов');
+      setError(t('auth.passwordTooShort'));
       return;
     }
 
@@ -69,7 +70,7 @@ export default function RegisterForm() {
         router.refresh();
       }, 1500);
     } catch {
-      setError('Ошибка регистрации. Попробуйте снова.');
+      setError(t('auth.registerError'));
     } finally {
       setLoading(false);
     }
@@ -80,9 +81,9 @@ export default function RegisterForm() {
       <Card className="w-full max-w-md">
         <CardContent className="flex flex-col items-center justify-center py-8">
           <CheckCircle2 className="h-12 w-12 text-emerald-500 mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Регистрация успешна!</h3>
+          <h3 className="text-lg font-semibold mb-2">{t('auth.registerSuccess')}</h3>
           <p className="text-sm text-muted-foreground text-center">
-            Аккаунт создан. Перенаправляем вас...
+            {t('auth.registerRedirect')}
           </p>
         </CardContent>
       </Card>
@@ -92,8 +93,8 @@ export default function RegisterForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">Регистрация</CardTitle>
-        <CardDescription>Создайте аккаунт для сохранения прогресса</CardDescription>
+        <CardTitle className="text-2xl font-bold">{t('auth.register')}</CardTitle>
+        <CardDescription>{t('auth.registerDesc')}</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
@@ -104,13 +105,13 @@ export default function RegisterForm() {
             </Alert>
           )}
           <div className="space-y-2">
-            <Label htmlFor="name">Имя</Label>
+            <Label htmlFor="name">{t('auth.name')}</Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="name"
                 type="text"
-                placeholder="Иван Петров"
+                placeholder={t('auth.namePlaceholder')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="pl-10"
@@ -119,7 +120,7 @@ export default function RegisterForm() {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t('auth.email')}</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -134,13 +135,13 @@ export default function RegisterForm() {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="phone">Телефон <span className="text-muted-foreground">(необязательно)</span></Label>
+            <Label htmlFor="phone">{t('auth.phone')} <span className="text-muted-foreground">{t('auth.optional')}</span></Label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="phone"
                 type="tel"
-                placeholder="+7 (999) 123-45-67"
+                placeholder={t('auth.phonePlaceholder')}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="pl-10"
@@ -148,29 +149,29 @@ export default function RegisterForm() {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="role">Роль</Label>
+            <Label htmlFor="role">{t('auth.role')}</Label>
             <div className="relative">
               <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Select value={role} onValueChange={setRole}>
                 <SelectTrigger id="role" className="pl-10">
-                  <SelectValue placeholder="Выберите роль" />
+                  <SelectValue placeholder={t('auth.roleSelect')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="student">Студент</SelectItem>
-                  <SelectItem value="teacher">Преподаватель</SelectItem>
-                  <SelectItem value="admin">Администратор</SelectItem>
+                  <SelectItem value="student">{t('auth.role.student')}</SelectItem>
+                  <SelectItem value="teacher">{t('auth.role.teacher')}</SelectItem>
+                  <SelectItem value="admin">{t('auth.role.admin')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Пароль</Label>
+            <Label htmlFor="password">{t('auth.password')}</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="password"
                 type="password"
-                placeholder="Минимум 6 символов"
+                placeholder={t('auth.passwordPlaceholder')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-10"
@@ -180,13 +181,13 @@ export default function RegisterForm() {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Подтверждение пароля</Label>
+            <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="Повторите пароль"
+                placeholder={t('auth.confirmPasswordPlaceholder')}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="pl-10"
@@ -199,12 +200,12 @@ export default function RegisterForm() {
         <CardFooter className="flex flex-col gap-3">
           <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Зарегистрироваться
+            {t('auth.registerBtn')}
           </Button>
           <p className="text-sm text-center text-muted-foreground">
-            Уже есть аккаунт?{' '}
+            {t('auth.hasAccount')}{' '}
             <Link href="/login" className="text-emerald-600 hover:underline font-medium">
-              Войти
+              {t('auth.loginLink')}
             </Link>
           </p>
         </CardFooter>

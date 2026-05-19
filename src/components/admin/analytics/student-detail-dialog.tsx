@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import {
   Award,
   Clock,
+  Flame,
   Mail,
   Target,
   RotateCcw,
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 import { t, getLocale } from '@/lib/i18n';
 import { generateStudentReportPDF } from '@/lib/pdf-report';
+import LearningPathTimeline from './learning-path-timeline';
 
 interface StudentDetail {
   user_id: string;
@@ -63,6 +65,7 @@ export default function StudentDetailDialog({
   const [data, setData] = useState<StudentDetailData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [streak, setStreak] = useState<number>(0);
 
   useEffect(() => {
     if (!open || !studentId) return;
@@ -80,6 +83,15 @@ export default function StudentDetailDialog({
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
   }, [studentId, open]);
+
+  useEffect(() => {
+    if (!data?.student) return;
+
+    fetch(`/api/admin/analytics/student/${data.student.id}/streak`)
+      .then(res => res.json())
+      .then(data => setStreak(data.streak || 0))
+      .catch(() => setStreak(0));
+  }, [data?.student]);
 
   const handleExportPDF = () => {
     if (!data) return;
@@ -189,6 +201,15 @@ export default function StudentDetailDialog({
               </Card>
             </div>
 
+            {/* Streak */}
+            <div className="flex items-center gap-2 p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
+              <Flame className="h-5 w-5 text-orange-500" />
+              <div>
+                <div className="text-lg font-bold text-orange-600">{streak}</div>
+                <div className="text-xs text-muted-foreground">{t('analytics.students.streak')}</div>
+              </div>
+            </div>
+
             {/* By difficulty */}
             <div>
               <h3 className="text-sm font-medium mb-2">{t('analytics.student.byDifficulty')}</h3>
@@ -272,6 +293,9 @@ export default function StudentDetailDialog({
                 </div>
               )}
             </div>
+
+            {/* Learning Timeline */}
+            <LearningPathTimeline userId={studentId} />
           </div>
         )}
       </DialogContent>

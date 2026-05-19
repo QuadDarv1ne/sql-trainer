@@ -1,10 +1,11 @@
 import { auth } from '@/lib/auth';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getActiveUsersCount, getAvgAttemptsPerTask, getDBStats, getAllUsers } from '@/lib/db-users';
 import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
+import { parseDateParams } from '@/lib/api-auth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -16,8 +17,14 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const activeUsers7d = getActiveUsersCount(7);
-    const avgAttempts = getAvgAttemptsPerTask();
+    const searchParams = request.nextUrl.searchParams;
+    const { startDate, endDate } = parseDateParams(searchParams);
+    const filters = startDate && endDate
+      ? { start_date: startDate, end_date: endDate }
+      : undefined;
+
+    const activeUsers7d = getActiveUsersCount(7, filters);
+    const avgAttempts = getAvgAttemptsPerTask(filters);
     const dbStats = getDBStats();
     const allUsers = getAllUsers();
     const students = allUsers.filter(u => u.role === 'student');
@@ -30,6 +37,7 @@ export async function GET() {
       avgAttempts,
       totalStudents,
       completionRate,
+      dateRange: startDate && endDate ? { startDate, endDate } : null,
     });
   } catch (error) {
     console.error('[API Error] GET /api/admin/analytics/performance:', error);

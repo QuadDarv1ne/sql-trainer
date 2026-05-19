@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/table';
 import { AlertCircle, Users, TrendingUp, Activity } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
 
 interface EngagementMetric {
   user_id: string;
@@ -31,9 +33,14 @@ export default function EngagementMetrics() {
   const [data, setData] = useState<EngagementMetric[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/engagement')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/engagement?${params}`)
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
@@ -41,7 +48,7 @@ export default function EngagementMetrics() {
       .then((data) => setData(data.metrics))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) {
@@ -52,13 +59,13 @@ export default function EngagementMetrics() {
       </Alert>
     );
   }
-  if (!data.length) return <p className="text-center py-4">{t('analytics.noData')}</p>;
+  if (!data.length) return <EmptyState />;
 
   const levelLabels: Record<string, string> = {
-    high: 'Высокий',
-    medium: 'Средний',
-    low: 'Низкий',
-    at_risk: 'В зоне риска',
+    high: t('teacher.engagement.high'),
+    medium: t('teacher.engagement.medium'),
+    low: t('teacher.engagement.low'),
+    at_risk: t('teacher.engagement.atRisk'),
   };
 
   const levelColors: Record<string, string> = {
@@ -81,7 +88,7 @@ export default function EngagementMetrics() {
             <Users className="h-8 w-8 text-emerald-600" />
             <div>
               <p className="text-2xl font-bold">{highEngagement}</p>
-              <p className="text-xs text-muted-foreground">Высокая вовлечённость</p>
+              <p className="text-xs text-muted-foreground">{t('teacher.engagement.highCount')}</p>
             </div>
           </CardContent>
         </Card>
@@ -90,7 +97,7 @@ export default function EngagementMetrics() {
             <Activity className="h-8 w-8 text-blue-600" />
             <div>
               <p className="text-2xl font-bold">{avgEngagement}%</p>
-              <p className="text-xs text-muted-foreground">Средний балл</p>
+              <p className="text-xs text-muted-foreground">{t('teacher.engagement.avgScore')}</p>
             </div>
           </CardContent>
         </Card>
@@ -99,7 +106,7 @@ export default function EngagementMetrics() {
             <AlertCircle className="h-8 w-8 text-red-600" />
             <div>
               <p className="text-2xl font-bold">{atRisk}</p>
-              <p className="text-xs text-muted-foreground">В зоне риска</p>
+              <p className="text-xs text-muted-foreground">{t('teacher.engagement.atRiskCount')}</p>
             </div>
           </CardContent>
         </Card>
@@ -110,7 +117,7 @@ export default function EngagementMetrics() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            Метрики вовлечённости студентов
+            {t('analytics.engagement.metricsTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -118,11 +125,11 @@ export default function EngagementMetrics() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Студент</TableHead>
-                  <TableHead>Уровень</TableHead>
-                  <TableHead>Вовлечённость</TableHead>
-                  <TableHead className="text-right">Скорость (зад/нед)</TableHead>
-                  <TableHead className="text-right">Дней назад</TableHead>
+                  <TableHead>{t('analytics.engagement.student')}</TableHead>
+                  <TableHead>{t('analytics.engagement.level')}</TableHead>
+                  <TableHead>{t('analytics.engagement.engagement')}</TableHead>
+                  <TableHead className="text-right">{t('analytics.engagement.velocityHeader')}</TableHead>
+                  <TableHead className="text-right">{t('analytics.engagement.daysAgoHeader')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

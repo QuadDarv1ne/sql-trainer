@@ -16,9 +16,9 @@ interface DBStats {
 }
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 Б';
+  if (bytes === 0) return t('admin.stats.bytes.zero');
   const k = 1024;
-  const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+  const sizes = [t('admin.stats.bytes.B'), t('admin.stats.bytes.KB'), t('admin.stats.bytes.MB'), t('admin.stats.bytes.GB')];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return Math.round(bytes / Math.pow(k, i) * 10) / 10 + ' ' + sizes[i];
 }

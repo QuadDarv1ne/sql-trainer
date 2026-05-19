@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { TRAINING_TASKS } from '@/lib/training-tasks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -169,7 +170,7 @@ export default function StudentProgressTable() {
                     <TableCell className="font-medium">{student.name}</TableCell>
                     <TableCell>{student.email}</TableCell>
                     <TableCell className="text-right">
-                      <Badge variant="secondary">{student.tasks_completed}/56</Badge>
+                      <Badge variant="secondary">{student.tasks_completed}/{TRAINING_TASKS.length}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -215,7 +216,7 @@ export default function StudentProgressTable() {
           <span className="text-sm text-muted-foreground">
             {filteredAndSorted.length === 0
               ? t('teacher.progress.noResults')
-              : `${(safePage - 1) * pageSize + 1}–${Math.min(safePage * pageSize, filteredAndSorted.length)} из ${filteredAndSorted.length}`}
+              : `${(safePage - 1) * pageSize + 1}–${Math.min(safePage * pageSize, filteredAndSorted.length)} ${t('teacher.progress.of')} ${filteredAndSorted.length}`}
           </span>
           <div className="flex items-center gap-2">
             <Select value={String(pageSize)} onValueChange={v => { setPageSize(Number(v)); setPage(1); }}>

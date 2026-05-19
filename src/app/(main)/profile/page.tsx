@@ -45,21 +45,21 @@ interface UserProfile {
 
 function getPasswordStrength(password: string): { score: number; label: string; color: string; requirements: { met: boolean; text: string }[] } {
   const requirements = [
-    { met: password.length >= 6, text: 'Минимум 6 символов' },
-    { met: /[A-Z]/.test(password), text: 'Заглавная буква' },
-    { met: /[a-z]/.test(password), text: 'Строчная буква' },
-    { met: /\d/.test(password), text: 'Цифра' },
-    { met: /[^A-Za-z0-9]/.test(password), text: 'Спецсимвол' },
+    { met: password.length >= 6, text: t('profile.req.minChars') },
+    { met: /[A-Z]/.test(password), text: t('profile.req.uppercase') },
+    { met: /[a-z]/.test(password), text: t('profile.req.lowercase') },
+    { met: /\d/.test(password), text: t('profile.req.digit') },
+    { met: /[^A-Za-z0-9]/.test(password), text: t('profile.req.special') },
   ];
 
   const metCount = requirements.filter(r => r.met).length;
   const score = Math.round((metCount / requirements.length) * 100);
 
-  let label = 'Слабый';
+  let label = t('profile.strength.weak');
   let color = 'text-red-500';
-  if (score >= 80) { label = 'Надёжный'; color = 'text-emerald-500'; }
-  else if (score >= 60) { label = 'Средний'; color = 'text-yellow-500'; }
-  else if (score >= 40) { label = 'Слабый'; color = 'text-orange-500'; }
+  if (score >= 80) { label = t('profile.strength.strong'); color = 'text-emerald-500'; }
+  else if (score >= 60) { label = t('profile.strength.fair'); color = 'text-yellow-500'; }
+  else if (score >= 40) { label = t('profile.strength.weak'); color = 'text-orange-500'; }
 
   return { score, label, color, requirements };
 }
@@ -69,15 +69,15 @@ function SavedQueriesSection() {
 
   const copyToClipboard = (sql: string) => {
     navigator.clipboard.writeText(sql).then(() => {
-      toast.success('SQL скопирован в буфер обмена');
+      toast.success(t('profile.sqlCopied'));
     }).catch(() => {
-      toast.error('Не удалось скопировать');
+      toast.error(t('profile.copyFailed'));
     });
   };
 
   const handleResetAll = () => {
     resetAllProgress();
-    toast.success('Прогресс сброшен');
+    toast.success(t('profile.resetSuccess'));
   };
 
   if (savedQueries.length === 0) {
@@ -86,9 +86,9 @@ function SavedQueriesSection() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center">
             <Bookmark className="h-12 w-12 text-muted-foreground/30" />
-            <h3 className="text-lg font-semibold">{t('savedQueries.empty')}</h3>
+            <h3 className="text-lg font-semibold">{t('profile.savedEmpty')}</h3>
             <p className="text-sm text-muted-foreground">
-              Сохраняйте запросы с главной страницы для быстрого доступа
+              {t('profile.savedEmptyDesc')}
             </p>
           </CardContent>
         </Card>
@@ -127,7 +127,7 @@ function SavedQueriesSection() {
                   size="sm"
                   className="h-8 w-8 p-0"
                   onClick={() => copyToClipboard(query.sql)}
-                  title="Копировать SQL"
+                  title={t('profile.copySql')}
                 >
                   <Copy className="h-3.5 w-3.5" />
                 </Button>
@@ -136,7 +136,7 @@ function SavedQueriesSection() {
                   size="sm"
                   className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
                   onClick={() => deleteSavedQuery(query.id)}
-                  title="Удалить"
+                  title={t('profile.delete')}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
@@ -156,10 +156,10 @@ function ResetProgressCard({ onReset }: { onReset: () => void }) {
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2 text-orange-600">
           <RotateCcw className="h-5 w-5" />
-          Сброс прогресса
+          {t('profile.resetProgress')}
         </CardTitle>
         <CardDescription>
-          Это действие сбросит весь ваш прогресс, достижения и сохранённые запросы
+          {t('profile.resetProgressDesc')}
         </CardDescription>
       </CardHeader>
       <CardFooter>
@@ -167,23 +167,23 @@ function ResetProgressCard({ onReset }: { onReset: () => void }) {
           <AlertDialogTrigger asChild>
             <Button variant="outline" className="text-orange-600 border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-950">
               <RotateCcw className="mr-2 h-4 w-4" />
-              Сбросить прогресс
+              {t('profile.resetButton')}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
+              <AlertDialogTitle>{t('profile.resetConfirmTitle')}</AlertDialogTitle>
               <AlertDialogDescription>
-                Все выполненные задания, достижения, серия практики, XP, уровни и сохранённые запросы будут удалены. Это действие нельзя отменить.
+                {t('profile.resetConfirmDesc')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Отмена</AlertDialogCancel>
+              <AlertDialogCancel>{t('profile.cancel')}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={onReset}
                 className="bg-orange-600 hover:bg-orange-700"
               >
-                Сбросить
+                {t('profile.resetAction')}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -242,7 +242,7 @@ export default function ProfilePage() {
           setNewEmail(data.user.email);
         }
       })
-      .catch(() => toast.error('Не удалось загрузить профиль'))
+      .catch(() => toast.error(t('profile.loadError')))
       .finally(() => setLoading(false));
   }, []);
 
@@ -259,12 +259,12 @@ export default function ProfilePage() {
         setProfile(data.user);
         setEditMode(false);
         update({ name: editName, phone: editPhone });
-        toast.success('Профиль обновлён');
+        toast.success(t('profile.profileUpdated'));
       } else {
         toast.error(data.error);
       }
     } catch {
-      toast.error('Ошибка сохранения');
+      toast.error(t('profile.saveError'));
     } finally {
       setSaving(false);
     }
@@ -273,11 +273,11 @@ export default function ProfilePage() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast.error('Пароли не совпадают');
+      toast.error(t('profile.passwordsNoMatchToast'));
       return;
     }
     if (newPassword.length < 6) {
-      toast.error('Пароль должен содержать минимум 6 символов');
+      toast.error(t('profile.passwordTooShort'));
       return;
     }
 
@@ -290,7 +290,7 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success('Пароль успешно изменён');
+        toast.success(t('profile.passwordChanged'));
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
@@ -298,7 +298,7 @@ export default function ProfilePage() {
         toast.error(data.error);
       }
     } catch {
-      toast.error('Ошибка смены пароля');
+      toast.error(t('profile.passwordChangeError'));
     } finally {
       setChangingPassword(false);
     }
@@ -307,7 +307,7 @@ export default function ProfilePage() {
   const handleChangeEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newEmail || !emailPassword) {
-      toast.error('Заполните все поля');
+      toast.error(t('profile.fillAllFields'));
       return;
     }
 
@@ -320,7 +320,7 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success('Email успешно изменён');
+        toast.success(t('profile.emailChanged'));
         setProfile(prev => prev ? { ...prev, email: newEmail } : null);
         update({ email: newEmail });
         setEmailPassword('');
@@ -328,7 +328,7 @@ export default function ProfilePage() {
         toast.error(data.error);
       }
     } catch {
-      toast.error('Ошибка смены email');
+      toast.error(t('profile.emailChangeError'));
     } finally {
       setChangingEmail(false);
     }
@@ -336,7 +336,7 @@ export default function ProfilePage() {
 
   const handleDeleteAccount = async () => {
     if (!deletePassword) {
-      toast.error('Введите пароль для подтверждения');
+      toast.error(t('profile.deleteConfirmPassword'));
       return;
     }
 
@@ -349,14 +349,14 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success('Аккаунт удалён');
+        toast.success(t('profile.accountDeleted'));
         signOut({ redirect: false });
         router.push('/');
       } else {
         toast.error(data.error);
       }
     } catch {
-      toast.error('Ошибка удаления аккаунта');
+      toast.error(t('profile.deleteError'));
     } finally {
       setDeletingAccount(false);
     }
@@ -374,13 +374,13 @@ export default function ProfilePage() {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
         <AlertCircle className="h-12 w-12 text-destructive" />
-        <h2 className="text-lg font-semibold">Не удалось загрузить профиль</h2>
+        <h2 className="text-lg font-semibold">{t('profile.pageError')}</h2>
         <p className="max-w-md text-sm text-muted-foreground">
-          Произошла ошибка при загрузке данных профиля. Попробуйте обновить страницу.
+          {t('profile.pageErrorDesc')}
         </p>
         <Button onClick={() => window.location.reload()}>
           <RotateCcw className="mr-2 h-4 w-4" />
-          Обновить страницу
+          {t('profile.refreshPage')}
         </Button>
       </div>
     );
@@ -416,22 +416,22 @@ export default function ProfilePage() {
                 </Avatar>
                 <div>
                   <h2 className="text-xl font-bold">{profile.name}</h2>
-                  <p className="text-sm text-muted-foreground">Участник с {createdDate}</p>
+                  <p className="text-sm text-muted-foreground">{t('profile.memberSince', { date: createdDate })}</p>
                 </div>
               </div>
               {!editMode ? (
                 <Button variant="outline" size="sm" onClick={() => setEditMode(true)}>
                   <User className="mr-2 h-4 w-4" />
-                  Редактировать
+                  {t('profile.edit')}
                 </Button>
               ) : (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => { setEditMode(false); setEditName(profile.name); setEditPhone(profile.phone || ''); }}>
-                    Отмена
+                    {t('profile.cancel')}
                   </Button>
                   <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSave} disabled={saving}>
                     {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}
-                    Сохранить
+                    {t('profile.save')}
                   </Button>
                 </div>
               )}
@@ -440,12 +440,12 @@ export default function ProfilePage() {
             {editMode ? (
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-name">Имя</Label>
+                  <Label htmlFor="edit-name">{t('profile.name')}</Label>
                   <Input id="edit-name" value={editName} onChange={(e) => setEditName(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-phone">Телефон</Label>
-                  <Input id="edit-phone" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="+7 (999) 123-45-67" />
+                  <Label htmlFor="edit-phone">{t('profile.phone')}</Label>
+                  <Input id="edit-phone" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder={t('profile.phonePlaceholder')} />
                 </div>
               </div>
             ) : (
@@ -472,11 +472,11 @@ export default function ProfilePage() {
         {/* Tabs: Progress, Achievements, Leaderboard, Security */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="flex-wrap">
-            <TabsTrigger value="progress">Прогресс</TabsTrigger>
-            <TabsTrigger value="achievements">Достижения</TabsTrigger>
-            <TabsTrigger value="leaderboard">Рейтинг</TabsTrigger>
-            <TabsTrigger value="saved">Запросы</TabsTrigger>
-            <TabsTrigger value="security">Безопасность</TabsTrigger>
+            <TabsTrigger value="progress">{t('profile.tabs.progress')}</TabsTrigger>
+            <TabsTrigger value="achievements">{t('profile.tabs.achievements')}</TabsTrigger>
+            <TabsTrigger value="leaderboard">{t('profile.tabs.leaderboard')}</TabsTrigger>
+            <TabsTrigger value="saved">{t('profile.tabs.saved')}</TabsTrigger>
+            <TabsTrigger value="security">{t('profile.tabs.security')}</TabsTrigger>
           </TabsList>
           <TabsContent value="progress">
             <ProgressStats />
@@ -497,14 +497,14 @@ export default function ProfilePage() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Lock className="h-5 w-5" />
-                    Смена пароля
+                    {t('profile.changePassword')}
                   </CardTitle>
-                  <CardDescription>Введите текущий пароль и новый пароль для смены</CardDescription>
+                  <CardDescription>{t('profile.changePasswordDesc')}</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleChangePassword}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="current-password">Текущий пароль</Label>
+                      <Label htmlFor="current-password">{t('profile.currentPassword')}</Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -527,7 +527,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="new-password">Новый пароль</Label>
+                      <Label htmlFor="new-password">{t('profile.newPassword')}</Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -552,7 +552,7 @@ export default function ProfilePage() {
                       {newPassword && (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">Надёжность пароля</span>
+                            <span className="text-muted-foreground">{t('profile.passwordStrength')}</span>
                             <span className={`font-medium ${passwordStrength.color}`}>
                               {passwordStrength.label}
                             </span>
@@ -578,7 +578,7 @@ export default function ProfilePage() {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="confirm-password">Подтверждение пароля</Label>
+                      <Label htmlFor="confirm-password">{t('profile.confirmPassword')}</Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -603,13 +603,13 @@ export default function ProfilePage() {
                       {confirmPassword && newPassword !== confirmPassword && (
                         <p className="text-xs text-red-500 flex items-center gap-1">
                           <AlertCircle className="h-3 w-3" />
-                          Пароли не совпадают
+                          {t('profile.passwordsNoMatch')}
                         </p>
                       )}
                       {confirmPassword && newPassword === confirmPassword && (
                         <p className="text-xs text-emerald-600 flex items-center gap-1">
                           <CheckCircle2 className="h-3 w-3" />
-                          Пароли совпадают
+                          {t('profile.passwordsMatch')}
                         </p>
                       )}
                     </div>
@@ -621,7 +621,7 @@ export default function ProfilePage() {
                       disabled={changingPassword || newPassword !== confirmPassword || !currentPassword || !newPassword}
                     >
                       {changingPassword ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Shield className="mr-2 h-4 w-4" />}
-                      Сменить пароль
+                      {t('profile.changePasswordBtn')}
                     </Button>
                   </CardFooter>
                 </form>
@@ -632,14 +632,14 @@ export default function ProfilePage() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Mail className="h-5 w-5" />
-                    Смена email
+                    {t('profile.changeEmail')}
                   </CardTitle>
-                  <CardDescription>Введите новый email и пароль для подтверждения</CardDescription>
+                  <CardDescription>{t('profile.changeEmailDesc')}</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleChangeEmail}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="new-email">Новый email</Label>
+                      <Label htmlFor="new-email">{t('profile.newEmail')}</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -654,7 +654,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email-password">Текущий пароль</Label>
+                      <Label htmlFor="email-password">{t('profile.emailPassword')}</Label>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -684,7 +684,7 @@ export default function ProfilePage() {
                       disabled={changingEmail || newEmail === profile.email || !emailPassword}
                     >
                       {changingEmail ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
-                      Сменить email
+                      {t('profile.changeEmailBtn')}
                     </Button>
                   </CardFooter>
                 </form>
@@ -695,15 +695,15 @@ export default function ProfilePage() {
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2 text-red-600">
                     <AlertTriangle className="h-5 w-5" />
-                    Удаление аккаунта
+                    {t('profile.deleteAccount')}
                   </CardTitle>
                   <CardDescription>
-                    Это действие нельзя отменить. Все ваши данные, прогресс и достижения будут удалены навсегда.
+                    {t('profile.deleteAccountDesc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="delete-password">Введите пароль для подтверждения</Label>
+                    <Label htmlFor="delete-password">{t('profile.deletePassword')}</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
@@ -712,7 +712,7 @@ export default function ProfilePage() {
                         value={deletePassword}
                         onChange={(e) => setDeletePassword(e.target.value)}
                         className="pl-10 pr-10"
-                        placeholder="Ваш текущий пароль"
+                        placeholder={t('profile.deletePasswordPlaceholder')}
                       />
                       <Button
                         type="button"
@@ -731,25 +731,25 @@ export default function ProfilePage() {
                     <AlertDialogTrigger asChild>
                       <Button variant="destructive" disabled={!deletePassword}>
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Удалить аккаунт
+                        {t('profile.deleteAccountBtn')}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
+                        <AlertDialogTitle>{t('profile.resetConfirmTitle')}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Это действие нельзя отменить. Ваш аккаунт, прогресс, достижения и все связанные данные будут удалены навсегда.
+                          {t('profile.deleteConfirmDesc')}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Отмена</AlertDialogCancel>
+                        <AlertDialogCancel>{t('profile.cancel')}</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={handleDeleteAccount}
                           className="bg-red-600 hover:bg-red-700"
                           disabled={deletingAccount}
                         >
                           {deletingAccount ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                          Удалить навсегда
+                          {t('profile.deleteForever')}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>

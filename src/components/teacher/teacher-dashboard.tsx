@@ -13,6 +13,12 @@ import ChurnPredictionTable from '../admin/analytics/churn-prediction';
 import TeacherExportDialog from './teacher-export-dialog';
 import TeacherCohortAnalysis from './teacher-cohort-analysis';
 import TeacherRecommendations from './teacher-recommendations';
+import SkillBreakdownChart from '../admin/analytics/skill-breakdown-chart';
+import CompletionFunnelChart from '../admin/analytics/completion-funnel-chart';
+import MasteryProgressionChart from '../admin/analytics/mastery-progression-chart';
+import GradeDistributionChart from '../admin/analytics/grade-distribution-chart';
+import StudentGrowthTrends from '../admin/analytics/student-growth-trends';
+import { TeacherDeadlineManager } from './deadline-manager';
 import { t } from '@/lib/i18n';
 
 export default function TeacherDashboard() {
@@ -39,6 +45,12 @@ export default function TeacherDashboard() {
           <TabsTrigger value="churn">{t('teacher.tabs.churn')}</TabsTrigger>
           <TabsTrigger value="alerts">{t('teacher.tabs.alerts')}</TabsTrigger>
           <TabsTrigger value="recommendations">{t('teacher.tabs.recommendations')}</TabsTrigger>
+          <TabsTrigger value="skills">{t('admin.tabs.skills')}</TabsTrigger>
+          <TabsTrigger value="funnel">{t('admin.tabs.funnel')}</TabsTrigger>
+          <TabsTrigger value="mastery">{t('admin.tabs.mastery')}</TabsTrigger>
+          <TabsTrigger value="grade">{t('teacher.tabs.grade')}</TabsTrigger>
+          <TabsTrigger value="growth">{t('teacher.tabs.growth')}</TabsTrigger>
+          <TabsTrigger value="deadlines">{t('teacher.tabs.deadlines')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="progress" className="space-y-6">
@@ -67,6 +79,30 @@ export default function TeacherDashboard() {
 
         <TabsContent value="recommendations" className="space-y-6">
           <TeacherRecommendations />
+        </TabsContent>
+
+        <TabsContent value="skills" className="space-y-6">
+          <SkillBreakdownChart apiEndpoint="/api/teacher/skills" />
+        </TabsContent>
+
+        <TabsContent value="funnel" className="space-y-6">
+          <CompletionFunnelChart apiEndpoint="/api/teacher/funnel" />
+        </TabsContent>
+
+        <TabsContent value="mastery" className="space-y-6">
+          <MasteryProgressionChart apiEndpoint="/api/teacher/mastery" />
+        </TabsContent>
+
+        <TabsContent value="grade" className="space-y-6">
+          <GradeDistributionChart apiEndpoint="/api/teacher/grade" />
+        </TabsContent>
+
+        <TabsContent value="growth" className="space-y-6">
+          <StudentGrowthTrends apiEndpoint="/api/teacher/growth" />
+        </TabsContent>
+
+        <TabsContent value="deadlines" className="space-y-6">
+          <TeacherDeadlineManager />
         </TabsContent>
       </Tabs>
 

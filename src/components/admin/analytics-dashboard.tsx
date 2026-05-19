@@ -21,6 +21,28 @@ import ExportDialog from './analytics/export-dialog';
 import WeekOverWeekComparison from './analytics/week-comparison';
 import ActivityHeatmap from './analytics/activity-heatmap';
 import TimeToCompleteChart from './analytics/time-to-complete-chart';
+import SkillBreakdownChart from './analytics/skill-breakdown-chart';
+import CompletionFunnelChart from './analytics/completion-funnel-chart';
+import MasteryProgressionChart from './analytics/mastery-progression-chart';
+import StudentComparison from './analytics/student-comparison';
+import LeaderboardTable from './analytics/leaderboard-table';
+import SystemHealth from './system-health';
+import GradeDistributionChart from './analytics/grade-distribution-chart';
+import StudentGrowthTrends from './analytics/student-growth-trends';
+import LearningPaceChart from './analytics/learning-pace-chart';
+import ErrorTrendsChart from './analytics/error-trends-chart';
+import CohortComparisonChart from './analytics/cohort-comparison-chart';
+import TaskPerformanceChart from './analytics/task-performance-chart';
+import TimePatternsChart from './analytics/time-patterns-chart';
+import StudentGroupsChart from './analytics/student-groups-chart';
+import TopicPerformanceChart from './analytics/topic-performance-chart';
+import PredictiveGradesTable from './analytics/predictive-grades-table';
+import LearningPathChart from './analytics/learning-path-chart';
+import BottleneckAnalysis from './analytics/bottleneck-analysis';
+import PeerComparisonMatrix from './analytics/peer-comparison-matrix';
+import CategoryPerformanceChart from './analytics/category-performance-chart';
+import SessionAnalysisChart from './analytics/session-analysis-chart';
+import HintImpactChart from './analytics/hint-impact-chart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { t } from '@/lib/i18n';
 
@@ -67,6 +89,22 @@ export default function AnalyticsDashboard() {
             <TabsTrigger value="churn">{t('analytics.churn.title')}</TabsTrigger>
             <TabsTrigger value="alerts">{t('analytics.alerts.title')}</TabsTrigger>
             <TabsTrigger value="class">{t('analytics.classReport.title')}</TabsTrigger>
+            <TabsTrigger value="skills">{t('admin.tabs.skills')}</TabsTrigger>
+            <TabsTrigger value="funnel">{t('admin.tabs.funnel')}</TabsTrigger>
+            <TabsTrigger value="mastery">{t('admin.tabs.mastery')}</TabsTrigger>
+            <TabsTrigger value="leaderboard">{t('admin.tabs.leaderboard')}</TabsTrigger>
+            <TabsTrigger value="health">{t('admin.tabs.health')}</TabsTrigger>
+            <TabsTrigger value="grade">{t('admin.tabs.grade')}</TabsTrigger>
+            <TabsTrigger value="growth">{t('admin.tabs.growth')}</TabsTrigger>
+            <TabsTrigger value="cohort-comparison">{t('admin.tabs.cohortComparison')}</TabsTrigger>
+            <TabsTrigger value="task-performance">{t('admin.tabs.taskPerformance')}</TabsTrigger>
+            <TabsTrigger value="time-patterns">{t('admin.tabs.timePatterns')}</TabsTrigger>
+            <TabsTrigger value="groups">{t('admin.tabs.groups')}</TabsTrigger>
+            <TabsTrigger value="comparison">{t('admin.tabs.comparison')}</TabsTrigger>
+            <TabsTrigger value="topics">{t('admin.tabs.topics')}</TabsTrigger>
+            <TabsTrigger value="grades">{t('admin.tabs.grades')}</TabsTrigger>
+            <TabsTrigger value="path-analysis">{t('admin.tabs.pathAnalysis')}</TabsTrigger>
+            <TabsTrigger value="sessions">{t('admin.tabs.sessions')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="overview" className="space-y-6">
@@ -84,6 +122,7 @@ export default function AnalyticsDashboard() {
           
           <TabsContent value="progress" className="space-y-6">
             <ActivityHeatmap />
+            <LearningPaceChart />
             <ProgressTrackingChart />
             <CohortAnalysisTable />
           </TabsContent>
@@ -93,6 +132,7 @@ export default function AnalyticsDashboard() {
           </TabsContent>
           
           <TabsContent value="errors" className="space-y-6">
+            <ErrorTrendsChart />
             <ErrorPatternsTable />
           </TabsContent>
           
@@ -111,6 +151,74 @@ export default function AnalyticsDashboard() {
           
           <TabsContent value="class" className="space-y-6">
             <ClassReport />
+          </TabsContent>
+
+          <TabsContent value="skills" className="space-y-6">
+            <SkillBreakdownChart />
+          </TabsContent>
+
+          <TabsContent value="funnel" className="space-y-6">
+            <CompletionFunnelChart />
+          </TabsContent>
+
+          <TabsContent value="mastery" className="space-y-6">
+            <MasteryProgressionChart />
+          </TabsContent>
+
+          <TabsContent value="leaderboard" className="space-y-6">
+            <LeaderboardTable />
+          </TabsContent>
+
+          <TabsContent value="health" className="space-y-6">
+            <SystemHealth />
+          </TabsContent>
+
+          <TabsContent value="grade" className="space-y-6">
+            <GradeDistributionChart />
+          </TabsContent>
+
+          <TabsContent value="growth" className="space-y-6">
+            <StudentGrowthTrends />
+          </TabsContent>
+
+          <TabsContent value="cohort-comparison" className="space-y-6">
+            <CohortComparisonChart />
+          </TabsContent>
+
+          <TabsContent value="task-performance" className="space-y-6">
+            <TaskPerformanceChart />
+          </TabsContent>
+
+          <TabsContent value="time-patterns" className="space-y-6">
+            <TimePatternsChart />
+          </TabsContent>
+
+          <TabsContent value="groups" className="space-y-6">
+            <StudentGroupsChart />
+          </TabsContent>
+
+          <TabsContent value="comparison" className="space-y-6">
+            <StudentComparison />
+          </TabsContent>
+
+          <TabsContent value="topics" className="space-y-6">
+            <TopicPerformanceChart />
+            <CategoryPerformanceChart />
+          </TabsContent>
+
+          <TabsContent value="grades" className="space-y-6">
+            <PredictiveGradesTable />
+            <PeerComparisonMatrix />
+          </TabsContent>
+
+          <TabsContent value="path-analysis" className="space-y-6">
+            <LearningPathChart />
+            <BottleneckAnalysis />
+            <HintImpactChart />
+          </TabsContent>
+
+          <TabsContent value="sessions" className="space-y-6">
+            <SessionAnalysisChart />
           </TabsContent>
         </Tabs>
 

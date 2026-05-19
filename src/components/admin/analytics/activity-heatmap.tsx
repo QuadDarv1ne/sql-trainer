@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
 
 interface HeatmapData {
   date: string;
@@ -12,7 +15,7 @@ interface HeatmapData {
   week_number: number;
 }
 
-const DAY_NAMES = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+const DAY_NAMES = [t('analytics.heatmap.day1'), t('analytics.heatmap.day2'), t('analytics.heatmap.day3'), t('analytics.heatmap.day4'), t('analytics.heatmap.day5'), t('analytics.heatmap.day6'), t('analytics.heatmap.day7')];
 
 function getColor(count: number, maxCount: number): string {
   if (count === 0) return 'hsl(142, 33%, 96%)';
@@ -39,9 +42,14 @@ export default function ActivityHeatmap() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCompletions, setTotalCompletions] = useState(0);
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/activity-heatmap')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/activity-heatmap?${params}`)
       .then((res) => res.json())
       .then((res) => {
         setData(res.data || []);
@@ -52,12 +60,12 @@ export default function ActivityHeatmap() {
         setError(err.message);
         setLoading(false);
       });
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) {
     return (
       <Card>
-        <CardHeader><CardTitle>Активность по дням</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('analytics.heatmap.dailyTitle')}</CardTitle></CardHeader>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </CardContent>
@@ -68,7 +76,7 @@ export default function ActivityHeatmap() {
   if (error) {
     return (
       <Card>
-        <CardHeader><CardTitle>Активность по дням</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('analytics.heatmap.dailyTitle')}</CardTitle></CardHeader>
         <CardContent>
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -82,9 +90,9 @@ export default function ActivityHeatmap() {
   if (data.length === 0) {
     return (
       <Card>
-        <CardHeader><CardTitle>Активность по дням</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('analytics.heatmap.dailyTitle')}</CardTitle></CardHeader>
         <CardContent>
-          <p className="text-center text-muted-foreground py-8">Нет данных для отображения</p>
+          <EmptyState />
         </CardContent>
       </Card>
     );
@@ -113,9 +121,9 @@ export default function ActivityHeatmap() {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Активность по дням</CardTitle>
+          <CardTitle>{t('analytics.heatmap.dailyTitle')}</CardTitle>
           <span className="text-sm text-muted-foreground">
-            {totalCompletions} completions за {Math.round(totalDays / 7)} недель
+            {t('analytics.heatmap.subtitle', { completions: String(totalCompletions), weeks: String(Math.round(totalDays / 7)) })}
           </span>
         </div>
       </CardHeader>
@@ -145,7 +153,7 @@ export default function ActivityHeatmap() {
                       style={{
                         backgroundColor: getColor(count, maxCount),
                       }}
-                      title={`${date}: ${count} completions`}
+                      title={`${date}: ${count} ${t('analytics.activity.completions').toLowerCase()}`}
                     />
                   );
                 })}
@@ -156,7 +164,7 @@ export default function ActivityHeatmap() {
 
         {/* Legend */}
         <div className="flex items-center gap-1 mt-4 justify-end text-xs text-muted-foreground">
-          <span>Меньше</span>
+          <span>{t('analytics.heatmap.less')}</span>
           {[0, 0.2, 0.4, 0.6, 0.8, 1].map((level) => (
             <div
               key={level}
@@ -164,7 +172,7 @@ export default function ActivityHeatmap() {
               style={{ backgroundColor: getColor(level * maxCount, maxCount) }}
             />
           ))}
-          <span>Больше</span>
+          <span>{t('analytics.heatmap.more')}</span>
         </div>
       </CardContent>
     </Card>

@@ -125,7 +125,7 @@ export default function ResultsTable({
         <Alert variant="destructive">
           <XCircle className="h-4 w-4" />
           <AlertDescription>
-            <span className="font-medium">Ошибка выполнения запроса:</span>
+            <span className="font-medium">{t('results.queryError')}</span>
             <pre className="mt-2 whitespace-pre-wrap break-words rounded-md bg-destructive/10 p-3 text-sm font-mono">
               {error}
             </pre>
@@ -133,7 +133,7 @@ export default function ResultsTable({
               <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50/50 p-3 dark:border-amber-700 dark:bg-amber-950/20">
                 <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
                 <div>
-                  <span className="text-sm font-medium text-amber-700 dark:text-amber-400">Подсказка:</span>
+                  <span className="text-sm font-medium text-amber-700 dark:text-amber-400">{t('results.hint')}</span>
                   <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">{suggestion}</p>
                 </div>
               </div>
@@ -164,7 +164,7 @@ export default function ResultsTable({
         )}
         {!message && (
           <p className="text-xs text-muted-foreground">
-            DDL операция выполнена успешно
+            {t('results.ddlSuccess')}
           </p>
         )}
       </div>
@@ -234,15 +234,15 @@ export default function ResultsTable({
                   ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
-              title="Визуализация"
-              aria-label="Визуализация"
+              title={t('results.visualization')}
+              aria-label={t('results.visualization')}
             >
               <BarChart3 className="h-3 w-3" />
             </button>
           )}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" />
-            {executionTime.toFixed(1)} мс
+            {executionTime.toFixed(1)} {t('results.ms')}
           </div>
         </div>
       </div>
@@ -272,8 +272,11 @@ export default function ResultsTable({
                     }}
                     role="button"
                     tabIndex={0}
-                    title="Нажмите для сортировки"
-                    aria-label={`Сортировать по столбцу ${col}. ${isSorted && dir === 'asc' ? 'Текущая сортировка: по возрастанию' : isSorted && dir === 'desc' ? 'Текущая сортировка: по убыванию' : 'Не отсортировано'}`}
+                    title={t('results.sortClick')}
+                    aria-label={t('results.sortByColumn', {
+                      col,
+                      state: isSorted && dir === 'asc' ? t('results.sortAsc') : isSorted && dir === 'desc' ? t('results.sortDesc') : t('results.sortNone'),
+                    })}
                   >
                     <div className="flex items-center gap-1">
                       {col}
@@ -290,7 +293,7 @@ export default function ResultsTable({
             {paginatedRows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length + 1} className="h-24 text-center text-muted-foreground">
-                  Нет данных
+                  {t('results.noData')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -316,7 +319,7 @@ export default function ResultsTable({
       {!chartView && totalPages > 1 && (
         <div className="flex items-center justify-between border-t border-border px-4 py-2">
           <span className="text-xs text-muted-foreground">
-            Показано {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, sortedRows.length)} из {sortedRows.length}
+            {t('results.showing', { start: String((currentPage - 1) * pageSize + 1), end: String(Math.min(currentPage * pageSize, sortedRows.length)), total: String(sortedRows.length) })}
           </span>
           <div className="flex items-center gap-1">
             <button
@@ -324,7 +327,7 @@ export default function ResultsTable({
               disabled={currentPage === 1}
               className="rounded px-2 py-1 text-xs disabled:opacity-50 hover:bg-muted disabled:hover:bg-transparent"
             >
-              ← Назад
+              {t('results.prev')}
             </button>
             <span className="px-2 text-xs">
               {currentPage} / {totalPages}
@@ -334,7 +337,7 @@ export default function ResultsTable({
               disabled={currentPage === totalPages}
               className="rounded px-2 py-1 text-xs disabled:opacity-50 hover:bg-muted disabled:hover:bg-transparent"
             >
-              Вперед →
+              {t('results.next')}
             </button>
           </div>
         </div>

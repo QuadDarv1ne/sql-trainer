@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, ArrowUp, ArrowDown, Minus, Loader2 } from 'lucide-react';
+import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
 
 interface WeekData {
   metric: string;
@@ -13,9 +16,9 @@ interface WeekData {
 }
 
 const metricLabels: Record<string, string> = {
-  completions: 'Завершения заданий',
-  active_users: 'Активные пользователи',
-  avg_attempts: 'Среднее число попыток',
+  completions: t('analytics.weekComparison.completions'),
+  active_users: t('analytics.weekComparison.activeUsers'),
+  avg_attempts: t('analytics.weekComparison.avgAttempts'),
 };
 
 function ChangeIndicator({ value, inverted }: { value: number; inverted?: boolean }) {
@@ -32,9 +35,14 @@ export default function WeekOverWeekComparison() {
   const [data, setData] = useState<WeekData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/week-comparison')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/week-comparison?${params}`)
       .then((res) => res.json())
       .then((res) => {
         setData(res.data || []);
@@ -44,12 +52,12 @@ export default function WeekOverWeekComparison() {
         setError(err.message);
         setLoading(false);
       });
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) {
     return (
       <Card>
-        <CardHeader><CardTitle>Сравнение с прошлой неделей</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('analytics.weekComparison.title')}</CardTitle></CardHeader>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </CardContent>
@@ -60,7 +68,7 @@ export default function WeekOverWeekComparison() {
   if (error) {
     return (
       <Card>
-        <CardHeader><CardTitle>Сравнение с прошлой неделей</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('analytics.weekComparison.title')}</CardTitle></CardHeader>
         <CardContent>
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -74,9 +82,9 @@ export default function WeekOverWeekComparison() {
   if (data.length === 0) {
     return (
       <Card>
-        <CardHeader><CardTitle>Сравнение с прошлой неделей</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('analytics.weekComparison.title')}</CardTitle></CardHeader>
         <CardContent>
-          <p className="text-center text-muted-foreground py-8">Нет данных для отображения</p>
+          <EmptyState />
         </CardContent>
       </Card>
     );
@@ -84,7 +92,7 @@ export default function WeekOverWeekComparison() {
 
   return (
     <Card>
-      <CardHeader><CardTitle>Сравнение с прошлой неделей</CardTitle></CardHeader>
+      <CardHeader><CardTitle>{t('analytics.weekComparison.title')}</CardTitle></CardHeader>
       <CardContent>
         <div className="grid gap-4 md:grid-cols-3">
           {data.map((item) => {
@@ -108,7 +116,7 @@ export default function WeekOverWeekComparison() {
                         : item.current}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      было: {item.metric === 'avg_attempts'
+                      {t('analytics.weekComparison.was')} {item.metric === 'avg_attempts'
                         ? item.previous.toFixed(1)
                         : item.previous}
                     </p>

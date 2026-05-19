@@ -5,6 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Users, RotateCcw, GraduationCap, TrendingUp, AlertCircle } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { useDateRange } from '../analytics-dashboard';
+import EmptyState from './empty-state';
 
 interface PerformanceData {
   activeUsers7d: number;
@@ -17,9 +19,14 @@ export default function PerformanceMetrics() {
   const [data, setData] = useState<PerformanceData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    fetch('/api/admin/analytics/performance')
+    const params = new URLSearchParams();
+    if (startDate) params.set('startDate', String(startDate));
+    if (endDate) params.set('endDate', String(endDate));
+
+    fetch(`/api/admin/analytics/performance?${params}`)
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
@@ -27,7 +34,7 @@ export default function PerformanceMetrics() {
       .then((data) => setData(data))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  }, []);
+  }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) {
@@ -38,7 +45,7 @@ export default function PerformanceMetrics() {
       </Alert>
     );
   }
-  if (!data) return <p className="text-center py-4">{t('analytics.noData')}</p>;
+  if (!data) return <EmptyState />;
 
   const metrics = [
     {
