@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery, executeWithSchema } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
+import { rateLimit } from '@/lib/rate-limit';
 
 const MAX_SQL_LENGTH = 10000;
 const VALID_DB_TYPES = ['sqlite', 'postgresql', 'clickhouse'] as const;
@@ -41,6 +42,16 @@ function validateTrainingSql(sql: string): string | null {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 30 queries/min for anonymous, 60 for authenticated
+    const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
+    const limitResult = rateLimit(`sql:${ip}`, { max: 30, windowMs: 60_000 });
+    if (!limitResult.success) {
+      return NextResponse.json(
+        { success: false, error: 'Слишком много запросов. Подождите немного', columns: [], rows: [], executionTime: 0 },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { sql, dbType, taskId } = body;
 

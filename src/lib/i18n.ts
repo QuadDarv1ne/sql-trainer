@@ -1565,6 +1565,11 @@ export const translations: Record<Locale, Record<string, string>> = {
     'analytics.heatmap.day6': 'Sat',
     'analytics.heatmap.day7': 'Sun',
     'analytics.weekComparison.title': 'Week-over-Week Comparison',
+    'analytics.weekComparison.completions': 'Task Completions',
+    'analytics.weekComparison.activeUsers': 'Active Users',
+    'analytics.weekComparison.avgAttempts': 'Avg Attempts',
+    'analytics.weekComparison.was': 'was:',
+    'analytics.weekComparison.noData': 'No data to display',
 
     'analytics.errors.title': 'Errors',
     'analytics.engagement.title': 'Engagement',

@@ -12,12 +12,13 @@ import { plural } from '@/lib/utils';
 import { t } from '@/lib/i18n';
 import { logger } from '@/lib/logger';
 import ResultsTable from '@/components/results-table';
-import { formatSQL } from '@/components/sql-editor';
+import ActionBar from '@/components/action-bar';
+import ExplainPanel from '@/components/explain-panel';
+import EmptyResults from '@/components/empty-results';
 import Sidebar from '@/components/sidebar';
 import TaskPanel from '@/components/task-panel';
 import DbSelector from '@/components/db-selector';
 import SchemaViewer from '@/components/schema-viewer';
-import QueryHistory from '@/components/query-history';
 import SqlTemplates from '@/components/sql-templates';
 import SavedQueries from '@/components/saved-queries';
 import ShortcutsHelp from '@/components/shortcuts-help';
@@ -25,7 +26,6 @@ import LocaleSelector from '@/components/locale-selector';
 import UserMenu from '@/components/auth/user-menu';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -41,21 +41,13 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import {
-  Play,
-  RotateCcw,
-  Trash2,
   Sun,
   Moon,
   PanelLeftClose,
   PanelLeftOpen,
-  BookOpen,
   Table as TableIcon,
-  ChevronRight,
   Loader2,
   Menu,
-  Search,
-  Shuffle,
-  Lightbulb,
 } from 'lucide-react';
 
 // Dynamic import for SQL Editor (no SSR)
@@ -637,81 +629,18 @@ export default function HomePage() {
         {/* Center: Editor + Results */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Action bar */}
-          <div className="flex items-center gap-1.5 border-b border-border px-3 py-1.5">
-            {practiceMode.active && (
-              <div className="flex items-center gap-2 rounded-md bg-emerald-50 px-2 py-1 text-xs text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
-                <Shuffle className="h-3.5 w-3.5" />
-                <span className="font-medium">
-                  {t('practice.title')}: {practiceMode.currentIndex + 1}/{practiceMode.taskOrder.length}
-                </span>
-                <Badge variant="secondary" className="text-[10px] px-1.5">
-                  ✓ {practiceMode.completedInSession.length}
-                </Badge>
-              </div>
-            )}
-
-            <Button
-              size="sm"
-              className="h-7 bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 gap-1.5 text-xs px-3"
-              onClick={executeQuery}
-              disabled={isExecuting || !editorContent.trim()}
-            >
-              {isExecuting ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Play className="h-3.5 w-3.5" />
-              )}
-              <span className="hidden sm:inline">{t('action.executeShort')}</span>
-              <kbd className="ml-1 hidden sm:inline-flex h-5 items-center rounded border border-current/20 bg-current/10 px-1.5 text-[10px] font-mono">
-                Ctrl+↵
-              </kbd>
-            </Button>
-
-            {currentTask && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-7 text-xs"
-                    onClick={executeExplain}
-                    disabled={isExecuting || !editorContent.trim()}
-                  >
-                    <Search className="mr-1 h-3 w-3" />
-                    <span className="hidden sm:inline">{t('action.explain')}</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t('action.explainTooltip')}</TooltipContent>
-              </Tooltip>
-            )}
-
-            <QueryHistory onRestoreQuery={handleRestoreQuery} />
-
-            <SavedQueries onLoadQuery={handleRestoreQuery} />
-
-            <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={clearEditor}>
-              <Trash2 className="mr-1 h-3 w-3" />
-              {t('action.clear')}
-            </Button>
-
-            {!currentTask && <SqlTemplates onInsertTemplate={handleInsertTemplate} />}
-
-            {currentTask && (
-              <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={resetDb}>
-                <RotateCcw className="mr-1 h-3 w-3" />
-                {t('action.resetDb')}
-              </Button>
-            )}
-
-            <div className="ml-auto flex items-center gap-1.5">
-              {currentTask && (
-                <Badge variant="outline" className="text-xs px-2">
-                  <ChevronRight className="mr-0.5 h-3 w-3" />
-                  {currentTask.title}
-                </Badge>
-              )}
-            </div>
-          </div>
+          <ActionBar
+            isExecuting={isExecuting}
+            executeQuery={executeQuery}
+            executeExplain={executeExplain}
+            clearEditor={clearEditor}
+            resetDb={resetDb}
+            onRestoreQuery={handleRestoreQuery}
+            onLoadQuery={handleRestoreQuery}
+            onInsertTemplate={handleInsertTemplate}
+            currentTaskId={currentTaskId}
+            practiceMode={practiceMode}
+          />
 
           {/* Editor + Results panels */}
           <ResizablePanelGroup direction="vertical" className="flex-1">
@@ -741,43 +670,11 @@ export default function HomePage() {
             <ResizablePanel defaultSize={55} minSize={20}>
               <div className="h-full overflow-hidden">
                 {explainPlan ? (
-                  <div className="flex h-full flex-col">
-                    <div className="flex items-center justify-between border-b border-border px-4 py-2">
-                      <div className="flex items-center gap-2">
-                        <Search className="h-4 w-4 text-blue-500" />
-                        <span className="text-sm font-medium">{t('action.explain')}</span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 text-xs"
-                        onClick={() => setExplainPlan(null)}
-                      >
-                        {t('action.close')}
-                      </Button>
-                    </div>
-                    <div className="flex-1 overflow-auto p-4">
-                      <pre className="whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 text-xs font-mono">
-                        {explainPlan}
-                      </pre>
-                      {explainSuggestions.length > 0 && (
-                        <div className="mt-4 space-y-2">
-                          <h4 className="text-sm font-medium flex items-center gap-1.5">
-                            <Lightbulb className="h-4 w-4 text-amber-500" />
-                            Рекомендации по оптимизации
-                          </h4>
-                          <ul className="space-y-1.5">
-                            {explainSuggestions.map((s, i) => (
-                              <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
-                                <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-amber-500" />
-                                {s}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <ExplainPanel
+                    plan={explainPlan}
+                    suggestions={explainSuggestions}
+                    onClose={() => setExplainPlan(null)}
+                  />
                 ) : lastResult ? (
                   <ResultsTable
                     success={lastResult.success}
@@ -790,19 +687,7 @@ export default function HomePage() {
                     suggestion={lastResult.suggestion}
                   />
                 ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-                    <div className="rounded-full bg-muted p-4">
-                      <TableIcon className="h-8 w-8 text-muted-foreground/40" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        {t('results.title')}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground/70">
-                        {t('results.executeHint')}
-                      </p>
-                    </div>
-                  </div>
+                  <EmptyResults />
                 )}
               </div>
             </ResizablePanel>

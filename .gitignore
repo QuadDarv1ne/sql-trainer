@@ -56,3 +56,7 @@ server.log
 
 # standalone output
 .next/standalone/
+
+# archives
+_archive_extracted/
+*.zip

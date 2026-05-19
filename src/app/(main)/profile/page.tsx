@@ -65,7 +65,7 @@ function getPasswordStrength(password: string): { score: number; label: string; 
 }
 
 function SavedQueriesSection() {
-  const { savedQueries, deleteSavedQuery, resetAllProgress } = useSQLTrainerStore();
+  const { savedQueries, deleteSavedQuery, resetAllProgress, undoReset } = useSQLTrainerStore();
 
   const copyToClipboard = (sql: string) => {
     navigator.clipboard.writeText(sql).then(() => {
@@ -77,7 +77,17 @@ function SavedQueriesSection() {
 
   const handleResetAll = () => {
     resetAllProgress();
-    toast.success(t('profile.resetSuccess'));
+    toast.success(t('profile.resetSuccess'), {
+      description: t('profile.resetUndoDesc', { default: 'Прогресс сброшен. Можно отменить в течение 30 секунд.' }),
+      action: {
+        label: t('profile.resetUndo', { default: 'Отменить' }),
+        onClick: () => {
+          undoReset();
+          toast.success(t('profile.resetUndone', { default: 'Прогресс восстановлен' }));
+        },
+      },
+      duration: 30000,
+    });
   };
 
   if (savedQueries.length === 0) {

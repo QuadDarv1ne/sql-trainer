@@ -1,35 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findUserByEmail, createResetCode, updatePassword, verifyResetCode, getUserById } from '@/lib/db-users';
-
-// Simple in-memory rate limiter
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(key: string, maxRequests: number, windowMs: number): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(key);
-
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(key, { count: 1, resetAt: now + windowMs });
-    return true;
-  }
-
-  entry.count += 1;
-  if (entry.count > maxRequests) {
-    return false;
-  }
-
-  return true;
-}
-
-// Cleanup old entries periodically
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of rateLimitMap.entries()) {
-    if (now > entry.resetAt) {
-      rateLimitMap.delete(key);
-    }
-  }
-}, 60_000);
+import { rateLimit } from '@/lib/rate-limit';
 
 // Request password reset code
 export async function POST(request: NextRequest) {
@@ -46,7 +17,8 @@ export async function POST(request: NextRequest) {
 
     // Rate limit: max 3 requests per 15 minutes per email
     const rateLimitKey = `reset:${email}`;
-    if (!checkRateLimit(rateLimitKey, 3, 15 * 60 * 1000)) {
+    const limitResult = rateLimit(rateLimitKey, { max: 3, windowMs: 15 * 60 * 1000 });
+    if (!limitResult.success) {
       return NextResponse.json(
         { success: false, error: 'Слишком много запросов. Попробуйте позже' },
         { status: 429 }
@@ -102,7 +74,8 @@ export async function PUT(request: NextRequest) {
 
     // Rate limit: max 5 attempts per 15 minutes per code prefix
     const rateLimitKey = `reset-verify:${code.substring(0, 3)}`;
-    if (!checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000)) {
+    const limitResult = rateLimit(rateLimitKey, { max: 5, windowMs: 15 * 60 * 1000 });
+    if (!limitResult.success) {
       return NextResponse.json(
         { success: false, error: 'Слишком много попыток. Попробуйте позже' },
         { status: 429 }

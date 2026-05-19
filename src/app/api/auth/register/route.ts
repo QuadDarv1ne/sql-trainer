@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createUser } from '@/lib/db-users';
 import type { UserRole } from '@/lib/db-users';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: max 5 registrations per 10 minutes per IP
+    const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
+    const limitResult = rateLimit(`register:${ip}`, { max: 5, windowMs: 10 * 60 * 1000 });
+    if (!limitResult.success) {
+      return NextResponse.json(
+        { success: false, error: 'Слишком много попыток регистрации. Попробуйте позже' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { name, email, password, phone } = body;
 
