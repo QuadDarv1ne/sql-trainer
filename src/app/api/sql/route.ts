@@ -3,7 +3,7 @@ import { executeQuery, executeWithSchema } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 
 const MAX_SQL_LENGTH = 10000;
-const VALID_DB_TYPES = ['sqlite', 'postgresql'] as const;
+const VALID_DB_TYPES = ['sqlite', 'postgresql', 'clickhouse'] as const;
 
 /**
  * Blocked SQL patterns for training mode.

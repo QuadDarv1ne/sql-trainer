@@ -45,3 +45,9 @@ jobs:
 
       - name: Test
         run: bun run test:ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: bun run test:e2e

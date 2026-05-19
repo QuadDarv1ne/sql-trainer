@@ -109,7 +109,7 @@ function verifyWithSharedDb(
   const [userResult, solutionResult, userSelectResult] = executeWithSchemaMulti(
     [userSql, solutionSelectSql, userSelectSql],
     task.schema,
-    dbType as 'sqlite' | 'postgresql'
+    dbType as 'sqlite' | 'postgresql' | 'clickhouse'
   );
 
   // Check if user's full query executed successfully
@@ -127,7 +127,7 @@ function verifyWithSharedDb(
     const verificationResult = executeWithSchema(
       task.verificationQuery,
       task.schema,
-      dbType as 'sqlite' | 'postgresql'
+      dbType as 'sqlite' | 'postgresql' | 'clickhouse'
     );
     const expectedRowCount =
       verificationResult.success && verificationResult.rows.length > 0
@@ -138,7 +138,7 @@ function verifyWithSharedDb(
     const userVerificationResult = executeWithSchema(
       task.verificationQuery,
       task.schema,
-      dbType as 'sqlite' | 'postgresql'
+      dbType as 'sqlite' | 'postgresql' | 'clickhouse'
     );
     const userRowCount =
       userVerificationResult.success && userVerificationResult.rows.length > 0
@@ -175,7 +175,7 @@ function verifySelectOnly(
   }
 
   // Execute the user's query with the task schema
-  const userResult = executeWithSchema(sql, task.schema, dbType as 'sqlite' | 'postgresql');
+  const userResult = executeWithSchema(sql, task.schema, dbType as 'sqlite' | 'postgresql' | 'clickhouse');
 
   if (!userResult.success) {
     return NextResponse.json({
@@ -190,7 +190,7 @@ function verifySelectOnly(
   const solutionResult = executeWithSchema(
     task.sampleSolution,
     task.schema,
-    dbType as 'sqlite' | 'postgresql'
+    dbType as 'sqlite' | 'postgresql' | 'clickhouse'
   );
 
   if (!solutionResult.success) {
@@ -198,7 +198,7 @@ function verifySelectOnly(
     const verificationResult = executeWithSchema(
       task.verificationQuery,
       task.schema,
-      dbType as 'sqlite' | 'postgresql'
+      dbType as 'sqlite' | 'postgresql' | 'clickhouse'
     );
     const expectedRowCount =
       verificationResult.success && verificationResult.rows.length > 0

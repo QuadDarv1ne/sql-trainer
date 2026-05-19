@@ -277,11 +277,11 @@ export const useSQLTrainerStore = create<SQLTrainerState>()(
           const achievementSet = new Set(achievements);
 
           // Count tasks by difficulty (including current)
-          const currentTasks = completedTasks.filter((t) => t.taskId !== taskId);
-          const beginnerCount = currentTasks.filter((t) => t.taskId.startsWith('beginner-')).length + (taskId.startsWith('beginner-') ? 1 : 0);
-          const intermediateCount = currentTasks.filter((t) => t.taskId.startsWith('intermediate-')).length + (taskId.startsWith('intermediate-') ? 1 : 0);
-          const advancedCount = currentTasks.filter((t) => t.taskId.startsWith('advanced-')).length + (taskId.startsWith('advanced-') ? 1 : 0);
-          const totalCount = currentTasks.length + 1;
+          const completedTaskIds = new Set(completedTasks.map((t) => t.taskId));
+          const beginnerCount = TRAINING_TASKS.filter((t) => t.difficulty === 'beginner' && (completedTaskIds.has(t.id) || t.id === taskId)).length;
+          const intermediateCount = TRAINING_TASKS.filter((t) => t.difficulty === 'intermediate' && (completedTaskIds.has(t.id) || t.id === taskId)).length;
+          const advancedCount = TRAINING_TASKS.filter((t) => t.difficulty === 'advanced' && (completedTaskIds.has(t.id) || t.id === taskId)).length;
+          const totalCount = completedTasks.length + 1;
 
           // Check achievements
           if (completedTasks.length === 0 && !achievementSet.has(ACHIEVEMENTS.FIRST_QUERY.id)) {
@@ -343,7 +343,7 @@ export const useSQLTrainerStore = create<SQLTrainerState>()(
 
           return {
             completedTasks: [
-              ...currentTasks,
+              ...completedTasks.filter((t) => t.taskId !== taskId),
               { taskId, completedAt: Date.now(), attempts },
             ],
             achievements: [...achievementSet],

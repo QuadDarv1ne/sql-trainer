@@ -3,8 +3,12 @@
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UserTable from '@/components/admin/user-table';
 import DBStats from '@/components/admin/db-stats';
+import AnalyticsDashboard from '@/components/admin/analytics-dashboard';
+import LeaderboardTable from '@/components/admin/analytics/leaderboard-table';
+import { t } from '@/lib/i18n';
 import type { Role } from '@/lib/rbac';
 
 export default function AdminPage() {
@@ -25,9 +29,24 @@ export default function AdminPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-      <h1 className="text-3xl font-bold">Панель администратора</h1>
-      <DBStats />
-      <UserTable />
+      <h1 className="text-3xl font-bold">{t('admin.title')}</h1>
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">{t('admin.tabs.overview')}</TabsTrigger>
+          <TabsTrigger value="analytics">{t('admin.tabs.analytics')}</TabsTrigger>
+          <TabsTrigger value="leaderboard">{t('admin.tabs.leaderboard')}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="overview" className="space-y-6">
+          <DBStats />
+          <UserTable />
+        </TabsContent>
+        <TabsContent value="analytics">
+          <AnalyticsDashboard />
+        </TabsContent>
+        <TabsContent value="leaderboard">
+          <LeaderboardTable />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -22,6 +22,11 @@ const DB_OPTIONS: { value: DbType; label: string; description: string }[] = [
     label: 'PostgreSQL',
     description: 'Синтаксис PostgreSQL',
   },
+  {
+    value: 'clickhouse',
+    label: 'ClickHouse',
+    description: 'Синтаксис ClickHouse',
+  },
 ];
 
 export default function DbSelector({ dbType, onChange }: DbSelectorProps) {

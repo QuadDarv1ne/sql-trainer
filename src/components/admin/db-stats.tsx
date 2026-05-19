@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Database, Users, BookOpen, Award, HardDrive } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 interface DBStats {
   totalUsers: number;
@@ -34,17 +35,17 @@ export default function DBStats() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="text-center py-4">Загрузка статистики...</p>;
-  if (!stats) return <p className="text-center py-4 text-red-500">Не удалось загрузить статистику</p>;
+  if (loading) return <p className="text-center py-4">{t('admin.stats.loading')}</p>;
+  if (!stats) return <p className="text-center py-4 text-red-500">{t('admin.stats.error')}</p>;
 
   const statCards = [
-    { label: 'Всего пользователей', value: stats.totalUsers, icon: Users, color: 'text-blue-600' },
-    { label: 'Студенты', value: stats.studentsCount, icon: Users, color: 'text-blue-400' },
-    { label: 'Преподаватели', value: stats.teachersCount, icon: Users, color: 'text-amber-600' },
-    { label: 'Администраторы', value: stats.adminsCount, icon: Users, color: 'text-red-600' },
-    { label: 'Выполнено заданий', value: stats.totalCompletions, icon: BookOpen, color: 'text-emerald-600' },
-    { label: 'Получено достижений', value: stats.achievementsAwarded, icon: Award, color: 'text-purple-600' },
-    { label: 'Размер БД', value: formatBytes(stats.dbSizeBytes), icon: Database, color: 'text-gray-600' },
+    { label: t('admin.stats.totalUsers'), value: stats.totalUsers, icon: Users, color: 'text-blue-600' },
+    { label: t('admin.stats.students'), value: stats.studentsCount, icon: Users, color: 'text-blue-400' },
+    { label: t('admin.stats.teachers'), value: stats.teachersCount, icon: Users, color: 'text-amber-600' },
+    { label: t('admin.stats.admins'), value: stats.adminsCount, icon: Users, color: 'text-red-600' },
+    { label: t('admin.stats.completions'), value: stats.totalCompletions, icon: BookOpen, color: 'text-emerald-600' },
+    { label: t('admin.stats.achievements'), value: stats.achievementsAwarded, icon: Award, color: 'text-purple-600' },
+    { label: t('admin.stats.dbSize'), value: formatBytes(stats.dbSizeBytes), icon: Database, color: 'text-gray-600' },
   ];
 
   return (
@@ -52,7 +53,7 @@ export default function DBStats() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <HardDrive className="h-5 w-5" />
-          Статистика базы данных
+          {t('admin.stats.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>

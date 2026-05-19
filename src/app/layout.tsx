@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "next-themes";
 import ServiceWorkerRegister from "@/components/service-worker-register";
 import PwaInstallPrompt from "@/components/pwa-install-prompt";
+import { ThemeTimeSync } from "@/components/theme-time-sync";
 
 export const viewport: Viewport = {
   themeColor: "#10b981",
@@ -66,6 +67,7 @@ export default function RootLayout({
         >
           {children}
           <Toaster />
+          <ThemeTimeSync />
           <ServiceWorkerRegister />
           <PwaInstallPrompt />
         </ThemeProvider>

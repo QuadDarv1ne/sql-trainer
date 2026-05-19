@@ -4,6 +4,7 @@
  */
 import Database from 'better-sqlite3';
 import { adaptPostgreSQLToSQLite } from './postgresql-adapter';
+import { adaptClickHouseToSQLite } from './clickhouse-adapter';
 
 export interface QueryResult {
   success: boolean;
@@ -375,7 +376,7 @@ function executeStatements(
 
 export function executeQuery(
   sql: string,
-  dbType: 'sqlite' | 'postgresql' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' = 'sqlite'
 ): QueryResult {
   const startTime = performance.now();
   const db = new Database(':memory:');
@@ -385,6 +386,8 @@ export function executeQuery(
     let processedSql = sql;
     if (dbType === 'postgresql') {
       processedSql = adaptPostgreSQLToSQLite(sql);
+    } else if (dbType === 'clickhouse') {
+      processedSql = adaptClickHouseToSQLite(sql);
     }
 
     const statements = splitStatements(processedSql);
@@ -407,7 +410,7 @@ export function executeQuery(
 export function executeWithSchema(
   sql: string,
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' = 'sqlite'
 ): QueryResult {
   const startTime = performance.now();
   const db = new Database(':memory:');
@@ -417,6 +420,8 @@ export function executeWithSchema(
     let processedSchema = schemaSql;
     if (dbType === 'postgresql') {
       processedSchema = adaptPostgreSQLToSQLite(schemaSql);
+    } else if (dbType === 'clickhouse') {
+      processedSchema = adaptClickHouseToSQLite(schemaSql);
     }
 
     try {
@@ -435,6 +440,8 @@ export function executeWithSchema(
     let processedSql = sql;
     if (dbType === 'postgresql') {
       processedSql = adaptPostgreSQLToSQLite(sql);
+    } else if (dbType === 'clickhouse') {
+      processedSql = adaptClickHouseToSQLite(sql);
     }
 
     const statements = splitStatements(processedSql);
@@ -462,7 +469,7 @@ export function executeWithSchema(
 export function executeWithSchemaMulti(
   sqlInputs: string[],
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' = 'sqlite'
 ): QueryResult[] {
   const startTime = performance.now();
   const db = new Database(':memory:');
@@ -472,6 +479,8 @@ export function executeWithSchemaMulti(
     let processedSchema = schemaSql;
     if (dbType === 'postgresql') {
       processedSchema = adaptPostgreSQLToSQLite(schemaSql);
+    } else if (dbType === 'clickhouse') {
+      processedSchema = adaptClickHouseToSQLite(schemaSql);
     }
 
     try {
@@ -493,6 +502,8 @@ export function executeWithSchemaMulti(
       let processedSql = sql;
       if (dbType === 'postgresql') {
         processedSql = adaptPostgreSQLToSQLite(sql);
+      } else if (dbType === 'clickhouse') {
+        processedSql = adaptClickHouseToSQLite(sql);
       }
 
       const statements = splitStatements(processedSql);
@@ -517,7 +528,7 @@ export function executeWithSchemaMulti(
 
 export function getSchemaInfo(
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' = 'sqlite'
 ): DatabaseInfo {
   const db = new Database(':memory:');
   db.pragma('foreign_keys = ON');
@@ -526,6 +537,8 @@ export function getSchemaInfo(
     let processedSchema = schemaSql;
     if (dbType === 'postgresql') {
       processedSchema = adaptPostgreSQLToSQLite(schemaSql);
+    } else if (dbType === 'clickhouse') {
+      processedSchema = adaptClickHouseToSQLite(schemaSql);
     }
 
     db.exec(processedSchema);
@@ -572,7 +585,7 @@ export function getSchemaInfo(
 export function explainQuery(
   sql: string,
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' = 'sqlite'
 ): { success: boolean; plan?: string; error?: string } {
   const db = new Database(':memory:');
   db.pragma('foreign_keys = ON');
@@ -581,6 +594,8 @@ export function explainQuery(
     let processedSchema = schemaSql;
     if (dbType === 'postgresql') {
       processedSchema = adaptPostgreSQLToSQLite(schemaSql);
+    } else if (dbType === 'clickhouse') {
+      processedSchema = adaptClickHouseToSQLite(schemaSql);
     }
 
     db.exec(processedSchema);
