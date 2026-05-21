@@ -43,6 +43,17 @@ import PeerComparisonMatrix from './analytics/peer-comparison-matrix';
 import CategoryPerformanceChart from './analytics/category-performance-chart';
 import SessionAnalysisChart from './analytics/session-analysis-chart';
 import HintImpactChart from './analytics/hint-impact-chart';
+import DeadlineCompliance from './analytics/deadline-compliance';
+import NotificationAnalytics from './analytics/notification-analytics';
+import StreakAnalytics from './analytics/streak-analytics';
+import OnboardingFunnel from './analytics/onboarding-funnel';
+import ReEngagement from './analytics/re-engagement';
+import DifficultyCalibration from './analytics/difficulty-calibration';
+import RegistrationTrends from './analytics/registration-trends';
+import ActivitySummary from './analytics/activity-summary';
+import HintUsageAnalytics from './analytics/hint-usage-analytics';
+import AuditLog from './analytics/audit-log';
+import WeekdayComparison from './analytics/weekday-comparison';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { t } from '@/lib/i18n';
 
@@ -105,6 +116,17 @@ export default function AnalyticsDashboard() {
             <TabsTrigger value="grades">{t('admin.tabs.grades')}</TabsTrigger>
             <TabsTrigger value="path-analysis">{t('admin.tabs.pathAnalysis')}</TabsTrigger>
             <TabsTrigger value="sessions">{t('admin.tabs.sessions')}</TabsTrigger>
+            <TabsTrigger value="deadline-compliance">{t('admin.tabs.deadlineCompliance')}</TabsTrigger>
+            <TabsTrigger value="notifications">{t('admin.tabs.notifications')}</TabsTrigger>
+            <TabsTrigger value="streaks">{t('admin.tabs.streaks')}</TabsTrigger>
+            <TabsTrigger value="onboarding">{t('admin.tabs.onboarding')}</TabsTrigger>
+            <TabsTrigger value="re-engagement">{t('admin.tabs.reEngagement')}</TabsTrigger>
+            <TabsTrigger value="calibration">{t('admin.tabs.calibration')}</TabsTrigger>
+            <TabsTrigger value="registrations">{t('admin.tabs.registrations')}</TabsTrigger>
+            <TabsTrigger value="activity-summary">{t('admin.tabs.activitySummary')}</TabsTrigger>
+            <TabsTrigger value="audit">{t('admin.tabs.audit')}</TabsTrigger>
+            <TabsTrigger value="weekday">{t('admin.tabs.weekday')}</TabsTrigger>
+            <TabsTrigger value="hint-usage">{t('analytics.hintUsage.title')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="overview" className="space-y-6">
@@ -219,6 +241,50 @@ export default function AnalyticsDashboard() {
 
           <TabsContent value="sessions" className="space-y-6">
             <SessionAnalysisChart />
+          </TabsContent>
+
+          <TabsContent value="deadline-compliance" className="space-y-6">
+            <DeadlineCompliance />
+          </TabsContent>
+
+          <TabsContent value="notifications" className="space-y-6">
+            <NotificationAnalytics />
+          </TabsContent>
+
+          <TabsContent value="streaks" className="space-y-6">
+            <StreakAnalytics />
+          </TabsContent>
+
+          <TabsContent value="onboarding" className="space-y-6">
+            <OnboardingFunnel />
+          </TabsContent>
+
+          <TabsContent value="re-engagement" className="space-y-6">
+            <ReEngagement />
+          </TabsContent>
+
+          <TabsContent value="calibration" className="space-y-6">
+            <DifficultyCalibration />
+          </TabsContent>
+
+          <TabsContent value="registrations" className="space-y-6">
+            <RegistrationTrends />
+          </TabsContent>
+
+          <TabsContent value="activity-summary" className="space-y-6">
+            <ActivitySummary />
+          </TabsContent>
+
+          <TabsContent value="audit" className="space-y-6">
+            <AuditLog />
+          </TabsContent>
+
+          <TabsContent value="weekday" className="space-y-6">
+            <WeekdayComparison />
+          </TabsContent>
+
+          <TabsContent value="hint-usage" className="space-y-6">
+            <HintUsageAnalytics />
           </TabsContent>
         </Tabs>
 
