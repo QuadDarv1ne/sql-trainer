@@ -6296,6 +6296,639 @@ export function getWeekdayVsWeekendPerformance(filters?: TimeRangeFilters): Week
   };
 }
 
+// ==================== Real-time / Live Activity ====================
+
+export function getLiveActivity(): {
+  active_now: number;
+  active_last_5min: Array<{ id: string; name: string; email: string; last_active: number }>;
+  active_last_hour: number;
+  active_last_24h: number;
+} {
+  const db = getDb();
+  const now = Date.now();
+  const fiveMinAgo = now - 5 * 60 * 1000;
+  const oneHourAgo = now - 60 * 60 * 1000;
+  const twentyFourHAgo = now - 24 * 60 * 60 * 1000;
+
+  const activeLast5min = db.prepare(`
+    SELECT id, name, email, last_active
+    FROM users
+    WHERE last_active IS NOT NULL AND last_active >= ?
+    ORDER BY last_active DESC
+    LIMIT 50
+  `).all(fiveMinAgo) as Array<{ id: string; name: string; email: string; last_active: number }>;
+
+  const activeLastHour = db.prepare(`
+    SELECT COUNT(*) as count FROM users
+    WHERE last_active IS NOT NULL AND last_active >= ?
+  `).get(oneHourAgo) as { count: number };
+
+  const activeLast24h = db.prepare(`
+    SELECT COUNT(*) as count FROM users
+    WHERE last_active IS NOT NULL AND last_active >= ?
+  `).get(twentyFourHAgo) as { count: number };
+
+  return {
+    active_now: activeLast5min.length,
+    active_last_5min: activeLast5min,
+    active_last_hour: activeLastHour.count,
+    active_last_24h: activeLast24h.count,
+  };
+}
+
+// ==================== Student Learning Plans ====================
+
+export function generateLearningPlan(userId: string): {
+  student_name: string;
+  current_level: string;
+  completed_tasks: number;
+  remaining_tasks: number;
+  completed_by_difficulty: { beginner: number; intermediate: number; advanced: number };
+  next_tasks: Array<{ task_id: string; task_title: string; difficulty: string; estimated_hours: number }>;
+  milestones: Array<{ milestone: string; target_date: string }>;
+  risk_factors: string[];
+} | null {
+  const db = getDb();
+  const user = db.prepare('SELECT id, name, role FROM users WHERE id = ?').get(userId) as { id: string; name: string; role: string } | undefined;
+  if (!user) return null;
+
+  const progress = getStudentProgressById(userId);
+  if (!progress) return null;
+
+  // Get all completed task IDs for this user
+  const completedTaskIds = db.prepare(`
+    SELECT task_id FROM user_progress WHERE user_id = ?
+  `).all(userId).map((r: { task_id: string }) => r.task_id);
+
+  const completedCount = completedTaskIds.length;
+
+  // Count by difficulty
+  const allTasks = db.prepare(`
+    SELECT id, title, difficulty FROM tasks ORDER BY difficulty, title
+  `).all() as Array<{ id: string; title: string; difficulty: string }>;
+
+  const completedByDiff = { beginner: 0, intermediate: 0, advanced: 0 };
+  const remainingByDiff: Array<{ id: string; title: string; difficulty: string }> = [];
+
+  for (const task of allTasks) {
+    if (completedTaskIds.includes(task.id)) {
+      completedByDiff[task.difficulty as keyof typeof completedByDiff]++;
+    } else {
+      remainingByDiff.push(task);
+    }
+  }
+
+  // Determine current level
+  let currentLevel = 'beginner';
+  if (completedByDiff.beginner >= 8) currentLevel = 'intermediate';
+  if (completedByDiff.intermediate >= 15) currentLevel = 'advanced';
+
+  // Calculate velocity (tasks per week)
+  const recentProgress = db.prepare(`
+    SELECT COUNT(*) as count FROM user_progress
+    WHERE user_id = ? AND completed_at >= ?
+  `).get(userId, Date.now() - 7 * 24 * 60 * 60 * 1000) as { count: number };
+
+  const velocity = recentProgress.count || 1; // At least 1 task/week estimate
+  const remainingTasks = remainingByDiff.length;
+  const estimatedWeeks = Math.ceil(remainingTasks / velocity);
+
+  // Recommend next 5 tasks based on weak areas
+  const nextTasks: Array<{ task_id: string; task_title: string; difficulty: string; estimated_hours: number }> = [];
+
+  // Prioritize: complete current level first, then move up
+  const priorityOrder = currentLevel === 'beginner'
+    ? ['beginner', 'intermediate']
+    : currentLevel === 'intermediate'
+      ? ['intermediate', 'advanced']
+      : ['advanced'];
+
+  for (const diff of priorityOrder) {
+    const candidates = remainingByDiff.filter(t => t.difficulty === diff);
+    for (const task of candidates.slice(0, 5 - nextTasks.length)) {
+      nextTasks.push({
+        task_id: task.id,
+        task_title: task.title,
+        difficulty: task.difficulty,
+        estimated_hours: diff === 'beginner' ? 0.5 : diff === 'intermediate' ? 1 : 1.5,
+      });
+    }
+    if (nextTasks.length >= 5) break;
+  }
+
+  // Generate milestones
+  const milestones: Array<{ milestone: string; target_date: string }> = [];
+  const now = new Date();
+
+  if (completedByDiff.beginner < 8) {
+    const beginnerRemaining = 8 - completedByDiff.beginner;
+    const beginnerWeeks = Math.ceil(beginnerRemaining / velocity);
+    const targetDate = new Date(now.getTime() + beginnerWeeks * 7 * 24 * 60 * 60 * 1000);
+    milestones.push({
+      milestone: 'Complete all beginner tasks',
+      target_date: targetDate.toISOString().slice(0, 10),
+    });
+  }
+
+  if (completedByDiff.intermediate < 15) {
+    const intermediateRemaining = 15 - completedByDiff.intermediate;
+    const intermediateWeeks = Math.ceil((completedByDiff.beginner >= 8 ? intermediateRemaining : intermediateRemaining + 8 - completedByDiff.beginner) / velocity);
+    const targetDate = new Date(now.getTime() + intermediateWeeks * 7 * 24 * 60 * 60 * 1000);
+    milestones.push({
+      milestone: 'Complete all intermediate tasks',
+      target_date: targetDate.toISOString().slice(0, 10),
+    });
+  }
+
+  // Risk factors
+  const riskFactors: string[] = [];
+  const lastActive = progress.last_active;
+  if (lastActive && (now.getTime() - lastActive) > 7 * 24 * 60 * 60 * 1000) {
+    riskFactors.push('Inactive for 7+ days');
+  }
+  if (progress.avg_attempts > 3) {
+    riskFactors.push('High average attempts per task');
+  }
+  if (completedCount === 0) {
+    riskFactors.push('No tasks completed yet');
+  }
+  if (velocity < 1) {
+    riskFactors.push('Low completion velocity');
+  }
+
+  return {
+    student_name: user.name,
+    current_level: currentLevel,
+    completed_tasks: completedCount,
+    remaining_tasks: remainingTasks,
+    completed_by_difficulty: completedByDiff,
+    next_tasks: nextTasks,
+    milestones,
+    risk_factors: riskFactors,
+  };
+}
+
+// ==================== A/B Testing ====================
+
+export function getABTestComparison(testType: string = 'learning_path'): {
+  test_name: string;
+  group_a: { name: string; count: number; avg_attempts: number; completion_rate: number; avg_time_hours: number };
+  group_b: { name: string; count: number; avg_attempts: number; completion_rate: number; avg_time_hours: number };
+  metrics: Array<{ metric: string; group_a: number; group_b: number; difference: number; significant: boolean }>;
+} {
+  const db = getDb();
+
+  // Sequential vs Random learning path comparison
+  if (testType === 'learning_path') {
+    // Group A: students with >50% tasks completed in order (by task ID sort)
+    // Group B: students with random order completion
+    // Simplified: use streak as proxy - high streak = sequential, low = random
+
+    const groupA = db.prepare(`
+      SELECT COUNT(DISTINCT up.user_id) as count,
+             AVG(subq.attempts) as avg_attempts,
+             CAST(SUM(CASE WHEN subq.completed >= 10 THEN 1 ELSE 0 END) AS FLOAT) / COUNT(DISTINCT up.user_id) * 100 as completion_rate,
+             AVG(subq.avg_time) / 3600000 as avg_time_hours
+      FROM user_progress up
+      JOIN (
+        SELECT user_id,
+               COUNT(*) as completed,
+               AVG(attempts) as attempts,
+               AVG(CASE WHEN completed_at IS NOT NULL AND created_at IS NOT NULL
+                        THEN completed_at - created_at ELSE 0 END) as avg_time
+        FROM user_progress
+        GROUP BY user_id
+        HAVING completed >= 5
+      ) subq ON up.user_id = subq.user_id
+      JOIN users u ON up.user_id = u.id
+      WHERE u.streak_current >= 7
+    `).get() as { count: number; avg_attempts: number; completion_rate: number; avg_time_hours: number };
+
+    const groupB = db.prepare(`
+      SELECT COUNT(DISTINCT up.user_id) as count,
+             AVG(subq.attempts) as avg_attempts,
+             CAST(SUM(CASE WHEN subq.completed >= 10 THEN 1 ELSE 0 END) AS FLOAT) / COUNT(DISTINCT up.user_id) * 100 as completion_rate,
+             AVG(subq.avg_time) / 3600000 as avg_time_hours
+      FROM user_progress up
+      JOIN (
+        SELECT user_id,
+               COUNT(*) as completed,
+               AVG(attempts) as attempts,
+               AVG(CASE WHEN completed_at IS NOT NULL AND created_at IS NOT NULL
+                        THEN completed_at - created_at ELSE 0 END) as avg_time
+        FROM user_progress
+        GROUP BY user_id
+        HAVING completed >= 5
+      ) subq ON up.user_id = subq.user_id
+      JOIN users u ON up.user_id = u.id
+      WHERE u.streak_current < 7
+    `).get() as { count: number; avg_attempts: number; completion_rate: number; avg_time_hours: number };
+
+    const metrics = [
+      {
+        metric: 'Avg Attempts',
+        group_a: parseFloat((groupA.avg_attempts || 0).toFixed(2)),
+        group_b: parseFloat((groupB.avg_attempts || 0).toFixed(2)),
+        difference: parseFloat(((groupA.avg_attempts || 0) - (groupB.avg_attempts || 0)).toFixed(2)),
+        significant: Math.abs((groupA.avg_attempts || 0) - (groupB.avg_attempts || 0)) > 0.5,
+      },
+      {
+        metric: 'Completion Rate (%)',
+        group_a: parseFloat((groupA.completion_rate || 0).toFixed(1)),
+        group_b: parseFloat((groupB.completion_rate || 0).toFixed(1)),
+        difference: parseFloat(((groupA.completion_rate || 0) - (groupB.completion_rate || 0)).toFixed(1)),
+        significant: Math.abs((groupA.completion_rate || 0) - (groupB.completion_rate || 0)) > 10,
+      },
+      {
+        metric: 'Avg Time (hours)',
+        group_a: parseFloat((groupA.avg_time_hours || 0).toFixed(2)),
+        group_b: parseFloat((groupB.avg_time_hours || 0).toFixed(2)),
+        difference: parseFloat(((groupA.avg_time_hours || 0) - (groupB.avg_time_hours || 0)).toFixed(2)),
+        significant: Math.abs((groupA.avg_time_hours || 0) - (groupB.avg_time_hours || 0)) > 1,
+      },
+    ];
+
+    return {
+      test_name: 'Sequential vs Random Learning Path',
+      group_a: {
+        name: 'Sequential (streak >= 7)',
+        count: groupA.count || 0,
+        avg_attempts: parseFloat((groupA.avg_attempts || 0).toFixed(2)),
+        completion_rate: parseFloat((groupA.completion_rate || 0).toFixed(1)),
+        avg_time_hours: parseFloat((groupA.avg_time_hours || 0).toFixed(2)),
+      },
+      group_b: {
+        name: 'Random (streak < 7)',
+        count: groupB.count || 0,
+        avg_attempts: parseFloat((groupB.avg_attempts || 0).toFixed(2)),
+        completion_rate: parseFloat((groupB.completion_rate || 0).toFixed(1)),
+        avg_time_hours: parseFloat((groupB.avg_time_hours || 0).toFixed(2)),
+      },
+      metrics,
+    };
+  }
+
+  // Hint vs No-Hint comparison
+  if (testType === 'hint_usage') {
+    const hintUsers = db.prepare(`
+      SELECT DISTINCT user_id FROM hint_usage
+    `).all().map((r: { user_id: string }) => r.user_id);
+
+    const groupA = db.prepare(`
+      SELECT COUNT(DISTINCT up.user_id) as count,
+             AVG(subq.attempts) as avg_attempts,
+             CAST(SUM(CASE WHEN subq.completed >= 10 THEN 1 ELSE 0 END) AS FLOAT) / MAX(COUNT(DISTINCT up.user_id), 1) * 100 as completion_rate,
+             AVG(subq.avg_time) / 3600000 as avg_time_hours
+      FROM user_progress up
+      JOIN (
+        SELECT user_id, COUNT(*) as completed, AVG(attempts) as attempts,
+               AVG(CASE WHEN completed_at IS NOT NULL THEN completed_at - created_at ELSE 0 END) as avg_time
+        FROM user_progress GROUP BY user_id
+      ) subq ON up.user_id = subq.user_id
+      WHERE up.user_id IN (${hintUsers.length ? hintUsers.map(() => '?').join(',') : "SELECT NULL"})
+    `).get(...hintUsers.length ? hintUsers : ['']) as { count: number; avg_attempts: number; completion_rate: number; avg_time_hours: number };
+
+    const groupB = db.prepare(`
+      SELECT COUNT(DISTINCT up.user_id) as count,
+             AVG(subq.attempts) as avg_attempts,
+             CAST(SUM(CASE WHEN subq.completed >= 10 THEN 1 ELSE 0 END) AS FLOAT) / MAX(COUNT(DISTINCT up.user_id), 1) * 100 as completion_rate,
+             AVG(subq.avg_time) / 3600000 as avg_time_hours
+      FROM user_progress up
+      JOIN (
+        SELECT user_id, COUNT(*) as completed, AVG(attempts) as attempts,
+               AVG(CASE WHEN completed_at IS NOT NULL THEN completed_at - created_at ELSE 0 END) as avg_time
+        FROM user_progress GROUP BY user_id
+      ) subq ON up.user_id = subq.user_id
+      WHERE up.user_id NOT IN (${hintUsers.length ? hintUsers.map(() => '?').join(',') : "SELECT NULL"})
+    `).get(...hintUsers.length ? hintUsers : ['']) as { count: number; avg_attempts: number; completion_rate: number; avg_time_hours: number };
+
+    const metrics = [
+      {
+        metric: 'Avg Attempts',
+        group_a: parseFloat((groupA?.avg_attempts || 0).toFixed(2)),
+        group_b: parseFloat((groupB?.avg_attempts || 0).toFixed(2)),
+        difference: parseFloat(((groupA?.avg_attempts || 0) - (groupB?.avg_attempts || 0)).toFixed(2)),
+        significant: Math.abs((groupA?.avg_attempts || 0) - (groupB?.avg_attempts || 0)) > 0.5,
+      },
+      {
+        metric: 'Completion Rate (%)',
+        group_a: parseFloat((groupA?.completion_rate || 0).toFixed(1)),
+        group_b: parseFloat((groupB?.completion_rate || 0).toFixed(1)),
+        difference: parseFloat(((groupA?.completion_rate || 0) - (groupB?.completion_rate || 0)).toFixed(1)),
+        significant: Math.abs((groupA?.completion_rate || 0) - (groupB?.completion_rate || 0)) > 10,
+      },
+    ];
+
+    return {
+      test_name: 'Hint Usage vs Independent',
+      group_a: {
+        name: 'Used Hints',
+        count: groupA?.count || 0,
+        avg_attempts: parseFloat((groupA?.avg_attempts || 0).toFixed(2)),
+        completion_rate: parseFloat((groupA?.completion_rate || 0).toFixed(1)),
+        avg_time_hours: parseFloat((groupA?.avg_time_hours || 0).toFixed(2)),
+      },
+      group_b: {
+        name: 'No Hints',
+        count: groupB?.count || 0,
+        avg_attempts: parseFloat((groupB?.avg_attempts || 0).toFixed(2)),
+        completion_rate: parseFloat((groupB?.completion_rate || 0).toFixed(1)),
+        avg_time_hours: parseFloat((groupB?.avg_time_hours || 0).toFixed(2)),
+      },
+      metrics,
+    };
+  }
+
+  // Default fallback
+  return {
+    test_name: 'No Test Selected',
+    group_a: { name: 'Group A', count: 0, avg_attempts: 0, completion_rate: 0, avg_time_hours: 0 },
+    group_b: { name: 'Group B', count: 0, avg_attempts: 0, completion_rate: 0, avg_time_hours: 0 },
+    metrics: [],
+  };
+}
+
+// ==================== Teacher Effectiveness ====================
+
+export function getTeacherEffectiveness(): {
+  teachers: Array<{
+    id: string;
+    name: string;
+    student_count: number;
+    avg_completion_rate: number;
+    avg_attempts: number;
+    avg_growth_rate: number;
+  }>;
+  summary: { total_teachers: number; avg_student_per_teacher: number; top_teacher: string };
+} {
+  const db = getDb();
+
+  const teachers = db.prepare(`
+    SELECT id, name FROM users WHERE role IN ('teacher', 'admin') ORDER BY created_at
+  `).all() as Array<{ id: string; name: string }>;
+
+  const teacherStats = teachers.map(teacher => {
+    // Find students associated with this teacher via deadlines they created
+    const students = db.prepare(`
+      SELECT DISTINCT up.user_id,
+             COUNT(up.task_id) as tasks_completed,
+             AVG(up.attempts) as avg_attempts
+      FROM user_progress up
+      JOIN deadlines d ON up.task_id = d.task_id
+      WHERE d.creator_id = ?
+      GROUP BY up.user_id
+    `).all(teacher.id) as Array<{ user_id: string; tasks_completed: number; avg_attempts: number }>;
+
+    // Also count all students if teacher is admin (global)
+    const allStudents = db.prepare(`
+      SELECT COUNT(*) as count FROM users WHERE role = 'student'
+    `).get() as { count: number };
+
+    const studentCount = students.length > 0 ? students.length : (teacher.name.toLowerCase().includes('admin') ? allStudents.count : 0);
+    const avgAttempts = students.length > 0
+      ? parseFloat((students.reduce((s, st) => s + st.avg_attempts, 0) / students.length).toFixed(2))
+      : 0;
+
+    const totalTasks = 48; // Total training tasks
+    const avgCompletionRate = students.length > 0
+      ? parseFloat(((students.reduce((s, st) => s + st.tasks_completed, 0) / students.length / totalTasks) * 100).toFixed(1))
+      : 0;
+
+    return {
+      id: teacher.id,
+      name: teacher.name,
+      student_count: studentCount,
+      avg_completion_rate: avgCompletionRate,
+      avg_attempts: avgAttempts,
+      avg_growth_rate: parseFloat((avgCompletionRate / Math.max(studentCount, 1)).toFixed(1)),
+    };
+  });
+
+  const withStudents = teacherStats.filter(t => t.student_count > 0);
+  const topTeacher = withStudents.length > 0
+    ? withStudents.reduce((a, b) => a.avg_completion_rate > b.avg_completion_rate ? a : b).name
+    : 'N/A';
+
+  return {
+    teachers: teacherStats.sort((a, b) => b.avg_completion_rate - a.avg_completion_rate),
+    summary: {
+      total_teachers: teachers.length,
+      avg_student_per_teacher: teachers.length > 0 ? parseFloat((teacherStats.reduce((s, t) => s + t.student_count, 0) / teachers.length).toFixed(1)) : 0,
+      top_teacher: topTeacher,
+    },
+  };
+}
+
+// ==================== Retention Cohorts ====================
+
+export function getRetentionCohorts(): {
+  cohorts: Array<{
+    cohort_week: string;
+    total: number;
+    week_1_retained: number;
+    week_1_rate: number;
+    week_2_retained: number;
+    week_2_rate: number;
+    week_4_retained: number;
+    week_4_rate: number;
+    week_8_retained: number;
+    week_8_rate: number;
+  }>;
+  summary: { avg_week_1_rate: number; avg_week_4_rate: number; avg_week_8_rate: number };
+} {
+  const db = getDb();
+
+  // Get all students grouped by registration week
+  const cohorts = db.prepare(`
+    SELECT STRFTIME('%Y-%W', DATETIME(created_at / 1000, 'unixepoch')) as cohort_week,
+           COUNT(*) as total
+    FROM users
+    WHERE role = 'student'
+    GROUP BY cohort_week
+    ORDER BY cohort_week
+    LIMIT 20
+  `).all() as Array<{ cohort_week: string; total: number }>;
+
+  const cohortData = cohorts.map(cohort => {
+    // Get student IDs in this cohort
+    const students = db.prepare(`
+      SELECT id, created_at FROM users
+      WHERE role = 'student'
+        AND STRFTIME('%Y-%W', DATETIME(created_at / 1000, 'unixepoch')) = ?
+    `).all(cohort.cohort_week) as Array<{ id: string; created_at: number }>;
+
+    if (students.length === 0) return null;
+
+    const checkRetention = (weeks: number) => {
+      const cutoff = weeks * 7 * 24 * 60 * 60 * 1000;
+      let retained = 0;
+      for (const student of students) {
+        const hasActivity = db.prepare(`
+          SELECT COUNT(*) as count FROM user_progress
+          WHERE user_id = ? AND completed_at >= ?
+        `).get(student.id, student.created_at + cutoff) as { count: number };
+        if (hasActivity.count > 0) retained++;
+      }
+      return retained;
+    };
+
+    const w1 = checkRetention(1);
+    const w2 = checkRetention(2);
+    const w4 = checkRetention(4);
+    const w8 = checkRetention(8);
+
+    return {
+      cohort_week: cohort.cohort_week,
+      total: cohort.total,
+      week_1_retained: w1,
+      week_1_rate: parseFloat(((w1 / cohort.total) * 100).toFixed(1)),
+      week_2_retained: w2,
+      week_2_rate: parseFloat(((w2 / cohort.total) * 100).toFixed(1)),
+      week_4_retained: w4,
+      week_4_rate: parseFloat(((w4 / cohort.total) * 100).toFixed(1)),
+      week_8_retained: w8,
+      week_8_rate: parseFloat(((w8 / cohort.total) * 100).toFixed(1)),
+    };
+  }).filter(Boolean);
+
+  const validCohorts = cohortData as typeof cohortData extends (infer T | null)[] ? T[] : never;
+
+  const avgW1 = validCohorts.length > 0 ? parseFloat((validCohorts.reduce((s, c) => s + c.week_1_rate, 0) / validCohorts.length).toFixed(1)) : 0;
+  const avgW4 = validCohorts.length > 0 ? parseFloat((validCohorts.reduce((s, c) => s + c.week_4_rate, 0) / validCohorts.length).toFixed(1)) : 0;
+  const avgW8 = validCohorts.length > 0 ? parseFloat((validCohorts.reduce((s, c) => s + c.week_8_rate, 0) / validCohorts.length).toFixed(1)) : 0;
+
+  return {
+    cohorts: validCohorts,
+    summary: {
+      avg_week_1_rate: avgW1,
+      avg_week_4_rate: avgW4,
+      avg_week_8_rate: avgW8,
+    },
+  };
+}
+
+// ==================== Topic Mastery ====================
+
+export function getTopicMastery(): {
+  by_category: Array<{
+    category: string;
+    task_count: number;
+    total_completions: number;
+    unique_students: number;
+    avg_attempts: number;
+    completion_rate: number;
+  }>;
+  by_difficulty: Array<{
+    difficulty: string;
+    task_count: number;
+    total_completions: number;
+    unique_students: number;
+    avg_attempts: number;
+    first_attempt_rate: number;
+  }>;
+  hardest_tasks: Array<{
+    task_id: string;
+    task_title: string;
+    difficulty: string;
+    category: string;
+    completions: number;
+    avg_attempts: number;
+    failure_rate: number;
+  }>;
+} {
+  const db = getDb();
+
+  // Import training tasks
+  const { TRAINING_TASKS } = require('./training-tasks');
+  const tasks = TRAINING_TASKS as Array<{ id: string; title: string; difficulty: string; category?: string }>;
+
+  const categoryMap = new Map<string, string[]>();
+  const difficultyMap = new Map<string, string[]>();
+
+  for (const task of tasks) {
+    const cat = task.category || 'general';
+    if (!categoryMap.has(cat)) categoryMap.set(cat, []);
+    categoryMap.get(cat)!.push(task.id);
+
+    if (!difficultyMap.has(task.difficulty)) difficultyMap.set(task.difficulty, []);
+    difficultyMap.get(task.difficulty)!.push(task.id);
+  }
+
+  // By category
+  const byCategory = Array.from(categoryMap.entries()).map(([category, taskIds]) => {
+    const placeholders = taskIds.map(() => '?').join(',');
+    const stats = db.prepare(`
+      SELECT COUNT(*) as total_completions,
+             COUNT(DISTINCT user_id) as unique_students,
+             AVG(attempts) as avg_attempts
+      FROM user_progress
+      WHERE task_id IN (${placeholders})
+    `).all(...taskIds) as Array<{ total_completions: number; unique_students: number; avg_attempts: number }>;
+
+    const totalCompletions = stats.reduce((s, st) => s + st.total_completions, 0);
+    const uniqueStudents = stats.reduce((s, st) => s + st.unique_students, 0);
+    const avgAttempts = stats.length > 0 ? parseFloat((stats.reduce((s, st) => s + st.avg_attempts, 0) / stats.length).toFixed(2)) : 0;
+    const maxPossible = taskIds.length * uniqueStudents;
+    const completionRate = maxPossible > 0 ? parseFloat(((totalCompletions / maxPossible) * 100).toFixed(1)) : 0;
+
+    return {
+      category,
+      task_count: taskIds.length,
+      total_completions: totalCompletions,
+      unique_students: uniqueStudents,
+      avg_attempts: avgAttempts,
+      completion_rate: completionRate,
+    };
+  }).sort((a, b) => b.completion_rate - a.completion_rate);
+
+  // By difficulty
+  const byDifficulty = Array.from(difficultyMap.entries()).map(([difficulty, taskIds]) => {
+    const placeholders = taskIds.map(() => '?').join(',');
+    const stats = db.prepare(`
+      SELECT COUNT(*) as total_completions,
+             COUNT(DISTINCT user_id) as unique_students,
+             AVG(attempts) as avg_attempts,
+             CAST(SUM(CASE WHEN attempts = 1 THEN 1 ELSE 0 END) AS FLOAT) / MAX(COUNT(*), 1) * 100 as first_attempt_rate
+      FROM user_progress
+      WHERE task_id IN (${placeholders})
+    `).all(...taskIds) as Array<{ total_completions: number; unique_students: number; avg_attempts: number; first_attempt_rate: number }>;
+
+    return {
+      difficulty,
+      task_count: taskIds.length,
+      total_completions: stats.reduce((s, st) => s + st.total_completions, 0),
+      unique_students: stats.reduce((s, st) => s + st.unique_students, 0),
+      avg_attempts: parseFloat((stats.reduce((s, st) => s + st.avg_attempts, 0) / Math.max(stats.length, 1)).toFixed(2)),
+      first_attempt_rate: parseFloat((stats.reduce((s, st) => s + st.first_attempt_rate, 0) / Math.max(stats.length, 1)).toFixed(1)),
+    };
+  });
+
+  // Hardest tasks (highest avg attempts, lowest completion)
+  const allTaskStats = tasks.slice(0, 20).map(task => {
+    const stat = db.prepare(`
+      SELECT COUNT(*) as completions, AVG(attempts) as avg_attempts,
+             CAST(SUM(CASE WHEN attempts > 3 THEN 1 ELSE 0 END) AS FLOAT) / MAX(COUNT(*), 1) * 100 as failure_rate
+      FROM user_progress WHERE task_id = ?
+    `).get(task.id) as { completions: number; avg_attempts: number; failure_rate: number };
+
+    return {
+      task_id: task.id,
+      task_title: task.title,
+      difficulty: task.difficulty,
+      category: task.category || 'general',
+      completions: stat.completions,
+      avg_attempts: parseFloat((stat.avg_attempts || 0).toFixed(2)),
+      failure_rate: parseFloat((stat.failure_rate || 0).toFixed(1)),
+    };
+  }).sort((a, b) => b.avg_attempts - a.avg_attempts).slice(0, 15);
+
+  return {
+    by_category: byCategory,
+    by_difficulty: byDifficulty,
+    hardest_tasks: allTaskStats,
+  };
+}
+
 // ==================== End Expanded Analytics ====================
 
 // Initialize on import

@@ -10,15 +10,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Calendar, Download } from 'lucide-react';
+import { Calendar, Download, RefreshCw } from 'lucide-react';
 import { t } from '@/lib/i18n';
 
 interface DateRangeFilterProps {
   onFilterChange?: (startDate: number | null, endDate: number | null) => void;
   onExport?: () => void;
+  onRefresh?: () => void;
 }
 
-export default function DateRangeFilter({ onFilterChange, onExport }: DateRangeFilterProps) {
+export default function DateRangeFilter({ onFilterChange, onExport, onRefresh }: DateRangeFilterProps) {
   const [selectedRange, setSelectedRange] = useState<string>('30');
 
   const handleRangeChange = (value: string) => {
@@ -57,12 +58,20 @@ export default function DateRangeFilter({ onFilterChange, onExport }: DateRangeF
           </SelectContent>
         </Select>
 
-        {onExport && (
-          <Button variant="outline" size="sm" onClick={onExport} className="ml-auto">
-            <Download className="h-4 w-4 mr-2" />
-            {t('analytics.export.csv')}
-          </Button>
-        )}
+        <div className="ml-auto flex items-center gap-2">
+          {onRefresh && (
+            <Button variant="ghost" size="sm" onClick={onRefresh}>
+              <RefreshCw className="h-4 w-4 mr-1" />
+              {t('analytics.refresh')}
+            </Button>
+          )}
+          {onExport && (
+            <Button variant="outline" size="sm" onClick={onExport}>
+              <Download className="h-4 w-4 mr-2" />
+              {t('analytics.export.csv')}
+            </Button>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

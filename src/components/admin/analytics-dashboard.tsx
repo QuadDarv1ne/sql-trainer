@@ -54,6 +54,12 @@ import ActivitySummary from './analytics/activity-summary';
 import HintUsageAnalytics from './analytics/hint-usage-analytics';
 import AuditLog from './analytics/audit-log';
 import WeekdayComparison from './analytics/weekday-comparison';
+import LiveActivity from './analytics/live-activity';
+import LearningPlan from './analytics/learning-plan';
+import ABTest from './analytics/ab-test';
+import TeacherEffectiveness from './analytics/teacher-effectiveness';
+import RetentionCohorts from './analytics/retention-cohorts';
+import TopicMastery from './analytics/topic-mastery';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { t } from '@/lib/i18n';
 
@@ -85,10 +91,14 @@ export default function AnalyticsDashboard() {
     setExportOpen(true);
   };
 
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+
   return (
     <DateRangeContext.Provider value={{ startDate, endDate }}>
       <div className="space-y-6">
-        <DateRangeFilter onFilterChange={handleFilterChange} onExport={handleExport} />
+        <DateRangeFilter onFilterChange={handleFilterChange} onExport={handleExport} onRefresh={handleRefresh} />
         
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="flex-wrap h-auto">
@@ -127,6 +137,12 @@ export default function AnalyticsDashboard() {
             <TabsTrigger value="audit">{t('admin.tabs.audit')}</TabsTrigger>
             <TabsTrigger value="weekday">{t('admin.tabs.weekday')}</TabsTrigger>
             <TabsTrigger value="hint-usage">{t('analytics.hintUsage.title')}</TabsTrigger>
+            <TabsTrigger value="live">{t('admin.tabs.live')}</TabsTrigger>
+            <TabsTrigger value="learning-plan">{t('admin.tabs.learningPlan')}</TabsTrigger>
+            <TabsTrigger value="ab-test">{t('admin.tabs.abTest')}</TabsTrigger>
+            <TabsTrigger value="teacher-effectiveness">{t('admin.tabs.teacherEffectiveness')}</TabsTrigger>
+            <TabsTrigger value="retention-cohorts">{t('admin.tabs.retentionCohorts')}</TabsTrigger>
+            <TabsTrigger value="topic-mastery">{t('admin.tabs.topicMastery')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="overview" className="space-y-6">
@@ -285,6 +301,30 @@ export default function AnalyticsDashboard() {
 
           <TabsContent value="hint-usage" className="space-y-6">
             <HintUsageAnalytics />
+          </TabsContent>
+
+          <TabsContent value="live" className="space-y-6">
+            <LiveActivity />
+          </TabsContent>
+
+          <TabsContent value="learning-plan" className="space-y-6">
+            <LearningPlan />
+          </TabsContent>
+
+          <TabsContent value="ab-test" className="space-y-6">
+            <ABTest />
+          </TabsContent>
+
+          <TabsContent value="teacher-effectiveness" className="space-y-6">
+            <TeacherEffectiveness />
+          </TabsContent>
+
+          <TabsContent value="retention-cohorts" className="space-y-6">
+            <RetentionCohorts />
+          </TabsContent>
+
+          <TabsContent value="topic-mastery" className="space-y-6">
+            <TopicMastery />
           </TabsContent>
         </Tabs>
 

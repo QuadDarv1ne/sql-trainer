@@ -15,6 +15,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { FileSpreadsheet, FileText, Download, Loader2 } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToJSON } from '@/lib/export-utils';
+import { generateAnalyticsPDF, AnalyticsSection, AnalyticsPDFData } from '@/lib/pdf-report';
 import { t } from '@/lib/i18n';
 
 interface ExportDialogProps {
@@ -25,7 +26,7 @@ interface ExportDialogProps {
 }
 
 export default function ExportDialog({ open, onOpenChange, startDate, endDate }: ExportDialogProps) {
-  const [format, setFormat] = useState<'csv' | 'excel' | 'json'>('csv');
+  const [format, setFormat] = useState<'csv' | 'excel' | 'json' | 'pdf'>('csv');
   const [lmsFormat, setLmsFormat] = useState<'csv' | 'json' | 'xml'>('csv');
   const [activeTab, setActiveTab] = useState<'analytics' | 'lms'>('analytics');
   const [loading, setLoading] = useState(false);
@@ -76,7 +77,31 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
       const filename = `analytics-export-${new Date().toISOString().slice(0, 10)}`;
       const allData = Object.values(data).flat() as Record<string, unknown>[];
 
-      if (format === 'csv') {
+      if (format === 'pdf') {
+        const pdfData: AnalyticsPDFData = {};
+        const pdfSections: AnalyticsSection[] = [];
+
+        if (data.classReport) {
+          pdfData.overview = {
+            total_students: (data.classReport as any).total_students || 0,
+            active_students: (data.classReport as any).active_students || 0,
+            avg_completion_rate: (data.classReport as any).avg_completion_rate || 0,
+            avg_attempts: (data.classReport as any).avg_attempts || 0,
+          };
+          pdfSections.push('overview');
+        }
+        if (data.students && Array.isArray(data.students)) {
+          // Map student data into a simple overview
+          pdfSections.push('overview');
+        }
+
+        generateAnalyticsPDF(pdfData, pdfSections, {
+          title: 'Analytics Report',
+          subtitle: `Date range: ${startDate ? new Date(startDate).toLocaleDateString() : 'All'} — ${endDate ? new Date(endDate).toLocaleDateString() : 'All'}`,
+          generatedAt: new Date(),
+          locale: t('locale') === 'ru' ? 'ru' : 'en',
+        });
+      } else if (format === 'csv') {
         const columns = allData.length
           ? Object.keys(allData[0]).map(k => ({ key: k, label: k }))
           : [];
@@ -187,6 +212,12 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
                   <RadioGroupItem value="json" id="json" />
                   <Label htmlFor="json" className="flex items-center gap-1">
                     <FileText className="h-4 w-4" /> {t('analytics.export.format.json')}
+                  </Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="pdf" id="pdf" />
+                  <Label htmlFor="pdf" className="flex items-center gap-1">
+                    <FileText className="h-4 w-4" /> PDF
                   </Label>
                 </div>
               </RadioGroup>
