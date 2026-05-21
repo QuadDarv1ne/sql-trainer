@@ -15,6 +15,7 @@ import ResultsTable from '@/components/results-table';
 import ActionBar from '@/components/action-bar';
 import ExplainPanel from '@/components/explain-panel';
 import EmptyResults from '@/components/empty-results';
+import { formatSQL } from '@/components/sql-editor';
 import Sidebar from '@/components/sidebar';
 import TaskPanel from '@/components/task-panel';
 import DbSelector from '@/components/db-selector';

@@ -3,8 +3,8 @@ import { requireTeacher } from '@/lib/api-auth';
 import { getStudentGradeDistribution } from '@/lib/db-users';
 
 export async function GET() {
-  const auth = requireTeacher();
-  if (auth instanceof NextResponse) return auth;
+  const authResult = await requireTeacher();
+  if (authResult.error) return authResult.error;
 
   try {
     const distribution = getStudentGradeDistribution();

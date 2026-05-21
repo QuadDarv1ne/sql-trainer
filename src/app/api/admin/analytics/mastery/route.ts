@@ -23,7 +23,11 @@ export async function GET(request: NextRequest) {
       ? { start_date: startDate, end_date: endDate }
       : undefined;
 
-    const progression = getMasteryProgression(filters);
+    const days = startDate && endDate
+      ? Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24))
+      : 90;
+    const weeks = Math.max(1, Math.ceil(days / 7));
+    const progression = getMasteryProgression(weeks, filters);
     return NextResponse.json({ progression });
   } catch (error) {
     console.error('[API Error] GET /api/admin/analytics/mastery:', error);

@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       ? { start_date: startDate, end_date: endDate }
       : undefined;
 
-    const progress = getWeeklyProgress(12, filters);
+    const progress = getWeeklyProgress(12);
     return NextResponse.json({ progress });
   } catch (error) {
     console.error('[API Error] GET /api/admin/analytics/progress:', error);

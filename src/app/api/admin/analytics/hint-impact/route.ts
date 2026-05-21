@@ -3,13 +3,16 @@ import { requireAdmin, parseDateParams } from '@/lib/api-auth';
 import { getHintImpactAnalysis } from '@/lib/db-users';
 
 export async function GET(request: NextRequest) {
-  const admin = await requireAdmin();
-  if (!admin.success) return admin.response;
+  const authResult = await requireAdmin();
+  if (authResult.error) return authResult.error;
 
   const { searchParams } = new URL(request.url);
-  const { filters } = parseDateParams(searchParams);
+  const dateParams = parseDateParams(searchParams);
+  const filters = dateParams.startDate && dateParams.endDate
+    ? { start_date: dateParams.startDate, end_date: dateParams.endDate }
+    : undefined;
 
   const hints = getHintImpactAnalysis(filters);
 
-  return Response.json({ hints, dateRange: filters ? { startDate: filters.start_date, endDate: filters.end_date } : undefined });
+  return Response.json({ hints, dateRange: dateParams.startDate && dateParams.endDate ? { startDate: dateParams.startDate, endDate: dateParams.endDate } : undefined });
 }

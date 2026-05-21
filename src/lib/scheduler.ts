@@ -17,7 +17,7 @@ export function heartbeat(): { processed_reminders: number; processed_emails_sen
   lastTick = now;
 
   const remindersProcessed = processDueReminders();
-  const emailResult = processEmailQueue();
+  const emailResult = await processEmailQueue();
 
   return {
     processed_reminders: remindersProcessed,

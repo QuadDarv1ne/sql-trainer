@@ -56,7 +56,7 @@ export function renderReminderEmail(reminder: {
 }, locale: string = 'ru'): string {
   // Temporarily set locale for rendering
   const prevLocale = locale;
-  setLocale(locale);
+  setLocale(locale as import('@/lib/i18n').Locale);
 
   const typeLabels: Record<string, string> = {
     course: t('reminder.course'),
@@ -118,7 +118,7 @@ export function renderReminderEmail(reminder: {
   `;
 
   // Restore locale
-  setLocale(prevLocale);
+  setLocale(prevLocale as import('@/lib/i18n').Locale);
 
   return html;
 }

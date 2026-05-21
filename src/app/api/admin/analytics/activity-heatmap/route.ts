@@ -23,10 +23,10 @@ export async function GET(request: NextRequest) {
       ? { start_date: startDate, end_date: endDate }
       : undefined;
 
-    const days = filters
+    const days = startDate && endDate
       ? Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24))
       : parseInt(searchParams.get('days') || '90');
-    const data = getActivityHeatmap(days, filters);
+    const data = getActivityHeatmap(days);
     const total = data.reduce((sum, d) => sum + d.completions, 0);
 
     return NextResponse.json({

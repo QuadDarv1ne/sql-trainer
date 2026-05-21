@@ -8,6 +8,7 @@ import bcrypt from 'bcryptjs';
 import path from 'path';
 import fs from 'fs';
 import { TRAINING_TASKS } from './training-tasks';
+import { t } from './i18n';
 
 export type UserRole = 'student' | 'teacher' | 'admin';
 const VALID_ROLES: UserRole[] = ['student', 'teacher', 'admin'];
@@ -660,7 +661,7 @@ export function getStudentRecommendations(userId: string): StudentRecommendation
 
   // 2. Review weak topics (tasks with high attempts)
   if (struggleTasks.length > 0) {
-    const weakTaskIds = struggleTasks.map(t => t.id);
+    const weakTaskIds = struggleTasks.map(t => t.task_id);
     const weakTasks = db.prepare(
       'SELECT task_id, MAX(attempts) as max_attempts FROM user_progress WHERE user_id = ? AND task_id IN (${placeholders}) GROUP BY task_id ORDER BY max_attempts DESC LIMIT 3'
         .replace('${placeholders}', weakTaskIds.map(() => '?').join(','))
