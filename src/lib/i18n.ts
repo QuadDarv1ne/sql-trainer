@@ -90,6 +90,11 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.explain': 'EXPLAIN',
     'action.explainTooltip': 'Показать план выполнения запроса',
 
+    // Sidebar
+    'sidebar.search': 'Поиск заданий...',
+    'sidebar.clearSearch': 'Очистить поиск',
+    'sidebar.all': 'Все',
+
     // Results
     'results.row': 'строка',
     'results.rows': 'строки',
@@ -335,6 +340,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'admin.users.noResults': 'Нет результатов',
 
     // Teacher Dashboard
+    'teacher.title': 'Панель преподавателя',
     'teacher.loading': 'Загрузка...',
     'teacher.error': 'Не удалось загрузить данные',
     'teacher.noData': 'Нет данных',
@@ -1535,6 +1541,11 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.explain': 'EXPLAIN',
     'action.explainTooltip': 'Show query execution plan',
 
+    // Sidebar
+    'sidebar.search': 'Search tasks...',
+    'sidebar.clearSearch': 'Clear search',
+    'sidebar.all': 'All',
+
     // Results
     'results.row': 'row',
     'results.rows': 'rows',
@@ -1780,6 +1791,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'admin.users.noResults': 'No results',
 
     // Teacher Dashboard
+    'teacher.title': 'Teacher Dashboard',
     'teacher.loading': 'Loading...',
     'teacher.error': 'Failed to load data',
     'teacher.noData': 'No data',

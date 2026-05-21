@@ -25,7 +25,7 @@ export default function LearningPathTimeline({ userId }: LearningPathTimelinePro
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const fetch = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
         const res = await fetch(`/api/admin/analytics/student/${userId}/timeline`);
@@ -38,7 +38,7 @@ export default function LearningPathTimeline({ userId }: LearningPathTimelinePro
         setLoading(false);
       }
     };
-    fetch();
+    loadData();
   }, [userId]);
 
   if (loading) return <div className="flex justify-center py-4">{t('analytics.loading')}</div>;

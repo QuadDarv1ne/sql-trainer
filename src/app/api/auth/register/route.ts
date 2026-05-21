@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createUser } from '@/lib/db-users';
 import type { UserRole } from '@/lib/db-users';
 import { rateLimit } from '@/lib/rate-limit';
+import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +26,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const sanitizedName = sanitizeName(name);
+    if (sanitizedName.error) {
+      return NextResponse.json(
+        { success: false, error: sanitizedName.error },
+        { status: 400 }
+      );
+    }
+
     if (password.length < 6) {
       return NextResponse.json(
         { success: false, error: 'Пароль должен содержать минимум 6 символов' },
@@ -40,10 +49,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const sanitizedPhone = phone ? sanitizePhone(phone) : { value: '' };
+    if (sanitizedPhone.error) {
+      return NextResponse.json(
+        { success: false, error: sanitizedPhone.error },
+        { status: 400 }
+      );
+    }
+
     // Always assign 'student' role — role changes must be done by admin
     const userRole: UserRole = 'student';
 
-    const user = await createUser(email, name, password, phone, userRole);
+    const user = await createUser(email, sanitizedName.value, password, sanitizedPhone.value || null, userRole);
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'Пользователь с таким email уже существует' },

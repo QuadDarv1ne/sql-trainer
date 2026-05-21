@@ -87,7 +87,7 @@ export default function StudentDetailDialog({
   useEffect(() => {
     if (!data?.student) return;
 
-    fetch(`/api/admin/analytics/student/${data.student.id}/streak`)
+    fetch(`/api/admin/analytics/student/${data.student.user_id}/streak`)
       .then(res => res.json())
       .then(data => setStreak(data.streak || 0))
       .catch(() => setStreak(0));

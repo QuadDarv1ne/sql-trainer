@@ -22,7 +22,7 @@ export default function ErrorTrendsChart() {
   const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
-    const fetch = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
@@ -37,7 +37,7 @@ export default function ErrorTrendsChart() {
         setLoading(false);
       }
     };
-    fetch();
+    loadData();
   }, [startDate, endDate]);
 
   if (loading) return <div className="flex justify-center py-8">{t('analytics.loading')}</div>;

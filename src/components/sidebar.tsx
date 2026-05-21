@@ -23,12 +23,15 @@ import {
   Target,
   User,
   Bookmark,
+  Search,
+  X,
 } from 'lucide-react';
 import { CATEGORY_ICONS } from '@/lib/category-icons';
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import ExportImportDialog from '@/components/export-import-dialog';
 import { ReminderBell } from '@/components/reminders/reminder-bell';
+import { Input } from '@/components/ui/input';
 
 const CATEGORY_LABELS: Record<TaskCategory | 'base', string> = {
   base: 'Базовые',
@@ -68,6 +71,7 @@ export default function Sidebar() {
 
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<CategoryKey | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const completedCount = completedTasks.length;
   const totalCount = TRAINING_TASKS.length;
@@ -91,10 +95,12 @@ export default function Sidebar() {
       intermediate: { base: [], company: [], shop: [], analytics: [], exam: [] },
       advanced: { base: [], company: [], shop: [], analytics: [], exam: [] },
     };
+    const query = searchQuery.toLowerCase().trim();
     TRAINING_TASKS.forEach((task) => {
       const cat: CategoryKey = task.category ?? 'base';
       if (showBookmarksOnly && !bookmarkedIds.has(task.id)) return;
       if (activeCategoryFilter !== 'all' && cat !== activeCategoryFilter) return;
+      if (query && !task.title.toLowerCase().includes(query) && !task.id.toLowerCase().includes(query)) return;
       map[task.difficulty][cat].push(task);
     });
     // Remove empty categories
@@ -106,7 +112,7 @@ export default function Sidebar() {
       }
     }
     return map;
-  }, [showBookmarksOnly, bookmarkedIds, activeCategoryFilter]);
+  }, [showBookmarksOnly, bookmarkedIds, activeCategoryFilter, searchQuery]);
 
   // Get available categories for filter
   const availableCategories = useMemo(() => {
@@ -203,6 +209,27 @@ export default function Sidebar() {
             : `${Math.round(progressPercent)}% ${t('progress.percent')}`}
         </p>
 
+        {/* Search */}
+        <div className="relative mt-2">
+          <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder={t('sidebar.search')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-8 pl-7 pr-7 text-xs"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
+              aria-label={t('sidebar.clearSearch', { default: 'Clear search' })}
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+
         {/* Category filter */}
         <div className="mt-2 flex flex-wrap gap-1">
           <button
@@ -213,7 +240,7 @@ export default function Sidebar() {
                 : 'text-muted-foreground hover:bg-muted/50'
             }`}
           >
-            Все
+            {t('sidebar.all')}
           </button>
           {availableCategories.map((cat) => {
             const IconCat = cat !== 'base' ? CATEGORY_ICONS[cat as TaskCategory] : null;

@@ -23,7 +23,7 @@ export default function StudentGroupsChart() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const fetch = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
         const res = await fetch('/api/admin/analytics/groups');
@@ -35,7 +35,7 @@ export default function StudentGroupsChart() {
         setLoading(false);
       }
     };
-    fetch();
+    loadData();
   }, []);
 
   if (loading) return <div className="flex justify-center py-8">{t('analytics.loading')}</div>;

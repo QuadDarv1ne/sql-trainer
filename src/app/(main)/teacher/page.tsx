@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import TeacherDashboard from '@/components/teacher/teacher-dashboard';
+import { t } from '@/lib/i18n';
 import type { Role } from '@/lib/rbac';
 
 export default function TeacherPage() {
@@ -24,7 +25,7 @@ export default function TeacherPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-      <h1 className="text-3xl font-bold">Панель преподавателя</h1>
+      <h1 className="text-3xl font-bold">{t('teacher.title')}</h1>
       <TeacherDashboard />
     </div>
   );

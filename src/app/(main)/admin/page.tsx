@@ -38,7 +38,7 @@ export default function AdminPage() {
           <TabsTrigger value="analytics">{t('admin.tabs.analytics')}</TabsTrigger>
           <TabsTrigger value="deadlines">{t('admin.tabs.deadlines')}</TabsTrigger>
           <TabsTrigger value="leaderboard">{t('admin.tabs.leaderboard')}</TabsTrigger>
-          <TabsTrigger value="health">System</TabsTrigger>
+          <TabsTrigger value="health">{t('admin.tabs.health')}</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-6">
           <DBStats />

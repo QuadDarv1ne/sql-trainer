@@ -99,7 +99,7 @@ export default function SkillGapMatrix() {
                     if (!skill) return <TableCell key={cat} className="text-center text-muted-foreground">—</TableCell>;
                     return (
                       <TableCell key={cat} className="text-center">
-                        <Badge className={CellColor(skill.completion_rate)}>
+                        <Badge className={CellColor({ rate: skill.completion_rate })}>
                           {skill.completion_rate}%
                         </Badge>
                         <div className="text-xs text-muted-foreground mt-1">

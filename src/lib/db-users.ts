@@ -485,7 +485,7 @@ export interface LeaderboardEntry {
   total_attempts: number;
 }
 
-export function getLeaderboard(limit = 50): LeaderboardEntry[] {
+export function getLeaderboard(limit = 50, offset = 0): LeaderboardEntry[] {
   const db = getDb();
   return db.prepare(`
     SELECT u.id as user_id, u.name,
@@ -495,8 +495,8 @@ export function getLeaderboard(limit = 50): LeaderboardEntry[] {
     LEFT JOIN user_progress up ON u.id = up.user_id
     GROUP BY u.id, u.name
     ORDER BY tasks_completed DESC, total_attempts ASC
-    LIMIT ?
-  `).all(limit) as LeaderboardEntry[];
+    LIMIT ? OFFSET ?
+  `).all(limit, offset) as LeaderboardEntry[];
 }
 
 // Admin functions

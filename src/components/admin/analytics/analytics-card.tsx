@@ -19,7 +19,7 @@ interface AnalyticsCardProps {
   empty?: boolean;
   /** Optional callback to refetch data (replaces full page reload) */
   onRefresh?: () => void;
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
 }
 

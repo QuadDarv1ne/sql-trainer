@@ -65,11 +65,21 @@ type CombinedState = DatabaseSlice &
     undoReset: () => void;
   };
 
+// Type aliases for composing slices into the combined store.
+// Each slice is typed against its own narrow interface, but the composed store
+// passes the full state's set/get/store. These aliases bridge that gap.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnySet = (...args: any[]) => void;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyGet = (...args: any[]) => any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyPersistOpts = any;
+
 export const useSQLTrainerStore = create<CombinedState>()(
   persist(
-    (set, get) => ({
+    (set, get, store) => ({
       // Database slice
-      ...createDatabaseSlice(set, get as never, {} as never),
+      ...createDatabaseSlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),
 
       // Override markTaskCompleted to include gamification
       markTaskCompleted: (taskId: string, attempts: number) => {
@@ -162,13 +172,13 @@ export const useSQLTrainerStore = create<CombinedState>()(
         })),
 
       // Gamification slice
-      ...createGamificationSlice(set, get as never, {} as never),
+      ...createGamificationSlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),
 
       // Practice mode slice
-      ...createPracticeModeSlice(set, get as never, {} as never),
+      ...createPracticeModeSlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),
 
       // UI slice
-      ...createUISlice(set, get as never, {} as never),
+      ...createUISlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),
 
       // Override setCurrentTaskId to also clear UI state
       setCurrentTaskId: (id: string | null) => {

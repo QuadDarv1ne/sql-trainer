@@ -14,7 +14,7 @@ interface DataCardProps {
   error: string;
   hasData: boolean;
   onRetry?: () => void;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 /**

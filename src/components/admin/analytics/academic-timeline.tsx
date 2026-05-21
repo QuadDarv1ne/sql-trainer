@@ -112,7 +112,7 @@ export default function AcademicTimeline() {
                       <Icon className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
                       <div>
                         <div className="font-medium">
-                          {t(`analytics.timeline.events.${event.event_label}`, event.details || event.event_label)}
+                          {t(`analytics.timeline.events.${event.event_label}`, { default: event.details || event.event_label })}
                         </div>
                         {event.details && event.event_label !== event.details && (
                           <div className="text-sm text-muted-foreground">{event.details}</div>
