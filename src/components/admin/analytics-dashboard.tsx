@@ -60,6 +60,17 @@ import ABTest from './analytics/ab-test';
 import TeacherEffectiveness from './analytics/teacher-effectiveness';
 import RetentionCohorts from './analytics/retention-cohorts';
 import TopicMastery from './analytics/topic-mastery';
+import ExecutiveSummary from './analytics/executive-summary';
+import PlatformHealthReport from './analytics/platform-health';
+import ContentPerformance from './analytics/content-performance';
+import RegistrationFunnel from './analytics/registration-funnel';
+import AggregatePerformance from './analytics/aggregate-performance';
+import AtRiskStudents from './analytics/at-risk-students';
+import SkillGapMatrix from './analytics/skill-gap-matrix';
+import AcademicTimeline from './analytics/academic-timeline';
+import StudyPatterns from './analytics/study-patterns';
+import AttemptEfficiency from './analytics/attempt-efficiency';
+import StudentComparisonDashboard from './analytics/student-comparison-dashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { t } from '@/lib/i18n';
 
@@ -102,6 +113,11 @@ export default function AnalyticsDashboard() {
         
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="flex-wrap h-auto">
+            <TabsTrigger value="executive">{t('analytics.executiveSummary.title')}</TabsTrigger>
+            <TabsTrigger value="platform-health">{t('analytics.platformHealth.title')}</TabsTrigger>
+            <TabsTrigger value="content">{t('analytics.contentPerformance.title')}</TabsTrigger>
+            <TabsTrigger value="funnel">{t('analytics.registrationFunnel.title')}</TabsTrigger>
+            <TabsTrigger value="aggregate">{t('analytics.aggregatePerformance.title')}</TabsTrigger>
             <TabsTrigger value="overview">{t('admin.tabs.overview')}</TabsTrigger>
             <TabsTrigger value="progress">{t('analytics.progress.title')}</TabsTrigger>
             <TabsTrigger value="students">{t('analytics.students.title')}</TabsTrigger>
@@ -143,8 +159,34 @@ export default function AnalyticsDashboard() {
             <TabsTrigger value="teacher-effectiveness">{t('admin.tabs.teacherEffectiveness')}</TabsTrigger>
             <TabsTrigger value="retention-cohorts">{t('admin.tabs.retentionCohorts')}</TabsTrigger>
             <TabsTrigger value="topic-mastery">{t('admin.tabs.topicMastery')}</TabsTrigger>
+            <TabsTrigger value="at-risk">{t('admin.tabs.atRisk')}</TabsTrigger>
+            <TabsTrigger value="skill-gap">{t('admin.tabs.skillGap')}</TabsTrigger>
+            <TabsTrigger value="academic-timeline">{t('admin.tabs.academicTimeline')}</TabsTrigger>
+            <TabsTrigger value="study-patterns">{t('admin.tabs.studyPatterns')}</TabsTrigger>
+            <TabsTrigger value="attempt-efficiency">{t('admin.tabs.attemptEfficiency')}</TabsTrigger>
+            <TabsTrigger value="student-comparison">{t('admin.tabs.studentComparison')}</TabsTrigger>
           </TabsList>
           
+          <TabsContent value="executive" className="space-y-6">
+            <ExecutiveSummary />
+          </TabsContent>
+
+          <TabsContent value="platform-health" className="space-y-6">
+            <PlatformHealthReport />
+          </TabsContent>
+
+          <TabsContent value="content" className="space-y-6">
+            <ContentPerformance />
+          </TabsContent>
+
+          <TabsContent value="funnel" className="space-y-6">
+            <RegistrationFunnel />
+          </TabsContent>
+
+          <TabsContent value="aggregate" className="space-y-6">
+            <AggregatePerformance />
+          </TabsContent>
+
           <TabsContent value="overview" className="space-y-6">
             <WeekOverWeekComparison />
             <PerformanceMetrics />
@@ -325,6 +367,30 @@ export default function AnalyticsDashboard() {
 
           <TabsContent value="topic-mastery" className="space-y-6">
             <TopicMastery />
+          </TabsContent>
+
+          <TabsContent value="at-risk" className="space-y-6">
+            <AtRiskStudents />
+          </TabsContent>
+
+          <TabsContent value="skill-gap" className="space-y-6">
+            <SkillGapMatrix />
+          </TabsContent>
+
+          <TabsContent value="academic-timeline" className="space-y-6">
+            <AcademicTimeline />
+          </TabsContent>
+
+          <TabsContent value="study-patterns" className="space-y-6">
+            <StudyPatterns />
+          </TabsContent>
+
+          <TabsContent value="attempt-efficiency" className="space-y-6">
+            <AttemptEfficiency />
+          </TabsContent>
+
+          <TabsContent value="student-comparison" className="space-y-6">
+            <StudentComparisonDashboard />
           </TabsContent>
         </Tabs>
 

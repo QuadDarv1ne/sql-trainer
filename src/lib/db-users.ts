@@ -6738,67 +6738,56 @@ export function getRetentionCohorts(): {
 } {
   const db = getDb();
 
-  // Get all students grouped by registration week
+  // Single query with conditional aggregation — replaces O(N*M*K) individual queries
   const cohorts = db.prepare(`
-    SELECT STRFTIME('%Y-%W', DATETIME(created_at / 1000, 'unixepoch')) as cohort_week,
-           COUNT(*) as total
-    FROM users
-    WHERE role = 'student'
+    SELECT
+      STRFTIME('%Y-%W', DATETIME(u.created_at / 1000, 'unixepoch')) as cohort_week,
+      COUNT(DISTINCT u.id) as total,
+      COUNT(DISTINCT CASE WHEN up1.user_id IS NOT NULL THEN u.id END) as week_1_retained,
+      COUNT(DISTINCT CASE WHEN up2.user_id IS NOT NULL THEN u.id END) as week_2_retained,
+      COUNT(DISTINCT CASE WHEN up4.user_id IS NOT NULL THEN u.id END) as week_4_retained,
+      COUNT(DISTINCT CASE WHEN up8.user_id IS NOT NULL THEN u.id END) as week_8_retained
+    FROM users u
+    LEFT JOIN user_progress up1 ON u.id = up1.user_id
+      AND up1.completed_at >= u.created_at + 604800000
+    LEFT JOIN user_progress up2 ON u.id = up2.user_id
+      AND up2.completed_at >= u.created_at + 1209600000
+    LEFT JOIN user_progress up4 ON u.id = up4.user_id
+      AND up4.completed_at >= u.created_at + 2419200000
+    LEFT JOIN user_progress up8 ON u.id = up8.user_id
+      AND up8.completed_at >= u.created_at + 4838400000
+    WHERE u.role = 'student'
     GROUP BY cohort_week
     ORDER BY cohort_week
     LIMIT 20
-  `).all() as Array<{ cohort_week: string; total: number }>;
+  `).all() as Array<{
+    cohort_week: string;
+    total: number;
+    week_1_retained: number;
+    week_2_retained: number;
+    week_4_retained: number;
+    week_8_retained: number;
+  }>;
 
-  const cohortData = cohorts.map(cohort => {
-    // Get student IDs in this cohort
-    const students = db.prepare(`
-      SELECT id, created_at FROM users
-      WHERE role = 'student'
-        AND STRFTIME('%Y-%W', DATETIME(created_at / 1000, 'unixepoch')) = ?
-    `).all(cohort.cohort_week) as Array<{ id: string; created_at: number }>;
+  const cohortData = cohorts.map(cohort => ({
+    cohort_week: cohort.cohort_week,
+    total: cohort.total,
+    week_1_retained: cohort.week_1_retained,
+    week_1_rate: cohort.total > 0 ? parseFloat(((cohort.week_1_retained / cohort.total) * 100).toFixed(1)) : 0,
+    week_2_retained: cohort.week_2_retained,
+    week_2_rate: cohort.total > 0 ? parseFloat(((cohort.week_2_retained / cohort.total) * 100).toFixed(1)) : 0,
+    week_4_retained: cohort.week_4_retained,
+    week_4_rate: cohort.total > 0 ? parseFloat(((cohort.week_4_retained / cohort.total) * 100).toFixed(1)) : 0,
+    week_8_retained: cohort.week_8_retained,
+    week_8_rate: cohort.total > 0 ? parseFloat(((cohort.week_8_retained / cohort.total) * 100).toFixed(1)) : 0,
+  }));
 
-    if (students.length === 0) return null;
-
-    const checkRetention = (weeks: number) => {
-      const cutoff = weeks * 7 * 24 * 60 * 60 * 1000;
-      let retained = 0;
-      for (const student of students) {
-        const hasActivity = db.prepare(`
-          SELECT COUNT(*) as count FROM user_progress
-          WHERE user_id = ? AND completed_at >= ?
-        `).get(student.id, student.created_at + cutoff) as { count: number };
-        if (hasActivity.count > 0) retained++;
-      }
-      return retained;
-    };
-
-    const w1 = checkRetention(1);
-    const w2 = checkRetention(2);
-    const w4 = checkRetention(4);
-    const w8 = checkRetention(8);
-
-    return {
-      cohort_week: cohort.cohort_week,
-      total: cohort.total,
-      week_1_retained: w1,
-      week_1_rate: parseFloat(((w1 / cohort.total) * 100).toFixed(1)),
-      week_2_retained: w2,
-      week_2_rate: parseFloat(((w2 / cohort.total) * 100).toFixed(1)),
-      week_4_retained: w4,
-      week_4_rate: parseFloat(((w4 / cohort.total) * 100).toFixed(1)),
-      week_8_retained: w8,
-      week_8_rate: parseFloat(((w8 / cohort.total) * 100).toFixed(1)),
-    };
-  }).filter(Boolean);
-
-  const validCohorts = cohortData as typeof cohortData extends (infer T | null)[] ? T[] : never;
-
-  const avgW1 = validCohorts.length > 0 ? parseFloat((validCohorts.reduce((s, c) => s + c.week_1_rate, 0) / validCohorts.length).toFixed(1)) : 0;
-  const avgW4 = validCohorts.length > 0 ? parseFloat((validCohorts.reduce((s, c) => s + c.week_4_rate, 0) / validCohorts.length).toFixed(1)) : 0;
-  const avgW8 = validCohorts.length > 0 ? parseFloat((validCohorts.reduce((s, c) => s + c.week_8_rate, 0) / validCohorts.length).toFixed(1)) : 0;
+  const avgW1 = cohortData.length > 0 ? parseFloat((cohortData.reduce((s, c) => s + c.week_1_rate, 0) / cohortData.length).toFixed(1)) : 0;
+  const avgW4 = cohortData.length > 0 ? parseFloat((cohortData.reduce((s, c) => s + c.week_4_rate, 0) / cohortData.length).toFixed(1)) : 0;
+  const avgW8 = cohortData.length > 0 ? parseFloat((cohortData.reduce((s, c) => s + c.week_8_rate, 0) / cohortData.length).toFixed(1)) : 0;
 
   return {
-    cohorts: validCohorts,
+    cohorts: cohortData,
     summary: {
       avg_week_1_rate: avgW1,
       avg_week_4_rate: avgW4,
@@ -6928,6 +6917,989 @@ export function getTopicMastery(): {
     hardest_tasks: allTaskStats,
   };
 }
+
+// ==================== Executive Summary ====================
+
+export function getExecutiveSummary(filters?: TimeRangeFilters) {
+  const db = getDb();
+  const dateFilter = filters?.start_date && filters?.end_date
+    ? `WHERE created_at >= ${filters.start_date} AND created_at <= ${filters.end_date}`
+    : '';
+  const progressDateFilter = filters?.start_date && filters?.end_date
+    ? `WHERE completed_at >= ${filters.start_date} AND completed_at <= ${filters.end_date}`
+    : '';
+  const prevStart = filters?.start_date ? filters.start_date - (filters.end_date - filters.start_date) : null;
+  const prevEnd = filters?.end_date ? filters.start_date : null;
+
+  // Current period stats
+  const totalStudents = db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student'`).get() as { count: number };
+  const activeNow = db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student' AND last_active >= ?`).get(Date.now() - 7 * 24 * 60 * 60 * 1000) as { count: number };
+  const totalCompletions = db.prepare(`SELECT COUNT(*) as count FROM user_progress ${progressDateFilter}`).get() as { count: number };
+  const avgAttempts = db.prepare(`SELECT AVG(attempts) as avg FROM user_progress ${progressDateFilter}`).get() as { avg: number | null };
+  const newRegistrations = db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student' ${dateFilter ? dateFilter.replace('created_at', 'created_at') : ''}`).get() as { count: number };
+
+  // Previous period for comparison
+  let prevRegistrations = 0;
+  let prevCompletions = 0;
+  if (prevStart && prevEnd) {
+    const prevReg = db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student' AND created_at >= ? AND created_at <= ?`).get(prevStart, prevEnd) as { count: number };
+    const prevComp = db.prepare(`SELECT COUNT(*) as count FROM user_progress WHERE completed_at >= ? AND completed_at <= ?`).get(prevStart, prevEnd) as { count: number };
+    prevRegistrations = prevReg.count;
+    prevCompletions = prevComp.count;
+  }
+
+  // Grade distribution
+  const totalTasks = db.prepare(`SELECT COUNT(*) as count FROM user_progress`).get() as { count: number };
+  const studentsWithProgress = db.prepare(`SELECT COUNT(DISTINCT user_id) as count FROM user_progress`).get() as { count: number };
+  const avgCompletionRate = studentsWithProgress > 0
+    ? parseFloat(((totalCompletions.count / (studentsWithProgress * 20)) * 100).toFixed(1))
+    : 0;
+
+  // Pending emails
+  const pendingEmails = db.prepare(`SELECT COUNT(*) as count FROM email_queue WHERE status = 'pending'`).get() as { count: number };
+
+  // Push subscriptions
+  const pushSubs = db.prepare(`SELECT COUNT(*) as count FROM push_subscriptions`).get() as { count: number };
+
+  const regTrend = prevRegistrations > 0
+    ? parseFloat((((newRegistrations.count - prevRegistrations) / prevRegistrations) * 100).toFixed(1))
+    : 0;
+  const compTrend = prevCompletions > 0
+    ? parseFloat((((totalCompletions.count - prevCompletions) / prevCompletions) * 100).toFixed(1))
+    : 0;
+
+  return {
+    total_students: totalStudents.count,
+    active_this_week: activeNow.count,
+    total_completions: totalCompletions.count,
+    avg_attempts: avgAttempts.avg ? parseFloat(avgAttempts.avg.toFixed(2)) : 0,
+    new_registrations: newRegistrations.count,
+    avg_completion_rate: avgCompletionRate,
+    pending_emails: pendingEmails.count,
+    push_subscriptions: pushSubs.count,
+    trends: {
+      registrations_change: regTrend,
+      completions_change: compTrend,
+    },
+  };
+}
+
+// ==================== Platform Health ====================
+
+export function getPlatformHealth() {
+  const db = getDb();
+  const tables = db.pragma('table_list') as { name: string }[];
+
+  const tableStats = tables.map(table => {
+    const count = db.prepare(`SELECT COUNT(*) as count FROM "${table.name}"`).get() as { count: number };
+    return { name: table.name, rows: count.count };
+  });
+
+  const pendingEmails = db.prepare(`SELECT COUNT(*) as count FROM email_queue WHERE status = 'pending'`).get() as { count: number };
+  const failedEmails = db.prepare(`SELECT COUNT(*) as count FROM email_queue WHERE status = 'failed'`).get() as { count: number };
+  const pendingReminders = db.prepare(`SELECT COUNT(*) as count FROM reminder_schedule WHERE status = 'pending'`).get() as { count: number };
+  const pushSubs = db.prepare(`SELECT COUNT(*) as count FROM push_subscriptions`).get() as { count: number };
+  const activeUsers = db.prepare(`SELECT COUNT(*) as count FROM users WHERE last_active >= ?`).get(Date.now() - 24 * 60 * 60 * 1000) as { count: number };
+
+  return {
+    tables: tableStats,
+    email_queue: {
+      pending: pendingEmails.count,
+      failed: failedEmails.count,
+    },
+    reminders: {
+      pending: pendingReminders.count,
+    },
+    push_subscriptions: pushSubs.count,
+    active_today: activeUsers.count,
+  };
+}
+
+// ==================== Content Performance ====================
+
+export function getContentPerformance(filters?: TimeRangeFilters) {
+  const db = getDb();
+  const { TRAINING_TASKS } = require('./training-tasks');
+  const tasks = TRAINING_TASKS as Array<{ id: string; title: string; difficulty: string; category?: string }>;
+
+  const dateCondition = filters?.start_date && filters?.end_date
+    ? `WHERE completed_at >= ${filters.start_date} AND completed_at <= ${filters.end_date}`
+    : '';
+
+  const taskStats = tasks.map(task => {
+    const stat = db.prepare(`
+      SELECT COUNT(*) as completions,
+             AVG(attempts) as avg_attempts,
+             CAST(SUM(CASE WHEN attempts = 1 THEN 1 ELSE 0 END) AS FLOAT) / MAX(COUNT(*), 1) * 100 as first_attempt_rate,
+             COUNT(DISTINCT user_id) as unique_students
+      FROM user_progress
+      WHERE task_id = ? ${dateCondition ? `AND ${dateCondition.replace('WHERE ', '')}` : ''}
+    `).get(task.id) as { completions: number; avg_attempts: number | null; first_attempt_rate: number | null; unique_students: number };
+
+    const hintCount = db.prepare(`SELECT COUNT(*) as count FROM hint_usage WHERE task_id = ?`).get(task.id) as { count: number };
+
+    return {
+      task_id: task.id,
+      task_title: task.title,
+      difficulty: task.difficulty,
+      category: task.category || 'general',
+      completions: stat.completions,
+      avg_attempts: stat.avg_attempts ? parseFloat(stat.avg_attempts.toFixed(2)) : 0,
+      first_attempt_rate: stat.first_attempt_rate ? parseFloat(stat.first_attempt_rate.toFixed(1)) : 0,
+      unique_students: stat.unique_students,
+      hint_count: hintCount.count,
+    };
+  });
+
+  const hardest = [...taskStats].sort((a, b) => b.avg_attempts - a.avg_attempts).slice(0, 10);
+  const easiest = [...taskStats].sort((a, b) => b.first_attempt_rate - a.first_attempt_rate).reverse().slice(0, 10);
+  const most_hints = [...taskStats].sort((a, b) => b.hint_count - a.hint_count).slice(0, 10);
+
+  // Category aggregation
+  const categoryMap = new Map<string, typeof taskStats>();
+  for (const t of taskStats) {
+    if (!categoryMap.has(t.category)) categoryMap.set(t.category, []);
+    categoryMap.get(t.category)!.push(t);
+  }
+
+  const byCategory = Array.from(categoryMap.entries()).map(([category, tasks]) => {
+    const totalCompletions = tasks.reduce((s, t) => s + t.completions, 0);
+    const totalHints = tasks.reduce((s, t) => s + t.hint_count, 0);
+    const avgAttempts = tasks.length > 0 ? parseFloat((tasks.reduce((s, t) => s + t.avg_attempts, 0) / tasks.length).toFixed(2)) : 0;
+    return { category, task_count: tasks.length, total_completions: totalCompletions, avg_attempts: avgAttempts, total_hints: totalHints };
+  }).sort((a, b) => b.total_completions - a.total_completions);
+
+  return {
+    hardest_tasks: hardest,
+    easiest_tasks: easiest,
+    most_hinted_tasks: most_hints,
+    by_category: byCategory,
+  };
+}
+
+// ==================== Registration Funnel ====================
+
+export function getRegistrationFunnel() {
+  const db = getDb();
+
+  const totalRegistered = db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student'`).get() as { count: number };
+
+  // Users who completed at least 1 task
+  const completedFirst = db.prepare(`
+    SELECT COUNT(DISTINCT user_id) as count FROM user_progress
+  `).get() as { count: number };
+
+  // Users who returned on day 2+
+  const returnedDay2 = db.prepare(`
+    SELECT COUNT(DISTINCT u.id) as count
+    FROM users u
+    INNER JOIN user_progress up ON u.id = up.user_id
+    WHERE u.role = 'student'
+      AND up.completed_at >= u.created_at + 86400000
+  `).get() as { count: number };
+
+  // Users who completed 5+ tasks (onboarding threshold)
+  const completedOnboarding = db.prepare(`
+    SELECT COUNT(*) as count FROM (
+      SELECT user_id, COUNT(*) as task_count
+      FROM user_progress
+      GROUP BY user_id
+      HAVING task_count >= 5
+    )
+  `).get() as { count: number };
+
+  // Average time from registration to first activity
+  const avgTimeToFirst = db.prepare(`
+    SELECT AVG(first_activity - created_at) as avg_ms
+    FROM (
+      SELECT u.created_at, MIN(up.completed_at) as first_activity
+      FROM users u
+      INNER JOIN user_progress up ON u.id = up.user_id
+      WHERE u.role = 'student'
+      GROUP BY u.id
+    )
+  `).get() as { avg_ms: number | null };
+
+  // Registrations by day (last 30 days)
+  const dailyRegistrations = db.prepare(`
+    SELECT STRFTIME('%Y-%m-%d', DATETIME(created_at / 1000, 'unixepoch')) as date,
+           COUNT(*) as count
+    FROM users
+    WHERE role = 'student'
+      AND created_at >= ?
+    GROUP BY date
+    ORDER BY date
+  `).all(Date.now() - 30 * 24 * 60 * 60 * 1000) as Array<{ date: string; count: number }>;
+
+  return {
+    funnel: {
+      total_registered: totalRegistered.count,
+      completed_first_task: completedFirst.count,
+      returned_day_2: returnedDay2.count,
+      completed_onboarding: completedOnboarding.count,
+      conversion_first: totalRegistered.count > 0 ? parseFloat(((completedFirst.count / totalRegistered.count) * 100).toFixed(1)) : 0,
+      conversion_day2: completedFirst.count > 0 ? parseFloat(((returnedDay2.count / completedFirst.count) * 100).toFixed(1)) : 0,
+      conversion_onboarding: returnedDay2.count > 0 ? parseFloat(((completedOnboarding.count / returnedDay2.count) * 100).toFixed(1)) : 0,
+    },
+    avg_time_to_first_activity_ms: avgTimeToFirst.avg_ms,
+    daily_registrations,
+  };
+}
+
+// ==================== Aggregate Performance ====================
+
+export function getAggregatePerformance() {
+  const db = getDb();
+
+  // Student level distribution
+  const allStudents = db.prepare(`
+    SELECT u.id,
+           COUNT(up.task_id) as tasks_completed,
+           AVG(up.attempts) as avg_attempts
+    FROM users u
+    LEFT JOIN user_progress up ON u.id = up.user_id
+    WHERE u.role = 'student'
+    GROUP BY u.id
+  `).all() as Array<{ id: string; tasks_completed: number; avg_attempts: number | null }>;
+
+  const levelDistribution = {
+    beginner: allStudents.filter(s => s.tasks_completed < 5).length,
+    intermediate: allStudents.filter(s => s.tasks_completed >= 5 && s.tasks_completed < 15).length,
+    advanced: allStudents.filter(s => s.tasks_completed >= 15).length,
+  };
+
+  // Activity heatmap: hour of day × day of week
+  const activityByHourDay = db.prepare(`
+    SELECT CAST(STRFTIME('%w', DATETIME(completed_at / 1000, 'unixepoch')) AS INTEGER) as day_of_week,
+           CAST(STRFTIME('%H', DATETIME(completed_at / 1000, 'unixepoch')) AS INTEGER) as hour,
+           COUNT(*) as completions
+    FROM user_progress
+    GROUP BY day_of_week, hour
+  `).all() as Array<{ day_of_week: number; hour: number; completions: number }>;
+
+  const heatmapData: number[][] = Array.from({ length: 7 }, () => Array(24).fill(0));
+  for (const row of activityByHourDay) {
+    heatmapData[row.day_of_week][row.hour] = row.completions;
+  }
+
+  // Weekly trend (last 12 weeks)
+  const weeklyTrend = db.prepare(`
+    SELECT STRFTIME('%Y-%W', DATETIME(completed_at / 1000, 'unixepoch')) as week,
+           COUNT(*) as completions,
+           COUNT(DISTINCT user_id) as unique_users
+    FROM user_progress
+    WHERE completed_at >= ?
+    GROUP BY week
+    ORDER BY week
+  `).all(Date.now() - 12 * 7 * 24 * 60 * 60 * 1000) as Array<{ week: string; completions: number; unique_users: number }>;
+
+  // Correlation: attempts vs completion rate
+  const correlationData = allStudents.slice(0, 100).map(s => ({
+    tasks_completed: s.tasks_completed,
+    avg_attempts: s.avg_attempts ? parseFloat(s.avg_attempts.toFixed(2)) : 0,
+  }));
+
+  return {
+    level_distribution: levelDistribution,
+    activity_heatmap: heatmapData,
+    weekly_trend: weeklyTrend,
+    correlation_data: correlationData,
+  };
+}
+
+// ==================== Student Academic Performance ====================
+
+/**
+ * Identify students at risk of dropping out or failing.
+ * Risk factors: low completion rate, no recent activity, high attempts, declining trend.
+ */
+export interface AtRiskStudent {
+  user_id: string;
+  name: string;
+  email: string;
+  completion_rate: number;
+  days_since_active: number;
+  avg_attempts: number;
+  performance_trend: 'improving' | 'stable' | 'declining';
+  risk_level: 'high' | 'medium' | 'low';
+  risk_reasons: string[];
+}
+
+export function getAtRiskStudents(limit = 50): AtRiskStudent[] {
+  const db = getDb();
+  const now = Date.now();
+  const totalTasks = TRAINING_TASKS.length;
+
+  const students = db.prepare(`
+    SELECT
+      u.id as user_id, u.name, u.email, u.created_at, u.last_active,
+      COUNT(up.task_id) as tasks_completed,
+      COALESCE(ROUND(AVG(up.attempts * 1.0), 2), 0) as avg_attempts,
+      MAX(up.completed_at) as last_completion
+    FROM users u
+    LEFT JOIN user_progress up ON u.id = up.user_id
+    WHERE u.role = 'student'
+    GROUP BY u.id, u.name, u.email, u.created_at, u.last_active
+    HAVING tasks_completed > 0
+    ORDER BY tasks_completed ASC
+    LIMIT ?
+  `).all(limit) as Array<{
+    user_id: string;
+    name: string;
+    email: string;
+    created_at: number;
+    last_active: number | null;
+    tasks_completed: number;
+    avg_attempts: number;
+    last_completion: number | null;
+  }>;
+
+  const now30 = now - 30 * 24 * 60 * 60 * 1000;
+  const now60 = now - 60 * 24 * 60 * 60 * 1000;
+
+  return students.map(student => {
+    const completionRate = Math.round((student.tasks_completed / totalTasks) * 100);
+    const daysSinceActive = student.last_active ? Math.round((now - student.last_active) / (24 * 60 * 60 * 1000)) : 999;
+
+    // Determine trend
+    const recentCompletions = db.prepare(
+      'SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND completed_at >= ?'
+    ).get(student.user_id, now30) as { count: number };
+
+    const prevCompletions = db.prepare(
+      'SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND completed_at >= ? AND completed_at < ?'
+    ).get(student.user_id, now60, now30) as { count: number };
+
+    let trend: 'improving' | 'stable' | 'declining' = 'stable';
+    if (prevCompletions.count > 0) {
+      const change = ((recentCompletions.count - prevCompletions.count) / prevCompletions.count) * 100;
+      trend = change > 20 ? 'improving' : change < -20 ? 'declining' : 'stable';
+    } else if (recentCompletions.count > 0) {
+      trend = 'improving';
+    }
+
+    // Determine risk reasons
+    const reasons: string[] = [];
+    if (completionRate < 25) reasons.push('low_completion');
+    if (daysSinceActive >= 14) reasons.push('no_activity');
+    if (student.avg_attempts > 3) reasons.push('high_attempts');
+    if (trend === 'declining') reasons.push('declining');
+
+    // Determine risk level
+    let riskLevel: 'high' | 'medium' | 'low' = 'low';
+    if (reasons.length >= 3 || (daysSinceActive >= 30 && completionRate < 15)) {
+      riskLevel = 'high';
+    } else if (reasons.length >= 2) {
+      riskLevel = 'medium';
+    } else if (reasons.length === 0) {
+      return null; // Not at risk
+    }
+
+    return {
+      user_id: student.user_id,
+      name: student.name,
+      email: student.email,
+      completion_rate: completionRate,
+      days_since_active: daysSinceActive,
+      avg_attempts: student.avg_attempts,
+      performance_trend: trend,
+      risk_level: riskLevel,
+      risk_reasons: reasons,
+    };
+  }).filter(Boolean) as AtRiskStudent[];
+}
+
+/**
+ * Analyze skill gaps — per-student per-category completion rates.
+ */
+export interface SkillGapEntry {
+  user_id: string;
+  name: string;
+  category: string;
+  category_label: string;
+  total_tasks: number;
+  completed_tasks: number;
+  completion_rate: number;
+  avg_attempts: number;
+  is_weak: boolean;
+}
+
+export function getSkillGapAnalysis(limit = 30): SkillGapEntry[] {
+  const db = getDb();
+
+  const categories = [
+    { key: 'company', label: 'Компания', prefixes: ['beginner-', 'intermediate-', 'advanced-'] },
+    { key: 'analytics', label: 'Аналитика', prefixes: ['analytics-b-', 'analytics-i-', 'analytics-a-'] },
+    { key: 'shop', label: 'Магазин', prefixes: ['shop-b-', 'shop-i-', 'shop-a-'] },
+    { key: 'exam', label: 'Экзамен', prefixes: ['exam-b-', 'exam-i-', 'exam-a-'] },
+  ];
+
+  const activeCategories = categories.filter(cat =>
+    TRAINING_TASKS.some(t => cat.prefixes.some(p => t.id.startsWith(p)))
+  );
+
+  const students = db.prepare(`
+    SELECT u.id as user_id, u.name
+    FROM users u
+    WHERE u.role = 'student'
+    AND EXISTS (SELECT 1 FROM user_progress up WHERE up.user_id = u.id)
+    ORDER BY (SELECT COUNT(*) FROM user_progress up WHERE up.user_id = u.id) DESC
+    LIMIT ?
+  `).all(limit) as Array<{ user_id: string; name: string }>;
+
+  const results: SkillGapEntry[] = [];
+
+  for (const student of students) {
+    for (const cat of activeCategories) {
+      const taskIds = TRAINING_TASKS.filter(t => cat.prefixes.some(p => t.id.startsWith(p))).map(t => t.id);
+      if (!taskIds.length) continue;
+
+      const placeholders = taskIds.map(() => '?').join(',');
+
+      const stats = db.prepare(`
+        SELECT
+          COUNT(DISTINCT up.task_id) as completed,
+          ROUND(AVG(up.attempts * 1.0), 2) as avg_attempts
+        FROM user_progress up
+        WHERE up.user_id = ? AND up.task_id IN (${placeholders})
+      `).get(student.user_id, ...taskIds) as { completed: number; avg_attempts: number };
+
+      const completionRate = Math.round((stats.completed / taskIds.length) * 100);
+
+      results.push({
+        user_id: student.user_id,
+        name: student.name,
+        category: cat.key,
+        category_label: cat.label,
+        total_tasks: taskIds.length,
+        completed_tasks: stats.completed,
+        completion_rate: completionRate,
+        avg_attempts: stats.avg_attempts,
+        is_weak: completionRate < 50,
+      });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Get academic timeline for a single student — milestones, achievements, completions.
+ */
+export interface TimelineEvent {
+  event_type: string;
+  event_label: string;
+  timestamp: number;
+  details?: string;
+}
+
+export function getAcademicTimeline(userId: string): TimelineEvent[] {
+  const db = getDb();
+
+  const events: TimelineEvent[] = [];
+
+  // Registration
+  const user = db.prepare(
+    'SELECT created_at, name FROM users WHERE id = ?'
+  ).get(userId) as { created_at: number; name: string } | undefined;
+
+  if (user) {
+    events.push({
+      event_type: 'registration',
+      event_label: 'registration',
+      timestamp: user.created_at,
+    });
+  }
+
+  // First task completion
+  const firstTask = db.prepare(
+    'SELECT task_id, completed_at FROM user_progress WHERE user_id = ? ORDER BY completed_at ASC LIMIT 1'
+  ).get(userId) as { task_id: string; completed_at: number } | undefined;
+
+  if (firstTask) {
+    const taskTitle = TRAINING_TASKS.find(t => t.id === firstTask.task_id)?.title || firstTask.task_id;
+    events.push({
+      event_type: 'first_task',
+      event_label: 'first_task',
+      timestamp: firstTask.completed_at,
+      details: taskTitle,
+    });
+  }
+
+  // Achievements
+  const achievements = db.prepare(`
+    SELECT ua.earned_at, a.title
+    FROM user_achievements ua
+    JOIN achievements a ON ua.achievement_id = a.id
+    WHERE ua.user_id = ?
+    ORDER BY ua.earned_at ASC
+  `).all(userId) as Array<{ earned_at: number; title: string }>;
+
+  for (const a of achievements) {
+    events.push({
+      event_type: 'achievement',
+      event_label: 'achievement',
+      timestamp: a.earned_at,
+      details: a.title,
+    });
+  }
+
+  // Category completion milestones
+  const categories = [
+    { key: 'company', label: 'Компания', prefixes: ['beginner-', 'intermediate-', 'advanced-'] },
+    { key: 'analytics', label: 'Аналитика', prefixes: ['analytics-b-', 'analytics-i-', 'analytics-a-'] },
+    { key: 'shop', label: 'Магазин', prefixes: ['shop-b-', 'shop-i-', 'shop-a-'] },
+    { key: 'exam', label: 'Экзамен', prefixes: ['exam-b-', 'exam-i-', 'exam-a-'] },
+  ];
+
+  for (const cat of categories) {
+    const taskIds = TRAINING_TASKS.filter(t => cat.prefixes.some(p => t.id.startsWith(p))).map(t => t.id);
+    if (!taskIds.length) continue;
+
+    const placeholders = taskIds.map(() => '?').join(',');
+
+    const firstInCategory = db.prepare(`
+      SELECT completed_at FROM user_progress
+      WHERE user_id = ? AND task_id IN (${placeholders})
+      ORDER BY completed_at ASC LIMIT 1
+    `).get(userId, ...taskIds) as { completed_at: number } | undefined;
+
+    if (firstInCategory) {
+      events.push({
+        event_type: 'category_started',
+        event_label: 'category_started',
+        timestamp: firstInCategory.completed_at,
+        details: cat.label,
+      });
+    }
+  }
+
+  // Sort by timestamp
+  events.sort((a, b) => a.timestamp - b.timestamp);
+
+  return events;
+}
+
+/**
+ * Analyze study patterns — session frequency, time-of-day preferences, consistency.
+ */
+export interface StudyPatternSummary {
+  avg_sessions_per_week: number;
+  preferred_hour: number;
+  preferred_day: string;
+  consistency_score: number;
+  hourly_distribution: Array<{ hour: number; sessions: number }>;
+  weekly_distribution: Array<{ day: string; sessions: number }>;
+  day_hour_heatmap: number[][];
+  student_count: number;
+}
+
+export function getStudyPatterns(): StudyPatternSummary {
+  const db = getDb();
+
+  // Derive sessions: group completions within 30-min windows per user
+  // For simplicity, count each completion as a data point for hour/day distribution
+  const hourlyData = db.prepare(`
+    SELECT CAST(STRFTIME('%H', DATETIME(completed_at / 1000, 'unixepoch')) AS INTEGER) as hour,
+           COUNT(*) as sessions
+    FROM user_progress
+    GROUP BY hour
+    ORDER BY hour
+  `).all() as Array<{ hour: number; sessions: number }>;
+
+  const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+  const dayData = db.prepare(`
+    SELECT CAST(STRFTIME('%w', DATETIME(completed_at / 1000, 'unixepoch')) AS INTEGER) as day,
+           COUNT(*) as sessions
+    FROM user_progress
+    GROUP BY day
+    ORDER BY day
+  `).all() as Array<{ day: number; sessions: number }>;
+
+  // Day-hour heatmap
+  const heatmapData = db.prepare(`
+    SELECT CAST(STRFTIME('%w', DATETIME(completed_at / 1000, 'unixepoch')) AS INTEGER) as day,
+           CAST(STRFTIME('%H', DATETIME(completed_at / 1000, 'unixepoch')) AS INTEGER) as hour,
+           COUNT(*) as completions
+    FROM user_progress
+    GROUP BY day, hour
+    ORDER BY day, hour
+  `).all() as Array<{ day: number; hour: number; completions: number }>;
+
+  const heatmap: number[][] = Array.from({ length: 7 }, () => Array(24).fill(0));
+  for (const row of heatmapData) {
+    heatmap[row.day][row.hour] = row.completions;
+  }
+
+  // Fill in missing hours/days
+  const hourMap = new Map(hourlyData.map(d => [d.hour, d.sessions]));
+  const dayMap = new Map(dayData.map(d => [d.day, d.sessions]));
+
+  const hourlyDistribution = Array.from({ length: 24 }, (_, i) => ({
+    hour: i,
+    sessions: hourMap.get(i) || 0,
+  }));
+
+  const weeklyDistribution = dayNames.map((name, i) => ({
+    day: name,
+    sessions: dayMap.get(i) || 0,
+  }));
+
+  // Preferred hour and day
+  const preferredHour = hourlyData.reduce((max, d) => d.sessions > (max.sessions || 0) ? d : max, hourlyData[0] || { hour: 9, sessions: 0 });
+  const preferredDayData = dayData.reduce((max, d) => d.sessions > (max.sessions || 0) ? d : max, dayData[0] || { day: 1, sessions: 0 });
+
+  // Consistency score: std deviation of weekly session counts (lower = more consistent)
+  const weeklySessionCounts = db.prepare(`
+    SELECT STRFTIME('%Y-%W', DATETIME(completed_at / 1000, 'unixepoch')) as week,
+           COUNT(*) as count
+    FROM user_progress
+    GROUP BY week
+    ORDER BY week
+  `).all() as Array<{ week: string; count: number }>;
+
+  let consistencyScore = 0;
+  if (weeklySessionCounts.length > 1) {
+    const counts = weeklySessionCounts.map(w => w.count);
+    const avg = counts.reduce((s, c) => s + c, 0) / counts.length;
+    const variance = counts.reduce((s, c) => s + (c - avg) ** 2, 0) / counts.length;
+    const stdDev = Math.sqrt(variance);
+    // Normalize: 0 = very inconsistent, 100 = very consistent
+    consistencyScore = Math.max(0, Math.min(100, Math.round(100 - (stdDev / (avg || 1)) * 50)));
+  }
+
+  // Avg sessions per week
+  const avgSessionsPerWeek = weeklySessionCounts.length > 0
+    ? Math.round(weeklySessionCounts.reduce((s, w) => s + w.count, 0) / weeklySessionCounts.length * 10) / 10
+    : 0;
+
+  const studentCount = db.prepare(
+    "SELECT COUNT(*) as count FROM users WHERE role = 'student'"
+  ).get() as { count: number };
+
+  return {
+    avg_sessions_per_week: avgSessionsPerWeek,
+    preferred_hour: preferredHour.hour,
+    preferred_day: dayNames[preferredDayData.day] || 'Пн',
+    consistency_score: consistencyScore,
+    hourly_distribution: hourlyDistribution,
+    weekly_distribution: weeklyDistribution,
+    day_hour_heatmap: heatmap,
+    student_count: studentCount.count,
+  };
+}
+
+/**
+ * Track attempt efficiency trends — how first-attempt rate changes over time.
+ */
+export interface AttemptEfficiencyEntry {
+  week_label: string;
+  first_attempt_rate: number;
+  avg_attempts: number;
+  total_completions: number;
+}
+
+export function getAttemptEfficiencyTrends(weeks = 12): AttemptEfficiencyEntry[] {
+  const db = getDb();
+  const cutoff = Date.now() - weeks * 7 * 24 * 60 * 60 * 1000;
+
+  const weeklyData = db.prepare(`
+    SELECT STRFTIME('%Y-%W', DATETIME(completed_at / 1000, 'unixepoch')) as week,
+           COUNT(*) as total_completions,
+           ROUND(AVG(CASE WHEN attempts = 1 THEN 1.0 ELSE 0.0 END) * 100, 1) as first_attempt_rate,
+           ROUND(AVG(attempts * 1.0), 2) as avg_attempts
+    FROM user_progress
+    WHERE completed_at >= ?
+    GROUP BY week
+    ORDER BY week
+  `).all(cutoff) as Array<{ week: string; total_completions: number; first_attempt_rate: number; avg_attempts: number }>;
+
+  return weeklyData.map(d => ({
+    week_label: d.week,
+    first_attempt_rate: d.first_attempt_rate,
+    avg_attempts: d.avg_attempts,
+    total_completions: d.total_completions,
+  }));
+}
+
+/**
+ * Get comparison metrics for multiple students (2-4).
+ */
+export interface StudentComparisonMetrics {
+  user_id: string;
+  name: string;
+  email: string;
+  tasks_completed: number;
+  completion_rate: number;
+  avg_attempts: number;
+  streak: number;
+  achievements: number;
+  beginner_completed: number;
+  intermediate_completed: number;
+  advanced_completed: number;
+  category_completion: Array<{ category: string; rate: number }>;
+  sessions_per_week: number;
+  consistency_score: number;
+}
+
+export function getStudentComparisonMetrics(studentIds: string[]): StudentComparisonMetrics[] {
+  const db = getDb();
+  const totalTasks = TRAINING_TASKS.length;
+
+  if (studentIds.length === 0) return [];
+
+  const placeholders = studentIds.map(() => '?').join(',');
+
+  const students = db.prepare(`
+    SELECT
+      u.id as user_id, u.name, u.email,
+      COUNT(up.task_id) as tasks_completed,
+      COALESCE(ROUND(AVG(up.attempts * 1.0), 2), 0) as avg_attempts,
+      COALESCE(SUM(CASE WHEN up.task_id LIKE 'beginner-%' THEN 1 ELSE 0 END), 0) as beginner_completed,
+      COALESCE(SUM(CASE WHEN up.task_id LIKE 'intermediate-%' THEN 1 ELSE 0 END), 0) as intermediate_completed,
+      COALESCE(SUM(CASE WHEN up.task_id LIKE 'advanced-%' THEN 1 ELSE 0 END), 0) as advanced_completed,
+      (SELECT COUNT(*) FROM user_achievements ua WHERE ua.user_id = u.id) as achievements,
+      u.streak_current as streak
+    FROM users u
+    LEFT JOIN user_progress up ON u.id = up.user_id
+    WHERE u.id IN (${placeholders})
+    GROUP BY u.id, u.name, u.email, u.streak_current
+  `).all(...studentIds) as Array<{
+    user_id: string;
+    name: string;
+    email: string;
+    tasks_completed: number;
+    avg_attempts: number;
+    beginner_completed: number;
+    intermediate_completed: number;
+    advanced_completed: number;
+    achievements: number;
+    streak: number;
+  }>;
+
+  const categories = [
+    { key: 'company', prefixes: ['beginner-', 'intermediate-', 'advanced-'] },
+    { key: 'analytics', prefixes: ['analytics-b-', 'analytics-i-', 'analytics-a-'] },
+    { key: 'shop', prefixes: ['shop-b-', 'shop-i-', 'shop-a-'] },
+    { key: 'exam', prefixes: ['exam-b-', 'exam-i-', 'exam-a-'] },
+  ];
+
+  return students.map(student => {
+    const completionRate = Math.round((student.tasks_completed / totalTasks) * 100);
+
+    // Category completion rates
+    const categoryCompletion = categories.map(cat => {
+      const taskIds = TRAINING_TASKS.filter(t => cat.prefixes.some(p => t.id.startsWith(p))).map(t => t.id);
+      if (!taskIds.length) return { category: cat.key, rate: 0 };
+      const completed = db.prepare(`
+        SELECT COUNT(DISTINCT task_id) as count FROM user_progress
+        WHERE user_id = ? AND task_id IN (${taskIds.map(() => '?').join(',')})
+      `).get(student.user_id, ...taskIds) as { count: number };
+      return { category: cat.key, rate: Math.round((completed.count / taskIds.length) * 100) };
+    });
+
+    // Sessions per week estimate
+    const weeksActive = Math.max(1, Math.round((Date.now() - (db.prepare(
+      'SELECT MIN(completed_at) as min_date FROM user_progress WHERE user_id = ?'
+    ).get(student.user_id) as { min_date: number } | undefined)?.min_date || Date.now()) / (7 * 24 * 60 * 60 * 1000)));
+    const sessionsPerWeek = Math.round((student.tasks_completed / weeksActive) * 10) / 10;
+
+    // Consistency score (simplified)
+    const consistencyScore = Math.min(100, Math.round((student.streak / Math.max(1, weeksActive)) * 100));
+
+    return {
+      user_id: student.user_id,
+      name: student.name,
+      email: student.email,
+      tasks_completed: student.tasks_completed,
+      completion_rate: completionRate,
+      avg_attempts: student.avg_attempts,
+      streak: student.streak,
+      achievements: student.achievements,
+      beginner_completed: student.beginner_completed,
+      intermediate_completed: student.intermediate_completed,
+      advanced_completed: student.advanced_completed,
+      category_completion: categoryCompletion,
+      sessions_per_week: sessionsPerWeek,
+      consistency_score: consistencyScore,
+    };
+  });
+}
+
+/**
+ * Get comprehensive academic summary for a single student.
+ */
+export interface StudentAcademicSummary {
+  user_id: string;
+  name: string;
+  email: string;
+  role: string;
+  created_at: number;
+  last_active: number | null;
+  tasks_completed: number;
+  total_tasks: number;
+  completion_rate: number;
+  avg_attempts: number;
+  total_attempts: number;
+  streak_current: number;
+  streak_longest: number;
+  achievements: Array<{ title: string; earned_at: number }>;
+  skill_breakdown: Array<{ category: string; label: string; completed: number; total: number; rate: number; avg_attempts: number }>;
+  recent_activity: Array<{ task_id: string; task_title: string; completed_at: number; attempts: number }>;
+  performance_trend: 'improving' | 'stable' | 'declining';
+  at_risk_flags: string[];
+  recommendations: string[];
+}
+
+export function getStudentAcademicSummary(userId: string): StudentAcademicSummary | null {
+  const db = getDb();
+  const totalTasks = TRAINING_TASKS.length;
+
+  const user = db.prepare(`
+    SELECT
+      u.id, u.name, u.email, u.role, u.created_at, u.last_active,
+      u.streak_current, u.streak_longest,
+      COUNT(up.task_id) as tasks_completed,
+      COALESCE(SUM(up.attempts), 0) as total_attempts,
+      COALESCE(ROUND(AVG(up.attempts * 1.0), 2), 0) as avg_attempts
+    FROM users u
+    LEFT JOIN user_progress up ON u.id = up.user_id
+    WHERE u.id = ?
+    GROUP BY u.id, u.name, u.email, u.role, u.created_at, u.last_active, u.streak_current, u.streak_longest
+  `).get(userId) as {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    created_at: number;
+    last_active: number | null;
+    streak_current: number;
+    streak_longest: number;
+    tasks_completed: number;
+    total_attempts: number;
+    avg_attempts: number;
+  } | undefined;
+
+  if (!user) return null;
+
+  const completionRate = Math.round((user.tasks_completed / totalTasks) * 100);
+
+  // Achievements
+  const achievements = db.prepare(`
+    SELECT a.title, ua.earned_at
+    FROM user_achievements ua
+    JOIN achievements a ON ua.achievement_id = a.id
+    WHERE ua.user_id = ?
+    ORDER BY ua.earned_at DESC
+    LIMIT 10
+  `).all(userId) as Array<{ title: string; earned_at: number }>;
+
+  // Skill breakdown
+  const categories = [
+    { key: 'company', label: 'Компания', prefixes: ['beginner-', 'intermediate-', 'advanced-'] },
+    { key: 'analytics', label: 'Аналитика', prefixes: ['analytics-b-', 'analytics-i-', 'analytics-a-'] },
+    { key: 'shop', label: 'Магазин', prefixes: ['shop-b-', 'shop-i-', 'shop-a-'] },
+    { key: 'exam', label: 'Экзамен', prefixes: ['exam-b-', 'exam-i-', 'exam-a-'] },
+  ];
+
+  const skillBreakdown = categories.map(cat => {
+    const taskIds = TRAINING_TASKS.filter(t => cat.prefixes.some(p => t.id.startsWith(p))).map(t => t.id);
+    if (!taskIds.length) return { category: cat.key, label: cat.label, completed: 0, total: 0, rate: 0, avg_attempts: 0 };
+    const placeholders = taskIds.map(() => '?').join(',');
+    const stats = db.prepare(`
+      SELECT
+        COUNT(DISTINCT up.task_id) as completed,
+        ROUND(AVG(up.attempts * 1.0), 2) as avg_attempts
+      FROM user_progress up
+      WHERE up.user_id = ? AND up.task_id IN (${placeholders})
+    `).get(userId, ...taskIds) as { completed: number; avg_attempts: number };
+    return {
+      category: cat.key,
+      label: cat.label,
+      completed: stats.completed,
+      total: taskIds.length,
+      rate: Math.round((stats.completed / taskIds.length) * 100),
+      avg_attempts: stats.avg_attempts,
+    };
+  });
+
+  // Recent activity
+  const recentActivity = db.prepare(`
+    SELECT up.task_id, up.completed_at, up.attempts
+    FROM user_progress up
+    WHERE up.user_id = ?
+    ORDER BY up.completed_at DESC
+    LIMIT 10
+  `).all(userId) as Array<{ task_id: string; completed_at: number; attempts: number }>;
+
+  const recentWithTitles = recentActivity.map(a => ({
+    ...a,
+    task_title: TRAINING_TASKS.find(t => t.id === a.task_id)?.title || a.task_id,
+  }));
+
+  // Performance trend
+  const now30 = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const now60 = Date.now() - 60 * 24 * 60 * 60 * 1000;
+
+  const recentCount = db.prepare(
+    'SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND completed_at >= ?'
+  ).get(userId, now30) as { count: number };
+
+  const prevCount = db.prepare(
+    'SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND completed_at >= ? AND completed_at < ?'
+  ).get(userId, now60, now30) as { count: number };
+
+  let trend: 'improving' | 'stable' | 'declining' = 'stable';
+  if (prevCount.count > 0) {
+    const change = ((recentCount.count - prevCount.count) / prevCount.count) * 100;
+    trend = change > 20 ? 'improving' : change < -20 ? 'declining' : 'stable';
+  } else if (recentCount.count > 0) {
+    trend = 'improving';
+  }
+
+  // At-risk flags
+  const atRiskFlags: string[] = [];
+  const daysSinceActive = user.last_active ? Math.round((Date.now() - user.last_active) / (24 * 60 * 60 * 1000)) : 999;
+  if (completionRate < 25) atRiskFlags.push('low_completion');
+  if (daysSinceActive >= 14) atRiskFlags.push('inactive');
+  if (user.avg_attempts > 3) atRiskFlags.push('high_attempts');
+  if (trend === 'declining') atRiskFlags.push('declining_trend');
+
+  // Recommendations
+  const recommendations: string[] = [];
+  if (completionRate < 50) recommendations.push('increase_practice');
+  if (user.avg_attempts > 3) recommendations.push('review_fundamentals');
+  const weakestSkill = skillBreakdown.filter(s => s.total > 0).sort((a, b) => a.rate - b.rate)[0];
+  if (weakestSkill && weakestSkill.rate < 50) {
+    recommendations.push(`focus_on_${weakestSkill.category}`);
+  }
+  if (user.streak_current === 0) recommendations.push('build_streak');
+  if (trend === 'declining') recommendations.push('re_engage');
+
+  return {
+    user_id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    created_at: user.created_at,
+    last_active: user.last_active,
+    tasks_completed: user.tasks_completed,
+    total_tasks: totalTasks,
+    completion_rate: completionRate,
+    avg_attempts: user.avg_attempts,
+    total_attempts: user.total_attempts,
+    streak_current: user.streak_current,
+    streak_longest: user.streak_longest,
+    achievements,
+    skill_breakdown: skillBreakdown,
+    recent_activity: recentWithTitles,
+    performance_trend: trend,
+    at_risk_flags: atRiskFlags,
+    recommendations,
+  };
+}
+
+// ==================== End Student Academic Performance ====================
 
 // ==================== End Expanded Analytics ====================
 

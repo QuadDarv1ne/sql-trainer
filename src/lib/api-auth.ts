@@ -39,3 +39,62 @@ export function parseDateParams(searchParams: URLSearchParams) {
     endDate: endDate ? parseInt(endDate) : null,
   };
 }
+
+/**
+ * Higher-order function that wraps an API route handler with admin auth check.
+ * Eliminates 7 lines of duplicated auth boilerplate per route.
+ *
+ * Usage:
+ *   export const GET = withAdminAuth(async ({ session, request }) => {
+ *     // handler logic — session is guaranteed to be valid admin
+ *     return NextResponse.json({ data: 'ok' });
+ *   });
+ */
+type RouteHandlerContext = {
+  session: NonNullable<Awaited<ReturnType<typeof auth>>>;
+  request: Request;
+  params?: Record<string, string>;
+};
+
+export function withAdminAuth(
+  handler: (ctx: RouteHandlerContext) => Promise<NextResponse>
+) {
+  return async (
+    request: Request,
+    context?: { params?: Promise<Record<string, string>> | Record<string, string> }
+  ): Promise<NextResponse> => {
+    const authResult = await requireAdmin();
+    if (authResult.error) return authResult.error;
+
+    const params = context?.params
+      ? 'then' in context.params
+        ? await context.params
+        : context.params
+      : undefined;
+
+    return handler({ session: authResult.session!, request, params });
+  };
+}
+
+/**
+ * Same as withAdminAuth but for teacher role.
+ */
+export function withTeacherAuth(
+  handler: (ctx: RouteHandlerContext) => Promise<NextResponse>
+) {
+  return async (
+    request: Request,
+    context?: { params?: Promise<Record<string, string>> | Record<string, string> }
+  ): Promise<NextResponse> => {
+    const authResult = await requireTeacher();
+    if (authResult.error) return authResult.error;
+
+    const params = context?.params
+      ? 'then' in context.params
+        ? await context.params
+        : context.params
+      : undefined;
+
+    return handler({ session: authResult.session!, request, params });
+  };
+}
