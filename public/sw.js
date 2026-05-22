@@ -21,7 +21,7 @@ const STATIC_ASSETS = [
 ];
 
 // Install event — cache static assets
-self.addEventListener('install', (event: ExtendableEvent) => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
   );
@@ -29,7 +29,7 @@ self.addEventListener('install', (event: ExtendableEvent) => {
 });
 
 // Activate event — clean up old caches
-self.addEventListener('activate', (event: ExtendableEvent) => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
@@ -43,7 +43,7 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
 });
 
 // Fetch event — serve from cache or network
-self.addEventListener('fetch', (event: FetchEvent) => {
+self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
@@ -128,7 +128,7 @@ self.addEventListener('fetch', (event: FetchEvent) => {
 });
 
 // Push notification handler (placeholder for future use)
-self.addEventListener('push', (event: PushEvent) => {
+self.addEventListener('push', (event) => {
   const data = event.data?.json();
   self.registration.showNotification(data.title, {
     body: data.body,

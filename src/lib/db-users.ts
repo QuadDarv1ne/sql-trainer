@@ -58,10 +58,16 @@ function initDatabase(): void {
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     );
+  `);
 
-    -- Soft delete migration
-    ALTER TABLE users ADD COLUMN deleted_at INTEGER DEFAULT NULL;
+  // Soft delete migration — wrap in try-catch since SQLite doesn't support ADD COLUMN IF NOT EXISTS
+  try {
+    db.exec(`ALTER TABLE users ADD COLUMN deleted_at INTEGER DEFAULT NULL`);
+  } catch {
+    // Column already exists — safe to ignore
+  }
 
+  db.exec(`
     CREATE TABLE IF NOT EXISTS reset_codes (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,

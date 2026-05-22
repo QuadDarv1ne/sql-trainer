@@ -7,6 +7,9 @@ import type { Transporter } from 'nodemailer';
 import { smtpConfig, isEmailConfigured } from './notification-config';
 import { tWithLocale, type Locale } from './i18n';
 import { getDb, queueEmail, getDueEmails, markEmailSent, markEmailFailed } from './db-users';
+import { escapeHtml as _escapeHtml } from './html-utils';
+
+export { _escapeHtml as escapeHtml };
 
 let _transporter: Transporter | null = null;
 
@@ -47,15 +50,6 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
   }
 }
 
-export function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-}
-
 export function renderReminderEmail(reminder: {
   title: string;
   type: string;
@@ -85,8 +79,8 @@ export function renderReminderEmail(reminder: {
     ? tWithLocale(safeLocale, 'reminder.overdue')
     : tWithLocale(safeLocale, 'reminder.dueSoon');
 
-  const escapedTitle = escapeHtml(reminder.title);
-  const escapedDescription = reminder.description ? escapeHtml(reminder.description) : '';
+  const escapedTitle = _escapeHtml(reminder.title);
+  const escapedDescription = reminder.description ? _escapeHtml(reminder.description) : '';
 
   const html = `
     <!DOCTYPE html>

@@ -2,7 +2,7 @@
  * PDF Report Generation Utilities
  * Uses window.print() with styled HTML for PDF generation
  */
-import { escapeHtml } from './email';
+import { escapeHtml } from './html-utils';
 import { toast } from 'sonner';
 
 export interface PDFReportOptions {
