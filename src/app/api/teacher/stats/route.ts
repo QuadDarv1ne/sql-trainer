@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { getTeacherStudentProgress, getDBStats } from '@/lib/db-users';
 import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
+import { TRAINING_TASKS } from '@/lib/training-tasks';
 
 export async function GET() {
   try {
@@ -23,7 +24,7 @@ export async function GET() {
     const activeStudents = students.filter(s => s.last_active && s.last_active > Date.now() - 7 * 24 * 60 * 60 * 1000).length;
     const totalCompletions = students.reduce((sum, s) => sum + s.tasks_completed, 0);
     const avgCompletionRate = totalStudents > 0
-      ? Math.round(students.reduce((sum, s) => sum + (s.tasks_completed / 56) * 100, 0) / totalStudents)
+      ? Math.round(students.reduce((sum, s) => sum + (s.tasks_completed / TRAINING_TASKS.length) * 100, 0) / totalStudents)
       : 0;
     const atRiskCount = students.filter(s => s.tasks_completed < 5).length;
     const avgAttempts = students.length > 0

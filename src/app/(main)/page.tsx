@@ -105,18 +105,18 @@ export default function HomePage() {
   } = useSQLTrainerStore();
 
   // Show toast notifications for newly unlocked achievements
-  const [shownAchievementIds, setShownAchievementIds] = useState<Set<string>>(new Set());
+  const shownAchievementIdsRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     for (const achievement of unlockedAchievements) {
-      if (achievement.unlockedAt && !shownAchievementIds.has(achievement.id)) {
+      if (achievement.unlockedAt && !shownAchievementIdsRef.current.has(achievement.id)) {
         toast.success(t('achievement.toast.title'), {
           description: t('achievement.toast.description', { title: achievement.title }),
           duration: 5000,
         });
-        setShownAchievementIds((prev) => new Set(prev).add(achievement.id));
+        shownAchievementIdsRef.current.add(achievement.id);
       }
     }
-  }, [unlockedAchievements, shownAchievementIds]);
+  }, [unlockedAchievements]);
 
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();

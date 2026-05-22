@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-# Prevent forks from running this workflow
-pull_request_target:
-  branches: [main]
-
 jobs:
   build:
     # Only run for the original repository, not forks

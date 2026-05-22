@@ -15,10 +15,65 @@ function normalizeRow(row: Record<string, unknown>, columns: string[]): string {
 }
 
 /**
+ * Split SQL statements respecting string literals.
+ * Handles both single-quote (SQL standard) and double-quote identifiers.
+ */
+function splitStatementsSafe(sql: string): string[] {
+  const statements: string[] = [];
+  let current = '';
+  let inString = false;
+  let stringChar = '';
+
+  for (let i = 0; i < sql.length; i++) {
+    const char = sql[i];
+
+    if (!inString && (char === "'" || char === '"')) {
+      inString = true;
+      stringChar = char;
+      current += char;
+      continue;
+    }
+
+    if (inString) {
+      current += char;
+      if (char === stringChar) {
+        const next = sql[i + 1];
+        if (next === stringChar) {
+          // Escaped quote ('' or "")
+          i++;
+          current += next;
+        } else {
+          inString = false;
+        }
+      }
+      continue;
+    }
+
+    if (char === ';') {
+      const trimmed = current.trim();
+      if (trimmed.length > 0) {
+        statements.push(trimmed);
+      }
+      current = '';
+      continue;
+    }
+
+    current += char;
+  }
+
+  const last = current.trim();
+  if (last.length > 0) {
+    statements.push(last);
+  }
+
+  return statements;
+}
+
+/**
  * Extract the last SELECT statement from a multi-statement SQL string.
  */
 function extractLastSelect(sql: string): string {
-  const statements = sql.split(';').map(s => s.trim()).filter(s => s.length > 0);
+  const statements = splitStatementsSafe(sql);
   for (let i = statements.length - 1; i >= 0; i--) {
     const trimmed = statements[i].toUpperCase();
     if (trimmed.startsWith('SELECT') || trimmed.startsWith('WITH')) {
@@ -122,37 +177,36 @@ function verifyWithSharedDb(
     });
   }
 
-  // If solution fails, fall back to verificationQuery
+  // If solution fails, fall back to verificationQuery on the same DB state (after user's DML)
   if (!solutionResult.success) {
-    const verificationResult = executeWithSchema(
-      task.verificationQuery,
+    const [applyUserDml, verificationResult] = executeWithSchemaMulti(
+      [userSql, task.verificationQuery],
       task.schema,
       dbType as 'sqlite' | 'postgresql' | 'clickhouse'
     );
+
+    if (!applyUserDml.success) {
+      return NextResponse.json({
+        verified: false,
+        userRowCount: 0,
+        expectedRowCount: 0,
+        message: applyUserDml.error || 'Ошибка выполнения запроса',
+      });
+    }
+
     const expectedRowCount =
       verificationResult.success && verificationResult.rows.length > 0
         ? Number(verificationResult.rows[0][Object.keys(verificationResult.rows[0])[0]]) || 0
         : 0;
 
-    // Run verificationQuery on the same DB state (after user's DML)
-    const userVerificationResult = executeWithSchema(
-      task.verificationQuery,
-      task.schema,
-      dbType as 'sqlite' | 'postgresql' | 'clickhouse'
-    );
-    const userRowCount =
-      userVerificationResult.success && userVerificationResult.rows.length > 0
-        ? Number(userVerificationResult.rows[0][Object.keys(userVerificationResult.rows[0])[0]]) || 0
-        : 0;
-
-    const verified = userRowCount === expectedRowCount && userRowCount > 0;
+    const verified = expectedRowCount > 0;
     return NextResponse.json({
       verified,
-      userRowCount,
+      userRowCount: expectedRowCount,
       expectedRowCount,
       message: verified
-        ? `✅ Задание выполнено верно! (${userRowCount} строк)`
-        : `⚠️ Результат не совпадает с ожидаемым: ${userRowCount} строк вместо ${expectedRowCount}`,
+        ? `✅ Задание выполнено верно! (${expectedRowCount} строк)`
+        : `⚠️ Результат не совпадает с ожидаемым: ${expectedRowCount} строк`,
     });
   }
 
