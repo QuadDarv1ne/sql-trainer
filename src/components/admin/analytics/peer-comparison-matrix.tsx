@@ -71,7 +71,7 @@ export default function PeerComparisonMatrix() {
       })
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  }, [startDate, endDate]);
+  }, [startDate, endDate, selectedStudent]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) {

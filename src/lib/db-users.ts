@@ -2236,9 +2236,9 @@ export function getChurnPredictions(limit: number = 50, filters?: TimeRangeFilte
   }
 
   // Build conditions for recent/previous completions with filters applied
-  let recentCondition = `completed_at > ?${baseDateCondition}`;
-  let prevCondition = `completed_at > ? AND completed_at <= ?${baseDateCondition}`;
-  let totalCountCondition = baseDateCondition;
+  const recentCondition = `completed_at > ?${baseDateCondition}`;
+  const prevCondition = `completed_at > ? AND completed_at <= ?${baseDateCondition}`;
+  const totalCountCondition = baseDateCondition;
 
   const students = db.prepare(`
     SELECT 
@@ -3982,7 +3982,7 @@ export function getStudentGroupsAnalytics(): StudentGroupEntry[] {
   ];
 
   return groups.map(group => {
-    let query = `
+    const query = `
       SELECT 
         COUNT(*) as student_count,
         SUM((SELECT COUNT(*) FROM user_progress WHERE user_id = u.id)) as tasks_completed,

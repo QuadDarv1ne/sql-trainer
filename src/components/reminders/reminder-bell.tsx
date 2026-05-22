@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { Bell } from 'lucide-react';
 import { t } from '@/lib/i18n';
@@ -41,7 +41,7 @@ export function ReminderBell() {
   const [reminders, setReminders] = useState<PendingReminder[]>([]);
   const [open, setOpen] = useState(false);
 
-  const fetchReminders = async () => {
+  const fetchReminders = useCallback(async () => {
     if (!session?.user?.id) return;
     try {
       const res = await fetch('/api/user/reminders');
@@ -50,13 +50,13 @@ export function ReminderBell() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [session?.user?.id]);
 
   useEffect(() => {
     fetchReminders();
     const interval = setInterval(fetchReminders, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [session]);
+  }, [session, session?.user?.id, fetchReminders]);
 
   if (!session) return null;
 

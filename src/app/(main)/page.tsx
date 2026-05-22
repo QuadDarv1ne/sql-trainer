@@ -386,7 +386,7 @@ export default function HomePage() {
     } finally {
       setIsExecuting(false);
     }
-  }, [editorContent, isExecuting, dbType, currentTaskId, setIsExecuting]);
+  }, [editorContent, isExecuting, dbType, currentTaskId, setIsExecuting, incrementExplainCount]);
 
   // Reset DB (re-init task)
   const resetDb = () => {
