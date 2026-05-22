@@ -17,6 +17,7 @@ import { FileSpreadsheet, Download, Loader2 } from 'lucide-react';
 import { exportToCSV, exportToExcel } from '@/lib/export-utils';
 import { generateClassReportPDF } from '@/lib/pdf-report';
 import { t, getLocale } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 
 interface TeacherExportDialogProps {
   open: boolean;
@@ -106,7 +107,7 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
         }
       }
     } catch (e) {
-      console.error('Export error:', e);
+      logger.error('Teacher export error:', e);
     } finally {
       setLoading(false);
       onOpenChange(false);

@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { findUserByIdWithHash, findUserByEmail, updateUser } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Email успешно изменён', email: newEmail });
   } catch (error) {
-    console.error('[API Error] POST /api/user/change-email:', error);
+    logger.error('POST /api/user/change-email:', error);
     return NextResponse.json({ success: false, error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }

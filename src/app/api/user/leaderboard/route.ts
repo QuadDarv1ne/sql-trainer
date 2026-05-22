@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLeaderboard } from '@/lib/db-users';
+import { logger } from '@/lib/logger';
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
     const leaderboard = getLeaderboard(limit, offset);
     return NextResponse.json({ success: true, leaderboard, page, limit });
   } catch (error) {
-    console.error('[API Error] GET /api/user/leaderboard:', error);
+    logger.error('GET /api/user/leaderboard:', error);
     return NextResponse.json({ success: false, error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }

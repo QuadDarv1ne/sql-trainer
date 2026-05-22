@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import { getPendingReminders, logReminderDelivery } from '@/lib/db-users';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -18,7 +19,7 @@ export async function GET() {
 
     return NextResponse.json({ reminders, count: reminders.length });
   } catch (error) {
-    console.error('[API Error] GET /api/user/reminders:', error);
+    logger.error('GET /api/user/reminders:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

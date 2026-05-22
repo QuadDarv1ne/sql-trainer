@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { logger } from '@/lib/logger';
 
 /**
  * Registers the service worker for PWA offline support.
@@ -18,7 +19,7 @@ export default function ServiceWorkerRegister() {
             }
           })
           .catch((error) => {
-            console.error('[SW] Registration failed:', error);
+            logger.error('SW registration failed:', error);
           });
       };
       window.addEventListener('load', handler);

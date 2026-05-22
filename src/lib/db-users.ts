@@ -8,6 +8,7 @@ import bcrypt from 'bcryptjs';
 import path from 'path';
 import fs from 'fs';
 import { TRAINING_TASKS } from './training-tasks';
+import { logger } from './logger';
 import { t } from './i18n';
 
 export type UserRole = 'student' | 'teacher' | 'admin';
@@ -3532,7 +3533,7 @@ export function getSystemHealth(): SystemHealth {
       last_24h_activity: last24h,
     };
   } catch (error) {
-    console.error('[SystemHealth] DB check failed:', error);
+    logger.error('SystemHealth DB check:', error);
     return {
       db_size_bytes: 0,
       db_wal_size_bytes: 0,

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStudentEngagementMetrics } from '@/lib/db-users';
 import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     const metrics = getStudentEngagementMetrics(limit);
     return NextResponse.json({ metrics });
   } catch (error) {
-    console.error('[API Error] GET /api/teacher/engagement:', error);
+    logger.error('GET /api/teacher/engagement:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

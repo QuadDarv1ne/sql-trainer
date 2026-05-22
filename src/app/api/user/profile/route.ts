@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getUserById, updateUser } from '@/lib/db-users';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
+import { logger } from '@/lib/logger';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function GET() {
   try {
@@ -17,7 +19,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, user });
   } catch (error) {
-    console.error('[API Error] GET /api/user/profile:', error);
+    logger.error('GET /api/user/profile:', error);
     return NextResponse.json({ success: false, error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }
@@ -27,6 +29,12 @@ export async function PUT(request: NextRequest) {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ success: false, error: 'Не авторизован' }, { status: 401 });
+    }
+
+    // Rate limit: 10 profile updates per 15 minutes per user
+    const limit = rateLimit(`profile-update:${session.user.id}`, { max: 10, windowMs: 15 * 60 * 1000 });
+    if (!limit.success) {
+      return NextResponse.json({ success: false, error: 'Слишком много попыток. Попробуйте позже' }, { status: 429 });
     }
 
     const body = await request.json();
@@ -74,7 +82,7 @@ export async function PUT(request: NextRequest) {
     const user = await getUserById(session.user.id);
     return NextResponse.json({ success: true, user });
   } catch (error) {
-    console.error('[API Error] PUT /api/user/profile:', error);
+    logger.error('PUT /api/user/profile:', error);
     return NextResponse.json({ success: false, error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }

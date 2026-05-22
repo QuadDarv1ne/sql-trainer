@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { getTeacherStudentProgress } from '@/lib/db-users';
 import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -19,7 +20,7 @@ export async function GET() {
     const students = getTeacherStudentProgress();
     return NextResponse.json({ students });
   } catch (error) {
-    console.error('[API Error] GET /api/teacher/students/progress:', error);
+    logger.error('GET /api/teacher/students/progress:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

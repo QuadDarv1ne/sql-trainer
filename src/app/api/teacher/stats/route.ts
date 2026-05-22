@@ -4,6 +4,7 @@ import { getTeacherStudentProgress, getDBStats } from '@/lib/db-users';
 import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
 import { TRAINING_TASKS } from '@/lib/training-tasks';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -42,7 +43,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('[API Error] GET /api/teacher/stats:', error);
+    logger.error('GET /api/teacher/stats:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

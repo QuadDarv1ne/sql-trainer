@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getUserAchievements, checkAndAwardAchievements, getAchievementDetails } from '@/lib/db-users';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
     const achievements = await getUserAchievements(session.user.id);
     return NextResponse.json({ success: true, achievements });
   } catch (error) {
-    console.error('[API Error] GET /api/user/achievements:', error);
+    logger.error('GET /api/user/achievements:', error);
     return NextResponse.json({ success: false, error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }

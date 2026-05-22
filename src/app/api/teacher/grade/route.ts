@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireTeacher } from '@/lib/api-auth';
 import { getStudentGradeDistribution } from '@/lib/db-users';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   const authResult = await requireTeacher();
@@ -10,7 +11,7 @@ export async function GET() {
     const distribution = getStudentGradeDistribution();
     return NextResponse.json({ distribution });
   } catch (error) {
-    console.error('[Teacher GradeDistribution] Error:', error);
+    logger.error('GET /api/teacher/grade:', error);
     return NextResponse.json({ error: 'Failed to load grade distribution' }, { status: 500 });
   }
 }

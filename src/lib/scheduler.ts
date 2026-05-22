@@ -5,6 +5,7 @@
 import { getDueReminders, markScheduleSent, markScheduleFailed, getNotificationPreferences, getDb, queueEmail } from './db-users';
 import { processEmailQueue, renderReminderEmail, getUserEmail } from './email';
 import { sendPushToUser } from './push-notifications';
+import { logger } from './logger';
 
 let lastTick = 0;
 const TICK_INTERVAL_MS = 60_000; // Check every 60 seconds
@@ -144,7 +145,7 @@ function processDueReminders(): number {
     return processed;
   } catch (error) {
     db.prepare('ROLLBACK').run();
-    console.error('[Scheduler] Error processing due reminders:', error);
+    logger.error('Scheduler process due reminders:', error);
     return 0;
   }
 }

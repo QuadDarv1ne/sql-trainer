@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { getTimeToCompleteEstimates } from '@/lib/db-users';
 import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -19,7 +20,7 @@ export async function GET() {
     const data = getTimeToCompleteEstimates();
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('[API Error] GET /api/teacher/time-estimates:', error);
+    logger.error('GET /api/teacher/time-estimates:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

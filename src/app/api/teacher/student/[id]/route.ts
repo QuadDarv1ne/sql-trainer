@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStudentDetail, getUserAchievements } from '@/lib/db-users';
 import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
+import { logger } from '@/lib/logger';
 
 export async function GET(
   _request: NextRequest,
@@ -28,7 +29,7 @@ export async function GET(
     const achievements = getUserAchievements(id);
     return NextResponse.json({ student, achievements });
   } catch (error) {
-    console.error('[API Error] GET /api/teacher/student/[id]:', error);
+    logger.error('GET /api/teacher/student/[id]:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

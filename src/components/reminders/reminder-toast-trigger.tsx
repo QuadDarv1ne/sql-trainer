@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { toast } from 'sonner';
 import { t } from '@/lib/i18n';
 import { PendingReminder } from '@/lib/db-users';
+import { logger } from '@/lib/logger';
 
 const typeLabels: Record<PendingReminder['type'], string> = {
   course: 'reminder.course',
@@ -51,7 +52,7 @@ export function ReminderToastTrigger() {
           }
         }
       } catch (err) {
-        console.error('Failed to fetch reminders:', err);
+        logger.error('fetch reminders:', err);
       }
     };
 

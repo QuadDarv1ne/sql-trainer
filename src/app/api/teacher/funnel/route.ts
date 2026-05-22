@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireTeacher } from '@/lib/api-auth';
 import { getTaskCompletionFunnel } from '@/lib/db-users';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -10,7 +11,7 @@ export async function GET() {
     const funnel = getTaskCompletionFunnel();
     return NextResponse.json({ funnel });
   } catch (error) {
-    console.error('[API Error] GET /api/teacher/funnel:', error);
+    logger.error('GET /api/teacher/funnel:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -17,6 +17,7 @@ import { FileSpreadsheet, FileText, Download, Loader2 } from 'lucide-react';
 import { exportToCSV, exportToExcel, exportToJSON } from '@/lib/export-utils';
 import { generateAnalyticsPDF, AnalyticsSection, AnalyticsPDFData } from '@/lib/pdf-report';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 
 interface ExportDialogProps {
   open: boolean;
@@ -123,7 +124,7 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
         exportToJSON(data as Record<string, unknown>[], filename);
       }
     } catch (e) {
-      console.error('Export error:', e);
+      logger.error('Analytics export error:', e);
     } finally {
       setLoading(false);
       onOpenChange(false);
@@ -158,7 +159,7 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
       link.click();
       URL.revokeObjectURL(url);
     } catch (e) {
-      console.error('LMS export error:', e);
+      logger.error('LMS export error:', e);
     } finally {
       setLoading(false);
       onOpenChange(false);

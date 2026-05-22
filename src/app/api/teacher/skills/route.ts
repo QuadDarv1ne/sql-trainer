@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireTeacher } from '@/lib/api-auth';
 import { getStudentSkillBreakdown } from '@/lib/db-users';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -10,7 +11,7 @@ export async function GET() {
     const breakdown = getStudentSkillBreakdown();
     return NextResponse.json({ breakdown });
   } catch (error) {
-    console.error('[API Error] GET /api/teacher/skills:', error);
+    logger.error('GET /api/teacher/skills:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -9,6 +9,7 @@ import {
   getTaskCompletionFunnel,
   getMasteryProgression,
 } from '@/lib/db-users';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('[API Error] GET /api/teacher/export:', error);
+    logger.error('GET /api/teacher/export:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

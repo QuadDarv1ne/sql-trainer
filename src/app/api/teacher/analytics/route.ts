@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { getTaskAnalytics, getErrorPatternAnalysis } from '@/lib/db-users';
 import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -63,7 +64,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('[API Error] GET /api/teacher/analytics:', error);
+    logger.error('GET /api/teacher/analytics:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

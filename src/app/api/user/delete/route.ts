@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { findUserByEmail, getDb } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -53,7 +54,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Аккаунт удалён' });
   } catch (error) {
-    console.error('[API Error] DELETE /api/user/delete:', error);
+    logger.error('DELETE /api/user/delete:', error);
     return NextResponse.json({ success: false, error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }
