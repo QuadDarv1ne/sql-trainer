@@ -2128,6 +2128,12 @@ export const translations: Record<Locale, Record<string, string>> = {
     'analytics.errors.failureRate': 'Difficulty (%)',
     'analytics.errors.trendTitle': 'Error Trends',
     'analytics.timeline.title': 'Learning Timeline',
+    'analytics.timeline.placeholder': 'Student ID',
+    'analytics.timeline.search': 'Search',
+    'analytics.timeline.events.registration': 'Registered',
+    'analytics.timeline.events.first_task': 'First Task: {0}',
+    'analytics.timeline.events.achievement': 'Achievement: {0}',
+    'analytics.timeline.events.category_started': 'Category Started: {0}',
     'analytics.attempts': 'attempts',
 
     'teacher.progress.of': 'of',
@@ -2940,14 +2946,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'analytics.skillGap.moderate': 'Moderate (50-74%)',
     'analytics.skillGap.weak': 'Weak (<50%)',
 
-    // Academic Timeline
-    'analytics.academicTimeline.title': 'Academic Timeline',
-    'analytics.academicTimeline.placeholder': 'Student ID',
-    'analytics.academicTimeline.search': 'Search',
-    'analytics.academicTimeline.events.registration': 'Registered',
-    'analytics.academicTimeline.events.first_task': 'First Task: {0}',
-    'analytics.academicTimeline.events.achievement': 'Achievement: {0}',
-    'analytics.academicTimeline.events.category_started': 'Category Started: {0}',
+    // Academic Timeline (uses analytics.timeline.* - keys defined earlier)
 
     // Study Patterns
     'analytics.studyPatterns.title': 'Study Patterns',
