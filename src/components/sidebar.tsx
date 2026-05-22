@@ -146,30 +146,30 @@ export default function Sidebar() {
     return (
       <div
         key={task.id}
-        className="flex w-full items-start gap-1 rounded-md"
+        className="flex w-full items-center gap-1 rounded-md"
       >
         <button
           onClick={() => setCurrentTaskId(task.id)}
           aria-label={`${isDone ? '✓ ' : ''}${task.title}`}
-          className={`flex flex-1 items-start gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted/50 ${
+          className={`flex flex-1 items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm transition-colors hover:bg-muted/50 ${
             isActive
               ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
               : 'text-foreground/80'
           }`}
         >
           {isDone ? (
-            <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
           ) : (
-            <Circle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground/40" />
+            <Circle className="h-4 w-4 shrink-0 text-muted-foreground/40" />
           )}
-          <span className="leading-tight">{task.title}</span>
+          <span className="leading-tight flex-1">{task.title}</span>
         </button>
         <button
           onClick={(e) => {
             e.stopPropagation();
             toggleBookmark(task.id);
           }}
-          className={`mt-1.5 rounded p-0.5 transition-colors hover:bg-muted/50 ${
+          className={`rounded p-1.5 transition-colors hover:bg-muted/50 ${
             isBookmarked
               ? 'text-amber-500'
               : 'text-muted-foreground/40'
@@ -177,7 +177,7 @@ export default function Sidebar() {
           aria-label={isBookmarked ? t('action.removeFromBookmark') : t('action.addToBookmark')}
         >
           <Bookmark
-            className={`h-3 w-3 ${isBookmarked ? 'fill-amber-500' : ''}`}
+            className={`h-3.5 w-3.5 ${isBookmarked ? 'fill-amber-500' : ''}`}
           />
         </button>
       </div>
@@ -189,8 +189,8 @@ export default function Sidebar() {
   return (
     <div className="flex h-full flex-col">
       {/* Progress */}
-      <div className="border-b border-border p-4">
-        <div className="mb-2 flex items-center justify-between">
+      <div className="border-b border-border p-3 space-y-3">
+        <div className="flex items-center justify-between">
           <span className="text-sm font-medium flex items-center gap-1.5">
             <Target className="h-4 w-4 text-emerald-500" />
             {t('progress.label')}
@@ -203,38 +203,38 @@ export default function Sidebar() {
           </div>
         </div>
         <Progress value={progressPercent} className="h-2" />
-        <p className="mt-1.5 text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {progressPercent === 100
             ? t('progress.complete')
             : `${Math.round(progressPercent)}% ${t('progress.percent')}`}
         </p>
 
         {/* Search */}
-        <div className="relative mt-2">
+        <div className="relative">
           <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="search"
             placeholder={t('sidebar.search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-8 pl-7 pr-7 text-xs"
+            className="h-9 pl-7 pr-7 text-sm"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
               aria-label={t('sidebar.clearSearch', { default: 'Clear search' })}
             >
-              <X className="h-3 w-3" />
+              <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
 
         {/* Category filter */}
-        <div className="mt-2 flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => setActiveCategoryFilter('all')}
-            className={`rounded-md px-2 py-0.5 text-xs transition-colors ${
+            className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
               activeCategoryFilter === 'all'
                 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 font-medium'
                 : 'text-muted-foreground hover:bg-muted/50'
@@ -248,13 +248,13 @@ export default function Sidebar() {
               <button
                 key={cat}
                 onClick={() => setActiveCategoryFilter(cat)}
-                className={`flex items-center gap-1 rounded-md px-2 py-0.5 text-xs transition-colors ${
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs transition-colors ${
                   activeCategoryFilter === cat
                     ? CATEGORY_COLORS[cat] + ' font-medium'
                     : 'text-muted-foreground hover:bg-muted/50'
                 }`}
               >
-                {IconCat && <IconCat className="h-3 w-3" />}
+                {IconCat && <IconCat className="h-3.5 w-3.5" />}
                 {CATEGORY_LABELS[cat]}
               </button>
             );
@@ -264,14 +264,14 @@ export default function Sidebar() {
         {/* Bookmark filter */}
         <button
           onClick={() => setShowBookmarksOnly(!showBookmarksOnly)}
-          className={`mt-2 flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-xs transition-colors ${
+          className={`flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-xs transition-colors ${
             showBookmarksOnly
               ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
               : 'text-muted-foreground hover:bg-muted/50'
           }`}
         >
           <Bookmark
-            className={`h-3 w-3 ${
+            className={`h-3.5 w-3.5 ${
               showBookmarksOnly ? 'fill-amber-500 text-amber-500' : ''
             }`}
           />
@@ -281,7 +281,7 @@ export default function Sidebar() {
 
       {/* Tasks list */}
       <ScrollArea className="flex-1">
-        <div className="p-2">
+        <div className="p-3">
           {(
             ['beginner', 'intermediate', 'advanced'] as Difficulty[]
           ).map((difficulty) => {
@@ -298,29 +298,29 @@ export default function Sidebar() {
             );
 
             return (
-              <div key={difficulty} className="mb-1">
+              <div key={difficulty} className="mb-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full justify-between px-2 hover:bg-muted/50"
+                  className="w-full justify-between px-3 h-9 hover:bg-muted/50"
                   onClick={() => toggleSection(difficulty)}
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">
                       {DIFFICULTY_LABELS[difficulty]}
                     </span>
-                    <Badge variant="secondary" className="text-xs px-1.5">
+                    <Badge variant="secondary" className="text-xs px-2">
                       {completedInDifficulty}/{totalInDifficulty}
                     </Badge>
                   </div>
                   {isExpanded ? (
-                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   ) : (
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   )}
                 </Button>
                 {isExpanded && (
-                  <div className="ml-2 space-y-1 border-l-2 border-border pl-2 py-1">
+                  <div className="ml-3 space-y-1.5 border-l-2 border-border/50 pl-3 py-1.5">
                     {categories.map((cat) => {
                       const tasks = catMap[cat];
                       const catKey = `${difficulty}-${cat}`;
@@ -328,16 +328,16 @@ export default function Sidebar() {
                       const completedInCat = tasks.filter(t => completedIds.has(t.id)).length;
 
                       return (
-                        <div key={cat} className="mb-0.5">
+                        <div key={cat} className="mb-1">
                           {categories.length > 1 && (
                             <button
                               onClick={() => toggleCategory(catKey)}
-                              className="flex w-full items-center gap-1.5 rounded-md px-1 py-0.5 text-left text-xs transition-colors hover:bg-muted/50"
+                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-muted/50"
                             >
-                              <Badge className={`text-[10px] px-1.5 flex items-center gap-1 ${CATEGORY_COLORS[cat]}`}>
+                              <Badge className={`text-xs px-2 flex items-center gap-1.5 ${CATEGORY_COLORS[cat]}`}>
                                 {(() => {
                                   const IconComponent = cat !== 'base' ? CATEGORY_ICONS[cat as TaskCategory] : null;
-                                  return IconComponent ? <IconComponent className="h-2.5 w-2.5" /> : null;
+                                  return IconComponent ? <IconComponent className="h-3 w-3" /> : null;
                                 })()}
                                 {CATEGORY_LABELS[cat]}
                               </Badge>
@@ -346,15 +346,15 @@ export default function Sidebar() {
                               </span>
                               {tasks.length > 3 && (
                                 catIsExpanded ? (
-                                  <ChevronDown className="h-3 w-3 text-muted-foreground/60" />
+                                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/60" />
                                 ) : (
-                                  <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
+                                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60" />
                                 )
                               )}
                             </button>
                           )}
                           {(catIsExpanded || tasks.length <= 3 || categories.length === 1) && (
-                            <div className="space-y-0.5">
+                            <div className="space-y-0.5 mt-1">
                               {tasks.map((task) => (
                                 <TaskRow key={task.id} task={task} />
                               ))}
@@ -379,7 +379,7 @@ export default function Sidebar() {
           <Button
             variant="outline"
             size="sm"
-            className="w-full"
+            className="w-full h-9"
             asChild
           >
             <Link href="/profile">
@@ -391,7 +391,7 @@ export default function Sidebar() {
         <Button
           variant={currentTaskId === null ? 'default' : 'outline'}
           size="sm"
-          className="w-full"
+          className="w-full h-9"
           onClick={() => setCurrentTaskId(null)}
         >
           <GraduationCap className="mr-2 h-4 w-4" />

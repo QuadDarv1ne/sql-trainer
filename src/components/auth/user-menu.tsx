@@ -97,7 +97,7 @@ export default function UserMenu() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          className="cursor-pointer flex items-center gap-2 text-red-600"
+          className="cursor-pointer flex items-center gap-2 text-red-600 dark:text-red-400 focus:text-red-700 dark:focus:text-red-300"
           onClick={() => {
             signOut({ redirect: false });
             router.push('/login');

@@ -39,13 +39,13 @@ export default function DBStats() {
   if (!stats) return <p className="text-center py-4 text-red-500">{t('admin.stats.error')}</p>;
 
   const statCards = [
-    { label: t('admin.stats.totalUsers'), value: stats.totalUsers, icon: Users, color: 'text-blue-600' },
+    { label: t('admin.stats.totalUsers'), value: stats.totalUsers, icon: Users, color: 'text-blue-600 dark:text-blue-400' },
     { label: t('admin.stats.students'), value: stats.studentsCount, icon: Users, color: 'text-blue-400' },
-    { label: t('admin.stats.teachers'), value: stats.teachersCount, icon: Users, color: 'text-amber-600' },
-    { label: t('admin.stats.admins'), value: stats.adminsCount, icon: Users, color: 'text-red-600' },
-    { label: t('admin.stats.completions'), value: stats.totalCompletions, icon: BookOpen, color: 'text-emerald-600' },
-    { label: t('admin.stats.achievements'), value: stats.achievementsAwarded, icon: Award, color: 'text-purple-600' },
-    { label: t('admin.stats.dbSize'), value: formatBytes(stats.dbSizeBytes), icon: Database, color: 'text-gray-600' },
+    { label: t('admin.stats.teachers'), value: stats.teachersCount, icon: Users, color: 'text-amber-600 dark:text-amber-400' },
+    { label: t('admin.stats.admins'), value: stats.adminsCount, icon: Users, color: 'text-red-600 dark:text-red-400' },
+    { label: t('admin.stats.completions'), value: stats.totalCompletions, icon: BookOpen, color: 'text-emerald-600 dark:text-emerald-400' },
+    { label: t('admin.stats.achievements'), value: stats.achievementsAwarded, icon: Award, color: 'text-purple-600 dark:text-purple-400' },
+    { label: t('admin.stats.dbSize'), value: formatBytes(stats.dbSizeBytes), icon: Database, color: 'text-gray-600 dark:text-gray-400' },
   ];
 
   return (

@@ -67,21 +67,21 @@ export default function SystemHealth() {
   if (!health) return null;
 
   const statusConfig = {
-    healthy: { icon: CheckCircle2, label: t('admin.health.status.healthy'), color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30' },
-    degraded: { icon: AlertTriangle, label: t('admin.health.status.degraded'), color: 'text-amber-600 bg-amber-50 dark:bg-amber-950/30' },
-    error: { icon: XCircle, label: t('admin.health.status.error'), color: 'text-red-600 bg-red-50 dark:bg-red-950/30' },
+    healthy: { icon: CheckCircle2, label: t('admin.health.status.healthy'), color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30' },
+    degraded: { icon: AlertTriangle, label: t('admin.health.status.degraded'), color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30' },
+    error: { icon: XCircle, label: t('admin.health.status.error'), color: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30' },
   };
 
   const StatusIcon = statusConfig[health.db_connection_status].icon;
 
   const summaryCards = [
-    { icon: Users, label: t('admin.health.totalUsers'), value: health.total_users, color: 'text-blue-600' },
-    { icon: Activity, label: t('admin.health.activeToday'), value: health.active_today, color: 'text-emerald-600' },
-    { icon: Activity, label: t('admin.health.activeWeek'), value: health.active_this_week, color: 'text-amber-600' },
-    { icon: Database, label: t('admin.health.progressEntries'), value: health.total_progress_entries, color: 'text-purple-600' },
-    { icon: Database, label: t('admin.health.achievements'), value: health.total_achievements, color: 'text-pink-600' },
-    { icon: HardDrive, label: t('admin.health.dbSize'), value: formatBytes(health.db_size_bytes), color: 'text-gray-600' },
-    { icon: HardDrive, label: t('admin.health.dbWalSize'), value: formatBytes(health.db_wal_size_bytes), color: 'text-gray-500' },
+    { icon: Users, label: t('admin.health.totalUsers'), value: health.total_users, color: 'text-blue-600 dark:text-blue-400' },
+    { icon: Activity, label: t('admin.health.activeToday'), value: health.active_today, color: 'text-emerald-600 dark:text-emerald-400' },
+    { icon: Activity, label: t('admin.health.activeWeek'), value: health.active_this_week, color: 'text-amber-600 dark:text-amber-400' },
+    { icon: Database, label: t('admin.health.progressEntries'), value: health.total_progress_entries, color: 'text-purple-600 dark:text-purple-400' },
+    { icon: Database, label: t('admin.health.achievements'), value: health.total_achievements, color: 'text-pink-600 dark:text-pink-400' },
+    { icon: HardDrive, label: t('admin.health.dbSize'), value: formatBytes(health.db_size_bytes), color: 'text-gray-600 dark:text-gray-400' },
+    { icon: HardDrive, label: t('admin.health.dbWalSize'), value: formatBytes(health.db_wal_size_bytes), color: 'text-gray-500 dark:text-gray-400' },
   ];
 
   const chartData = health.last_24h_activity.map(h => ({

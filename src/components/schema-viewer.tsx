@@ -68,9 +68,9 @@ export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerPro
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-border px-4 py-3">
+      <div className="border-b border-border px-3 py-2.5">
         <div className="flex items-center justify-between">
-          <h3 className="flex items-center gap-1.5 text-sm font-medium">
+          <h3 className="flex items-center gap-2 text-sm font-medium">
             <TableIcon className="h-4 w-4 text-emerald-500" />
             Структура базы данных
           </h3>
@@ -78,22 +78,22 @@ export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerPro
             <Button
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
-              className="h-6 w-6 p-0"
+              className="h-7 w-7 p-0"
               onClick={() => setViewMode('list')}
             >
-              <List className="h-3.5 w-3.5" />
+              <List className="h-4 w-4" />
             </Button>
             <Button
               variant={viewMode === 'diagram' ? 'default' : 'ghost'}
               size="sm"
-              className="h-6 w-6 p-0"
+              className="h-7 w-7 p-0"
               onClick={() => setViewMode('diagram')}
             >
-              <GitBranch className="h-3.5 w-3.5" />
+              <GitBranch className="h-4 w-4" />
             </Button>
           </div>
         </div>
-        <p className="mt-0.5 text-xs text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground">
           {schema.tables.length}{' '}
           {plural(schema.tables.length, 'таблица', 'таблицы', 'таблиц')}
         </p>
@@ -120,36 +120,36 @@ function TableCard({ table, onPreview }: { table: TableInfo; onPreview?: (tableN
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="px-3 py-2">
-        <CardTitle className="flex items-center gap-1.5 text-sm">
-          <TableIcon className="h-3.5 w-3.5 text-emerald-500" />
+      <CardHeader className="px-3 py-2.5">
+        <CardTitle className="flex items-center gap-2 text-sm">
+          <TableIcon className="h-4 w-4 text-emerald-500" />
           {table.name}
-          <Badge variant="secondary" className="ml-auto text-[10px] px-1.5">
+          <Badge variant="secondary" className="ml-auto text-xs px-2">
             {table.columns.length} {plural(table.columns.length, 'поле', 'поля', 'полей')}
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-3 pb-2 pt-0">
+      <CardContent className="px-3 pb-3 pt-0">
         <div className="space-y-0.5">
           {table.columns.map((col) => {
             const Icon = getTypeIcon(col.type);
             return (
               <div
                 key={col.name}
-                className="flex items-center gap-1.5 rounded px-1.5 py-0.5 text-xs hover:bg-muted/50"
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-muted/50"
               >
                 {col.primaryKey ? (
-                  <Key className="h-3 w-3 shrink-0 text-amber-500" />
+                  <Key className="h-3.5 w-3.5 shrink-0 text-amber-500" />
                 ) : (
-                  <Icon className={`h-3 w-3 shrink-0 ${getTypeColor(col.type)}`} />
+                  <Icon className={`h-3.5 w-3.5 shrink-0 ${getTypeColor(col.type)}`} />
                 )}
                 <span className="font-mono text-xs">{col.name}</span>
+                {col.notNull && (
+                  <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">NN</Badge>
+                )}
                 <span className={`ml-auto font-mono text-[10px] ${getTypeColor(col.type)}`}>
                   {col.type}
                 </span>
-                {col.notNull && (
-                  <span className="text-[10px] text-muted-foreground">NN</span>
-                )}
               </div>
             );
           })}
@@ -159,18 +159,18 @@ function TableCard({ table, onPreview }: { table: TableInfo; onPreview?: (tableN
             <Button
               variant="outline"
               size="sm"
-              className="h-6 flex-1 text-xs"
+              className="h-8 flex-1 text-xs"
               onClick={() => {
                 setIsExpanded(!isExpanded);
                 onPreview(table.name);
               }}
             >
-              <Eye className="mr-1 h-3 w-3" />
+              <Eye className="mr-1.5 h-3.5 w-3.5" />
               Предпросмотр
               {isExpanded ? (
-                <ChevronUp className="ml-1 h-3 w-3" />
+                <ChevronUp className="ml-1.5 h-3.5 w-3.5" />
               ) : (
-                <ChevronDown className="ml-1 h-3 w-3" />
+                <ChevronDown className="ml-1.5 h-3.5 w-3.5" />
               )}
             </Button>
           </div>

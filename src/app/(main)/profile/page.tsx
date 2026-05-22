@@ -412,30 +412,46 @@ export default function ProfilePage() {
   const passwordStrength = getPasswordStrength(newPassword);
 
   return (
-    <div className="h-full overflow-auto p-6">
-      <div className="mx-auto max-w-4xl space-y-6">
+    <div className="h-full overflow-auto bg-gradient-to-b from-background to-muted/20">
+      <div className="mx-auto max-w-5xl space-y-6 p-6">
+        {/* Page Header */}
+        <div className="mb-2">
+          <h1 className="text-2xl font-bold tracking-tight">{t('profile.title', { default: 'Профиль' })}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t('profile.subtitle', { default: 'Управляйте своим профилем и отслеживайте прогресс' })}</p>
+        </div>
+
         {/* Profile Header */}
-        <Card>
+        <Card className="border-border/80 shadow-sm">
           <CardContent className="p-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarFallback className="bg-emerald-600 text-white text-xl">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-5">
+                <Avatar className="h-20 w-20 ring-2 ring-emerald-600/20 ring-offset-2 ring-offset-background">
+                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white text-2xl font-semibold">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <h2 className="text-xl font-bold">{profile.name}</h2>
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-bold">{profile.name}</h2>
                   <p className="text-sm text-muted-foreground">{t('profile.memberSince', { date: createdDate })}</p>
+                  <div className="flex items-center gap-2 pt-1">
+                    <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">{profile.email}</span>
+                  </div>
+                  {profile.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">{profile.phone}</span>
+                    </div>
+                  )}
                 </div>
               </div>
               {!editMode ? (
-                <Button variant="outline" size="sm" onClick={() => setEditMode(true)}>
+                <Button variant="outline" size="sm" className="shrink-0" onClick={() => setEditMode(true)}>
                   <User className="mr-2 h-4 w-4" />
                   {t('profile.edit')}
                 </Button>
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <Button variant="outline" size="sm" onClick={() => { setEditMode(false); setEditName(profile.name); setEditPhone(profile.phone || ''); }}>
                     {t('profile.cancel')}
                   </Button>
@@ -447,8 +463,8 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {editMode ? (
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            {editMode && (
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 border-t border-border/50 pt-5">
                 <div className="space-y-2">
                   <Label htmlFor="edit-name">{t('profile.name')}</Label>
                   <Input id="edit-name" value={editName} onChange={(e) => setEditName(e.target.value)} />
@@ -458,49 +474,32 @@ export default function ProfilePage() {
                   <Input id="edit-phone" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder={t('profile.phonePlaceholder')} />
                 </div>
               </div>
-            ) : (
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span>{profile.email}</span>
-                </div>
-                {profile.phone && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span>{profile.phone}</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>{createdDate}</span>
-                </div>
-              </div>
             )}
           </CardContent>
         </Card>
 
         {/* Tabs: Progress, Achievements, Leaderboard, Security */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="flex-wrap">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-5 max-w-2xl">
             <TabsTrigger value="progress">{t('profile.tabs.progress')}</TabsTrigger>
             <TabsTrigger value="achievements">{t('profile.tabs.achievements')}</TabsTrigger>
             <TabsTrigger value="leaderboard">{t('profile.tabs.leaderboard')}</TabsTrigger>
             <TabsTrigger value="saved">{t('profile.tabs.saved')}</TabsTrigger>
             <TabsTrigger value="security">{t('profile.tabs.security')}</TabsTrigger>
           </TabsList>
-          <TabsContent value="progress">
+          <TabsContent value="progress" className="space-y-4">
             <ProgressStats />
           </TabsContent>
-          <TabsContent value="achievements">
+          <TabsContent value="achievements" className="space-y-4">
             <AchievementsGrid />
           </TabsContent>
-          <TabsContent value="leaderboard">
+          <TabsContent value="leaderboard" className="space-y-4">
             <LeaderboardTable />
           </TabsContent>
-          <TabsContent value="saved">
+          <TabsContent value="saved" className="space-y-4">
             <SavedQueriesSection />
           </TabsContent>
-          <TabsContent value="security">
+          <TabsContent value="security" className="space-y-6">
             <div className="space-y-6">
               {/* Change Password */}
               <Card>

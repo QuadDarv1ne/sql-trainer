@@ -27,12 +27,12 @@ function getPasswordStrength(password: string): { score: number; label: string; 
   const score = Math.round((metCount / requirements.length) * 100);
 
   let label = t('auth.strength.weak');
-  let color = 'text-red-500';
-  if (score >= 80) { label = t('auth.strength.strong'); color = 'text-emerald-500'; }
-  else if (score >= 60) { label = t('auth.strength.fair'); color = 'text-yellow-500'; }
-  else if (score >= 40) { label = t('auth.strength.weak'); color = 'text-orange-500'; }
+  let colorClasses = { light: 'text-red-500', dark: 'dark:text-red-400' };
+  if (score >= 80) { label = t('auth.strength.strong'); colorClasses = { light: 'text-emerald-500', dark: 'dark:text-emerald-400' }; }
+  else if (score >= 60) { label = t('auth.strength.fair'); colorClasses = { light: 'text-yellow-500', dark: 'dark:text-yellow-400' }; }
+  else if (score >= 40) { label = t('auth.strength.weak'); colorClasses = { light: 'text-orange-500', dark: 'dark:text-orange-400' }; }
 
-  return { score, label, color, requirements };
+  return { score, label, color: `${colorClasses.light} ${colorClasses.dark}`, requirements };
 }
 
 export default function ResetPasswordForm() {
@@ -182,7 +182,7 @@ export default function ResetPasswordForm() {
               {t('auth.sendCode')}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
-              <Link href="/login" className="text-emerald-600 hover:underline">
+              <Link href="/login" className="text-emerald-600 dark:text-emerald-400 hover:underline">
                 {t('auth.backToLogin')}
               </Link>
             </p>
@@ -201,7 +201,7 @@ export default function ResetPasswordForm() {
             )}
             {devCode && (
               <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/20">
-                <KeyRound className="h-4 w-4 text-amber-600" />
+                <KeyRound className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <AlertDescription>
                   <span className="font-medium">{t('auth.resetCode')}</span>
                   <span className="block mt-1 font-mono text-lg">{devCode}</span>
@@ -270,7 +270,7 @@ export default function ResetPasswordForm() {
                   <Progress value={passwordStrength.score} className="h-1.5" />
                   <ul className="grid grid-cols-2 gap-1 text-xs">
                     {passwordStrength.requirements.map((req, i) => (
-                      <li key={i} className={`flex items-center gap-1 ${req.met ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                      <li key={i} className={`flex items-center gap-1 ${req.met ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`}>
                         {req.met ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
                         {req.text}
                       </li>
@@ -304,13 +304,13 @@ export default function ResetPasswordForm() {
                 </Button>
               </div>
               {confirmPassword && newPassword !== confirmPassword && (
-                <p className="text-xs text-red-500 flex items-center gap-1">
+                <p className="text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
                   <AlertCircle className="h-3 w-3" />
                   {t('auth.passwordsNoMatchLive')}
                 </p>
               )}
               {confirmPassword && newPassword === confirmPassword && (
-                <p className="text-xs text-emerald-600 flex items-center gap-1">
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                   <CheckCircle2 className="h-3 w-3" />
                   {t('auth.passwordsMatch')}
                 </p>

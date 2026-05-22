@@ -24,9 +24,15 @@ export default function TeacherPage() {
   if (!authorized) return null;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-      <h1 className="text-3xl font-bold">{t('teacher.title')}</h1>
-      <TeacherDashboard />
+    <div className="h-full overflow-auto bg-gradient-to-b from-background to-muted/20">
+      <div className="mx-auto max-w-7xl space-y-6 p-6">
+        {/* Page Header */}
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">{t('teacher.title')}</h1>
+          <p className="text-sm text-muted-foreground">{t('teacher.subtitle', { default: 'Отслеживание прогресса студентов и аналитика класса' })}</p>
+        </div>
+        <TeacherDashboard />
+      </div>
     </div>
   );
 }

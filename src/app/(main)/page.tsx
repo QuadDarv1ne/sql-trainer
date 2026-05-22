@@ -550,18 +550,18 @@ export default function HomePage() {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background">
       {/* Header */}
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-border px-3">
-        <div className="flex items-center gap-3">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
+        <div className="flex items-center gap-4">
           {/* Mobile menu */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden h-8 w-8">
-                <Menu className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="md:hidden h-9 w-9">
+                <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-0">
-              <SheetHeader className="border-b border-border px-4 py-3">
-                <SheetTitle className="text-sm">{t('header.tasks')}</SheetTitle>
+            <SheetContent side="left" className="w-80 p-0">
+              <SheetHeader className="border-b border-border px-5 py-4">
+                <SheetTitle className="text-base">{t('header.tasks')}</SheetTitle>
               </SheetHeader>
               <Sidebar />
             </SheetContent>
@@ -571,34 +571,34 @@ export default function HomePage() {
           <Button
             variant="ghost"
             size="icon"
-            className="hidden md:flex h-8 w-8"
+            className="hidden md:flex h-9 w-9"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
             {sidebarOpen ? (
-              <PanelLeftClose className="h-4 w-4" />
+              <PanelLeftClose className="h-5 w-5" />
             ) : (
-              <PanelLeftOpen className="h-4 w-4" />
+              <PanelLeftOpen className="h-5 w-5" />
             )}
           </Button>
 
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-600">
-              <TableIcon className="h-4 w-4 text-white" />
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 shadow-sm">
+              <TableIcon className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-sm font-bold tracking-tight hidden sm:block">
+            <h1 className="text-base font-semibold tracking-tight hidden sm:block">
               SQL <span className="text-emerald-600">Trainer</span>
             </h1>
           </div>
 
           {/* Level badge */}
-          <div className="hidden sm:flex items-center gap-2 rounded-md bg-muted px-2 py-0.5">
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
+          <div className="hidden sm:flex items-center gap-2.5 rounded-lg bg-muted/50 px-3 py-1.5 border border-border/50">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white shadow-sm">
               {userStats.level}
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-[10px] font-medium text-muted-foreground">Ур. {userStats.level}</span>
-              <div className="h-1 w-16 rounded-full bg-muted-foreground/20 overflow-hidden">
+            <div className="flex flex-col leading-tight">
+              <span className="text-xs font-medium text-muted-foreground">Ур. {userStats.level}</span>
+              <div className="h-1.5 w-20 rounded-full bg-muted-foreground/20 overflow-hidden mt-0.5">
                 <div
                   className="h-full rounded-full bg-emerald-500 transition-all duration-300"
                   style={{ width: `${userStats.levelProgress}%` }}
@@ -608,7 +608,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Locale Selector */}
           <LocaleSelector />
 
@@ -624,13 +624,13 @@ export default function HomePage() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className="h-9 w-9"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               >
-                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent side="bottom" className="text-xs">
               {theme === 'dark' ? t('header.theme.light') : t('header.theme.dark')}
             </TooltipContent>
           </Tooltip>
@@ -644,9 +644,9 @@ export default function HomePage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop Sidebar */}
         <aside
-          className={`hidden md:flex shrink-0 border-r border-border transition-all duration-200 ${
+          className={`hidden md:flex shrink-0 border-r border-border/50 transition-all duration-300 ease-in-out ${
             sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'
-          }`}
+          } bg-muted/10`}
         >
           <div className="w-64">
             <Sidebar />
@@ -722,41 +722,47 @@ export default function HomePage() {
         </div>
 
         {/* Right panel: Task info + Schema + Reference */}
-        <aside className="hidden lg:flex w-72 shrink-0 flex-col border-l border-border">
+        <aside className="hidden lg:flex w-80 shrink-0 flex-col border-l border-border/50 bg-muted/10">
           <ResizablePanelGroup direction="vertical">
             <ResizablePanel defaultSize={45} minSize={20}>
               <ScrollArea className="h-full">
-                {currentTask ? (
-                  <TaskPanel
-                    task={currentTask}
-                    isCompleted={currentTaskId ? isTaskCompleted(currentTaskId) : false}
-                    hintVisible={hintVisible}
-                    solutionVisible={solutionVisible}
-                    onShowHint={() => setHintVisible(true)}
-                    onShowSolution={() => setSolutionVisible(!solutionVisible)}
-                    onUseSolution={(sql) => setEditorContent(sql)}
-                    onNextTask={goToNextTask}
-                    onNextRelated={(index) => goToRelatedTask(index)}
-                    nextTaskLabel={nextTaskInfo.label}
-                    isLastTask={nextTaskInfo.isLastTask}
-                    allCompleted={nextTaskInfo.allCompleted}
-                    relatedTasks={relatedTasks}
-                  />
-                ) : (
-                  <WelcomePanel
-                    onStartTraining={handleStartTraining}
-                    onFreeMode={handleFreeMode}
-                  />
-                )}
+                <div className="p-3">
+                  {currentTask ? (
+                    <TaskPanel
+                      task={currentTask}
+                      isCompleted={currentTaskId ? isTaskCompleted(currentTaskId) : false}
+                      hintVisible={hintVisible}
+                      solutionVisible={solutionVisible}
+                      onShowHint={() => setHintVisible(true)}
+                      onShowSolution={() => setSolutionVisible(!solutionVisible)}
+                      onUseSolution={(sql) => setEditorContent(sql)}
+                      onNextTask={goToNextTask}
+                      onNextRelated={(index) => goToRelatedTask(index)}
+                      nextTaskLabel={nextTaskInfo.label}
+                      isLastTask={nextTaskInfo.isLastTask}
+                      allCompleted={nextTaskInfo.allCompleted}
+                      relatedTasks={relatedTasks}
+                    />
+                  ) : (
+                    <WelcomePanel
+                      onStartTraining={handleStartTraining}
+                      onFreeMode={handleFreeMode}
+                    />
+                  )}
+                </div>
               </ScrollArea>
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={30} minSize={15}>
-              <SchemaViewer schema={schemaInfo} onPreviewTable={handlePreviewTable} />
+              <div className="p-3">
+                <SchemaViewer schema={schemaInfo} onPreviewTable={handlePreviewTable} />
+              </div>
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={25} minSize={15}>
-              <SQLReference onInsertExample={(sql) => setEditorContent(sql)} />
+              <div className="p-3">
+                <SQLReference onInsertExample={(sql) => setEditorContent(sql)} />
+              </div>
             </ResizablePanel>
           </ResizablePanelGroup>
         </aside>

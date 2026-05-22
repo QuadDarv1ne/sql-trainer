@@ -464,7 +464,7 @@ export default function UserTable() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setDetailStudentId(user.id)}
-                        className="text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950"
+                        className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-950"
                         aria-label={t('admin.users.viewDetails')}
                       >
                         <BookOpen className="h-4 w-4" />
@@ -473,7 +473,7 @@ export default function UserTable() {
                         variant="ghost"
                         size="sm"
                         onClick={() => openEdit(user)}
-                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950"
                         aria-label={t('admin.users.edit')}
                       >
                         <Pencil className="h-4 w-4" />
@@ -482,7 +482,7 @@ export default function UserTable() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(user.id, user.name)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                        className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950"
                         aria-label={t('admin.users.deleteAria')}
                       >
                         <Trash2 className="h-4 w-4" />

@@ -52,10 +52,10 @@ export default function TeacherAlerts() {
   }
 
   const typeIcons: Record<string, React.ReactNode> = {
-    at_risk: <AlertTriangle className="h-4 w-4 text-red-600" />,
-    inactive: <Clock className="h-4 w-4 text-gray-500" />,
-    struggling: <AlertCircle className="h-4 w-4 text-amber-600" />,
-    excelling: <TrendingUp className="h-4 w-4 text-emerald-600" />,
+    at_risk: <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />,
+    inactive: <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400" />,
+    struggling: <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />,
+    excelling: <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />,
   };
 
   const severityColors: Record<string, string> = {
