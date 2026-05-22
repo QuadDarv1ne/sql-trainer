@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     // Always assign 'student' role — role changes must be done by admin
     const userRole: UserRole = 'student';
 
-    const user = await createUser(email, sanitizedName.value, password, sanitizedPhone.value || null, userRole);
+    const user = await createUser(email, sanitizedName.value, password, sanitizedPhone.value || undefined, userRole);
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'Пользователь с таким email уже существует' },

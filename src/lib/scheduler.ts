@@ -9,7 +9,7 @@ import { sendPushToUser } from './push-notifications';
 let lastTick = 0;
 const TICK_INTERVAL_MS = 60_000; // Check every 60 seconds
 
-export function heartbeat(): { processed_reminders: number; processed_emails_sent: number; processed_emails_failed: number } {
+export async function heartbeat(): Promise<{ processed_reminders: number; processed_emails_sent: number; processed_emails_failed: number }> {
   const now = Date.now();
   if (now - lastTick < TICK_INTERVAL_MS) {
     return { processed_reminders: 0, processed_emails_sent: 0, processed_emails_failed: 0 };

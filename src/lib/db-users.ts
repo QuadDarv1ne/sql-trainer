@@ -7139,7 +7139,7 @@ export function getRegistrationFunnel() {
       conversion_onboarding: returnedDay2.count > 0 ? parseFloat(((completedOnboarding.count / returnedDay2.count) * 100).toFixed(1)) : 0,
     },
     avg_time_to_first_activity_ms: avgTimeToFirst.avg_ms,
-    daily_registrations,
+    dailyRegistrations,
   };
 }
 
