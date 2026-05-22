@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findUserByEmail, createResetCode, updatePassword, verifyResetCode, getUserById } from '@/lib/db-users';
 import { rateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 
 // Request password reset code
 export async function POST(request: NextRequest) {
@@ -34,9 +35,9 @@ export async function POST(request: NextRequest) {
     const code = await createResetCode(user.id, 'email');
 
     // In production: send code via email/SMS
-    // For development: log to server console only
+    // For development: log confirmation without exposing the code
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[MVP] Reset code for ${email}: ${code}`);
+      logger.info('Password reset code generated', { userId: user.id, channel: 'email' });
     }
 
     return NextResponse.json({
