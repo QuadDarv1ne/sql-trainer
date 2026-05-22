@@ -5842,7 +5842,7 @@ export function getActivitySummary(filters?: TimeRangeFilters): ActivitySummaryR
       FROM user_progress
       WHERE completed_at >= ? AND completed_at < ?
     `).get(weekStart, ts + dayMs) as { count: number };
-    wau = wau.count;
+    wau = wauRows.count;
 
     // MAU (active in last 30 days from this date)
     const monthStart = ts - 30 * dayMs;
@@ -6203,25 +6203,25 @@ export function getWeekdayVsWeekendPerformance(filters?: TimeRangeFilters): Week
 
   // Weekday (Mon-Fri: day_of_week 1-5)
   const weekday = db.prepare(`
-    SELECT COUNT(*) as completions,
+    SELECT COUNT(*) as total_completions,
            COUNT(DISTINCT user_id) as unique_students,
            ROUND(AVG(attempts * 1.0), 2) as avg_attempts,
            ROUND(100.0 * SUM(CASE WHEN attempts = 1 THEN 1 ELSE 0 END) / COUNT(*), 1) as first_attempt_rate
     FROM user_progress
     WHERE CAST(STRFTIME('%w', DATE(completed_at / 1000, 'unixepoch')) AS INTEGER) BETWEEN 1 AND 5
     ${dateCondition}
-  `).all(...dateParams)[0] as { completions: number; unique_students: number; avg_attempts: number; first_attempt_rate: number } || { completions: 0, unique_students: 0, avg_attempts: 0, first_attempt_rate: 0 };
+  `).all(...dateParams)[0] as { total_completions: number; unique_students: number; avg_attempts: number; first_attempt_rate: number } || { total_completions: 0, unique_students: 0, avg_attempts: 0, first_attempt_rate: 0 };
 
   // Weekend (Sat-Sun: day_of_week 0,6)
   const weekend = db.prepare(`
-    SELECT COUNT(*) as completions,
+    SELECT COUNT(*) as total_completions,
            COUNT(DISTINCT user_id) as unique_students,
            ROUND(AVG(attempts * 1.0), 2) as avg_attempts,
            ROUND(100.0 * SUM(CASE WHEN attempts = 1 THEN 1 ELSE 0 END) / COUNT(*), 1) as first_attempt_rate
     FROM user_progress
     WHERE CAST(STRFTIME('%w', DATE(completed_at / 1000, 'unixepoch')) AS INTEGER) IN (0, 6)
     ${dateCondition}
-  `).all(...dateParams)[0] as { completions: number; unique_students: number; avg_attempts: number; first_attempt_rate: number } || { completions: 0, unique_students: 0, avg_attempts: 0, first_attempt_rate: 0 };
+  `).all(...dateParams)[0] as { total_completions: number; unique_students: number; avg_attempts: number; first_attempt_rate: number } || { total_completions: 0, unique_students: 0, avg_attempts: 0, first_attempt_rate: 0 };
 
   // By difficulty
   const difficulties = ['beginner', 'intermediate', 'advanced'];
@@ -6356,9 +6356,9 @@ export function generateLearningPlan(userId: string): {
   if (!progress) return null;
 
   // Get all completed task IDs for this user
-  const completedTaskIds = db.prepare(`
+  const completedTaskIds = (db.prepare(`
     SELECT task_id FROM user_progress WHERE user_id = ?
-  `).all(userId).map((r: { task_id: string }) => r.task_id);
+  `).all(userId) as { task_id: string }[]).map(r => r.task_id);
 
   const completedCount = completedTaskIds.length;
 
@@ -6570,9 +6570,9 @@ export function getABTestComparison(testType: string = 'learning_path'): {
 
   // Hint vs No-Hint comparison
   if (testType === 'hint_usage') {
-    const hintUsers = db.prepare(`
+    const hintUsers = (db.prepare(`
       SELECT DISTINCT user_id FROM hint_usage
-    `).all().map((r: { user_id: string }) => r.user_id);
+    `).all() as { user_id: string }[]).map(r => r.user_id);
 
     const groupA = db.prepare(`
       SELECT COUNT(DISTINCT up.user_id) as count,
@@ -6926,7 +6926,7 @@ export function getExecutiveSummary(filters?: TimeRangeFilters) {
   const progressDateFilter = filters?.start_date && filters?.end_date
     ? `WHERE completed_at >= ${filters.start_date} AND completed_at <= ${filters.end_date}`
     : '';
-  const prevStart = filters?.start_date ? filters.start_date - (filters.end_date - filters.start_date) : null;
+  const prevStart = filters?.start_date && filters?.end_date ? filters.start_date - (filters.end_date - filters.start_date) : null;
   const prevEnd = filters?.end_date ? filters.start_date : null;
 
   // Current period stats
@@ -6949,8 +6949,8 @@ export function getExecutiveSummary(filters?: TimeRangeFilters) {
   // Grade distribution
   const totalTasks = db.prepare(`SELECT COUNT(*) as count FROM user_progress`).get() as { count: number };
   const studentsWithProgress = db.prepare(`SELECT COUNT(DISTINCT user_id) as count FROM user_progress`).get() as { count: number };
-  const avgCompletionRate = studentsWithProgress > 0
-    ? parseFloat(((totalCompletions.count / (studentsWithProgress * 20)) * 100).toFixed(1))
+  const avgCompletionRate = studentsWithProgress.count > 0
+    ? parseFloat(((totalCompletions.count / (studentsWithProgress.count * 20)) * 100).toFixed(1))
     : 0;
 
   // Pending emails
@@ -7696,9 +7696,11 @@ export function getStudentComparisonMetrics(studentIds: string[]): StudentCompar
     });
 
     // Sessions per week estimate
-    const weeksActive = Math.max(1, Math.round((Date.now() - (db.prepare(
+    const firstCompletionRow = db.prepare(
       'SELECT MIN(completed_at) as min_date FROM user_progress WHERE user_id = ?'
-    ).get(student.user_id) as { min_date: number } | undefined)?.min_date || Date.now()) / (7 * 24 * 60 * 60 * 1000)));
+    ).get(student.user_id) as { min_date: number } | undefined;
+    const firstCompletionDate = firstCompletionRow?.min_date || Date.now();
+    const weeksActive = Math.max(1, Math.round((Date.now() - firstCompletionDate) / (7 * 24 * 60 * 60 * 1000)));
     const sessionsPerWeek = Math.round((student.tasks_completed / weeksActive) * 10) / 10;
 
     // Consistency score (simplified)

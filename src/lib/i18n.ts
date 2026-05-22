@@ -1368,7 +1368,6 @@ export const translations: Record<Locale, Record<string, string>> = {
     'analytics.skillGap.weak': 'Слабая (<50%)',
 
     // Academic Timeline
-    'analytics.timeline.title': 'Академическая хронология',
     'analytics.timeline.placeholder': 'ID студента',
     'analytics.timeline.search': 'Найти',
     'analytics.timeline.events.registration': 'Регистрация',
@@ -1453,9 +1452,6 @@ export const translations: Record<Locale, Record<string, string>> = {
     'admin.tabs.studyPatterns': 'Паттерны обучения',
     'admin.tabs.attemptEfficiency': 'Эффективность попыток',
     'admin.tabs.studentComparison': 'Сравнение',
-
-    // Refresh
-    'analytics.refresh': 'Обновить',
   },
   en: {
     // Header
@@ -2904,9 +2900,6 @@ export const translations: Record<Locale, Record<string, string>> = {
     'admin.tabs.studyPatterns': 'Study Patterns',
     'admin.tabs.attemptEfficiency': 'Attempt Efficiency',
     'admin.tabs.studentComparison': 'Comparison',
-
-    // Refresh
-    'analytics.refresh': 'Refresh',
   },
 };
 
