@@ -6,7 +6,12 @@ const MAX_SQL_LENGTH = 10000;
 
 function normalizeValue(val: unknown): string {
   if (val === null || val === undefined) return 'NULL';
-  if (typeof val === 'number') return Number(val.toPrecision(10)).toString();
+  if (typeof val === 'bigint') return val.toString();
+  if (typeof val === 'number') {
+    if (Number.isNaN(val)) return 'NaN';
+    if (!Number.isFinite(val)) return String(val);
+    return Number(val.toPrecision(10)).toString();
+  }
   return String(val).trim().toLowerCase();
 }
 

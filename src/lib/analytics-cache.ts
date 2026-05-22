@@ -6,6 +6,7 @@
 interface CacheEntry<T = unknown> {
   value: T;
   expiresAt: number;
+  lastAccessed: number;
 }
 
 /** Default TTL: 60 seconds for heavy queries */
@@ -35,6 +36,7 @@ export function getCached<T>(
     cache.delete(key);
     return null;
   }
+  entry.lastAccessed = Date.now();
   return entry.value as T;
 }
 
@@ -44,14 +46,21 @@ export function setCached<T>(
   value: T,
   ttlMs: number = DEFAULT_TTL_MS
 ): void {
-  // Evict oldest entry if at capacity
+  // Evict least recently used entry if at capacity
   if (cache.size >= MAX_ENTRIES) {
-    const firstKey = cache.keys().next().value;
-    if (firstKey) cache.delete(firstKey);
+    let oldestKey: string | undefined;
+    let oldestTime = Infinity;
+    for (const [key, entry] of cache) {
+      if (entry.lastAccessed < oldestTime) {
+        oldestTime = entry.lastAccessed;
+        oldestKey = key;
+      }
+    }
+    if (oldestKey) cache.delete(oldestKey);
   }
 
   const key = buildKey(endpoint, params);
-  cache.set(key, { value, expiresAt: Date.now() + ttlMs });
+  cache.set(key, { value, expiresAt: Date.now() + ttlMs, lastAccessed: Date.now() });
 }
 
 export function invalidateCache(endpoint?: string): void {

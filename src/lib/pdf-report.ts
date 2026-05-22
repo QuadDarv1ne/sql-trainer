@@ -2,6 +2,7 @@
  * PDF Report Generation Utilities
  * Uses window.print() with styled HTML for PDF generation
  */
+import { escapeHtml } from './email';
 
 export interface PDFReportOptions {
   title: string;
@@ -97,12 +98,12 @@ export function generateStudentReportPDF(
       </style>
     </head>
     <body>
-      <h1>${options.title}</h1>
-      ${options.subtitle ? `<h2>${options.subtitle}</h2>` : ''}
+      <h1>${escapeHtml(options.title)}</h1>
+      ${options.subtitle ? `<h2>${escapeHtml(options.subtitle)}</h2>` : ''}
       
       <div class="info">
-        <div class="info-row"><span class="label">${tr.name}:</span><span class="value">${student.name}</span></div>
-        <div class="info-row"><span class="label">${tr.email}:</span><span class="value">${student.email}</span></div>
+        <div class="info-row"><span class="label">${tr.name}:</span><span class="value">${escapeHtml(student.name)}</span></div>
+        <div class="info-row"><span class="label">${tr.email}:</span><span class="value">${escapeHtml(student.email)}</span></div>
         <div class="info-row"><span class="label">${tr.lastActive}:</span><span class="value">${student.last_active ? new Date(student.last_active).toLocaleDateString(localeCode) : tr.noActivity}</span></div>
       </div>
 
@@ -149,11 +150,11 @@ export function generateClassReportPDF(
   const localeCode = locale === 'ru' ? 'ru-RU' : 'en-US';
 
   const topPerformersRows = report.top_performers.map(s => 
-    `<tr><td>${s.name}</td><td>${s.tasks_completed}</td><td>${s.avg_attempts}</td></tr>`
+    `<tr><td>${escapeHtml(s.name)}</td><td>${s.tasks_completed}</td><td>${s.avg_attempts}</td></tr>`
   ).join('');
 
   const strugglingRows = report.struggling_students.map(s => 
-    `<tr><td>${s.name}</td><td>${s.tasks_completed}</td><td>${s.avg_attempts}</td></tr>`
+    `<tr><td>${escapeHtml(s.name)}</td><td>${s.tasks_completed}</td><td>${s.avg_attempts}</td></tr>`
   ).join('');
 
   const content = `
@@ -175,8 +176,8 @@ export function generateClassReportPDF(
       </style>
     </head>
     <body>
-      <h1>${options.title}</h1>
-      ${options.subtitle ? `<p>${options.subtitle}</p>` : ''}
+      <h1>${escapeHtml(options.title)}</h1>
+      ${options.subtitle ? `<p>${escapeHtml(options.subtitle)}</p>` : ''}
       
       <div>
         <div class="stat-box"><div class="stat-number">${report.total_students}</div><div class="stat-label">${tr.totalStudents}</div></div>
@@ -335,7 +336,7 @@ export function generateAnalyticsPDF(
   if (sections.includes('deadlineCompliance') && data.deadlineCompliance) {
     const d = data.deadlineCompliance;
     const deadlineRows = d.deadlines.map(dl =>
-      `<tr><td>${dl.title}</td><td>${dl.due_date}</td><td>${dl.targeted}</td><td>${dl.on_time}</td><td>${dl.late}</td><td>${dl.missed}</td><td>${dl.compliance_rate}%</td></tr>`
+      `<tr><td>${escapeHtml(dl.title)}</td><td>${dl.due_date}</td><td>${dl.targeted}</td><td>${dl.on_time}</td><td>${dl.late}</td><td>${dl.missed}</td><td>${dl.compliance_rate}%</td></tr>`
     ).join('');
     sectionsHTML += `
       <div class="section">
@@ -376,7 +377,7 @@ export function generateAnalyticsPDF(
       `<tr><td>${d.bucket}</td><td>${d.count}</td></tr>`
     ).join('');
     const topRows = s.top_streaks.map((t, i) =>
-      `<tr><td>${i + 1}</td><td>${t.name}</td><td>${t.streak}</td></tr>`
+      `<tr><td>${i + 1}</td><td>${escapeHtml(t.name)}</td><td>${t.streak}</td></tr>`
     ).join('');
     sectionsHTML += `
       <div class="section">
@@ -415,7 +416,7 @@ export function generateAnalyticsPDF(
   if (sections.includes('reEngagement') && data.reEngagement) {
     const r = data.reEngagement;
     const recentRows = r.recent.map(s =>
-      `<tr><td>${s.name}</td><td>${s.gap_days} ${tr.days}</td><td>${s.return_task}</td></tr>`
+      `<tr><td>${escapeHtml(s.name)}</td><td>${s.gap_days} ${tr.days}</td><td>${escapeHtml(s.return_task)}</td></tr>`
     ).join('');
     sectionsHTML += `
       <div class="section">
@@ -434,7 +435,7 @@ export function generateAnalyticsPDF(
   if (sections.includes('difficultyCalibration') && data.difficultyCalibration) {
     const d = data.difficultyCalibration;
     const taskRows = d.tasks.map(t =>
-      `<tr><td>${t.title}</td><td>${t.intended}</td><td>${t.actual_attempts}</td><td>${t.recommended}</td></tr>`
+      `<tr><td>${escapeHtml(t.title)}</td><td>${t.intended}</td><td>${t.actual_attempts}</td><td>${t.recommended}</td></tr>`
     ).join('');
     sectionsHTML += `
       <div class="section">
@@ -489,7 +490,7 @@ export function generateAnalyticsPDF(
   if (sections.includes('hintUsage') && data.hintUsage) {
     const h = data.hintUsage;
     const userRows = h.top_hint_users.map(u =>
-      `<tr><td>${u.name}</td><td>${u.hints_used}</td><td>${u.completion_rate}%</td></tr>`
+      `<tr><td>${escapeHtml(u.name)}</td><td>${u.hints_used}</td><td>${u.completion_rate}%</td></tr>`
     ).join('');
     sectionsHTML += `
       <div class="section">
@@ -508,7 +509,7 @@ export function generateAnalyticsPDF(
   if (sections.includes('audit') && data.audit) {
     const a = data.audit;
     const logRows = a.recent.slice(0, 50).map(l =>
-      `<tr><td>${l.timestamp}</td><td>${l.action}</td><td>${l.user}</td><td>${l.target}</td></tr>`
+      `<tr><td>${l.timestamp}</td><td>${escapeHtml(l.action)}</td><td>${escapeHtml(l.user)}</td><td>${escapeHtml(l.target)}</td></tr>`
     ).join('');
     sectionsHTML += `
       <div class="section">
@@ -543,17 +544,17 @@ export function generateAnalyticsPDF(
   if (sections.includes('learningPlan') && data.learningPlan) {
     const lp = data.learningPlan;
     const taskRows = lp.next_tasks.map(t =>
-      `<tr><td>${t.task}</td><td>${t.difficulty}</td><td>${t.estimated_hours}h</td></tr>`
+      `<tr><td>${escapeHtml(t.task)}</td><td>${t.difficulty}</td><td>${t.estimated_hours}h</td></tr>`
     ).join('');
     const milestoneRows = lp.milestones.map(m =>
-      `<tr><td>${m.milestone}</td><td>${m.target_date}</td></tr>`
+      `<tr><td>${escapeHtml(m.milestone)}</td><td>${m.target_date}</td></tr>`
     ).join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.learningPlan}</h1>
         <div class="info">
-          <div class="info-row"><span class="label">${tr.student}:</span><span class="value">${lp.student_name}</span></div>
-          <div class="info-row"><span class="label">${tr.currentLevel}:</span><span class="value">${lp.current_level}</span></div>
+          <div class="info-row"><span class="label">${tr.student}:</span><span class="value">${escapeHtml(lp.student_name)}</span></div>
+          <div class="info-row"><span class="label">${tr.currentLevel}:</span><span class="value">${escapeHtml(lp.current_level)}</span></div>
           <div class="info-row"><span class="label">${tr.completedTasks}:</span><span class="value">${lp.completed_tasks}</span></div>
           <div class="info-row"><span class="label">${tr.remainingTasks}:</span><span class="value">${lp.remaining_tasks}</span></div>
         </div>
@@ -569,17 +570,17 @@ export function generateAnalyticsPDF(
   if (sections.includes('abTest') && data.abTest) {
     const ab = data.abTest;
     const metricRows = ab.metrics.map(m =>
-      `<tr><td>${m.metric}</td><td>${m.group_a}</td><td>${m.group_b}</td><td>${m.significant ? tr.significant : tr.notSignificant}</td></tr>`
+      `<tr><td>${escapeHtml(m.metric)}</td><td>${m.group_a}</td><td>${m.group_b}</td><td>${m.significant ? tr.significant : tr.notSignificant}</td></tr>`
     ).join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.abTestComparison}</h1>
         <div class="info">
-          <div class="info-row"><span class="label">${tr.testName}:</span><span class="value">${ab.test_name}</span></div>
-          <div class="info-row"><span class="label">${tr.groupA}:</span><span class="value">${ab.group_a_name}</span></div>
-          <div class="info-row"><span class="label">${tr.groupB}:</span><span class="value">${ab.group_b_name}</span></div>
+          <div class="info-row"><span class="label">${tr.testName}:</span><span class="value">${escapeHtml(ab.test_name)}</span></div>
+          <div class="info-row"><span class="label">${tr.groupA}:</span><span class="value">${escapeHtml(ab.group_a_name)}</span></div>
+          <div class="info-row"><span class="label">${tr.groupB}:</span><span class="value">${escapeHtml(ab.group_b_name)}</span></div>
         </div>
-        <table><tr><th>${tr.metric}</th><th>${ab.group_a_name}</th><th>${ab.group_b_name}</th><th>${tr.significance}</th></tr>${metricRows}</table>
+        <table><tr><th>${tr.metric}</th><th>${escapeHtml(ab.group_a_name)}</th><th>${escapeHtml(ab.group_b_name)}</th><th>${tr.significance}</th></tr>${metricRows}</table>
       </div>
     `;
   }
@@ -615,8 +616,8 @@ export function generateAnalyticsPDF(
       </style>
     </head>
     <body>
-      <h1>${options.title}</h1>
-      ${options.subtitle ? `<p style="color: #6b7280; font-size: 16px;">${options.subtitle}</p>` : ''}
+      <h1>${escapeHtml(options.title)}</h1>
+      ${options.subtitle ? `<p style="color: #6b7280; font-size: 16px;">${escapeHtml(options.subtitle)}</p>` : ''}
       ${sectionsHTML}
       <div class="footer">
         ${tr.generated}: ${options.generatedAt ? options.generatedAt.toLocaleString(localeCode) : new Date().toLocaleString(localeCode)}

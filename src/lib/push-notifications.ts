@@ -19,6 +19,10 @@ function initVapid(): void {
   _initialized = true;
 }
 
+function isExpiredSubscriptionError(error: unknown): boolean {
+  return error instanceof Error && 'statusCode' in error && (error as { statusCode: number }).statusCode === 410;
+}
+
 export interface PushPayload {
   title: string;
   body: string;
@@ -81,7 +85,7 @@ export async function sendPushToUser(
     } catch (error) {
       failed++;
       // If subscription is no longer valid, delete it
-      if (error instanceof Error && (error as any).statusCode === 410) {
+      if (isExpiredSubscriptionError(error)) {
         db.prepare('DELETE FROM push_subscriptions WHERE id = ?').run(sub.id);
       }
     }

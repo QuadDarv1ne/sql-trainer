@@ -44,7 +44,7 @@ export const GET = withAdminAuth(async () => {
   });
 });
 
-export const POST = withAdminAuth(async ({ request }) => {
+export const POST = withAdminAuth(async ({ session, request }) => {
   const db = getDb();
 
   // Ensure table exists
@@ -77,7 +77,7 @@ export const POST = withAdminAuth(async ({ request }) => {
     VALUES (?, ?, ?, ?, ?, ?, 1, ?)
   `).run(
     id,
-    (request as unknown as { session: { user: { id: string } } }).session.user.id,
+    session.user.id,
     reportType,
     format,
     schedule,

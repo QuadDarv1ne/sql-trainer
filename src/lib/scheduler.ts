@@ -56,7 +56,12 @@ function processDueReminders(): number {
         } else if (reminder.channel === 'email') {
           // Get user preferences to check if email is enabled
           const prefs = getNotificationPreferences(reminder.user_id);
-          const channels: string[] = JSON.parse(prefs.channels_enabled);
+          let channels: string[];
+          try {
+            channels = JSON.parse(prefs.channels_enabled);
+          } catch {
+            channels = ['in_app'];
+          }
           if (!channels.includes('email')) {
             markScheduleSent(reminder.id);
             processed++;
@@ -89,7 +94,12 @@ function processDueReminders(): number {
         } else if (reminder.channel === 'push') {
           // Get user preferences to check if push is enabled
           const prefs = getNotificationPreferences(reminder.user_id);
-          const channels: string[] = JSON.parse(prefs.channels_enabled);
+          let channels: string[];
+          try {
+            channels = JSON.parse(prefs.channels_enabled);
+          } catch {
+            channels = ['in_app'];
+          }
           if (!channels.includes('push')) {
             markScheduleSent(reminder.id);
             processed++;

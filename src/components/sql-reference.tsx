@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -131,12 +131,18 @@ const SECTIONS = [
 
 export default function SQLReference({ onInsertExample }: SQLReferenceProps) {
   const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const resetCopiedState = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setCopiedIndex(null), 2000);
+  };
 
   const handleCopy = (code: string, index: string) => {
     navigator.clipboard.writeText(code).then(() => {
       toast.success('Скопировано в буфер обмена');
       setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2000);
+      resetCopiedState();
     });
   };
 
@@ -144,7 +150,7 @@ export default function SQLReference({ onInsertExample }: SQLReferenceProps) {
     if (onInsertExample) {
       onInsertExample(code);
       setCopiedIndex(key);
-      setTimeout(() => setCopiedIndex(null), 2000);
+      resetCopiedState();
     } else {
       handleCopy(code, key);
     }

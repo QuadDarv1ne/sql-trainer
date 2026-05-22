@@ -47,7 +47,7 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
   }
 }
 
-function escapeHtml(s: string): string {
+export function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
