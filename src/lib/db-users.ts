@@ -6827,8 +6827,6 @@ export function getTopicMastery(): {
 } {
   const db = getDb();
 
-  // Import training tasks
-  const { TRAINING_TASKS } = require('./training-tasks');
   const tasks = TRAINING_TASKS as Array<{ id: string; title: string; difficulty: string; category?: string }>;
 
   const categoryMap = new Map<string, string[]>();
@@ -7019,7 +7017,6 @@ export function getPlatformHealth() {
 
 export function getContentPerformance(filters?: TimeRangeFilters) {
   const db = getDb();
-  const { TRAINING_TASKS } = require('./training-tasks');
   const tasks = TRAINING_TASKS as Array<{ id: string; title: string; difficulty: string; category?: string }>;
 
   const dateCondition = filters?.start_date && filters?.end_date
