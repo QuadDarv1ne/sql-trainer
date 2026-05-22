@@ -127,7 +127,7 @@ export default function AnalyticsDashboard() {
             <TabsTrigger value="alerts">{t('analytics.alerts.title')}</TabsTrigger>
             <TabsTrigger value="class">{t('analytics.classReport.title')}</TabsTrigger>
             <TabsTrigger value="skills">{t('admin.tabs.skills')}</TabsTrigger>
-            <TabsTrigger value="funnel">{t('admin.tabs.funnel')}</TabsTrigger>
+            <TabsTrigger value="completion-funnel">{t('admin.tabs.funnel')}</TabsTrigger>
             <TabsTrigger value="mastery">{t('admin.tabs.mastery')}</TabsTrigger>
             <TabsTrigger value="leaderboard">{t('admin.tabs.leaderboard')}</TabsTrigger>
             <TabsTrigger value="health">{t('admin.tabs.health')}</TabsTrigger>
@@ -237,7 +237,7 @@ export default function AnalyticsDashboard() {
             <SkillBreakdownChart />
           </TabsContent>
 
-          <TabsContent value="funnel" className="space-y-6">
+          <TabsContent value="completion-funnel" className="space-y-6">
             <CompletionFunnelChart />
           </TabsContent>
 

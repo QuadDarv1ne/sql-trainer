@@ -8,7 +8,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import {
-  Database, Users, Activity, Clock, HardDrive, CheckCircle2, AlertTriangle, XCircle,
+  Database, Users, Activity, Clock, HardDrive, CheckCircle2, AlertTriangle, XCircle, RefreshCw,
 } from 'lucide-react';
 import { t } from '@/lib/i18n';
 
@@ -38,13 +38,28 @@ export default function SystemHealth() {
   const [health, setHealth] = useState<SystemHealthData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    try {
+      const r = await fetch('/api/admin/system');
+      if (!r.ok) throw new Error();
+      const d = await r.json();
+      setHealth(d.health);
+      setError('');
+    } catch {
+      setError(t('admin.health.error'));
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    fetch('/api/admin/system')
-      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .then(d => setHealth(d.health))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
+    fetchData();
+    const interval = setInterval(() => fetchData(), 60000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return <p className="text-center py-4 text-muted-foreground">{t('analytics.loading')}</p>;
@@ -66,6 +81,7 @@ export default function SystemHealth() {
     { icon: Database, label: t('admin.health.progressEntries'), value: health.total_progress_entries, color: 'text-purple-600' },
     { icon: Database, label: t('admin.health.achievements'), value: health.total_achievements, color: 'text-pink-600' },
     { icon: HardDrive, label: t('admin.health.dbSize'), value: formatBytes(health.db_size_bytes), color: 'text-gray-600' },
+    { icon: HardDrive, label: t('admin.health.dbWalSize'), value: formatBytes(health.db_wal_size_bytes), color: 'text-gray-500' },
   ];
 
   const chartData = health.last_24h_activity.map(h => ({
@@ -82,10 +98,20 @@ export default function SystemHealth() {
             <Activity className="h-5 w-5" />
             {t('admin.health.title')}
           </CardTitle>
-          <Badge variant="outline" className={`flex items-center gap-1 px-3 py-1 ${statusConfig[health.db_connection_status].color}`}>
-            <StatusIcon className="h-3.5 w-3.5" />
-            {statusConfig[health.db_connection_status].label}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className={`flex items-center gap-1 px-3 py-1 ${statusConfig[health.db_connection_status].color}`}>
+              <StatusIcon className="h-3.5 w-3.5" />
+              {statusConfig[health.db_connection_status].label}
+            </Badge>
+            <button
+              onClick={() => fetchData(true)}
+              disabled={refreshing}
+              className="p-1 rounded hover:bg-accent disabled:opacity-50"
+              title={t('admin.health.refresh')}
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">

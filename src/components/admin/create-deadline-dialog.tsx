@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { t } from '@/lib/i18n';
 import { Deadline } from '@/lib/db-users';
@@ -23,52 +23,84 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+interface DeadlineFormData {
+  id?: string;
+  title: string;
+  description: string;
+  type: Deadline['type'];
+  targetType: Deadline['target_type'];
+  dueDate: string;
+  dueTime: string;
+}
+
 interface CreateDeadlineDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  deadline?: Deadline | null;
 }
 
-export function CreateDeadlineDialog({ open, onOpenChange, onSuccess }: CreateDeadlineDialogProps) {
+export function CreateDeadlineDialog({ open, onOpenChange, onSuccess, deadline }: CreateDeadlineDialogProps) {
+  const isEdit = !!deadline;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState<Deadline['type']>('course');
   const [targetType, setTargetType] = useState<Deadline['target_type']>('all_students');
+  const [targetId, setTargetId] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [dueTime, setDueTime] = useState('23:59');
   const [loading, setLoading] = useState(false);
 
+  // Populate form when deadline changes
+  useEffect(() => {
+    if (deadline) {
+      const d = new Date(deadline.due_at);
+      setTitle(deadline.title);
+      setDescription(deadline.description || '');
+      setType(deadline.type);
+      setTargetType(deadline.target_type);
+      setTargetId(deadline.target_id || '');
+      setDueDate(d.toISOString().split('T')[0]);
+      setDueTime(d.toTimeString().slice(0, 5));
+    } else if (open) {
+      setTitle('');
+      setDescription('');
+      setType('course');
+      setTargetType('all_students');
+      setDueDate('');
+      setDueTime('23:59');
+    }
+  }, [deadline, open]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !dueDate) {
-      toast.error('Заполните обязательные поля');
+      toast.error(t('deadline.requiredFields'));
       return;
     }
 
     const dueAt = new Date(`${dueDate}T${dueTime}`).getTime();
     if (isNaN(dueAt)) {
-      toast.error('Неверная дата');
+      toast.error(t('deadline.invalidDate'));
       return;
     }
 
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/deadlines', {
-        method: 'POST',
+      const url = isEdit ? `/api/admin/deadlines/${deadline!.id}` : '/api/admin/deadlines';
+      const method = isEdit ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, type, targetType, dueAt }),
+        body: JSON.stringify({ title, description, type, targetType, targetId: targetId || null, dueAt }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
 
-      toast.success(t('deadline.created'));
+      toast.success(isEdit ? t('deadline.updated') : t('deadline.created'));
       onSuccess();
       onOpenChange(false);
-      setTitle('');
-      setDescription('');
-      setDueDate('');
-      setDueTime('23:59');
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -80,8 +112,8 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess }: CreateDe
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{t('deadline.create')}</DialogTitle>
-          <DialogDescription>{t('deadline.noDeadlinesDesc')}</DialogDescription>
+          <DialogTitle>{isEdit ? t('deadline.edit') : t('deadline.create')}</DialogTitle>
+          <DialogDescription>{isEdit ? t('deadline.updated') : t('deadline.noDeadlinesDesc')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
@@ -134,6 +166,17 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess }: CreateDe
               </div>
             </div>
 
+            {(targetType === 'group' || targetType === 'individual') && (
+              <div>
+                <Label>{targetType === 'group' ? t('deadline.targetId.group') : t('deadline.targetId.individual')}</Label>
+                <Input
+                  value={targetId}
+                  onChange={e => setTargetId(e.target.value)}
+                  placeholder={targetType === 'group' ? t('deadline.targetId.groupPlaceholder') : t('deadline.targetId.individualPlaceholder')}
+                />
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>{t('deadline.dueDate')}</Label>
@@ -144,7 +187,7 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess }: CreateDe
                 />
               </div>
               <div>
-                <Label>Время</Label>
+                <Label>{t('deadline.time')}</Label>
                 <Input
                   type="time"
                   value={dueTime}
@@ -159,7 +202,7 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess }: CreateDe
               {t('action.close')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? '...' : t('deadline.create')}
+              {loading ? '...' : (isEdit ? t('deadline.edit') : t('deadline.create'))}
             </Button>
           </DialogFooter>
         </form>

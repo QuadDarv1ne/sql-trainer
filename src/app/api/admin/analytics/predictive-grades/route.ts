@@ -1,18 +1,14 @@
-import { NextRequest } from 'next/server';
-import { requireAdmin, parseDateParams } from '@/lib/api-auth';
+import { NextResponse } from 'next/server';
 import { getPredictiveGrades } from '@/lib/db-users';
+import { withAnalyticsAuth } from '@/lib/api-auth';
 
-export async function GET(request: NextRequest) {
-  const authResult = await requireAdmin();
-  if (authResult.error) return authResult.error;
-
-  const { searchParams } = new URL(request.url);
-  const dateParams = parseDateParams(searchParams);
-  const filters = dateParams.startDate && dateParams.endDate
-    ? { start_date: dateParams.startDate, end_date: dateParams.endDate }
+export const GET = withAnalyticsAuth(({ startDate, endDate }) => {
+  const filters = startDate && endDate
+    ? { start_date: startDate, end_date: endDate }
     : undefined;
-
   const grades = getPredictiveGrades(filters);
-
-  return Response.json({ grades, dateRange: dateParams.startDate && dateParams.endDate ? { startDate: dateParams.startDate, endDate: dateParams.endDate } : undefined });
-}
+  return NextResponse.json({
+    grades,
+    dateRange: startDate && endDate ? { startDate, endDate } : undefined,
+  });
+});

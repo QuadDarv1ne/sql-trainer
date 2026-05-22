@@ -1,12 +1,8 @@
-import { NextRequest } from 'next/server';
-import { requireAdmin } from '@/lib/api-auth';
+import { NextResponse } from 'next/server';
 import { getSessionAnalysis } from '@/lib/db-users';
+import { withAnalyticsAuth } from '@/lib/api-auth';
 
-export async function GET(request: NextRequest) {
-  const authResult = await requireAdmin();
-  if (authResult.error) return authResult.error;
-
+export const GET = withAnalyticsAuth(() => {
   const sessions = getSessionAnalysis();
-
-  return Response.json({ sessions });
-}
+  return NextResponse.json({ sessions });
+});

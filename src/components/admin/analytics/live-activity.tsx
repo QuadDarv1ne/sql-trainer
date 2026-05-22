@@ -15,12 +15,13 @@ export default function LiveActivity() {
     active_last_24h: number;
   } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const fetchData = () => {
     fetch('/api/admin/analytics/live')
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(setData)
-      .catch(() => {})
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch')))
+      .then(d => { setData(d); setError(''); })
+      .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
   };
 
@@ -29,6 +30,7 @@ export default function LiveActivity() {
   const { refresh, isPaused } = usePolling(fetchData, { intervalMs: 30000 });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
+  if (error) return <p className="text-center py-4 text-destructive">{error}</p>;
   if (!data) return <p className="text-center py-4 text-muted-foreground">{t('analytics.error')}</p>;
 
   return (

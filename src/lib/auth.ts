@@ -10,12 +10,14 @@ import NextAuth, { type DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { JWT } from 'next-auth/jwt';
 import type { User } from 'next-auth';
+import type { UserRole } from '@/lib/db-users';
 
 interface AuthUser {
   id: string;
   name: string;
   email: string;
   phone?: string | null;
+  role: UserRole;
 }
 
 interface AuthSession {
@@ -24,6 +26,7 @@ interface AuthSession {
     name: string;
     email: string;
     phone?: string | null;
+    role: UserRole;
   };
 }
 
@@ -52,6 +55,7 @@ const nextAuthConfig = {
         token.name = user.name;
         token.email = user.email;
         token.phone = user.phone;
+        token.role = (user as AuthUser).role;
       }
       if (trigger === 'update' && session) {
         token.name = session.name ?? token.name;
@@ -65,6 +69,7 @@ const nextAuthConfig = {
         (session as AuthSession).user.name = token.name as string;
         (session as AuthSession).user.email = token.email as string;
         (session as AuthSession).user.phone = token.phone as string | null;
+        (session as AuthSession).user.role = token.role as UserRole;
       }
       return session;
     },

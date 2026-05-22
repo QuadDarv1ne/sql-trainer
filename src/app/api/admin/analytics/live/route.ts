@@ -1,16 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/api-auth';
+import { NextResponse } from 'next/server';
 import { getLiveActivity } from '@/lib/db-users';
+import { withAnalyticsAuth } from '@/lib/api-auth';
 
-export async function GET(request: NextRequest) {
-  const auth = await requireAdmin();
-  if (auth.error) return auth.error;
-
-  try {
-    const live = getLiveActivity();
-    return NextResponse.json(live);
-  } catch (error) {
-    console.error('[LiveActivity] Error:', error);
-    return NextResponse.json({ error: 'Failed to load live activity' }, { status: 500 });
-  }
-}
+export const GET = withAnalyticsAuth(() => {
+  const live = getLiveActivity();
+  return NextResponse.json(live);
+});

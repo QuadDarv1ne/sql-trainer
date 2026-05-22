@@ -59,6 +59,9 @@ function initDatabase(): void {
       updated_at INTEGER NOT NULL
     );
 
+    -- Soft delete migration
+    ALTER TABLE users ADD COLUMN deleted_at INTEGER DEFAULT NULL;
+
     CREATE TABLE IF NOT EXISTS reset_codes (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -90,6 +93,16 @@ function initDatabase(): void {
       achievement_id TEXT NOT NULL REFERENCES achievements(id) ON DELETE CASCADE,
       earned_at INTEGER NOT NULL,
       PRIMARY KEY (user_id, achievement_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS audit_log (
+      id TEXT PRIMARY KEY,
+      actor_id TEXT NOT NULL REFERENCES users(id),
+      action TEXT NOT NULL,
+      target_type TEXT NOT NULL,
+      target_id TEXT,
+      details TEXT,
+      created_at INTEGER NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS deadlines (
@@ -243,7 +256,7 @@ function seedAchievements(db: Database.Database): void {
 }
 
 // User CRUD
-export async function createUser(email: string, name: string, password: string, phone?: string, role: UserRole = 'student'): Promise<{ id: string; email: string; name: string; phone: string | null; role: UserRole } | null> {
+export async function createUser(email: string, name: string, password: string, phone?: string, role: UserRole = 'student', actorId?: string): Promise<{ id: string; email: string; name: string; phone: string | null; role: UserRole } | null> {
   const db = getDb();
   const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
   if (existing) return null;
@@ -259,6 +272,10 @@ export async function createUser(email: string, name: string, password: string, 
   db.prepare('INSERT INTO users (id, email, name, password_hash, phone, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(
     id, email, name, hash, phone || null, role, now, now
   );
+
+  if (actorId) {
+    logAudit(actorId, 'user_created', 'user', id, JSON.stringify({ email, name, role }));
+  }
 
   return { id, email, name, phone: phone || null, role };
 }
@@ -522,24 +539,151 @@ export function getAllUsers(): UserSummary[] {
            (SELECT COUNT(*) FROM user_achievements ua WHERE ua.user_id = u.id) as achievements_count
     FROM users u
     LEFT JOIN user_progress up ON u.id = up.user_id
+    WHERE u.deleted_at IS NULL
     GROUP BY u.id, u.name, u.email, u.phone, u.role, u.created_at, u.last_active
     ORDER BY u.created_at DESC
   `).all() as UserSummary[];
 }
 
-export function updateUserRole(userId: string, role: UserRole): boolean {
+export function updateUserRole(userId: string, role: UserRole, actorId?: string): boolean {
   if (!VALID_ROLES.includes(role)) {
     throw new Error(`Invalid role: ${role}`);
   }
   const db = getDb();
-  const result = db.prepare('UPDATE users SET role = ?, updated_at = ? WHERE id = ?').run(role, Date.now(), userId);
+  const result = db.prepare('UPDATE users SET role = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL').run(role, Date.now(), userId);
+  if (result.changes > 0 && actorId) {
+    logAudit(actorId, 'role_changed', 'user', userId, JSON.stringify({ role }));
+  }
   return result.changes > 0;
 }
 
+/** Update user details (name, email, phone) — returns true if user was updated */
+export function updateUserDetails(userId: string, updates: { name?: string; email?: string; phone?: string | null }, actorId?: string): boolean {
+  const db = getDb();
+  const parts: string[] = [];
+  const values: (string | number | null)[] = [];
+
+  if (updates.name !== undefined) { parts.push('name = ?'); values.push(updates.name); }
+  if (updates.email !== undefined) { parts.push('email = ?'); values.push(updates.email); }
+  if (updates.phone !== undefined) { parts.push('phone = ?'); values.push(updates.phone || null); }
+
+  if (parts.length === 0) return false;
+
+  parts.push('updated_at = ?');
+  values.push(Date.now());
+  values.push(userId);
+
+  const sql = `UPDATE users SET ${parts.join(', ')} WHERE id = ? AND deleted_at IS NULL`;
+  const result = db.prepare(sql).run(...values);
+
+  if (result.changes > 0 && actorId) {
+    logAudit(actorId, 'user_updated', 'user', userId, JSON.stringify(updates));
+  }
+  return result.changes > 0;
+}
+
+/** Soft delete — marks user as deleted without removing data */
+export function softDeleteUser(userId: string, actorId?: string): boolean {
+  const db = getDb();
+  const result = db.prepare('UPDATE users SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL').run(Date.now(), Date.now(), userId);
+  if (result.changes > 0 && actorId) {
+    logAudit(actorId, 'soft_delete', 'user', userId);
+  }
+  return result.changes > 0;
+}
+
+/** Hard delete — permanently removes user and all related data */
 export function deleteUser(userId: string): boolean {
   const db = getDb();
   const result = db.prepare('DELETE FROM users WHERE id = ?').run(userId);
   return result.changes > 0;
+}
+
+/** Restore a soft-deleted user */
+export function restoreUser(userId: string, actorId?: string): boolean {
+  const db = getDb();
+  const result = db.prepare('UPDATE users SET deleted_at = NULL, updated_at = ? WHERE id = ? AND deleted_at IS NOT NULL').run(Date.now(), userId);
+  if (result.changes > 0 && actorId) {
+    logAudit(actorId, 'restore_user', 'user', userId);
+  }
+  return result.changes > 0;
+}
+
+/** Get soft-deleted users for admin panel */
+export function getDeletedUsers(): { id: string; name: string; email: string; role: UserRole; deleted_at: number; created_at: number }[] {
+  const db = getDb();
+  return db.prepare(`
+    SELECT id, name, email, role, deleted_at, created_at
+    FROM users
+    WHERE deleted_at IS NOT NULL
+    ORDER BY deleted_at DESC
+  `).all() as { id: string; name: string; email: string; role: UserRole; deleted_at: number; created_at: number }[];
+}
+
+/** Bulk role update */
+export function bulkUpdateRole(userIds: string[], role: UserRole, actorId?: string): number {
+  if (!VALID_ROLES.includes(role)) {
+    throw new Error(`Invalid role: ${role}`);
+  }
+  const db = getDb();
+  const placeholders = userIds.map(() => '?').join(',');
+  const stmt = db.prepare(`UPDATE users SET role = ?, updated_at = ? WHERE id IN (${placeholders}) AND deleted_at IS NULL`);
+  const result = stmt.run(role, Date.now(), ...userIds);
+  if (result.changes > 0 && actorId) {
+    logAudit(actorId, 'bulk_role_change', 'user', null, JSON.stringify({ userIds, role, changed: result.changes }));
+  }
+  return result.changes;
+}
+
+/** Bulk soft delete */
+export function bulkSoftDelete(userIds: string[], actorId?: string): number {
+  const db = getDb();
+  const placeholders = userIds.map(() => '?').join(',');
+  const now = Date.now();
+  const stmt = db.prepare(`UPDATE users SET deleted_at = ?, updated_at = ? WHERE id IN (${placeholders}) AND deleted_at IS NULL`);
+  const result = stmt.run(now, now, ...userIds);
+  if (result.changes > 0 && actorId) {
+    logAudit(actorId, 'bulk_soft_delete', 'user', null, JSON.stringify({ userIds, deleted: result.changes }));
+  }
+  return result.changes;
+}
+
+/** Log an audit event */
+export function logAudit(actorId: string, action: string, targetType: string, targetId: string | null, details?: string): void {
+  const db = getDb();
+  db.prepare('INSERT INTO audit_log (id, actor_id, action, target_type, target_id, details, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)').run(
+    crypto.randomUUID(), actorId, action, targetType, targetId, details || null, Date.now()
+  );
+}
+
+/** Get audit trail entries for admin panel */
+export function getAuditTrail(limit = 100, offset = 0): {
+  id: string;
+  actor_id: string;
+  actor_name: string;
+  action: string;
+  target_type: string;
+  target_id: string | null;
+  details: string | null;
+  created_at: number;
+}[] {
+  const db = getDb();
+  return db.prepare(`
+    SELECT a.id, a.actor_id, u.name as actor_name, a.action, a.target_type, a.target_id, a.details, a.created_at
+    FROM audit_log a
+    JOIN users u ON a.actor_id = u.id
+    ORDER BY a.created_at DESC
+    LIMIT ? OFFSET ?
+  `).all(limit, offset) as {
+    id: string;
+    actor_id: string;
+    actor_name: string;
+    action: string;
+    target_type: string;
+    target_id: string | null;
+    details: string | null;
+    created_at: number;
+  }[];
 }
 
 export interface StudentProgress {
@@ -2806,7 +2950,7 @@ export function createDeadline(data: {
   targetId?: string;
   taskId?: string;
   dueAt: number;
-}): Deadline {
+}, actorId?: string): Deadline {
   const db = getDb();
   const id = crypto.randomUUID();
   const now = Date.now();
@@ -2814,6 +2958,9 @@ export function createDeadline(data: {
     INSERT INTO deadlines (id, creator_id, type, title, description, target_type, target_id, task_id, due_at, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(id, data.creatorId, data.type, data.title, data.description || null, data.targetType, data.targetId || null, data.taskId || null, data.dueAt, now, now);
+  if (actorId) {
+    logAudit(actorId, 'deadline_created', 'deadline', id, JSON.stringify({ title: data.title, type: data.type, dueAt: data.dueAt }));
+  }
   return getDeadlineById(id)!;
 }
 
@@ -2840,7 +2987,7 @@ export function updateDeadline(id: string, data: {
   targetId?: string;
   taskId?: string;
   dueAt?: number;
-}, creatorId: string): boolean {
+}, creatorId: string, actorId?: string): boolean {
   const db = getDb();
   const existing = getDeadlineById(id);
   if (!existing) return false;
@@ -2862,10 +3009,13 @@ export function updateDeadline(id: string, data: {
   values.push(Date.now());
   values.push(id);
   db.prepare(`UPDATE deadlines SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+  if (actorId) {
+    logAudit(actorId, 'deadline_updated', 'deadline', id, JSON.stringify(data));
+  }
   return true;
 }
 
-export function deleteDeadline(id: string, creatorId: string): boolean {
+export function deleteDeadline(id: string, creatorId: string, actorId?: string): boolean {
   const db = getDb();
   const existing = getDeadlineById(id);
   if (!existing) return false;
@@ -2874,6 +3024,9 @@ export function deleteDeadline(id: string, creatorId: string): boolean {
     if (user?.role !== 'admin') return false;
   }
   db.prepare('DELETE FROM deadlines WHERE id = ?').run(id);
+  if (actorId) {
+    logAudit(actorId, 'deadline_deleted', 'deadline', id, JSON.stringify({ title: existing.title }));
+  }
   return true;
 }
 

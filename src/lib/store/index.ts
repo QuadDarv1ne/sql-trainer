@@ -81,7 +81,10 @@ export const useSQLTrainerStore = create<CombinedState>()(
       // Database slice
       ...createDatabaseSlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),
 
-      // Override markTaskCompleted to include gamification
+      // Progress slice — spread base implementation first to satisfy ProgressSlice type
+      ...createProgressSlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),
+
+      // Override markTaskCompleted to include gamification (cross-slice coordination)
       markTaskCompleted: (taskId: string, attempts: number) => {
         const { checkAndUnlockAchievements, addXP, completedTasks, queryHistory } = get();
 
@@ -108,68 +111,6 @@ export const useSQLTrainerStore = create<CombinedState>()(
           addXP(xpGained);
         }
       },
-      isTaskCompleted: (taskId: string) => get().completedTasks.some((t) => t.taskId === taskId),
-
-      bookmarkedTasks: [],
-      toggleBookmark: (taskId: string) =>
-        set((state) => ({
-          bookmarkedTasks: state.bookmarkedTasks.includes(taskId)
-            ? state.bookmarkedTasks.filter((id) => id !== taskId)
-            : [...state.bookmarkedTasks, taskId],
-        })),
-      isBookmarked: (taskId: string) => get().bookmarkedTasks.includes(taskId),
-
-      streak: {
-        currentStreak: 0,
-        longestStreak: 0,
-        lastPracticeDate: '',
-        totalPracticeDays: 0,
-      },
-      updateStreak: () => {
-        const today = new Date().toISOString().split('T')[0];
-        const { streak } = get();
-        if (streak.lastPracticeDate === today) return;
-
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-        let newCurrentStreak = streak.currentStreak;
-        if (streak.lastPracticeDate === yesterdayStr) {
-          newCurrentStreak += 1;
-        } else if (streak.lastPracticeDate !== today) {
-          newCurrentStreak = 1;
-        }
-
-        set({
-          streak: {
-            currentStreak: newCurrentStreak,
-            longestStreak: Math.max(streak.longestStreak, newCurrentStreak),
-            lastPracticeDate: today,
-            totalPracticeDays: streak.lastPracticeDate !== today ? streak.totalPracticeDays + 1 : streak.totalPracticeDays,
-          },
-        });
-      },
-
-      queryHistory: [],
-      addQueryHistory: (entry) =>
-        set((state) => ({
-          queryHistory: [entry, ...state.queryHistory].slice(0, 50),
-        })),
-      clearHistory: () => set({ queryHistory: [] }),
-
-      savedQueries: [],
-      saveQuery: (query) =>
-        set((state) => ({
-          savedQueries: [
-            { ...query, id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`, createdAt: Date.now() },
-            ...state.savedQueries,
-          ].slice(0, 50),
-        })),
-      deleteSavedQuery: (id: string) =>
-        set((state) => ({
-          savedQueries: state.savedQueries.filter((q) => q.id !== id),
-        })),
 
       // Gamification slice
       ...createGamificationSlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),

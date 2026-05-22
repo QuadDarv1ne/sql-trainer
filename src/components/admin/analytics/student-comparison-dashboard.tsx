@@ -46,7 +46,7 @@ export default function StudentComparisonDashboard() {
     fetch('/api/admin/analytics/students')
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => setStudents((data.students || []).map((s: { user_id: string; name: string }) => ({ id: s.user_id, name: s.name }))))
-      .catch(() => {});
+      .catch(() => setError(t('analytics.error')));
   }, []);
 
   const handleCompare = async () => {

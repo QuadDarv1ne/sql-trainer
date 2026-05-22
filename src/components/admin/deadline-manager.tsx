@@ -63,6 +63,7 @@ export function DeadlineManager() {
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDeadline, setEditDeadline] = useState<Deadline | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const fetchDeadlines = async () => {
@@ -116,7 +117,7 @@ export function DeadlineManager() {
                 <TableHead>{t('deadline.type')}</TableHead>
                 <TableHead>{t('deadline.target')}</TableHead>
                 <TableHead>{t('deadline.dueDate')}</TableHead>
-                <TableHead>Статус</TableHead>
+                <TableHead>{t('deadline.status')}</TableHead>
                 <TableHead className="text-right">{t('admin.users.actions')}</TableHead>
               </TableRow>
             </TableHeader>
@@ -140,14 +141,23 @@ export function DeadlineManager() {
                       <Badge variant={status.variant}>{status.label}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-destructive"
-                        onClick={() => setDeleteId(d.id)}
-                      >
-                        {t('deadline.delete')}
-                      </Button>
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => { setEditDeadline(d); setDialogOpen(true); }}
+                        >
+                          {t('deadline.edit')}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive"
+                          onClick={() => setDeleteId(d.id)}
+                        >
+                          {t('deadline.delete')}
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -159,7 +169,8 @@ export function DeadlineManager() {
 
       <CreateDeadlineDialog
         open={dialogOpen}
-        onOpenChange={setDialogOpen}
+        onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditDeadline(null); }}
+        deadline={editDeadline}
         onSuccess={fetchDeadlines}
       />
 

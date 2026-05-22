@@ -28,7 +28,7 @@ interface AuthSession {
   };
 }
 
-export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
+const nextAuth = NextAuth({
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -93,3 +93,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
   },
   secret: process.env.AUTH_SECRET,
 });
+
+export const { auth, signIn, signOut } = nextAuth;
+export const { GET, POST } = nextAuth.handlers;
+export const handlers = nextAuth.handlers;

@@ -1,16 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/api-auth';
+import { NextResponse } from 'next/server';
 import { getRetentionCohorts } from '@/lib/db-users';
+import { withAnalyticsAuth } from '@/lib/api-auth';
 
-export async function GET(request: NextRequest) {
-  const auth = await requireAdmin();
-  if (auth.error) return auth.error;
-
-  try {
-    const data = getRetentionCohorts();
-    return NextResponse.json(data);
-  } catch (error) {
-    console.error('[RetentionCohorts] Error:', error);
-    return NextResponse.json({ error: 'Failed to load retention cohorts' }, { status: 500 });
-  }
-}
+export const GET = withAnalyticsAuth(() => {
+  const data = getRetentionCohorts();
+  return NextResponse.json(data);
+});
