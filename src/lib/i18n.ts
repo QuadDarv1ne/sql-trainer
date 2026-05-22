@@ -3058,6 +3058,20 @@ export function t(key: string, params?: Record<string, string>): string {
   return value;
 }
 
+/**
+ * Translate with explicit locale without mutating global state.
+ * Safe for server-side concurrent usage.
+ */
+export function tWithLocale(locale: Locale, key: string, params?: Record<string, string>): string {
+  let value = translations[locale]?.[key] || translations.ru[key] || key;
+  if (params) {
+    Object.entries(params).forEach(([k, v]) => {
+      value = value.replace(`{${k}}`, v);
+    });
+  }
+  return value;
+}
+
 export function getPlural(key: string, count: number): string {
   // For now, just return the key and let the caller handle pluralization
   return t(key);

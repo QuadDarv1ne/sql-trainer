@@ -5,7 +5,7 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import { smtpConfig, isEmailConfigured } from './notification-config';
-import { t, setLocale } from './i18n';
+import { tWithLocale, type Locale } from './i18n';
 import { getDb, queueEmail, getDueEmails, markEmailSent, markEmailFailed } from './db-users';
 
 let _transporter: Transporter | null = null;
@@ -54,18 +54,17 @@ export function renderReminderEmail(reminder: {
   is_overdue: boolean;
   description?: string;
 }, locale: string = 'ru'): string {
-  // Temporarily set locale for rendering
-  const prevLocale = locale;
-  setLocale(locale as import('@/lib/i18n').Locale);
+  // Use tWithLocale to avoid mutating global state (race condition in concurrent server environments)
+  const safeLocale = (locale === 'en' ? 'en' : 'ru') as Locale;
 
   const typeLabels: Record<string, string> = {
-    course: t('reminder.course'),
-    exam: t('reminder.exam'),
-    task: t('reminder.task'),
-    inactivity: t('reminder.inactivity'),
+    course: tWithLocale(safeLocale, 'reminder.course'),
+    exam: tWithLocale(safeLocale, 'reminder.exam'),
+    task: tWithLocale(safeLocale, 'reminder.task'),
+    inactivity: tWithLocale(safeLocale, 'reminder.inactivity'),
   };
 
-  const dueDate = new Date(reminder.due_at).toLocaleString(locale === 'ru' ? 'ru-RU' : 'en-US', {
+  const dueDate = new Date(reminder.due_at).toLocaleString(safeLocale === 'ru' ? 'ru-RU' : 'en-US', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -74,8 +73,8 @@ export function renderReminderEmail(reminder: {
   });
 
   const statusText = reminder.is_overdue
-    ? t('reminder.overdue')
-    : t('reminder.dueSoon');
+    ? tWithLocale(safeLocale, 'reminder.overdue')
+    : tWithLocale(safeLocale, 'reminder.dueSoon');
 
   const html = `
     <!DOCTYPE html>
@@ -108,7 +107,7 @@ export function renderReminderEmail(reminder: {
           ${typeLabels[reminder.type] || reminder.type} &middot; ${dueDate}
         </div>
         ${reminder.description ? `<p>${reminder.description}</p>` : ''}
-        <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}" class="cta">${t('email.reminder.viewDeadline')}</a>
+        <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}" class="cta">${tWithLocale(safeLocale, 'email.reminder.viewDeadline')}</a>
       </div>
       <div class="footer">
         SQL Trainer &middot; ${new Date().getFullYear()}
@@ -116,9 +115,6 @@ export function renderReminderEmail(reminder: {
     </body>
     </html>
   `;
-
-  // Restore locale
-  setLocale(prevLocale as import('@/lib/i18n').Locale);
 
   return html;
 }
