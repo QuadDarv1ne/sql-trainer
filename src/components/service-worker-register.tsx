@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 export default function ServiceWorkerRegister() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+      const handler = () => {
         navigator.serviceWorker
           .register('/sw.js')
           .then((registration) => {
@@ -20,7 +20,9 @@ export default function ServiceWorkerRegister() {
           .catch((error) => {
             console.error('[SW] Registration failed:', error);
           });
-      });
+      };
+      window.addEventListener('load', handler);
+      return () => window.removeEventListener('load', handler);
     }
   }, []);
 

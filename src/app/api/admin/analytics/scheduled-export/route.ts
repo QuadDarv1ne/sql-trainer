@@ -39,7 +39,7 @@ export const GET = withAdminAuth(async () => {
   return NextResponse.json({
     scheduledReports: reports.map(r => ({
       ...r,
-      email_recipients: JSON.parse(r.email_recipients),
+      email_recipients: (() => { try { return JSON.parse(r.email_recipients); } catch { return []; } })(),
     })),
   });
 });
@@ -93,10 +93,14 @@ export const DELETE = withAdminAuth(async ({ request }) => {
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
 
-  if (!id) {
-    return NextResponse.json({ error: 'id is required' }, { status: 400 });
+  if (!id || !id.startsWith('sr_')) {
+    return NextResponse.json({ error: 'Invalid report id' }, { status: 400 });
   }
 
-  db.prepare('DELETE FROM scheduled_reports WHERE id = ?').run(id);
+  const result = db.prepare('DELETE FROM scheduled_reports WHERE id = ?').run(id);
+  if (result.changes === 0) {
+    return NextResponse.json({ error: 'Report not found' }, { status: 404 });
+  }
+
   return NextResponse.json({ message: 'Scheduled report deleted' });
 });

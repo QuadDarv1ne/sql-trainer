@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { findUserByEmail, updatePassword } from '@/lib/db-users';
+import { findUserByIdWithHash, updatePassword } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
 
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify current password
-    const user = await findUserByEmail(session.user.email);
+    const user = await findUserByIdWithHash(session.user.id);
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'Пользователь не найден' },

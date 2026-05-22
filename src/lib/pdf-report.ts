@@ -3,6 +3,7 @@
  * Uses window.print() with styled HTML for PDF generation
  */
 import { escapeHtml } from './email';
+import { toast } from 'sonner';
 
 export interface PDFReportOptions {
   title: string;
@@ -832,13 +833,15 @@ const pdfAnalyticsTranslations = {
 
 function openPrintWindow(content: string): void {
   const printWindow = window.open('', '_blank');
-  if (printWindow) {
-    printWindow.document.write(content);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 250);
+  if (!printWindow) {
+    toast.error('Pop-up blocked. Please allow pop-ups for PDF export.');
+    return;
   }
+  printWindow.document.write(content);
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => {
+    printWindow.print();
+    printWindow.close();
+  }, 250);
 }

@@ -561,13 +561,14 @@ function replaceMultiIf(sql: string): string {
 }
 
 function replaceIfFunction(sql: string): string {
-  const regex = /\bif\s*\(/gi;
+  const regex = /(?:^|[\s,(])if\s*\(/gi;
   let result = sql;
   let m: RegExpExecArray | null;
 
   while ((m = regex.exec(result)) !== null) {
-    const startIdx = m.index;
-    const innerStart = m.index + m[0].length;
+    const leadingChar = m[0].length > 3 ? m[0][0] : '';
+    const startIdx = leadingChar ? m.index + 1 : m.index;
+    const innerStart = startIdx + (leadingChar ? m[0].length - 1 : m[0].length);
     const { endIdx, args } = extractFunctionArgs(result, innerStart);
 
     if (args.length >= 3) {

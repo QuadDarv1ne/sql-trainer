@@ -304,6 +304,14 @@ export async function getUserById(userId: string): Promise<{ id: string; email: 
   return user || null;
 }
 
+export async function findUserByIdWithHash(userId: string): Promise<{ id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole } | null> {
+  const db = getDb();
+  const user = db.prepare('SELECT id, email, name, phone, password_hash, role FROM users WHERE id = ?').get(userId) as
+    | { id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole }
+    | undefined;
+  return user || null;
+}
+
 export async function updateUser(userId: string, data: { name?: string; phone?: string; avatar_url?: string; email?: string }): Promise<boolean> {
   const db = getDb();
   const fields: string[] = [];

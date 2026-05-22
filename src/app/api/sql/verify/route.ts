@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeWithSchema, executeWithSchemaMulti } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
+import { rateLimit } from '@/lib/rate-limit';
 
 const MAX_SQL_LENGTH = 10000;
 
@@ -90,6 +91,16 @@ function extractLastSelect(sql: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 20 verification attempts per minute per IP
+    const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
+    const limitResult = rateLimit(`verify:${ip}`, { max: 20, windowMs: 60_000 });
+    if (!limitResult.success) {
+      return NextResponse.json(
+        { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Слишком много попыток. Попробуйте позже' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { sql, taskId, dbType } = body;
 
