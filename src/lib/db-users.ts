@@ -1529,13 +1529,13 @@ export function getStudentPerformanceCards(limit = 20, filters?: TimeRangeFilter
   const streakMap = new Map<string, number>();
   const userStreaks = new Map<string, number>();
   for (const row of streakData) {
-    if (!userStreaks.has(row.user_id)) userStreaks.set(row.user_id, 0);
+    const currentStreak = userStreaks.get(row.user_id) ?? 0;
     if (row.attempts === 1) {
-      userStreaks.set(row.user_id, userStreaks.get(row.user_id)! + 1);
+      userStreaks.set(row.user_id, currentStreak + 1);
     } else {
       userStreaks.set(row.user_id, 0);
     }
-    streakMap.set(row.user_id, Math.max(streakMap.get(row.user_id) || 0, userStreaks.get(row.user_id)!));
+    streakMap.set(row.user_id, Math.max(streakMap.get(row.user_id) ?? 0, userStreaks.get(row.user_id) ?? 0));
   }
 
   const recentMap = new Map(recentData.map(d => [d.user_id, d.recent_count]));
@@ -2255,8 +2255,9 @@ export function getActivityHeatmap(days: number = 90): HeatmapEntry[] {
     const dayOfWeek = d.getDay();
     const weekNum = Math.floor((days - 1 - i) / 7);
 
-    if (entryMap.has(dateStr)) {
-      result.push(entryMap.get(dateStr)!);
+    const entry = entryMap.get(dateStr);
+    if (entry) {
+      result.push(entry);
     } else {
       result.push({ date: dateStr, completions: 0, day_of_week: dayOfWeek, week_number: weekNum });
     }
@@ -2863,11 +2864,13 @@ export function getMasteryProgression(weeks: number = 12, filters?: TimeRangeFil
     if (!weekMap.has(row.week_start)) {
       weekMap.set(row.week_start, { userTasks: new Map() });
     }
-    const week = weekMap.get(row.week_start)!;
+    const week = weekMap.get(row.week_start);
+    if (!week) continue;
     if (!week.userTasks.has(row.user_id)) {
       week.userTasks.set(row.user_id, new Set());
     }
-    week.userTasks.get(row.user_id)!.add(row.task_id);
+    const userSet = week.userTasks.get(row.user_id);
+    if (userSet) userSet.add(row.task_id);
   }
 
   const result: MasteryWeekEntry[] = [];
@@ -5497,13 +5500,11 @@ export function getOnboardingFunnel(filters?: TimeRangeFilters): OnboardingFunne
     const weekStart = new Date(student.created_at);
     weekStart.setDate(weekStart.getDate() - weekStart.getDay());
     const weekKey = weekStart.toISOString().slice(0, 10);
-    if (!weekMap.has(weekKey)) {
-      weekMap.set(weekKey, { registered: 0, first_completed: 0, five_completed: 0 });
-    }
-    const week = weekMap.get(weekKey)!;
+    const week = weekMap.get(weekKey) ?? { registered: 0, first_completed: 0, five_completed: 0 };
     week.registered++;
     if (student.first_completion !== null) week.first_completed++;
     if (student.total_completed >= 5) week.five_completed++;
+    weekMap.set(weekKey, week);
   }
 
   const weeklyTrend = [...weekMap.entries()]
@@ -5582,8 +5583,13 @@ export function getReEngagementMetrics(filters?: TimeRangeFilters): ReEngagement
 
   const studentMap = new Map<string, Array<{ completed_at: number; task_id: string }>>();
   for (const row of students) {
-    if (!studentMap.has(row.id)) studentMap.set(row.id, []);
-    studentMap.get(row.id)!.push({ completed_at: row.completed_at, task_id: row.task_id });
+    const existing = studentMap.get(row.id);
+    if (existing) {
+      existing.push({ completed_at: row.completed_at, task_id: row.task_id });
+    } else {
+      const newArr = [{ completed_at: row.completed_at, task_id: row.task_id }];
+      studentMap.set(row.id, newArr);
+    }
   }
 
   const dayMs = 24 * 60 * 60 * 1000;
@@ -5594,7 +5600,8 @@ export function getReEngagementMetrics(filters?: TimeRangeFilters): ReEngagement
 
   for (const [userId, completions] of studentMap.entries()) {
     if (completions.length < 2) continue;
-    const student = students.find(s => s.id === userId)!;
+    const student = students.find(s => s.id === userId);
+    if (!student) continue;
     let maxGap = 0;
     let reEngagedAt = 0;
     let tasksBeforeGap = 0;
@@ -6987,11 +6994,19 @@ export function getTopicMastery(): {
 
   for (const task of tasks) {
     const cat = task.category || 'general';
-    if (!categoryMap.has(cat)) categoryMap.set(cat, []);
-    categoryMap.get(cat)!.push(task.id);
+    const catEntry = categoryMap.get(cat);
+    if (catEntry) {
+      catEntry.push(task.id);
+    } else {
+      categoryMap.set(cat, [task.id]);
+    }
 
-    if (!difficultyMap.has(task.difficulty)) difficultyMap.set(task.difficulty, []);
-    difficultyMap.get(task.difficulty)!.push(task.id);
+    const diffEntry = difficultyMap.get(task.difficulty);
+    if (diffEntry) {
+      diffEntry.push(task.id);
+    } else {
+      difficultyMap.set(task.difficulty, [task.id]);
+    }
   }
 
   // By category
@@ -7208,8 +7223,12 @@ export function getContentPerformance(filters?: TimeRangeFilters) {
   // Category aggregation
   const categoryMap = new Map<string, typeof taskStats>();
   for (const t of taskStats) {
-    if (!categoryMap.has(t.category)) categoryMap.set(t.category, []);
-    categoryMap.get(t.category)!.push(t);
+    const catEntry = categoryMap.get(t.category);
+    if (catEntry) {
+      catEntry.push(t);
+    } else {
+      categoryMap.set(t.category, [t]);
+    }
   }
 
   const byCategory = Array.from(categoryMap.entries()).map(([category, tasks]) => {
