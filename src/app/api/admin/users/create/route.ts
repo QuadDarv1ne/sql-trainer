@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createUser } from '@/lib/db-users';
 import { withAdminAuth } from '@/lib/api-auth';
+import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 
 const VALID_ROLES = ['student', 'teacher', 'admin'] as const;
 
@@ -24,7 +25,26 @@ export const POST = withAdminAuth(async ({ request, session }) => {
     return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
   }
 
-  const user = await createUser(email, name, password, phone, role || 'student', session.user.id);
+  // Sanitize name
+  const sanitizedName = sanitizeName(name);
+  if (sanitizedName.error) {
+    return NextResponse.json({ error: sanitizedName.error }, { status: 400 });
+  }
+
+  // Sanitize phone (optional field)
+  const sanitizedPhone = phone ? sanitizePhone(phone) : { value: '' };
+  if (sanitizedPhone.error) {
+    return NextResponse.json({ error: sanitizedPhone.error }, { status: 400 });
+  }
+
+  const user = await createUser(
+    email,
+    sanitizedName.value,
+    password,
+    sanitizedPhone.value || undefined,
+    role || 'student',
+    session.user.id
+  );
   if (!user) {
     return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
   }
