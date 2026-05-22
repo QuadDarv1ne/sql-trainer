@@ -21,7 +21,7 @@ export default function RetentionCohorts() {
 
   useEffect(() => {
     fetch('/api/admin/analytics/retention-cohorts')
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch retention cohorts')))
       .then(data => {
         setCohorts(data.cohorts || []);
         setSummary(data.summary);

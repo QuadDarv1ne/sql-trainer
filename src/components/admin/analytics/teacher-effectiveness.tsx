@@ -24,7 +24,7 @@ export default function TeacherEffectiveness() {
 
   useEffect(() => {
     fetch('/api/admin/analytics/teacher-effectiveness')
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch teacher effectiveness')))
       .then(data => {
         setTeachers(data.teachers || []);
         setSummary(data.summary);

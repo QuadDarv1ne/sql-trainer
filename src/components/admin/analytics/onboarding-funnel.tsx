@@ -26,7 +26,7 @@ export default function OnboardingFunnel() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/onboarding?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch onboarding funnel')))
       .then(data => {
         setFunnel(data.funnel || []);
         setWeeklyTrend(data.weekly_trend || []);

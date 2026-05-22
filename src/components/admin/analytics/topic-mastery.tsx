@@ -25,7 +25,7 @@ export default function TopicMastery() {
 
   useEffect(() => {
     fetch('/api/admin/analytics/topic-mastery')
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch topic mastery')))
       .then(data => {
         setByCategory(data.by_category || []);
         setByDifficulty(data.by_difficulty || []);

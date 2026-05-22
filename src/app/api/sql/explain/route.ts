@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { explainQuery } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
+import { z } from 'zod';
+
+const sqlExplainSchema = z.object({
+  sql: z.string().min(1, 'SQL запрос не может быть пустым').max(10000, 'Запрос слишком длинный'),
+  dbType: z.enum(['sqlite', 'postgresql']).optional(),
+  taskId: z.string({ required_error: 'taskId обязателен для EXPLAIN' }).min(1, 'taskId обязателен для EXPLAIN'),
+});
 
 const MAX_SQL_LENGTH = 10000;
 const VALID_DB_TYPES = ['sqlite', 'postgresql'] as const;
@@ -51,28 +58,17 @@ function analyzePlan(plan: string, sql: string): string[] {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { sql, dbType, taskId } = body;
+    const parsed = sqlExplainSchema.safeParse(body);
 
-    if (!sql || typeof sql !== 'string') {
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0]?.message || 'Неверный формат запроса';
       return NextResponse.json(
-        { success: false, error: 'SQL запрос обязателен' },
+        { success: false, error: firstError },
         { status: 400 }
       );
     }
 
-    if (sql.length > MAX_SQL_LENGTH) {
-      return NextResponse.json(
-        { success: false, error: 'Запрос слишком длинный' },
-        { status: 400 }
-      );
-    }
-
-    if (!taskId) {
-      return NextResponse.json(
-        { success: false, error: 'taskId обязателен для EXPLAIN' },
-        { status: 400 }
-      );
-    }
+    const { sql, dbType, taskId } = parsed.data;
 
     const task = getTaskById(taskId);
     if (!task) {

@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery, executeWithSchema } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
+import { z } from 'zod';
+
+const sqlExecuteSchema = z.object({
+  sql: z.string().min(1, 'SQL запрос не может быть пустым').max(10000, 'Запрос слишком длинный'),
+  dbType: z.enum(['sqlite', 'postgresql', 'clickhouse']).optional(),
+  taskId: z.string().optional(),
+});
 
 const MAX_SQL_LENGTH = 10000;
 const VALID_DB_TYPES = ['sqlite', 'postgresql', 'clickhouse'] as const;
@@ -53,21 +60,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { sql, dbType, taskId } = body;
+    const parsed = sqlExecuteSchema.safeParse(body);
 
-    if (!sql || typeof sql !== 'string') {
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0]?.message || 'Неверный формат запроса';
       return NextResponse.json(
-        { success: false, error: 'SQL запрос обязателен', columns: [], rows: [], executionTime: 0 },
+        { success: false, error: firstError, columns: [], rows: [], executionTime: 0 },
         { status: 400 }
       );
     }
 
-    if (sql.length > MAX_SQL_LENGTH) {
-      return NextResponse.json(
-        { success: false, error: `Запрос слишком длинный (макс. ${MAX_SQL_LENGTH} символов)`, columns: [], rows: [], executionTime: 0 },
-        { status: 400 }
-      );
-    }
+    const { sql, dbType, taskId } = parsed.data;
 
     // Validate SQL safety in ALL modes (blocked patterns apply universally)
     const blockReason = validateTrainingSql(sql);

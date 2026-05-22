@@ -31,7 +31,7 @@ export default function StreakAnalytics() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/streaks?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch streak analytics')))
       .then(data => {
         setDistribution(data.distribution || []);
         setTopStreaks(data.top_streaks || []);

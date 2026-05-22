@@ -31,7 +31,7 @@ export default function HintUsageAnalytics() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/hint-usage?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch hint usage analytics')))
       .then(data => {
         setTotalHints(data.total_hints_revealed || 0);
         setUniqueStudents(data.unique_students_used_hints || 0);

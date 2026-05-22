@@ -29,7 +29,7 @@ export default function DifficultyCalibration() {
 
   useEffect(() => {
     fetch('/api/admin/analytics/difficulty-calibration')
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch difficulty calibration')))
       .then(data => {
         setTasks(data.tasks || []);
         setMisclassifiedCount(data.misclassified_count || 0);

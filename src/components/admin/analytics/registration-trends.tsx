@@ -25,7 +25,7 @@ export default function RegistrationTrends() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/registrations?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch registration trends')))
       .then(data => {
         setDaily(data.daily || []);
         setWeekly(data.weekly || []);

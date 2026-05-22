@@ -64,7 +64,7 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
     setError('');
     setData(null);
     fetch(`/api/admin/analytics/student/${studentId}/academic-summary`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch student academic profile')))
       .then(d => setData(d.academicSummary))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));

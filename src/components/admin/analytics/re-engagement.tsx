@@ -33,7 +33,7 @@ export default function ReEngagement() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/re-engagement?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch re-engagement data')))
       .then(data => {
         setReEngagedStudents(data.re_engaged_students || []);
         setBringBackTasks(data.bring_back_tasks || []);

@@ -44,7 +44,7 @@ export default function RecommendationsPanel() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/recommendations?${params}`)
-      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch recommendations')))
       .then((data) => setData(data.recommendations))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));

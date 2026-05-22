@@ -24,7 +24,7 @@ export default function ABTest() {
   useEffect(() => {
     setLoading(true);
     fetch(`/api/admin/analytics/ab-test?testType=${testType}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch AB test data')))
       .then(setData)
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));

@@ -105,7 +105,7 @@ export function generateStudentReportPDF(
       <div class="info">
         <div class="info-row"><span class="label">${tr.name}:</span><span class="value">${escapeHtml(student.name)}</span></div>
         <div class="info-row"><span class="label">${tr.email}:</span><span class="value">${escapeHtml(student.email)}</span></div>
-        <div class="info-row"><span class="label">${tr.lastActive}:</span><span class="value">${student.last_active ? new Date(student.last_active).toLocaleDateString(localeCode) : tr.noActivity}</span></div>
+        <div class="info-row"><span class="label">${tr.lastActive}:</span><span class="value">${escapeHtml(student.last_active ? new Date(student.last_active).toLocaleDateString(localeCode) : tr.noActivity)}</span></div>
       </div>
 
       <h2>${tr.performanceStats}</h2>
@@ -356,7 +356,7 @@ export function generateAnalyticsPDF(
   if (sections.includes('notifications') && data.notifications) {
     const n = data.notifications;
     const channelRows = n.channels.map(c =>
-      `<tr><td>${c.channel}</td><td>${c.sent}</td><td>${c.delivered}</td><td>${c.failed}</td><td>${c.success_rate}%</td></tr>`
+      `<tr><td>${escapeHtml(c.channel)}</td><td>${c.sent}</td><td>${c.delivered}</td><td>${c.failed}</td><td>${c.success_rate}%</td></tr>`
     ).join('');
     sectionsHTML += `
       <div class="section">

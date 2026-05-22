@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
 import { Loader2, Mail, Lock, AlertCircle } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -32,14 +33,14 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        setError('Неверный email или пароль');
+        setError(t('auth.login.invalidCredentials'));
         return;
       }
 
       router.push(callbackUrl);
       router.refresh();
     } catch {
-      setError('Ошибка входа. Попробуйте снова.');
+      setError(t('auth.login.error'));
     } finally {
       setLoading(false);
     }

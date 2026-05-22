@@ -35,7 +35,7 @@ export default function ClassReport() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/class-report?${params}`)
-      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch class report')))
       .then((data) => setReport(data.report))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));

@@ -44,7 +44,7 @@ export default function StudentComparisonDashboard() {
   // Load student list
   useEffect(() => {
     fetch('/api/admin/analytics/students')
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch student comparison')))
       .then(data => setStudents((data.students || []).map((s: { user_id: string; name: string }) => ({ id: s.user_id, name: s.name }))))
       .catch(() => setError(t('analytics.error')));
   }, []);

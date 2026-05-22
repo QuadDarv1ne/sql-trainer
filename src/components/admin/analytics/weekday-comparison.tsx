@@ -32,7 +32,7 @@ export default function WeekdayComparison() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/weekday-comparison?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch weekday comparison')))
       .then(data => {
         setWeekday(data.weekday);
         setWeekend(data.weekend);

@@ -55,7 +55,7 @@ export default function NotificationAnalytics() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/notifications?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch notification analytics')))
       .then(data => {
         setChannels(data.by_channel || []);
         setEmailQueue(data.email_queue);

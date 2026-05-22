@@ -52,7 +52,7 @@ export default function AlertsPanel() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/alerts?${params}`)
-      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch alerts')))
       .then((data) => setAlerts(data.alerts))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));

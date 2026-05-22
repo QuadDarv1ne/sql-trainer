@@ -40,7 +40,7 @@ export default function AuditLog() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/audit?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch audit log')))
       .then(data => {
         setEntries(data.entries || []);
         setSummary(data.summary);

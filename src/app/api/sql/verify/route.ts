@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeWithSchema, executeWithSchemaMulti } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
+import { z } from 'zod';
+
+const sqlVerifySchema = z.object({
+  sql: z.string().min(1, 'SQL запрос не может быть пустым').max(10000, 'Запрос слишком длинный'),
+  taskId: z.string({ required_error: 'taskId обязателен' }).min(1, 'taskId обязателен'),
+  dbType: z.string().optional(),
+});
 
 const MAX_SQL_LENGTH = 10000;
 
@@ -102,28 +109,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { sql, taskId, dbType } = body;
+    const parsed = sqlVerifySchema.safeParse(body);
 
-    if (!sql || typeof sql !== 'string') {
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0]?.message || 'Неверный формат запроса';
       return NextResponse.json(
-        { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'SQL запрос обязателен' },
+        { verified: false, userRowCount: 0, expectedRowCount: 0, message: firstError },
         { status: 400 }
       );
     }
 
-    if (sql.length > MAX_SQL_LENGTH) {
-      return NextResponse.json(
-        { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Запрос слишком длинный' },
-        { status: 400 }
-      );
-    }
-
-    if (!taskId) {
-      return NextResponse.json(
-        { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'taskId обязателен' },
-        { status: 400 }
-      );
-    }
+    const { sql, taskId, dbType } = parsed.data;
 
     const task = getTaskById(taskId);
     if (!task) {

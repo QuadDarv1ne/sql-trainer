@@ -61,6 +61,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'auth.strength.strong': 'Надёжный',
     'auth.passwordsMatch': 'Пароли совпадают',
     'auth.passwordsNoMatchLive': 'Пароли не совпадают',
+    'auth.login.invalidCredentials': 'Неверный email или пароль',
+    'auth.login.error': 'Ошибка входа. Попробуйте снова.',
 
     // Progress
     'progress.label': 'Прогресс',
@@ -1596,6 +1598,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'auth.strength.strong': 'Strong',
     'auth.passwordsMatch': 'Passwords match',
     'auth.passwordsNoMatchLive': 'Passwords do not match',
+    'auth.login.invalidCredentials': 'Invalid email or password',
+    'auth.login.error': 'Login error. Please try again.',
 
     // Progress
     'progress.label': 'Progress',

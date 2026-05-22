@@ -56,7 +56,7 @@ export default function DeadlineCompliance() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/deadline-compliance?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch deadline compliance')))
       .then(data => {
         setDeadlines(data.deadlines || []);
         setOverdueStudents(data.overdue_students || []);
