@@ -38,10 +38,9 @@ export async function POST(request: NextRequest) {
       },
       schema: schemaInfo,
     });
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : 'Внутренняя ошибка сервера';
+  } catch (_err: unknown) {
     return NextResponse.json(
-      { success: false, error: errorMsg },
+      { success: false, error: 'Произошла внутренняя ошибка' },
       { status: 500 }
     );
   }
@@ -59,10 +58,9 @@ export async function GET() {
     }));
 
     return NextResponse.json({ success: true, tasks: tasksList });
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : 'Внутренняя ошибка сервера';
+  } catch (_err: unknown) {
     return NextResponse.json(
-      { success: false, error: errorMsg },
+      { success: false, error: 'Произошла внутренняя ошибка' },
       { status: 500 }
     );
   }

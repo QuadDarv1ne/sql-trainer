@@ -145,7 +145,12 @@ export async function processEmailQueue(): Promise<{ sent: number; failed: numbe
   let failed = 0;
 
   for (const email of emails) {
-    const result = await sendEmail(getUserEmail(email.user_id) || '', email.subject, email.body_html);
+    const recipient = getUserEmail(email.user_id);
+    if (!recipient) {
+      // User has no email — skip silently
+      continue;
+    }
+    const result = await sendEmail(recipient, email.subject, email.body_html);
     if (result.success) {
       markEmailSent(email.id);
       sent++;

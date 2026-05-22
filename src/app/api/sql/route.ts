@@ -92,10 +92,9 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(result);
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : 'Внутренняя ошибка сервера';
+  } catch (_err: unknown) {
     return NextResponse.json(
-      { success: false, error: errorMsg, columns: [], rows: [], executionTime: 0 },
+      { success: false, error: 'Произошла внутренняя ошибка', columns: [], rows: [], executionTime: 0 },
       { status: 500 }
     );
   }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { findUserByIdWithHash, updateUser } from '@/lib/db-users';
+import { findUserByIdWithHash, findUserByEmail, updateUser } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
 

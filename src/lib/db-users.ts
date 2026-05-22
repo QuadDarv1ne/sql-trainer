@@ -374,41 +374,45 @@ export async function verifyResetCode(code: string): Promise<{ userId: string; t
 // Progress
 export async function saveUserProgress(userId: string, taskId: string, attempts: number): Promise<void> {
   const db = getDb();
-  const now = Date.now();
-  db.prepare(
-    'INSERT INTO user_progress (user_id, task_id, completed_at, attempts) VALUES (?, ?, ?, ?) ON CONFLICT(user_id, task_id) DO UPDATE SET completed_at = ?, attempts = ?'
-  ).run(userId, taskId, now, attempts, now, attempts);
+  const saveProgress = db.transaction(() => {
+    const now = Date.now();
+    db.prepare(
+      'INSERT INTO user_progress (user_id, task_id, completed_at, attempts) VALUES (?, ?, ?, ?) ON CONFLICT(user_id, task_id) DO UPDATE SET completed_at = ?, attempts = ?'
+    ).run(userId, taskId, now, attempts, now, attempts);
 
-  // Calculate daily streak
-  const user = db.prepare(
-    'SELECT streak_current, streak_longest, last_practice_date FROM users WHERE id = ?'
-  ).get(userId) as { streak_current: number; streak_longest: number; last_practice_date: number | null } | undefined;
+    // Calculate daily streak
+    const user = db.prepare(
+      'SELECT streak_current, streak_longest, last_practice_date FROM users WHERE id = ?'
+    ).get(userId) as { streak_current: number; streak_longest: number; last_practice_date: number | null } | undefined;
 
-  const todayStart = new Date(now);
-  todayStart.setHours(0, 0, 0, 0);
-  const todayTs = todayStart.getTime();
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    const todayTs = todayStart.getTime();
 
-  let newStreak = 1;
-  if (user?.last_practice_date) {
-    const lastPracticeDay = new Date(user.last_practice_date);
-    lastPracticeDay.setHours(0, 0, 0, 0);
-    const dayDiff = (todayTs - lastPracticeDay.getTime()) / (1000 * 60 * 60 * 24);
+    let newStreak = 1;
+    if (user?.last_practice_date) {
+      const lastPracticeDay = new Date(user.last_practice_date);
+      lastPracticeDay.setHours(0, 0, 0, 0);
+      const dayDiff = (todayTs - lastPracticeDay.getTime()) / (1000 * 60 * 60 * 24);
 
-    if (dayDiff === 0) {
-      // Same day — keep current streak
-      newStreak = user.streak_current || 1;
-    } else if (dayDiff === 1) {
-      // Consecutive day — increment streak
-      newStreak = (user.streak_current || 0) + 1;
+      if (dayDiff === 0) {
+        // Same day — keep current streak
+        newStreak = user.streak_current || 1;
+      } else if (dayDiff === 1) {
+        // Consecutive day — increment streak
+        newStreak = (user.streak_current || 0) + 1;
+      }
+      // else: gap > 1 day, reset to 1
     }
-    // else: gap > 1 day, reset to 1
-  }
 
-  const newLongest = Math.max(newStreak, user?.streak_longest || 0);
+    const newLongest = Math.max(newStreak, user?.streak_longest || 0);
 
-  db.prepare(
-    'UPDATE users SET last_active = ?, last_practice_date = ?, streak_current = ?, streak_longest = ? WHERE id = ?'
-  ).run(todayTs, todayTs, newStreak, newLongest, userId);
+    db.prepare(
+      'UPDATE users SET last_active = ?, last_practice_date = ?, streak_current = ?, streak_longest = ? WHERE id = ?'
+    ).run(todayTs, todayTs, newStreak, newLongest, userId);
+  });
+
+  saveProgress();
 }
 
 export async function getUserProgress(userId: string): Promise<{ task_id: string; completed_at: number; attempts: number }[]> {

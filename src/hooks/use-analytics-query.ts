@@ -79,7 +79,7 @@ export function useAnalyticsQuery<T = unknown>({
     } finally {
       setLoading(false);
     }
-  }, [endpoint, dataKey, startDate, endDate, params]);
+  }, [endpoint, dataKey, startDate, endDate, JSON.stringify(params)]);
 
   useEffect(() => {
     if (!enabled) {

@@ -69,6 +69,10 @@ export const POST = withAdminAuth(async ({ session, request }) => {
     return NextResponse.json({ error: 'reportType is required' }, { status: 400 });
   }
 
+  if (!Array.isArray(emailRecipients)) {
+    return NextResponse.json({ error: 'emailRecipients must be an array' }, { status: 400 });
+  }
+
   const id = `sr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const now = Date.now();
 

@@ -146,10 +146,9 @@ export async function POST(request: NextRequest) {
 
     // For pure SELECT queries, use the original approach
     return verifySelectOnly(sql, task, effectiveDbType);
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : 'Внутренняя ошибка сервера';
+  } catch (_err: unknown) {
     return NextResponse.json(
-      { verified: false, userRowCount: 0, expectedRowCount: 0, message: errorMsg },
+      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Произошла внутренняя ошибка' },
       { status: 500 }
     );
   }
