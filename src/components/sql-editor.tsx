@@ -450,6 +450,63 @@ export default function SQLEditor({
     };
   }, []);
 
+  // Update theme when it changes by recreating the view with new theme
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view || !containerRef.current) return;
+
+    const currentValue = view.state.doc.toString();
+    view.destroy();
+
+    const isDark = theme !== 'light';
+    const customTheme = isDark ? EditorView.theme({
+      '&': { height: '100%', fontSize: '14px' },
+      '.cm-scroller': { overflow: 'auto', fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace" },
+      '.cm-content': { padding: '12px 0', minHeight: '100%' },
+      '.cm-gutters': { backgroundColor: 'transparent', borderRight: '1px solid #333', color: '#666' },
+      '&.cm-focused .cm-cursor': { borderLeftColor: '#10b981', borderLeftWidth: '2px' },
+      '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': { backgroundColor: '#264f78 !important' },
+      '.cm-activeLine': { backgroundColor: 'rgba(16, 185, 129, 0.06)' },
+      '.cm-activeLineGutter': { backgroundColor: 'rgba(16, 185, 129, 0.1)' },
+    }) : lightTheme;
+
+    const state = EditorState.create({
+      doc: currentValue,
+      extensions: [
+        lineNumbers(),
+        highlightActiveLineGutter(),
+        highlightSpecialChars(),
+        history(),
+        drawSelection(),
+        EditorState.allowMultipleSelections.of(true),
+        syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+        bracketMatching(),
+        closeBrackets(),
+        highlightActiveLine(),
+        sql(
+          schemaRef.current
+            ? { schema: Object.fromEntries(schemaRef.current.tables.map((t) => [t.name, { columns: t.columns.map((c) => c.name) }])) as Record<string, { columns: string[] }> }
+            : undefined
+        ),
+        autocompletion({
+          override: [(context) => createSchemaCompletion(schemaRef.current)?.(context)],
+        }),
+        ...(isDark ? [oneDark] : []),
+        customTheme,
+        keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...searchKeymap, ...historyKeymap, ...completionKeymap]),
+        keymap.of([
+          { key: 'Mod-Enter', run: () => { onRunRef.current?.(); return true; } },
+          { key: 'Tab', run: (v) => { v.dispatch({ changes: { from: v.state.selection.main.from, to: v.state.selection.main.to, insert: '  ' } }); return true; } },
+          { key: 'Mod-Shift-f', run: () => { onFormatSQLRef.current?.(); return true; } },
+        ]),
+        EditorView.updateListener.of((update) => { if (update.docChanged) onChangeRef.current(update.state.doc.toString()); }),
+        EditorView.lineWrapping,
+      ],
+    });
+
+    viewRef.current = new EditorView({ state, parent: containerRef.current });
+  }, [theme]);
+
   // Update content from outside
   useEffect(() => {
     const view = viewRef.current;

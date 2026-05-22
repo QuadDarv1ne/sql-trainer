@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { findUserByEmail, updateUser } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ success: false, error: 'Не авторизован' }, { status: 401 });
+    }
+
+    // Rate limit: 5 attempts per 15 minutes per user
+    const limit = rateLimit(`change-email:${session.user.id}`, { max: 5, windowMs: 15 * 60 * 1000 });
+    if (!limit.success) {
+      return NextResponse.json(
+        { success: false, error: 'Слишком много попыток. Попробуйте позже' },
+        { status: 429 }
+      );
     }
 
     const body = await request.json();

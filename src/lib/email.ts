@@ -47,6 +47,15 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
   }
 }
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 export function renderReminderEmail(reminder: {
   title: string;
   type: string;
@@ -76,6 +85,9 @@ export function renderReminderEmail(reminder: {
     ? tWithLocale(safeLocale, 'reminder.overdue')
     : tWithLocale(safeLocale, 'reminder.dueSoon');
 
+  const escapedTitle = escapeHtml(reminder.title);
+  const escapedDescription = reminder.description ? escapeHtml(reminder.description) : '';
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -102,11 +114,11 @@ export function renderReminderEmail(reminder: {
       </div>
       <div class="content">
         <span class="badge ${reminder.is_overdue ? 'badge-danger' : 'badge-warning'}">${statusText}</span>
-        <div class="deadline-title">${reminder.title}</div>
+        <div class="deadline-title">${escapedTitle}</div>
         <div class="deadline-meta">
           ${typeLabels[reminder.type] || reminder.type} &middot; ${dueDate}
         </div>
-        ${reminder.description ? `<p>${reminder.description}</p>` : ''}
+        ${escapedDescription ? `<p>${escapedDescription}</p>` : ''}
         <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}" class="cta">${tWithLocale(safeLocale, 'email.reminder.viewDeadline')}</a>
       </div>
       <div class="footer">

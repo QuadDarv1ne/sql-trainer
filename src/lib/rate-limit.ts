@@ -11,6 +11,16 @@ interface RateLimitEntry {
 
 const store = new Map<string, RateLimitEntry>();
 
+// Maximum number of entries to keep in memory before evicting oldest
+const MAX_ENTRIES = 10_000;
+
+// Automatic cleanup of expired entries every 5 minutes
+const cleanupInterval = setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
+// Prevent interval from keeping the process alive
+if (typeof cleanupInterval.unref === 'function') {
+  cleanupInterval.unref();
+}
+
 export interface RateLimitOptions {
   /** Maximum number of requests allowed in the window */
   max: number;
@@ -39,6 +49,12 @@ export function rateLimit(key: string, options: RateLimitOptions): RateLimitResu
 
   if (!entry || now > entry.resetAt) {
     // First request or window expired — start fresh
+    // Evict oldest entries if at capacity
+    if (!entry && store.size >= MAX_ENTRIES) {
+      const oldestKey = store.keys().next().value;
+      if (oldestKey) store.delete(oldestKey);
+    }
+
     const resetAt = now + windowMs;
     store.set(key, { count: 1, resetAt });
     return { success: true, remaining: max - 1, resetAt, limit: max };

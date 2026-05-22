@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { findUserByEmail, getDb } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function DELETE(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ success: false, error: 'Не авторизован' }, { status: 401 });
+    }
+
+    // Rate limit: 3 attempts per 15 minutes per user
+    const limit = rateLimit(`delete-account:${session.user.id}`, { max: 3, windowMs: 15 * 60 * 1000 });
+    if (!limit.success) {
+      return NextResponse.json(
+        { success: false, error: 'Слишком много попыток. Попробуйте позже' },
+        { status: 429 }
+      );
     }
 
     const body = await request.json();

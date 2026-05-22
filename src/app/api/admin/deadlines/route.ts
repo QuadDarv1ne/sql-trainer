@@ -2,6 +2,23 @@ import { withTeacherAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { createDeadline, getAllDeadlines, getDeadlinesForCreator, buildReminderSchedule } from '@/lib/db-users';
 import { hasRole } from '@/lib/rbac';
+import { z } from 'zod';
+
+const deadlineSchema = z.object({
+  type: z.enum(['course', 'exam', 'task', 'inactivity']),
+  title: z.string().min(1, 'Title is required').max(200, 'Title must be 200 characters or less').refine(
+    (s) => !/<[^>]*>/.test(s),
+    'HTML content is not allowed in title'
+  ),
+  description: z.string().max(2000, 'Description must be 2000 characters or less').refine(
+    (s) => !/<[^>]*>/.test(s),
+    'HTML content is not allowed in description'
+  ).optional(),
+  targetType: z.enum(['individual', 'group', 'all_students']),
+  targetId: z.string().optional(),
+  taskId: z.string().optional(),
+  dueAt: z.number().or(z.string()).transform(Number),
+});
 
 export const GET = withTeacherAuth(async ({ session, request }) => {
   const { searchParams } = new URL(request.url);
@@ -20,21 +37,16 @@ export const GET = withTeacherAuth(async ({ session, request }) => {
 
 export const POST = withTeacherAuth(async ({ session, request }) => {
   const body = await request.json();
-  const { type, title, description, targetType, targetId, taskId, dueAt } = body;
 
-  if (!type || !title || !targetType || !dueAt) {
-    return NextResponse.json({ error: 'Missing required fields: type, title, targetType, dueAt' }, { status: 400 });
+  const parsed = deadlineSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.errors.map((e) => e.message).join('; ') },
+      { status: 400 }
+    );
   }
 
-  const validTypes = ['course', 'exam', 'task', 'inactivity'];
-  if (!validTypes.includes(type)) {
-    return NextResponse.json({ error: `Invalid type. Must be one of: ${validTypes.join(', ')}` }, { status: 400 });
-  }
-
-  const validTargetTypes = ['individual', 'group', 'all_students'];
-  if (!validTargetTypes.includes(targetType)) {
-    return NextResponse.json({ error: `Invalid targetType. Must be one of: ${validTargetTypes.join(', ')}` }, { status: 400 });
-  }
+  const { type, title, description, targetType, targetId, taskId, dueAt } = parsed.data;
 
   const deadline = createDeadline({
     creatorId: session.user.id,

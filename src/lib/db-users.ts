@@ -347,14 +347,20 @@ export async function createResetCode(userId: string, type: 'email' | 'phone'): 
 
 export async function verifyResetCode(code: string): Promise<{ userId: string; type: string } | null> {
   const db = getDb();
+  const now = Date.now();
+
+  // Atomic UPDATE with WHERE clause prevents race condition where concurrent requests could both pass the used===0 check
+  const result = db.prepare(
+    'UPDATE reset_codes SET used = 1 WHERE code = ? AND used = 0 AND expires_at > ?'
+  ).run(code, now);
+
+  if (result.changes === 0) return null;
+
   const record = db.prepare(
-    'SELECT user_id, type, expires_at, used FROM reset_codes WHERE code = ? ORDER BY expires_at DESC LIMIT 1'
-  ).get(code) as { user_id: string; type: string; expires_at: number; used: number } | undefined;
+    'SELECT user_id, type FROM reset_codes WHERE code = ?'
+  ).get(code) as { user_id: string; type: string } | undefined;
 
-  if (!record || record.used === 1 || record.expires_at < Date.now()) return null;
-
-  db.prepare('UPDATE reset_codes SET used = 1 WHERE code = ?').run(code);
-  return { userId: record.user_id, type: record.type };
+  return record ? { userId: record.user_id, type: record.type } : null;
 }
 
 // Progress
