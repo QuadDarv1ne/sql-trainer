@@ -72,7 +72,9 @@ export function withAdminAuth(
     context?: { params?: Promise<Record<string, string>> | Record<string, string> }
   ): Promise<NextResponse> => {
     const authResult = await requireAdmin();
-    if (authResult.error) return authResult.error;
+    if (!authResult.session) {
+      return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
+    }
 
     const params = context?.params
       ? 'then' in context.params
@@ -80,7 +82,7 @@ export function withAdminAuth(
         : context.params
       : undefined;
 
-    return handler({ session: authResult.session!, request, params });
+    return handler({ session: authResult.session, request, params });
   };
 }
 
@@ -92,7 +94,9 @@ export function withTeacherAuth(
     context?: { params?: Promise<Record<string, string>> | Record<string, string> }
   ): Promise<NextResponse> => {
     const authResult = await requireTeacher();
-    if (authResult.error) return authResult.error;
+    if (!authResult.session) {
+      return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
+    }
 
     const params = context?.params
       ? 'then' in context.params
@@ -100,7 +104,7 @@ export function withTeacherAuth(
         : context.params
       : undefined;
 
-    return handler({ session: authResult.session!, request, params });
+    return handler({ session: authResult.session, request, params });
   };
 }
 
@@ -114,14 +118,16 @@ export function withAnalyticsAuth(
 ) {
   return async (request: Request): Promise<NextResponse> => {
     const authResult = await requireAdmin();
-    if (authResult.error) return authResult.error;
+    if (!authResult.session) {
+      return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
+    }
 
     const url = new URL(request.url);
     const searchParams = url.searchParams;
     const { startDate, endDate } = parseDateParams(searchParams);
 
     return handler({
-      session: authResult.session!,
+      session: authResult.session,
       startDate,
       endDate,
       searchParams,

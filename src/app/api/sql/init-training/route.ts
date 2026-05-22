@@ -48,14 +48,22 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  // Return all tasks (without schema to reduce payload)
-  const tasksList = TRAINING_TASKS.map((t) => ({
-    id: t.id,
-    title: t.title,
-    description: t.description,
-    difficulty: t.difficulty,
-    dbType: t.dbType,
-  }));
+  try {
+    // Return all tasks (without schema to reduce payload)
+    const tasksList = TRAINING_TASKS.map((t) => ({
+      id: t.id,
+      title: t.title,
+      description: t.description,
+      difficulty: t.difficulty,
+      dbType: t.dbType,
+    }));
 
-  return NextResponse.json({ success: true, tasks: tasksList });
+    return NextResponse.json({ success: true, tasks: tasksList });
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Внутренняя ошибка сервера';
+    return NextResponse.json(
+      { success: false, error: errorMsg },
+      { status: 500 }
+    );
+  }
 }
