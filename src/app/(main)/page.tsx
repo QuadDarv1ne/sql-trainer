@@ -122,15 +122,29 @@ export default function HomePage() {
   const { data: session } = useSession();
   const [schemaInfo, setSchemaInfo] = useState<DatabaseInfo | null>(null);
   const attemptCountRef = useRef(0);
-  const [mounted, setMounted] = useState(() => typeof window !== 'undefined');
+  const practiceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => {
+      if (practiceTimerRef.current) {
+        clearTimeout(practiceTimerRef.current);
+      }
+    };
+  }, []);
   const [explainPlan, setExplainPlan] = useState<string | null>(null);
   const [explainSuggestions, setExplainSuggestions] = useState<string[]>([]);
 
   // Load server progress on mount for authenticated users
   useEffect(() => {
     if (!session?.user) return;
-    fetch('/api/user/progress')
-      .then((res) => res.json())
+    const controller = new AbortController();
+    fetch('/api/user/progress', { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         if (data.success && data.progress?.length > 0) {
           const { markTaskCompleted, isTaskCompleted } = useSQLTrainerStore.getState();
@@ -141,7 +155,12 @@ export default function HomePage() {
           });
         }
       })
-      .catch((e) => logger.error('Failed to sync server progress', e));
+      .catch((e) => {
+        if (e.name !== 'AbortError') {
+          logger.error('Failed to sync server progress', e);
+        }
+      });
+    return () => { controller.abort(); };
   }, [session?.user]);
 
   // Get current task
@@ -242,7 +261,10 @@ export default function HomePage() {
 
             // Auto-advance in practice mode
             if (practiceMode.active) {
-              setTimeout(() => nextPracticeTask(), 1500);
+              practiceTimerRef.current = setTimeout(() => {
+                practiceTimerRef.current = null;
+                nextPracticeTask();
+              }, 1500);
             }
 
             // Sync progress to server for authenticated users
@@ -255,11 +277,15 @@ export default function HomePage() {
                   attempts: attemptCountRef.current,
                 }),
               })
-                .then(() =>
+                .then((res) => {
+                  if (!res.ok) throw new Error(`HTTP ${res.status}`);
                   // Check for new achievements after progress sync
-                  fetch('/api/user/achievements?check=true')
-                )
-                .then((res) => res.json())
+                  return fetch('/api/user/achievements?check=true');
+                })
+                .then((res) => {
+                  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                  return res.json();
+                })
                 .then((data) => {
                   if (data.success && data.newAchievements?.length > 0) {
                     data.newAchievements.forEach((achievement: { id: string; title: string }) => {

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { Bell } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { toast } from 'sonner';
 import { PendingReminder } from '@/lib/db-users';
 import { Button } from '@/components/ui/button';
 import {
@@ -47,8 +48,9 @@ export function ReminderBell() {
       const res = await fetch('/api/user/reminders');
       const data = await res.json();
       if (res.ok) setReminders(data.reminders || []);
+      else throw new Error(data.error || 'Failed to load reminders');
     } catch (err) {
-      console.error(err);
+      toast.error(err instanceof Error ? err.message : t('teacher.error'));
     }
   }, [session?.user?.id]);
 

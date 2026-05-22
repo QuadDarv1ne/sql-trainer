@@ -62,16 +62,19 @@ function getTimeStatus(dueAt: number): { label: string; variant: 'destructive' |
 export function TeacherDeadlineManager() {
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const fetchDeadlines = async () => {
     try {
+      setError(null);
       const res = await fetch('/api/admin/deadlines');
       const data = await res.json();
       if (res.ok) setDeadlines(data.deadlines || []);
+      else throw new Error(data.error || 'Failed to load deadlines');
     } catch (err) {
-      console.error(err);
+      setError(err instanceof Error ? err.message : t('teacher.error'));
     } finally {
       setLoading(false);
     }
@@ -96,6 +99,17 @@ export function TeacherDeadlineManager() {
 
   if (loading) return <div className="p-8 text-center">{t('teacher.loading')}</div>;
 
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-destructive">{error}</p>
+        <Button variant="outline" size="sm" className="mt-2" onClick={fetchDeadlines}>
+          {t('admin.users.retry', { default: 'Retry' })}
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -116,7 +130,7 @@ export function TeacherDeadlineManager() {
                 <TableHead>{t('deadline.type')}</TableHead>
                 <TableHead>{t('deadline.target')}</TableHead>
                 <TableHead>{t('deadline.dueDate')}</TableHead>
-                <TableHead>Статус</TableHead>
+                <TableHead>{t('deadline.status')}</TableHead>
                 <TableHead className="text-right">{t('admin.users.actions')}</TableHead>
               </TableRow>
             </TableHeader>

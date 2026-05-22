@@ -62,17 +62,20 @@ function getTimeStatus(dueAt: number): { label: string; variant: 'destructive' |
 export function DeadlineManager() {
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDeadline, setEditDeadline] = useState<Deadline | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const fetchDeadlines = async () => {
     try {
+      setError(null);
       const res = await fetch('/api/admin/deadlines?scope=all');
       const data = await res.json();
       if (res.ok) setDeadlines(data.deadlines || []);
+      else throw new Error(data.error || 'Failed to load deadlines');
     } catch (err) {
-      console.error(err);
+      setError(err instanceof Error ? err.message : t('admin.stats.loading'));
     } finally {
       setLoading(false);
     }
@@ -96,6 +99,17 @@ export function DeadlineManager() {
   };
 
   if (loading) return <div className="p-8 text-center">{t('admin.stats.loading')}</div>;
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-destructive">{error}</p>
+        <Button variant="outline" size="sm" className="mt-2" onClick={fetchDeadlines}>
+          {t('admin.users.retry', { default: 'Retry' })}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <Card>

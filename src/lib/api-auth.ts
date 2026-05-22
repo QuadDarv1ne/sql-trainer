@@ -45,9 +45,11 @@ export async function requireTeacher() {
 export function parseDateParams(searchParams: URLSearchParams) {
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
+  const start = startDate ? parseInt(startDate, 10) : NaN;
+  const end = endDate ? parseInt(endDate, 10) : NaN;
   return {
-    startDate: startDate ? parseInt(startDate) : null,
-    endDate: endDate ? parseInt(endDate) : null,
+    startDate: isNaN(start) ? null : start,
+    endDate: isNaN(end) ? null : end,
   };
 }
 
@@ -140,7 +142,7 @@ export function withAnalyticsAuth(
  * Returns null if missing or NaN.
  */
 export function intParam(searchParams: URLSearchParams, key: string): number | null {
-  const val = parseInt(searchParams.get(key) || '');
+  const val = parseInt(searchParams.get(key) || '', 10);
   return isNaN(val) ? null : val;
 }
 

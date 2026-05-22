@@ -83,13 +83,16 @@ export default function TeacherStudentDialog({
   useEffect(() => {
     if (!open || !studentId) return;
 
+    const controller = new AbortController();
     setLoading(true);
     setError('');
     setData(null);
 
     Promise.all([
-      fetch(`/api/teacher/student/${studentId}`).then(r => r.json()),
-      fetch(`/api/teacher/student/${studentId}/activity`).then(r => r.json()),
+      fetch(`/api/teacher/student/${studentId}`, { signal: controller.signal })
+        .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
+      fetch(`/api/teacher/student/${studentId}/activity`, { signal: controller.signal })
+        .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
     ])
       .then(([detailRes, activityRes]) => {
         if (detailRes.error) throw new Error(detailRes.error);
@@ -99,8 +102,14 @@ export default function TeacherStudentDialog({
           activity: activityRes.activity || [],
         });
       })
-      .catch(() => setError(t('teacher.error')))
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          setError(t('teacher.error'));
+        }
+      })
       .finally(() => setLoading(false));
+
+    return () => { controller.abort(); };
   }, [studentId, open]);
 
   const handleExportPDF = () => {

@@ -15,7 +15,13 @@ const store = new Map<string, RateLimitEntry>();
 const MAX_ENTRIES = 10_000;
 
 // Automatic cleanup of expired entries every 5 minutes
-const cleanupInterval = setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
+// Guard against multiple intervals during HMR in development
+declare global {
+  var __sqlTrainerCleanupInterval: ReturnType<typeof setInterval> | undefined;
+}
+
+const cleanupInterval = globalThis.__sqlTrainerCleanupInterval || setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
+globalThis.__sqlTrainerCleanupInterval = cleanupInterval;
 // Prevent interval from keeping the process alive
 if (typeof cleanupInterval.unref === 'function') {
   cleanupInterval.unref();
