@@ -22,7 +22,7 @@ export default function AdminPage() {
     if (status === 'loading') return false;
     const userRole = (session?.user as { role?: Role })?.role;
     if (userRole !== 'admin') {
-      router.push('/');
+      router.push('/app');
       return false;
     }
     return true;

@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import type { Role } from '@/lib/rbac';
 
 // Routes that require authentication
-const protectedRoutes = ['/profile'];
+const protectedRoutes = ['/profile', '/app'];
 
 // Routes that require specific roles
 const roleProtectedRoutes: Record<string, Role[]> = {
@@ -11,16 +11,16 @@ const roleProtectedRoutes: Record<string, Role[]> = {
   '/teacher': ['teacher', 'admin'],
 };
 
-// Routes that should redirect to / if already authenticated
+// Routes that should redirect to /app if already authenticated
 const authRoutes = ['/login', '/register', '/reset-password'];
 
 export default auth(async (request) => {
   const pathname = request.nextUrl.pathname;
   const session = await auth();
 
-  // Redirect authenticated users away from auth pages
+  // Redirect authenticated users away from auth pages to workspace
   if (authRoutes.includes(pathname) && session) {
-    return NextResponse.redirect(new URL('/', request.url));
+    return NextResponse.redirect(new URL('/app', request.url));
   }
 
   // Redirect unauthenticated users to login
@@ -40,7 +40,7 @@ export default auth(async (request) => {
       }
       const userRole = (session.user as { role?: Role })?.role;
       if (!userRole || !allowedRoles.includes(userRole)) {
-        return NextResponse.redirect(new URL('/', request.url));
+        return NextResponse.redirect(new URL('/app', request.url));
       }
     }
   }
@@ -49,5 +49,5 @@ export default auth(async (request) => {
 });
 
 export const config = {
-  matcher: ['/login', '/register', '/reset-password', '/profile/:path*', '/admin/:path*', '/teacher/:path*'],
+  matcher: ['/login', '/register', '/reset-password', '/profile/:path*', '/admin/:path*', '/teacher/:path*', '/app/:path*'],
 };

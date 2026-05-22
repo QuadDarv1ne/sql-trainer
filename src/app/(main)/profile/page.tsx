@@ -361,7 +361,7 @@ export default function ProfilePage() {
       if (data.success) {
         toast.success(t('profile.accountDeleted'));
         signOut({ redirect: false });
-        router.push('/');
+        router.push('/app');
       } else {
         toast.error(data.error);
       }

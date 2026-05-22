@@ -4,11 +4,11 @@
  * Returns a decision for a given session + pathname combination:
  * - { action: 'allow' } — proceed
  * - { action: 'redirect', url: '/login?callbackUrl=...' } — needs auth
- * - { action: 'redirect', url: '/' } — insufficient role or already authed on auth page
+ * - { action: 'redirect', url: '/app' } — insufficient role or already authed on auth page
  */
 import type { Role } from '@/lib/rbac';
 
-const protectedRoutes = ['/profile'];
+const protectedRoutes = ['/profile', '/app'];
 const roleProtectedRoutes: Record<string, Role[]> = {
   '/admin': ['admin'],
   '/teacher': ['teacher', 'admin'],
@@ -20,7 +20,7 @@ type Session = { user: { role?: Role } } | null;
 export function evaluateRouteAccess(session: Session, pathname: string): { action: 'allow' | 'redirect'; url: string } {
   // Redirect authenticated users away from auth pages
   if (authRoutes.includes(pathname) && session) {
-    return { action: 'redirect', url: '/' };
+    return { action: 'redirect', url: '/app' };
   }
 
   // Redirect unauthenticated users to login
@@ -36,7 +36,7 @@ export function evaluateRouteAccess(session: Session, pathname: string): { actio
       }
       const userRole = session.user?.role;
       if (!userRole || !allowedRoles.includes(userRole)) {
-        return { action: 'redirect', url: '/' };
+        return { action: 'redirect', url: '/app' };
       }
     }
   }

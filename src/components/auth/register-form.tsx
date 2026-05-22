@@ -66,7 +66,7 @@ export default function RegisterForm() {
       // Auto sign in
       setTimeout(async () => {
         await signIn('credentials', { email, password, redirect: false });
-        router.push('/');
+        router.push('/app');
         router.refresh();
       }, 1500);
     } catch {
