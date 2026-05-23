@@ -33,9 +33,10 @@ import PracticeModeDialog from '@/components/practice-mode-dialog';
 interface WelcomePanelProps {
   onStartTraining: () => void;
   onFreeMode: () => void;
+  onStartTour?: () => void;
 }
 
-export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePanelProps) {
+export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour }: WelcomePanelProps) {
   const { completedTasks, setCurrentTaskId, streak } = useSQLTrainerStore();
 
   const completedCount = completedTasks.length;
@@ -242,6 +243,12 @@ export default function WelcomePanel({ onStartTraining, onFreeMode }: WelcomePan
           <Rocket className="mr-2 h-4 w-4" />
           {t('welcome.startTraining')}
         </Button>
+        {onStartTour && (
+          <Button variant="outline" className="w-full h-9" onClick={onStartTour}>
+            <Play className="mr-2 h-4 w-4" />
+            {t('welcome.startTour')}
+          </Button>
+        )}
         <Button variant="outline" className="w-full h-9" onClick={onFreeMode}>
           <GraduationCap className="mr-2 h-4 w-4" />
           {t('action.freeMode')}

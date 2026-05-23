@@ -72,6 +72,11 @@ const WelcomePanel = dynamic(() => import('@/components/welcome-panel'), {
   ssr: false,
 });
 
+// Dynamic import for Onboarding Tour
+const OnboardingTour = dynamic(() => import('@/components/onboarding-tour'), {
+  ssr: false,
+});
+
 export default function HomePage() {
   const {
     dbType,
@@ -105,6 +110,8 @@ export default function HomePage() {
     unlockedAchievements,
     userStats,
     incrementExplainCount,
+    onboardingCompleted,
+    setOnboardingCompleted,
   } = useSQLTrainerStore();
 
   // Show toast notifications for newly unlocked achievements
@@ -138,6 +145,7 @@ export default function HomePage() {
   }, []);
   const [explainPlan, setExplainPlan] = useState<string | null>(null);
   const [explainSuggestions, setExplainSuggestions] = useState<string[]>([]);
+  const [showOnboarding, setShowOnboarding] = useState(!onboardingCompleted);
 
   // Load server progress on mount for authenticated users
   useEffect(() => {
@@ -548,6 +556,11 @@ export default function HomePage() {
     setCurrentTaskId(null);
   }, [setCurrentTaskId]);
 
+  const handleOnboardingComplete = useCallback(() => {
+    setShowOnboarding(false);
+    setOnboardingCompleted(true);
+  }, [setOnboardingCompleted]);
+
   if (!mounted) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -764,6 +777,7 @@ export default function HomePage() {
                     <WelcomePanel
                       onStartTraining={handleStartTraining}
                       onFreeMode={handleFreeMode}
+                      onStartTour={() => setShowOnboarding(true)}
                     />
                   )}
                 </div>
@@ -784,6 +798,9 @@ export default function HomePage() {
           </ResizablePanelGroup>
         </aside>
       </div>
+
+      {/* Onboarding Tour */}
+      {showOnboarding && <OnboardingTour onComplete={handleOnboardingComplete} />}
     </div>
   );
 }
