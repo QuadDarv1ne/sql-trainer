@@ -12,9 +12,11 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "generate:pwa-assets": "node scripts/generate-pwa-assets.mjs"
+    "generate:pwa-assets": "node scripts/generate-pwa-assets.mjs",
+    "prepare": "husky"
   },
   "dependencies": {
+    "2": "^3.0.0",
     "@codemirror/lang-sql": "^6.10.0",
     "@codemirror/state": "^6.6.0",
     "@codemirror/theme-one-dark": "^6.1.3",
@@ -73,10 +75,21 @@
     "@vitest/coverage-v8": "^4.1.6",
     "eslint": "^9",
     "eslint-config-next": "^16.1.1",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.0.5",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.5",
     "typescript": "^5",
     "vitest": "^4.1.6"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "tsc --noEmit --skipLibCheck"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix"
+    ]
   }
 }
