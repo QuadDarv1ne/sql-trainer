@@ -1,7 +1,23 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+// Check if better-sqlite3 native bindings are available before test collection
+const sqliteAvailable = vi.hoisted(() => {
+  try {
+    const Database = require('better-sqlite3');
+    const db = new Database(':memory:');
+    db.exec('SELECT 1');
+    db.close();
+    return true;
+  } catch {
+    return false;
+  }
+});
+
+const describeIf = sqliteAvailable ? describe : describe.skip;
+
 import { executeQuery, executeWithSchema } from '@/lib/sql-engine';
 
-describe('sql-engine', () => {
+describeIf('sql-engine', () => {
   describe('executeQuery - DML after SELECT', () => {
     it('should return DML result when INSERT follows SELECT', () => {
       const sql = `

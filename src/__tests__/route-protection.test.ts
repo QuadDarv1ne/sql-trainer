@@ -15,7 +15,7 @@ describe('evaluateRouteAccess - auth routes', () => {
   it('redirects authenticated users away from /login', () => {
     const result = evaluateRouteAccess(makeSession('student'), '/login');
     expect(result.action).toBe('redirect');
-    expect(result.url).toBe('/');
+    expect(result.url).toBe('/app');
   });
 
   it('redirects authenticated users away from /register', () => {
@@ -70,19 +70,19 @@ describe('evaluateRouteAccess - admin routes', () => {
   it('redirects student from /admin to home', () => {
     const result = evaluateRouteAccess(makeSession('student'), '/admin');
     expect(result.action).toBe('redirect');
-    expect(result.url).toBe('/');
+    expect(result.url).toBe('/app');
   });
 
   it('redirects teacher from /admin to home', () => {
     const result = evaluateRouteAccess(makeSession('teacher'), '/admin');
     expect(result.action).toBe('redirect');
-    expect(result.url).toBe('/');
+    expect(result.url).toBe('/app');
   });
 
   it('redirects session without role from /admin to home', () => {
     const result = evaluateRouteAccess({ user: {} } as { user: { role?: Role } }, '/admin');
     expect(result.action).toBe('redirect');
-    expect(result.url).toBe('/');
+    expect(result.url).toBe('/app');
   });
 });
 
@@ -100,7 +100,7 @@ describe('evaluateRouteAccess - teacher routes', () => {
   it('redirects student from /teacher to home', () => {
     const result = evaluateRouteAccess(makeSession('student'), '/teacher');
     expect(result.action).toBe('redirect');
-    expect(result.url).toBe('/');
+    expect(result.url).toBe('/app');
   });
 
   it('allows teacher to access /teacher sub-routes', () => {

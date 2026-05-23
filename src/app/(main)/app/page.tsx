@@ -10,6 +10,7 @@ import { getTaskById, TRAINING_TASKS } from '@/lib/training-tasks';
 import { type DatabaseInfo } from '@/lib/sql-engine';
 import { plural } from '@/lib/utils';
 import { t } from '@/lib/i18n';
+import { getNextHintLevel, generateProgressiveHints, calculateHintPenalty } from '@/lib/progressive-hints';
 import { logger } from '@/lib/logger';
 import ResultsTable from '@/components/results-table';
 import ActionBar from '@/components/action-bar';
@@ -85,8 +86,10 @@ export default function HomePage() {
     setVerification,
     sidebarOpen,
     setSidebarOpen,
-    hintVisible,
-    setHintVisible,
+    hintLevel,
+    setHintLevel,
+    totalHintPenalty,
+    setTotalHintPenalty,
     solutionVisible,
     setSolutionVisible,
     isExecuting,
@@ -348,7 +351,12 @@ export default function HomePage() {
       }
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'H') {
         e.preventDefault();
-        setHintVisible(!hintVisible);
+        const nextLevel = getNextHintLevel(hintLevel);
+        if (nextLevel !== null && currentTask) {
+          setHintLevel(nextLevel);
+          const hints = generateProgressiveHints(currentTask.id, currentTask.hint, currentTask.taskText, currentTask.sampleSolution);
+          setTotalHintPenalty(calculateHintPenalty(hints, nextLevel));
+        }
       }
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'S') {
         e.preventDefault();
@@ -363,14 +371,15 @@ export default function HomePage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
     executeQuery,
-    hintVisible,
+    hintLevel,
     solutionVisible,
-    setHintVisible,
+    setHintLevel,
     setSolutionVisible,
     setEditorContent,
     setLastResult,
     setVerification,
     editorContent,
+    currentTask,
   ]);
 
   // Clear editor
@@ -731,9 +740,17 @@ export default function HomePage() {
                     <TaskPanel
                       task={currentTask}
                       isCompleted={currentTaskId ? isTaskCompleted(currentTaskId) : false}
-                      hintVisible={hintVisible}
+                      hintLevel={hintLevel}
+                      totalHintPenalty={totalHintPenalty}
+                      onRevealNextHint={() => {
+                        const nextLevel = getNextHintLevel(hintLevel);
+                        if (nextLevel !== null && currentTask) {
+                          setHintLevel(nextLevel);
+                          const hints = generateProgressiveHints(currentTask.id, currentTask.hint, currentTask.taskText, currentTask.sampleSolution);
+                          setTotalHintPenalty(calculateHintPenalty(hints, nextLevel));
+                        }
+                      }}
                       solutionVisible={solutionVisible}
-                      onShowHint={() => setHintVisible(true)}
                       onShowSolution={() => setSolutionVisible(!solutionVisible)}
                       onUseSolution={(sql) => setEditorContent(sql)}
                       onNextTask={goToNextTask}

@@ -111,6 +111,12 @@ export const translations: Record<Locale, Record<string, string>> = {
 
     // Task panel
     'task.hint': 'Подсказка',
+    'task.hintLevel1': '💡 Идея',
+    'task.hintLevel2': '🔍 Направление',
+    'task.hintLevel3': '📝 Подсказка',
+    'task.showFirstHint': 'Показать подсказку',
+    'task.showNextHint': 'Подсказка {level} уровня',
+    'task.hintPenaltyTotal': 'Штраф за подсказки: -{penalty} XP',
     'task.solution': 'Решение',
     'task.next': 'Следующее',
     'task.related': 'Похожие задания',
@@ -1648,6 +1654,12 @@ export const translations: Record<Locale, Record<string, string>> = {
 
     // Task panel
     'task.hint': 'Hint',
+    'task.hintLevel1': '💡 Idea',
+    'task.hintLevel2': '🔍 Direction',
+    'task.hintLevel3': '📝 Hint',
+    'task.showFirstHint': 'Show hint',
+    'task.showNextHint': 'Level {level} hint',
+    'task.hintPenaltyTotal': 'Hint penalty: -{penalty} XP',
     'task.solution': 'Solution',
     'task.next': 'Next',
     'task.related': 'Related Tasks',

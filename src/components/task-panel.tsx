@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { DIFFICULTY_LABELS, DIFFICULTY_COLORS, TRAINING_TASKS, type TrainingTask } from '@/lib/training-tasks';
+import { generateProgressiveHints, getNextHintLevel, calculateHintPenalty, type ProgressiveHint } from '@/lib/progressive-hints';
 import { t } from '@/lib/i18n';
 import {
   BookOpen,
@@ -18,14 +19,19 @@ import {
   Copy,
   ArrowRight,
   PartyPopper,
+  HelpCircle,
+  AlertCircle,
+  Info,
 } from 'lucide-react';
 
 interface TaskPanelProps {
   task: TrainingTask | null;
   isCompleted: boolean;
-  hintVisible: boolean;
+  // Progressive hints
+  hintLevel: 0 | 1 | 2 | 3;
+  totalHintPenalty: number;
+  onRevealNextHint: () => void;
   solutionVisible: boolean;
-  onShowHint: () => void;
   onShowSolution: () => void;
   onUseSolution: (sql: string) => void;
   onNextTask: () => void;
@@ -40,9 +46,10 @@ interface TaskPanelProps {
 export default function TaskPanel({
   task,
   isCompleted,
-  hintVisible,
+  hintLevel,
+  totalHintPenalty,
+  onRevealNextHint,
   solutionVisible,
-  onShowHint,
   onShowSolution,
   onUseSolution,
   onNextTask,
@@ -164,30 +171,99 @@ export default function TaskPanel({
         </div>
       )}
 
-      {/* Hint */}
-      {!hintVisible ? (
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full h-9"
-          onClick={onShowHint}
-        >
-          <Lightbulb className="mr-2 h-4 w-4" />
-          {t('task.showHint')}
-        </Button>
-      ) : (
-        <Card className="border-amber-300 bg-amber-50/50 dark:border-amber-700 dark:bg-amber-950/20">
-          <CardHeader className="pb-2 px-4 pt-4">
-            <CardTitle className="text-sm font-medium flex items-center gap-2 text-amber-700 dark:text-amber-400">
-              <Lightbulb className="h-4 w-4" />
-              {t('task.hint')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 pb-4">
-            <p className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed">{task.hint}</p>
-          </CardContent>
-        </Card>
-      )}
+      {/* Progressive Hints */}
+      {(() => {
+        if (!task) return null;
+        const hints = generateProgressiveHints(task.id, task.hint, task.taskText, task.sampleSolution);
+        const nextLevel = getNextHintLevel(hintLevel);
+        const hintLevelLabels = [
+          '',
+          t('task.hintLevel1'),
+          t('task.hintLevel2'),
+          t('task.hintLevel3'),
+        ];
+        const hintLevelIcons = [null, <Info key="1" className="h-4 w-4" />, <HelpCircle key="2" className="h-4 w-4" />, <AlertCircle key="3" className="h-4 w-4" />];
+        const hintLevelColors = ['', 'text-blue-600 dark:text-blue-400', 'text-amber-600 dark:text-amber-400', 'text-orange-600 dark:text-orange-400'];
+        const hintBgColors = [
+          '',
+          'bg-blue-50/50 dark:bg-blue-950/20',
+          'bg-amber-50/50 dark:bg-amber-950/20',
+          'bg-orange-50/50 dark:bg-orange-950/20',
+        ];
+        const hintBorderColors = [
+          '',
+          'border-blue-300 dark:border-blue-700',
+          'border-amber-300 dark:border-amber-700',
+          'border-orange-300 dark:border-orange-700',
+        ];
+
+        return (
+          <div className="space-y-2">
+            {/* Hint level indicators */}
+            <div className="flex items-center gap-2">
+              {[1, 2, 3].map((level) => (
+                <div
+                  key={level}
+                  className={`flex-1 h-1.5 rounded-full transition-colors ${
+                    level <= hintLevel ? 'bg-amber-500' : 'bg-muted'
+                  }`}
+                  title={`${hintLevelLabels[level]} (${hints[level - 1].xpPenalty} XP)`}
+                />
+              ))}
+            </div>
+
+            {/* Show revealed hints */}
+            {hintLevel > 0 && hints.slice(0, hintLevel).map((hint) => (
+              <Card
+                key={hint.level}
+                className={`border ${hintBorderColors[hint.level]} ${hintBgColors[hint.level]}`}
+              >
+                <CardHeader className="pb-2 px-4 pt-4">
+                  <CardTitle className={`text-sm font-medium flex items-center gap-2 ${hintLevelColors[hint.level]}`}>
+                    {hintLevelIcons[hint.level]}
+                    {hintLevelLabels[hint.level]}
+                    {hint.xpPenalty > 0 && (
+                      <span className="text-xs text-muted-foreground ml-auto">
+                        (-{hint.xpPenalty} XP)
+                      </span>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 pb-4">
+                  <p className="text-sm leading-relaxed">{hint.text}</p>
+                </CardContent>
+              </Card>
+            ))}
+
+            {/* Next hint button */}
+            {nextLevel !== null && !isCompleted && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full h-9"
+                onClick={onRevealNextHint}
+              >
+                <Lightbulb className="mr-2 h-4 w-4" />
+                {hintLevel === 0
+                  ? t('task.showFirstHint')
+                  : t('task.showNextHint', { level: nextLevel })}
+                {hints[nextLevel - 1]?.xpPenalty > 0 && (
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    (-{hints[nextLevel - 1].xpPenalty} XP)
+                  </span>
+                )}
+              </Button>
+            )}
+
+            {/* Total penalty display */}
+            {totalHintPenalty > 0 && (
+              <p className="text-xs text-muted-foreground text-center">
+                {t('task.hintPenaltyTotal', { penalty: totalHintPenalty })}
+              </p>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Solution */}
       <Separator />

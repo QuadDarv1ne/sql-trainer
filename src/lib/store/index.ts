@@ -127,7 +127,8 @@ export const useSQLTrainerStore = create<CombinedState>()(
           currentTaskId: id,
           editorContent: '',
           lastResult: null,
-          hintVisible: false,
+          hintLevel: 0,
+          totalHintPenalty: 0,
           solutionVisible: false,
           verification: null,
         });
@@ -157,7 +158,8 @@ export const useSQLTrainerStore = create<CombinedState>()(
           editorContent: '',
           lastResult: null,
           verification: null,
-          hintVisible: false,
+          hintLevel: 0,
+          totalHintPenalty: 0,
           solutionVisible: false,
         });
       },
