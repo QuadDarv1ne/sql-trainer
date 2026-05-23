@@ -50,9 +50,9 @@ export default function ActionBar({
   const currentTask = currentTaskId ? getTaskById(currentTaskId) : null;
 
   return (
-    <div className="flex items-center gap-2 border-b border-border bg-muted/20 px-4 py-2">
+    <div className="flex items-center gap-2 border-b border-border bg-muted/20 px-3 py-2 overflow-x-auto">
       {practiceMode.active && (
-        <div className="flex items-center gap-2 rounded-md bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+        <div className="flex items-center gap-2 rounded-md bg-emerald-50 px-2.5 py-1 text-xs text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0">
           <Shuffle className="h-4 w-4" />
           <span className="font-medium">
             {t('practice.title')}: {practiceMode.currentIndex + 1}/{practiceMode.taskOrder.length}
@@ -64,10 +64,10 @@ export default function ActionBar({
       )}
 
       {/* Primary action group */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         <Button
           size="sm"
-          className="h-8 bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 gap-1.5 text-xs px-3"
+          className="h-9 bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 gap-1.5 text-xs px-3 sm:h-8"
           onClick={executeQuery}
           disabled={isExecuting || !editorContent.trim()}
         >
@@ -111,11 +111,11 @@ export default function ActionBar({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 text-xs"
+              className="h-9 text-xs sm:h-8"
               onClick={() => document.execCommand?.('undo')}
             >
-              <Undo2 className="h-3.5 w-3.5" />
-              <kbd className="ml-1.5 h-4 items-center rounded border border-current/20 bg-current/10 px-1 text-[9px] font-mono hidden md:inline-flex">
+              <Undo2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+              <kbd className="ml-1.5 h-4 items-center rounded border border-current/20 bg-current/10 px-1 text-[9px] font-mono hidden sm:inline-flex">
                 Ctrl+Z
               </kbd>
             </Button>
@@ -128,11 +128,11 @@ export default function ActionBar({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 text-xs"
+              className="h-9 text-xs sm:h-8"
               onClick={() => document.execCommand?.('redo')}
             >
-              <Redo2 className="h-3.5 w-3.5" />
-              <kbd className="ml-1.5 h-4 items-center rounded border border-current/20 bg-current/10 px-1 text-[9px] font-mono hidden md:inline-flex">
+              <Redo2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+              <kbd className="ml-1.5 h-4 items-center rounded border border-current/20 bg-current/10 px-1 text-[9px] font-mono hidden sm:inline-flex">
                 Ctrl+Y
               </kbd>
             </Button>

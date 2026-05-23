@@ -190,6 +190,15 @@ const lightTheme = EditorView.theme({
   '.cm-activeLineGutter': {
     backgroundColor: 'rgba(16, 185, 129, 0.12)',
   },
+  // Mobile optimizations
+  '@media (max-width: 768px)': {
+    '&': {
+      fontSize: '16px', // Prevents zoom on iOS
+    },
+    '.cm-content': {
+      padding: '8px 0',
+    },
+  },
 });
 
 /**
@@ -496,6 +505,11 @@ export default function SQLEditor({
       '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': { backgroundColor: '#264f78 !important' },
       '.cm-activeLine': { backgroundColor: 'rgba(16, 185, 129, 0.06)' },
       '.cm-activeLineGutter': { backgroundColor: 'rgba(16, 185, 129, 0.1)' },
+      // Mobile optimizations
+      '@media (max-width: 768px)': {
+        '&': { fontSize: '16px' },
+        '.cm-content': { padding: '8px 0' },
+      },
     }) : lightTheme;
 
     const state = EditorState.create({

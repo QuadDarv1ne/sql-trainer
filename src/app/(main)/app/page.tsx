@@ -630,15 +630,19 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Locale Selector */}
-          <LocaleSelector />
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Locale Selector - hidden on very small screens */}
+          <div className="hidden sm:block">
+            <LocaleSelector />
+          </div>
 
           {/* DB Selector */}
           <DbSelector dbType={dbType} onChange={setDbType} />
 
-          {/* Shortcuts help */}
-          <ShortcutsHelp />
+          {/* Shortcuts help - hidden on mobile */}
+          <div className="hidden sm:block">
+            <ShortcutsHelp />
+          </div>
 
           {/* Theme toggle */}
           <Tooltip>

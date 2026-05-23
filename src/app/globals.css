@@ -162,3 +162,41 @@
 .overflow-auto::-webkit-scrollbar-thumb:hover {
   background: oklch(0.5 0 0 / 40%);
 }
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  /* Prevent iOS zoom on input focus */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+
+  /* Larger touch targets */
+  button, [role="button"] {
+    min-height: 44px;
+  }
+
+  /* Remove tap highlight on mobile */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Better touch scrolling */
+  .overflow-x-auto, .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: max(0px)) {
+  @media (max-width: 768px) {
+    body {
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+  }
+}
