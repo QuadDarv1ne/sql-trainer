@@ -91,6 +91,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.addToBookmark': 'Добавить в избранное',
     'action.explain': 'EXPLAIN',
     'action.explainTooltip': 'Показать план выполнения запроса',
+    'action.undo': 'Отменить',
+    'action.redo': 'Повторить',
 
     // Sidebar
     'sidebar.search': 'Поиск заданий...',
@@ -1634,6 +1636,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.addToBookmark': 'Add to bookmarks',
     'action.explain': 'EXPLAIN',
     'action.explainTooltip': 'Show query execution plan',
+    'action.undo': 'Undo',
+    'action.redo': 'Redo',
 
     // Sidebar
     'sidebar.search': 'Search tasks...',

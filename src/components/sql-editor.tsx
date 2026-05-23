@@ -268,6 +268,8 @@ interface SQLEditorProps {
   placeholder?: string;
   schema?: SchemaInfo | null;
   onFormatSQL?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
 }
 
 export default function SQLEditor({
@@ -278,6 +280,8 @@ export default function SQLEditor({
   placeholder = 'Введите SQL запрос...',
   schema = null,
   onFormatSQL,
+  onUndo,
+  onRedo,
 }: SQLEditorProps) {
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -285,6 +289,8 @@ export default function SQLEditor({
   const onChangeRef = useRef(onChange);
   const onRunRef = useRef(onRun);
   const onFormatSQLRef = useRef(onFormatSQL);
+  const onUndoRef = useRef(onUndo);
+  const onRedoRef = useRef(onRedo);
   const schemaRef = useRef(schema);
   const themeRef = useRef(theme);
   const initialValueRef = useRef(value);
@@ -307,6 +313,14 @@ export default function SQLEditor({
   useEffect(() => {
     onFormatSQLRef.current = onFormatSQL;
   }, [onFormatSQL]);
+
+  useEffect(() => {
+    onUndoRef.current = onUndo;
+  }, [onUndo]);
+
+  useEffect(() => {
+    onRedoRef.current = onRedo;
+  }, [onRedo]);
 
   useEffect(() => {
     schemaRef.current = schema;
@@ -381,6 +395,20 @@ export default function SQLEditor({
         run: () => {
           onFormatSQLRef.current?.();
           return true;
+        },
+      },
+      {
+        key: 'Mod-z',
+        run: () => {
+          onUndoRef.current?.();
+          return false; // Let CodeMirror history handle it too
+        },
+      },
+      {
+        key: 'Mod-y',
+        run: () => {
+          onRedoRef.current?.();
+          return false;
         },
       },
     ]);
@@ -498,6 +526,8 @@ export default function SQLEditor({
           { key: 'Mod-Enter', run: () => { onRunRef.current?.(); return true; } },
           { key: 'Tab', run: (v) => { v.dispatch({ changes: { from: v.state.selection.main.from, to: v.state.selection.main.to, insert: '  ' } }); return true; } },
           { key: 'Mod-Shift-f', run: () => { onFormatSQLRef.current?.(); return true; } },
+          { key: 'Mod-z', run: () => { onUndoRef.current?.(); return false; } },
+          { key: 'Mod-y', run: () => { onRedoRef.current?.(); return false; } },
         ]),
         EditorView.updateListener.of((update) => { if (update.docChanged) onChangeRef.current(update.state.doc.toString()); }),
         EditorView.lineWrapping,

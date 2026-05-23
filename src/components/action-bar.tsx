@@ -17,6 +17,8 @@ import {
   Loader2,
   Search,
   Shuffle,
+  Undo2,
+  Redo2,
 } from 'lucide-react';
 
 interface ActionBarProps {
@@ -104,6 +106,40 @@ export default function ActionBar({
 
       {/* Secondary action group */}
       <div className="flex items-center gap-1.5">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs"
+              onClick={() => document.execCommand?.('undo')}
+            >
+              <Undo2 className="h-3.5 w-3.5" />
+              <kbd className="ml-1.5 h-4 items-center rounded border border-current/20 bg-current/10 px-1 text-[9px] font-mono hidden md:inline-flex">
+                Ctrl+Z
+              </kbd>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">{t('action.undo')}</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs"
+              onClick={() => document.execCommand?.('redo')}
+            >
+              <Redo2 className="h-3.5 w-3.5" />
+              <kbd className="ml-1.5 h-4 items-center rounded border border-current/20 bg-current/10 px-1 text-[9px] font-mono hidden md:inline-flex">
+                Ctrl+Y
+              </kbd>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">{t('action.redo')}</TooltipContent>
+        </Tooltip>
+
         <QueryHistory onRestoreQuery={onRestoreQuery} />
 
         <SavedQueries onLoadQuery={onRestoreQuery} />
