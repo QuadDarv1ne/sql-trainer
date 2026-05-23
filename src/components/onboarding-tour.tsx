@@ -151,7 +151,7 @@ export default function OnboardingTour({ onComplete }: OnboardingTourProps) {
                   <div>
                     <CardTitle className="text-lg">{step.title}</CardTitle>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {t('onboarding.stepCounter', { current: currentStep + 1, total: ONBOARDING_STEPS.length })}
+                      {t('onboarding.stepCounter', { current: String(currentStep + 1), total: String(ONBOARDING_STEPS.length) })}
                     </p>
                   </div>
                 </div>

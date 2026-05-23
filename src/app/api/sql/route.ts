@@ -5,7 +5,7 @@ import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 const sqlExecuteSchema = z.object({
-  sql: z.string().min(1, 'SQL запрос не может быть пустым').max(10000, 'Запрос слишком длинный'),
+  sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
   dbType: z.enum(['sqlite', 'postgresql', 'clickhouse']).optional(),
   taskId: z.string().optional(),
 });
@@ -63,7 +63,8 @@ export async function POST(request: NextRequest) {
     const parsed = sqlExecuteSchema.safeParse(body);
 
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0]?.message || 'Неверный формат запроса';
+      const formatted = parsed.error.format();
+      const firstError = formatted.sql?._errors?.[0] || formatted._errors?.[0] || 'Неверный формат запроса';
       return NextResponse.json(
         { success: false, error: firstError, columns: [], rows: [], executionTime: 0 },
         { status: 400 }

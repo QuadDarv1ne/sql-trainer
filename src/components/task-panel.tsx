@@ -246,7 +246,7 @@ export default function TaskPanel({
                 <Lightbulb className="mr-2 h-4 w-4" />
                 {hintLevel === 0
                   ? t('task.showFirstHint')
-                  : t('task.showNextHint', { level: nextLevel })}
+                  : t('task.showNextHint', { level: String(nextLevel) })}
                 {hints[nextLevel - 1]?.xpPenalty > 0 && (
                   <span className="ml-2 text-xs text-muted-foreground">
                     (-{hints[nextLevel - 1].xpPenalty} XP)
@@ -258,7 +258,7 @@ export default function TaskPanel({
             {/* Total penalty display */}
             {totalHintPenalty > 0 && (
               <p className="text-xs text-muted-foreground text-center">
-                {t('task.hintPenaltyTotal', { penalty: totalHintPenalty })}
+                {t('task.hintPenaltyTotal', { penalty: String(totalHintPenalty) })}
               </p>
             )}
           </div>

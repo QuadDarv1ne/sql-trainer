@@ -5,8 +5,8 @@ import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 const sqlVerifySchema = z.object({
-  sql: z.string().min(1, 'SQL запрос не может быть пустым').max(10000, 'Запрос слишком длинный'),
-  taskId: z.string({ required_error: 'taskId обязателен' }).min(1, 'taskId обязателен'),
+  sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
+  taskId: z.string().min(1, { message: 'taskId обязателен' }),
   dbType: z.string().optional(),
 });
 
@@ -112,7 +112,8 @@ export async function POST(request: NextRequest) {
     const parsed = sqlVerifySchema.safeParse(body);
 
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0]?.message || 'Неверный формат запроса';
+      const formatted = parsed.error.format();
+      const firstError = formatted.taskId?._errors?.[0] || formatted.sql?._errors?.[0] || formatted._errors?.[0] || 'Неверный формат запроса';
       return NextResponse.json(
         { verified: false, userRowCount: 0, expectedRowCount: 0, message: firstError },
         { status: 400 }

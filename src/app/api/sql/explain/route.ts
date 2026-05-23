@@ -4,9 +4,9 @@ import { getTaskById } from '@/lib/training-tasks';
 import { z } from 'zod';
 
 const sqlExplainSchema = z.object({
-  sql: z.string().min(1, 'SQL запрос не может быть пустым').max(10000, 'Запрос слишком длинный'),
+  sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
   dbType: z.enum(['sqlite', 'postgresql']).optional(),
-  taskId: z.string({ required_error: 'taskId обязателен для EXPLAIN' }).min(1, 'taskId обязателен для EXPLAIN'),
+  taskId: z.string().min(1, { message: 'taskId обязателен для EXPLAIN' }),
 });
 
 const MAX_SQL_LENGTH = 10000;
@@ -61,7 +61,8 @@ export async function POST(request: NextRequest) {
     const parsed = sqlExplainSchema.safeParse(body);
 
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0]?.message || 'Неверный формат запроса';
+      const formatted = parsed.error.format();
+      const firstError = formatted.taskId?._errors?.[0] || formatted.sql?._errors?.[0] || formatted._errors?.[0] || 'Неверный формат запроса';
       return NextResponse.json(
         { success: false, error: firstError },
         { status: 400 }
