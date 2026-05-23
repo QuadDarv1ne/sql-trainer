@@ -2,28 +2,25 @@ import { NextResponse } from 'next/server';
 import { createUser } from '@/lib/db-users';
 import { withAdminAuth } from '@/lib/api-auth';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
+import { z } from 'zod';
 
-const VALID_ROLES = ['student', 'teacher', 'admin'] as const;
+const createUserSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  phone: z.string().optional(),
+  role: z.enum(['student', 'teacher', 'admin']).optional(),
+});
 
 export const POST = withAdminAuth(async ({ request, session }) => {
   const body = await request.json();
-  const { email, name, password, phone, role } = body;
+  const validation = createUserSchema.safeParse(body);
 
-  if (!email || !name || !password) {
-    return NextResponse.json({ error: 'Missing required fields: email, name, password' }, { status: 400 });
+  if (!validation.success) {
+    return NextResponse.json({ error: validation.error.errors[0].message }, { status: 400 });
   }
 
-  if (typeof email !== 'string' || !email.includes('@')) {
-    return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
-  }
-
-  if (typeof password !== 'string' || password.length < 6) {
-    return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
-  }
-
-  if (role && !VALID_ROLES.includes(role)) {
-    return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
-  }
+  const { email, name, password, phone, role } = validation.data;
 
   // Sanitize name
   const sanitizedName = sanitizeName(name);

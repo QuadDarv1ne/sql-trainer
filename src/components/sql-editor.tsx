@@ -11,7 +11,7 @@ import {
   drawSelection,
   highlightActiveLine,
 } from '@codemirror/view';
-import { EditorState, StateEffect } from '@codemirror/state';
+import { EditorState, StateEffect, Compartment } from '@codemirror/state';
 import { sql } from '@codemirror/lang-sql';
 import { oneDark } from '@codemirror/theme-one-dark';
 import {
@@ -302,6 +302,7 @@ export default function SQLEditor({
   const onRedoRef = useRef(onRedo);
   const schemaRef = useRef(schema);
   const themeRef = useRef(theme);
+  const themeCompartmentRef = useRef<Compartment>(new Compartment());
   const initialValueRef = useRef(value);
 
   // Compute isDark directly from theme
@@ -375,6 +376,8 @@ export default function SQLEditor({
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
       },
     }) : lightTheme;
+
+    themeExtensionRef.current = customTheme;
 
     // Custom keybindings
     const runKeymap = keymap.of([
@@ -456,7 +459,7 @@ export default function SQLEditor({
           ],
         }),
         ...(isDark ? [oneDark] : []),
-        customTheme,
+        themeCompartmentRef.current.of(customTheme),
         keymap.of([
           ...closeBracketsKeymap,
           ...defaultKeymap,
@@ -487,16 +490,13 @@ export default function SQLEditor({
     };
   }, []);
 
-  // Update theme when it changes by recreating the view with new theme
+  // Update theme when it changes using compartment reconfigure (preserves undo history)
   useEffect(() => {
     const view = viewRef.current;
-    if (!view || !containerRef.current) return;
-
-    const currentValue = view.state.doc.toString();
-    view.destroy();
+    if (!view) return;
 
     const isDark = theme !== 'light';
-    const customTheme = isDark ? EditorView.theme({
+    const newCustomTheme = isDark ? EditorView.theme({
       '&': { height: '100%', fontSize: '14px' },
       '.cm-scroller': { overflow: 'auto', fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace" },
       '.cm-content': { padding: '12px 0', minHeight: '100%' },
@@ -505,50 +505,15 @@ export default function SQLEditor({
       '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': { backgroundColor: '#264f78 !important' },
       '.cm-activeLine': { backgroundColor: 'rgba(16, 185, 129, 0.06)' },
       '.cm-activeLineGutter': { backgroundColor: 'rgba(16, 185, 129, 0.1)' },
-      // Mobile optimizations
       '@media (max-width: 768px)': {
         '&': { fontSize: '16px' },
         '.cm-content': { padding: '8px 0' },
       },
     }) : lightTheme;
 
-    const state = EditorState.create({
-      doc: currentValue,
-      extensions: [
-        lineNumbers(),
-        highlightActiveLineGutter(),
-        highlightSpecialChars(),
-        history(),
-        drawSelection(),
-        EditorState.allowMultipleSelections.of(true),
-        syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-        bracketMatching(),
-        closeBrackets(),
-        highlightActiveLine(),
-        sql(
-          schemaRef.current
-            ? { schema: Object.fromEntries(schemaRef.current.tables.map((t) => [t.name, { columns: t.columns.map((c) => c.name) }])) as Record<string, { columns: string[] }> }
-            : undefined
-        ),
-        autocompletion({
-          override: [(context) => createSchemaCompletion(schemaRef.current)?.(context)],
-        }),
-        ...(isDark ? [oneDark] : []),
-        customTheme,
-        keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...searchKeymap, ...historyKeymap, ...completionKeymap]),
-        keymap.of([
-          { key: 'Mod-Enter', run: () => { onRunRef.current?.(); return true; } },
-          { key: 'Tab', run: (v) => { v.dispatch({ changes: { from: v.state.selection.main.from, to: v.state.selection.main.to, insert: '  ' } }); return true; } },
-          { key: 'Mod-Shift-f', run: () => { onFormatSQLRef.current?.(); return true; } },
-          { key: 'Mod-z', run: () => { onUndoRef.current?.(); return false; } },
-          { key: 'Mod-y', run: () => { onRedoRef.current?.(); return false; } },
-        ]),
-        EditorView.updateListener.of((update) => { if (update.docChanged) onChangeRef.current(update.state.doc.toString()); }),
-        EditorView.lineWrapping,
-      ],
+    view.dispatch({
+      effects: themeCompartmentRef.current.reconfigure(newCustomTheme),
     });
-
-    viewRef.current = new EditorView({ state, parent: containerRef.current });
   }, [theme]);
 
   // Update content from outside

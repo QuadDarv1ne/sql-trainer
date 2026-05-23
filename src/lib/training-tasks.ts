@@ -26,10 +26,6 @@ export {
 } from './tasks/advanced';
 
 export {
-  CLICKHOUSE_TASKS,
-} from './tasks/clickhouse';
-
-export {
   MONGODB_TASKS,
 } from './tasks/mongodb';
 

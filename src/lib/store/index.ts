@@ -88,23 +88,18 @@ export const useSQLTrainerStore = create<CombinedState>()(
 
       // Override markTaskCompleted to include gamification (cross-slice coordination)
       markTaskCompleted: (taskId: string, attempts: number) => {
-        const { checkAndUnlockAchievements, addXP, completedTasks, queryHistory } = get();
-
-        // First update completed tasks
-        set({
+        // Use functional update to avoid race condition with completedTasks
+        set((state) => ({
           completedTasks: [
-            ...completedTasks.filter((t) => t.taskId !== taskId),
+            ...state.completedTasks.filter((t) => t.taskId !== taskId),
             { taskId, completedAt: Date.now(), attempts },
           ],
-        });
+        }));
 
-        // Then handle gamification
-        const updatedTasks = [
-          ...completedTasks.filter((t) => t.taskId !== taskId),
-          { taskId, completedAt: Date.now(), attempts },
-        ];
+        // Gamification updates (read fresh state after completedTasks update)
+        const { completedTasks, queryHistory, checkAndUnlockAchievements, addXP } = get();
         const { xpGained } = checkAndUnlockAchievements({
-          completedTasks: updatedTasks,
+          completedTasks,
           queryHistoryLength: queryHistory.length,
           taskId,
           attempts,
