@@ -27,6 +27,11 @@ const DB_OPTIONS: { value: DbType; label: string; description: string }[] = [
     label: 'ClickHouse',
     description: 'Синтаксис ClickHouse',
   },
+  {
+    value: 'mongodb',
+    label: 'MongoDB',
+    description: 'MongoDB Query API',
+  },
 ];
 
 export default function DbSelector({ dbType, onChange }: DbSelectorProps) {

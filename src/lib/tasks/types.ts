@@ -3,7 +3,7 @@
  */
 
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
-export type DbType = 'sqlite' | 'postgresql' | 'clickhouse';
+export type DbType = 'sqlite' | 'postgresql' | 'clickhouse' | 'mongodb';
 export type TaskCategory = 'company' | 'shop' | 'analytics' | 'exam';
 
 export interface TrainingTask {

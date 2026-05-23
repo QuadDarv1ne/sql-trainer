@@ -603,7 +603,7 @@ export function getSchemaInfo(
 export function explainQuery(
   sql: string,
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mongodb' = 'sqlite'
 ): { success: boolean; plan?: string; error?: string } {
   const db = new Database(':memory:');
   db.pragma('foreign_keys = ON');

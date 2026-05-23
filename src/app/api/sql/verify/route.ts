@@ -3,6 +3,7 @@ import { executeWithSchema, executeWithSchemaMulti } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
+import { executeMongoQuery } from '@/lib/mongodb-engine';
 
 const sqlVerifySchema = z.object({
   sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
@@ -131,6 +132,11 @@ export async function POST(request: NextRequest) {
     }
 
     const effectiveDbType = dbType || task.dbType;
+
+    // MongoDB uses its own verification
+    if (effectiveDbType === 'mongodb') {
+      return verifyMongoDb(sql, task);
+    }
 
     // For multi-statement queries with DML (INSERT/UPDATE/DELETE) followed by SELECT,
     // we need to execute everything on the same database so DML changes persist.
@@ -403,5 +409,77 @@ function compareResults(
     userRowCount,
     expectedRowCount,
     message,
+  });
+}
+
+/**
+ * Verification for MongoDB tasks.
+ * Executes user query and solution query, compares results.
+ */
+function verifyMongoDb(
+  userQuery: string,
+  task: ReturnType<typeof getTaskById>
+): NextResponse {
+  if (!task) {
+    return NextResponse.json(
+      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Задание не найдено' },
+      { status: 404 }
+    );
+  }
+
+  const schema = task.schema ? JSON.parse(task.schema) : {};
+
+  // Execute user query
+  const userResult = executeMongoQuery(userQuery, schema);
+  if (!userResult.success) {
+    return NextResponse.json({
+      verified: false,
+      userRowCount: 0,
+      expectedRowCount: 0,
+      message: userResult.error || 'Ошибка выполнения запроса',
+    });
+  }
+
+  // Execute solution query
+  const solutionResult = executeMongoQuery(task.sampleSolution, schema);
+  if (!solutionResult.success) {
+    return NextResponse.json({
+      verified: false,
+      userRowCount: 0,
+      expectedRowCount: 0,
+      message: 'Ошибка в решении задания',
+    });
+  }
+
+  const userRowCount = userResult.rows.length;
+  const expectedRowCount = solutionResult.rows.length;
+
+  if (userRowCount !== expectedRowCount) {
+    return NextResponse.json({
+      verified: false,
+      userRowCount,
+      expectedRowCount,
+      message: `⚠️ Количество документов не совпадает: получено ${userRowCount}, ожидается ${expectedRowCount}`,
+    });
+  }
+
+  // Simple row comparison
+  const userJson = JSON.stringify(userResult.rows.sort());
+  const expectedJson = JSON.stringify(solutionResult.rows.sort());
+
+  if (userJson === expectedJson) {
+    return NextResponse.json({
+      verified: true,
+      userRowCount,
+      expectedRowCount,
+      message: `✅ Задание выполнено верно! (${userRowCount} документов)`,
+    });
+  }
+
+  return NextResponse.json({
+    verified: false,
+    userRowCount,
+    expectedRowCount,
+    message: `⚠️ Количество документов совпадает (${userRowCount}), но данные отличаются. Проверьте запрос.`,
   });
 }

@@ -5,12 +5,12 @@ import { z } from 'zod';
 
 const sqlExplainSchema = z.object({
   sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
-  dbType: z.enum(['sqlite', 'postgresql']).optional(),
+  dbType: z.enum(['sqlite', 'postgresql', 'mongodb']).optional(),
   taskId: z.string().min(1, { message: 'taskId обязателен для EXPLAIN' }),
 });
 
 const MAX_SQL_LENGTH = 10000;
-const VALID_DB_TYPES = ['sqlite', 'postgresql'] as const;
+const VALID_DB_TYPES = ['sqlite', 'postgresql', 'mongodb'] as const;
 
 /**
  * Analyze EXPLAIN plan and return performance suggestions.

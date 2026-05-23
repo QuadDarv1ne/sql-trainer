@@ -3,15 +3,16 @@ import { executeQuery, executeWithSchema } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
+import { executeMongoQuery } from '@/lib/mongodb-engine';
 
 const sqlExecuteSchema = z.object({
   sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
-  dbType: z.enum(['sqlite', 'postgresql', 'clickhouse']).optional(),
+  dbType: z.enum(['sqlite', 'postgresql', 'clickhouse', 'mongodb']).optional(),
   taskId: z.string().optional(),
 });
 
 const MAX_SQL_LENGTH = 10000;
-const VALID_DB_TYPES = ['sqlite', 'postgresql', 'clickhouse'] as const;
+const VALID_DB_TYPES = ['sqlite', 'postgresql', 'clickhouse', 'mongodb'] as const;
 
 /**
  * Blocked SQL patterns for training mode.
@@ -83,6 +84,14 @@ export async function POST(request: NextRequest) {
     }
 
     const effectiveDbType = VALID_DB_TYPES.includes(dbType as typeof VALID_DB_TYPES[number]) ? dbType : 'sqlite';
+
+    // MongoDB uses its own engine
+    if (effectiveDbType === 'mongodb') {
+      const task = taskId ? getTaskById(taskId) : null;
+      const schema = task?.schema ? JSON.parse(task.schema) : {};
+      const result = executeMongoQuery(sql, schema);
+      return NextResponse.json(result);
+    }
 
     let result;
 
