@@ -4,6 +4,7 @@ import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
+import { logger } from '@/lib/logger';
 
 const sqlExecuteSchema = z.object({
   sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
@@ -11,7 +12,6 @@ const sqlExecuteSchema = z.object({
   taskId: z.string().optional(),
 });
 
-const MAX_SQL_LENGTH = 10000;
 const VALID_DB_TYPES = ['sqlite', 'postgresql', 'clickhouse', 'mongodb'] as const;
 
 /**
@@ -105,7 +105,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(result);
-  } catch (_err: unknown) {
+  } catch (err: unknown) {
+    logger.error('SQL execute error:', err);
     return NextResponse.json(
       { success: false, error: 'Произошла внутренняя ошибка', columns: [], rows: [], executionTime: 0 },
       { status: 500 }

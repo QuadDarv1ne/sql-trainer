@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { explainQuery } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { z } from 'zod';
+import { rateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 
 const sqlExplainSchema = z.object({
   sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
@@ -9,7 +11,6 @@ const sqlExplainSchema = z.object({
   taskId: z.string().min(1, { message: 'taskId обязателен для EXPLAIN' }),
 });
 
-const MAX_SQL_LENGTH = 10000;
 const VALID_DB_TYPES = ['sqlite', 'postgresql', 'mongodb'] as const;
 
 /**
@@ -57,6 +58,16 @@ function analyzePlan(plan: string, sql: string): string[] {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 15 explain requests per minute per IP
+    const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
+    const limitResult = rateLimit(`explain:${ip}`, { max: 15, windowMs: 60_000 });
+    if (!limitResult.success) {
+      return NextResponse.json(
+        { success: false, error: 'Слишком много запросов. Подождите немного' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const parsed = sqlExplainSchema.safeParse(body);
 
@@ -88,7 +99,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(result);
-  } catch (_err: unknown) {
+  } catch (err: unknown) {
+    logger.error('SQL explain error:', err);
     return NextResponse.json(
       { success: false, error: 'Произошла внутренняя ошибка' },
       { status: 500 }

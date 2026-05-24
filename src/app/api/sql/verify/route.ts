@@ -4,14 +4,13 @@ import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
+import { logger } from '@/lib/logger';
 
 const sqlVerifySchema = z.object({
   sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
   taskId: z.string().min(1, { message: 'taskId обязателен' }),
   dbType: z.string().optional(),
 });
-
-const MAX_SQL_LENGTH = 10000;
 
 function normalizeValue(val: unknown): string {
   if (val === null || val === undefined) return 'NULL';
@@ -149,7 +148,8 @@ export async function POST(request: NextRequest) {
 
     // For pure SELECT queries, use the original approach
     return verifySelectOnly(sql, task, effectiveDbType);
-  } catch (_err: unknown) {
+  } catch (err: unknown) {
+    logger.error('SQL verify error:', err);
     return NextResponse.json(
       { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Произошла внутренняя ошибка' },
       { status: 500 }

@@ -1,9 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTaskById, TRAINING_TASKS } from '@/lib/training-tasks';
 import { getSchemaInfo } from '@/lib/sql-engine';
+import { rateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 20 init requests per minute per IP
+    const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
+    const limitResult = rateLimit(`init-training:${ip}`, { max: 20, windowMs: 60_000 });
+    if (!limitResult.success) {
+      return NextResponse.json(
+        { success: false, error: 'Слишком много запросов. Подождите немного' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { taskId, dbType } = body;
 
@@ -38,7 +50,8 @@ export async function POST(request: NextRequest) {
       },
       schema: schemaInfo,
     });
-  } catch (_err: unknown) {
+  } catch (err: unknown) {
+    logger.error('SQL init-training POST error:', err);
     return NextResponse.json(
       { success: false, error: 'Произошла внутренняя ошибка' },
       { status: 500 }
@@ -48,6 +61,16 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    // Rate limit: 10 task list requests per minute per IP
+    const ip = 'unknown';
+    const limitResult = rateLimit(`init-training-list:${ip}`, { max: 10, windowMs: 60_000 });
+    if (!limitResult.success) {
+      return NextResponse.json(
+        { success: false, error: 'Слишком много запросов. Подождите немного' },
+        { status: 429 }
+      );
+    }
+
     // Return all tasks (without schema to reduce payload)
     const tasksList = TRAINING_TASKS.map((t) => ({
       id: t.id,
@@ -58,7 +81,8 @@ export async function GET() {
     }));
 
     return NextResponse.json({ success: true, tasks: tasksList });
-  } catch (_err: unknown) {
+  } catch (err: unknown) {
+    logger.error('SQL init-training GET error:', err);
     return NextResponse.json(
       { success: false, error: 'Произошла внутренняя ошибка' },
       { status: 500 }

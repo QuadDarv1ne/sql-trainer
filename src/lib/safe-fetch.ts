@@ -1,6 +1,7 @@
 /**
- * Safe fetch wrapper with error logging and optional retry logic.
+ * Safe fetch with error logging and optional retry logic.
  */
+import { logger } from './logger';
 
 interface SafeFetchOptions extends RequestInit {
   maxRetries?: number;
@@ -35,7 +36,7 @@ export async function safeFetch<T = unknown>(
   }
 
   if (lastError) {
-    console.error(`[safeFetch] Failed after ${maxRetries + 1} attempts: ${lastError.message}`);
+    logger.error(`[safeFetch] Failed after ${maxRetries + 1} attempts: ${lastError.message}`);
     onError?.(lastError);
   }
 
