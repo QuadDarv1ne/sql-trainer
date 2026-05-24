@@ -5,6 +5,7 @@ import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { logger } from '@/lib/logger';
+import { auth } from '@/lib/auth';
 
 const sqlExecuteSchema = z.object({
   sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
@@ -15,44 +16,129 @@ const sqlExecuteSchema = z.object({
 const VALID_DB_TYPES = ['sqlite', 'postgresql', 'clickhouse', 'mongodb'] as const;
 
 /**
- * Blocked SQL patterns for training mode.
- * These prevent destructive operations while allowing legitimate training queries.
+ * Allowed SQL statement prefixes for training mode.
+ * Only these statement types are permitted.
  */
-const BLOCKED_PATTERNS = [
-  // Destructive operations
-  /\bDROP\s+(TABLE|INDEX|VIEW|TRIGGER)\b/i,
-  /\bDELETE\s+FROM\s+sqlite_/i,
-  /\bALTER\s+TABLE\s+sqlite_/i,
-  /\bATTACH\b/i,
-  /\bDETACH\b/i,
-  // System table modifications
-  /\bINSERT\s+INTO\s+sqlite_/i,
-  /\bUPDATE\s+sqlite_/i,
-  // Shell/exec commands (SQLite)
-  /\b\.shell\b/i,
-  /\b\.system\b/i,
-  // Load extension (potential security risk)
-  /\bLOAD_EXTENSION\b/i,
-];
+const ALLOWED_PREFIXES = [
+  'SELECT',
+  'WITH',
+  'EXPLAIN',
+  'PRAGMA',
+  'SHOW',
+  'DESCRIBE',
+  'DESC',
+] as const;
+
+/**
+ * Blocked SQL statement prefixes - DDL and DML that could be destructive.
+ */
+const BLOCKED_PREFIXES = [
+  'DROP', 'ALTER', 'TRUNCATE', 'CREATE', 'RENAME',
+  'ATTACH', 'DETACH', 'LOAD',
+  'INSERT', 'UPDATE', 'DELETE', 'REPLACE',
+  'GRANT', 'REVOKE',
+  'PRAGMA writable_schema',
+] as const;
+
+/**
+ * Tokenize SQL to extract statement types, handling comments and strings.
+ * This prevents bypassing filters via comment injection.
+ */
+function extractStatementTypes(sql: string): string[] {
+  const statements: string[] = [];
+  let i = 0;
+  const upper = sql.toUpperCase();
+
+  while (i < upper.length) {
+    // Skip block comments
+    if (upper.startsWith('/*', i)) {
+      const end = upper.indexOf('*/', i + 2);
+      i = end === -1 ? upper.length : end + 2;
+      continue;
+    }
+
+    // Skip line comments
+    if (upper.startsWith('--', i)) {
+      const end = upper.indexOf('\n', i);
+      i = end === -1 ? upper.length : end + 1;
+      continue;
+    }
+
+    // Skip string literals
+    if (upper[i] === "'" || upper[i] === '"') {
+      const quote = upper[i];
+      i++;
+      while (i < upper.length) {
+        if (upper[i] === quote && upper[i - 1] !== '\\') break;
+        i++;
+      }
+      i++;
+      continue;
+    }
+
+    // Read a word
+    if (/\s/.test(upper[i])) {
+      i++;
+      continue;
+    }
+
+    let word = '';
+    while (i < upper.length && /[A-Z0-9_.]/.test(upper[i])) {
+      word += upper[i];
+      i++;
+    }
+
+    if (word) {
+      // Check if it's a known statement type
+      const firstWord = word.split('.')[0];
+      statements.push(firstWord);
+    }
+  }
+
+  return statements;
+}
 
 /**
  * Validate SQL for safety in training mode.
- * Returns an error message if blocked, or null if safe.
+ * Uses tokenization to prevent comment injection bypass.
  */
 function validateTrainingSql(sql: string): string | null {
-  for (const pattern of BLOCKED_PATTERNS) {
-    if (pattern.test(sql)) {
-      return 'Запрос содержит заблокированные команды. В режиме обучения разрешены только SELECT, INSERT, UPDATE, DELETE для пользовательских таблиц.';
+  const statementTypes = extractStatementTypes(sql);
+
+  for (const stmt of statementTypes) {
+    // Check against blocked prefixes first (more specific)
+    for (const blocked of BLOCKED_PREFIXES) {
+      if (stmt === blocked || stmt.startsWith(blocked + ' ')) {
+        return `Запрос содержит заблокированные команды (${stmt}). В режиме обучения разрешены только SELECT, WITH, EXPLAIN, PRAGMA.`;
+      }
+    }
+
+    // Check against allowed prefixes
+    const isAllowed = ALLOWED_PREFIXES.some(
+      (allowed) => stmt === allowed || stmt.startsWith(allowed + ' ')
+    );
+
+    if (!isAllowed && stmt.length > 0) {
+      return `Неизвестная команда SQL (${stmt}). В режиме обучения разрешены только SELECT, WITH, EXPLAIN, PRAGMA.`;
     }
   }
+
   return null;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limit: 30 queries/min for anonymous, 60 for authenticated
-    const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
-    const limitResult = rateLimit(`sql:${ip}`, { max: 30, windowMs: 60_000 });
+    // Authenticate and apply rate limiting
+    const session = await auth();
+    const isAuthenticated = !!session?.user?.id;
+
+    // Rate limit: 30/min for anonymous, 60/min for authenticated
+    const rateKey = isAuthenticated
+      ? `sql:user:${session.user.id}`
+      : `sql:ip:${request.ip ?? 'unknown'}`;
+
+    const maxQueries = isAuthenticated ? 60 : 30;
+    const limitResult = rateLimit(rateKey, { max: maxQueries, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json(
         { success: false, error: 'Слишком много запросов. Подождите немного', columns: [], rows: [], executionTime: 0 },
