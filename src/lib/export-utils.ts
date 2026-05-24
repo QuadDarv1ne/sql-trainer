@@ -37,9 +37,17 @@ export function exportToCSV(data: Record<string, unknown>[], columns: ExportColu
 export function exportToExcel(data: Record<string, unknown>[], columns: ExportColumn[], filename: string): void {
   if (!data.length) return;
 
-  const headerRow = columns.map(col => `<th style="background:#2563eb;color:white;font-weight:bold;">${col.label}</th>`).join('');
+  const escapeHtml = (str: string): string =>
+    str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
+
+  const headerRow = columns.map(col => `<th style="background:#2563eb;color:white;font-weight:bold;">${escapeHtml(col.label)}</th>`).join('');
   const bodyRows = data.map(row => {
-    const cells = columns.map(col => `<td>${String(row[col.key] ?? '')}</td>`).join('');
+    const cells = columns.map(col => `<td>${escapeHtml(String(row[col.key] ?? ''))}</td>`).join('');
     return `<tr>${cells}</tr>`;
   }).join('');
 

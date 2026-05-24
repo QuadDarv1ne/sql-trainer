@@ -377,8 +377,6 @@ export default function SQLEditor({
       },
     }) : lightTheme;
 
-    themeExtensionRef.current = customTheme;
-
     // Custom keybindings
     const runKeymap = keymap.of([
       {

@@ -88,25 +88,35 @@ export const useSQLTrainerStore = create<CombinedState>()(
 
       // Override markTaskCompleted to include gamification (cross-slice coordination)
       markTaskCompleted: (taskId: string, attempts: number) => {
-        // Use functional update to avoid race condition with completedTasks
-        set((state) => ({
-          completedTasks: [
+        set((state) => {
+          const updatedCompletedTasks = [
             ...state.completedTasks.filter((t) => t.taskId !== taskId),
             { taskId, completedAt: Date.now(), attempts },
-          ],
-        }));
+          ];
 
-        // Gamification updates (read fresh state after completedTasks update)
-        const { completedTasks, queryHistory, checkAndUnlockAchievements, addXP } = get();
-        const { xpGained } = checkAndUnlockAchievements({
-          completedTasks,
-          queryHistoryLength: queryHistory.length,
-          taskId,
-          attempts,
+          const { xpGained } = state.checkAndUnlockAchievements({
+            completedTasks: updatedCompletedTasks,
+            queryHistoryLength: state.queryHistory.length,
+            taskId,
+            attempts,
+          });
+
+          const xpToAdd = xpGained > 0 ? xpGained : 0;
+          const newXp = state.userStats.xp + xpToAdd;
+          const xpForNext = state.userStats.level * 100;
+          const newLevel = newXp >= xpForNext ? state.userStats.level + 1 : state.userStats.level;
+          const newLevelProgress = newXp >= xpForNext ? newXp - xpForNext : newXp;
+
+          return {
+            completedTasks: updatedCompletedTasks,
+            userStats: {
+              ...state.userStats,
+              xp: newXp,
+              level: newLevel,
+              levelProgress: newLevelProgress,
+            },
+          };
         });
-        if (xpGained > 0) {
-          addXP(xpGained);
-        }
       },
 
       // Gamification slice

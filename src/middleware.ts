@@ -14,6 +14,29 @@ const roleProtectedRoutes: Record<string, Role[]> = {
 // Routes that should redirect to /app if already authenticated
 const authRoutes = ['/login', '/register', '/reset-password'];
 
+const securityHeaders = {
+  'X-DNS-Prefetch-Control': 'on',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+  'X-Frame-Options': 'SAMEORIGIN',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    "connect-src 'self'",
+    "media-src 'none'",
+    "object-src 'none'",
+    "frame-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+  ].join('; '),
+};
+
 export default auth(async (request) => {
   const pathname = request.nextUrl.pathname;
   const session = await auth();
@@ -45,9 +68,18 @@ export default auth(async (request) => {
     }
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+
+  // Apply security headers to all responses
+  for (const [key, value] of Object.entries(securityHeaders)) {
+    response.headers.set(key, value);
+  }
+
+  return response;
 });
 
 export const config = {
-  matcher: ['/login', '/register', '/reset-password', '/profile/:path*', '/admin/:path*', '/teacher/:path*', '/app/:path*'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };

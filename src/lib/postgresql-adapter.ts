@@ -15,6 +15,7 @@
  * incorrect results when using PostgreSQL mode. Users should be aware of
  * these limitations when writing queries in training mode.
  */
+import { splitSqlSegments } from './sql-utils';
 
 // Map of PostgreSQL data types to SQLite equivalents
 const TYPE_MAP: Record<string, string> = {
@@ -147,8 +148,13 @@ export function adaptPostgreSQLToSQLite(sql: string): string {
   // Replace BOOLEAN DEFAULT TRUE/FALSE
   result = result.replace(/\bDEFAULT\s+TRUE\b/gi, 'DEFAULT 1');
   result = result.replace(/\bDEFAULT\s+FALSE\b/gi, 'DEFAULT 0');
-  result = result.replace(/\bTRUE\b/g, '1');
-  result = result.replace(/\bFALSE\b/g, '0');
+
+  // Replace TRUE/FALSE only in non-string segments to preserve string literals like 'TRUE'
+  const segments = splitSqlSegments(result);
+  result = segments.map((segment, i) => {
+    if (i % 2 === 1) return segment; // skip string literals
+    return segment.replace(/\bTRUE\b/g, '1').replace(/\bFALSE\b/g, '0');
+  }).join('');
 
   // Replace ILIKE with LIKE (SQLite LIKE is case-insensitive by default for ASCII)
   result = result.replace(/\bILIKE\b/g, 'LIKE');
@@ -159,8 +165,8 @@ export function adaptPostgreSQLToSQLite(sql: string): string {
   // Replace DISTINCT ON - not supported in SQLite
   result = result.replace(/\bDISTINCT\s+ON\s*\([^)]+\)/gi, 'DISTINCT');
 
-  // Replace ::type casting with CAST
-  result = result.replace(/::([\w\s]+(\([\d,\s]+\))?)/g, (_, type) => {
+  // Replace ::type casting with CAST — using precise non-greedy pattern
+  result = result.replace(/::([A-Za-z]+(?:\s*\([^)]*\))?)/g, (_, type) => {
     const trimmed = type.trim().toUpperCase();
     const mapped = TYPE_MAP[trimmed] || trimmed;
     return ` AS ${mapped}`;

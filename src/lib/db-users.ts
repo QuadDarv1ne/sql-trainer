@@ -349,7 +349,9 @@ export async function updatePassword(userId: string, newPassword: string): Promi
 // Reset codes
 export async function createResetCode(userId: string, type: 'email' | 'phone'): Promise<string> {
   const db = getDb();
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const cryptoArray = new Uint32Array(1);
+  crypto.getRandomValues(cryptoArray);
+  const code = (100000 + (cryptoArray[0] % 900000)).toString();
   const id = crypto.randomUUID();
   const expiresAt = Date.now() + 15 * 60 * 1000;
 
