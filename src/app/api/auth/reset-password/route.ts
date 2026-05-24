@@ -45,9 +45,9 @@ export async function POST(request: NextRequest) {
       message: 'Если email зарегистрирован, код восстановления отправлен',
     });
   } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : 'Внутренняя ошибка сервера';
+    logger.error('Reset password POST error:', err);
     return NextResponse.json(
-      { success: false, error: errorMsg },
+      { success: false, error: 'Внутренняя ошибка сервера' },
       { status: 500 }
     );
   }
@@ -106,9 +106,9 @@ export async function PUT(request: NextRequest) {
       user: user ? { id: user.id, name: user.name, email: user.email } : null,
     });
   } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : 'Внутренняя ошибка сервера';
+    logger.error('Reset password PUT error:', err);
     return NextResponse.json(
-      { success: false, error: errorMsg },
+      { success: false, error: 'Внутренняя ошибка сервера' },
       { status: 500 }
     );
   }

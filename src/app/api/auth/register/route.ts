@@ -3,6 +3,7 @@ import { createUser } from '@/lib/db-users';
 import type { UserRole } from '@/lib/db-users';
 import { rateLimit } from '@/lib/rate-limit';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -73,9 +74,9 @@ export async function POST(request: NextRequest) {
       user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role },
     });
   } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : 'Внутренняя ошибка сервера';
+    logger.error('Registration error:', err);
     return NextResponse.json(
-      { success: false, error: errorMsg },
+      { success: false, error: 'Внутренняя ошибка сервера' },
       { status: 500 }
     );
   }

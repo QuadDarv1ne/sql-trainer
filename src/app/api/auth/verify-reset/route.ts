@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyResetCode } from '@/lib/db-users';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,9 +24,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, userId: result.userId, type: result.type });
   } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : 'Внутренняя ошибка сервера';
+    logger.error('Verify reset code error:', err);
     return NextResponse.json(
-      { success: false, error: errorMsg },
+      { success: false, error: 'Внутренняя ошибка сервера' },
       { status: 500 }
     );
   }

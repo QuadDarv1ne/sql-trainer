@@ -7,6 +7,8 @@ import { NextResponse } from 'next/server';
 import type { UserRole } from '@/lib/db-users';
 import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
+import { rateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 
 interface AuthSession {
   user: {
@@ -78,13 +80,25 @@ export function withAdminAuth(
       return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
     }
 
+    // Rate limit admin requests: 30 per minute per user
+    const userId = authResult.session.user.id;
+    const limitResult = rateLimit(`admin:${userId}`, { max: 30, windowMs: 60_000 });
+    if (!limitResult.success) {
+      return NextResponse.json({ error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
+    }
+
     const params = context?.params
       ? 'then' in context.params
         ? await context.params
         : context.params
       : undefined;
 
-    return handler({ session: authResult.session, request, params });
+    try {
+      return await handler({ session: authResult.session, request, params });
+    } catch (error) {
+      logger.error('Admin handler error:', error);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
   };
 }
 
@@ -100,13 +114,25 @@ export function withTeacherAuth(
       return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
     }
 
+    // Rate limit teacher requests: 30 per minute per user
+    const userId = authResult.session.user.id;
+    const limitResult = rateLimit(`teacher:${userId}`, { max: 30, windowMs: 60_000 });
+    if (!limitResult.success) {
+      return NextResponse.json({ error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
+    }
+
     const params = context?.params
       ? 'then' in context.params
         ? await context.params
         : context.params
       : undefined;
 
-    return handler({ session: authResult.session, request, params });
+    try {
+      return await handler({ session: authResult.session, request, params });
+    } catch (error) {
+      logger.error('Teacher handler error:', error);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
   };
 }
 
@@ -124,16 +150,28 @@ export function withAnalyticsAuth(
       return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
     }
 
+    // Rate limit analytics requests: 30 per minute per user
+    const userId = authResult.session.user.id;
+    const limitResult = rateLimit(`analytics:${userId}`, { max: 30, windowMs: 60_000 });
+    if (!limitResult.success) {
+      return NextResponse.json({ error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
+    }
+
     const url = new URL(request.url);
     const searchParams = url.searchParams;
     const { startDate, endDate } = parseDateParams(searchParams);
 
-    return handler({
-      session: authResult.session,
-      startDate,
-      endDate,
-      searchParams,
-    });
+    try {
+      return await handler({
+        session: authResult.session,
+        startDate,
+        endDate,
+        searchParams,
+      });
+    } catch (error) {
+      logger.error('Analytics handler error:', error);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
   };
 }
 
