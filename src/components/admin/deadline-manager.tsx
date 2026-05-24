@@ -91,8 +91,9 @@ export function DeadlineManager() {
       if (!res.ok) throw new Error(data.error);
       toast.success(t('deadline.deleted'));
       fetchDeadlines();
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : t('admin.stats.loading');
+      toast.error(message);
     } finally {
       setDeleteId(null);
     }

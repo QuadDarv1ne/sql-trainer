@@ -82,23 +82,6 @@ export default function OnboardingTour({ onComplete }: OnboardingTourProps) {
   const isLastStep = currentStep === ONBOARDING_STEPS.length - 1;
   const isFirstStep = currentStep === 0;
 
-  // Handle keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleSkip();
-      }
-      if (e.key === 'ArrowRight' && !isLastStep) {
-        handleNext();
-      }
-      if (e.key === 'ArrowLeft' && !isFirstStep) {
-        handlePrev();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentStep, isLastStep, isFirstStep]);
-
   const handleNext = () => {
     if (isLastStep) {
       handleComplete();
@@ -122,6 +105,23 @@ export default function OnboardingTour({ onComplete }: OnboardingTourProps) {
     setOnboardingCompleted(true);
     onComplete();
   };
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleSkip();
+      }
+      if (e.key === 'ArrowRight' && !isLastStep) {
+        handleNext();
+      }
+      if (e.key === 'ArrowLeft' && !isFirstStep) {
+        handlePrev();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentStep, isLastStep, isFirstStep]);
 
   if (!isVisible) return null;
 

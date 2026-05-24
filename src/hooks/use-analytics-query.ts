@@ -38,6 +38,7 @@ export function useAnalyticsQuery<T = unknown>({
   const [error, setError] = useState<string | null>(null);
   const { startDate, endDate } = useDateRange();
   const abortRef = useRef<AbortController | null>(null);
+  const paramsKey = JSON.stringify(params);
 
   const fetchData = useCallback(async () => {
     // Cancel previous in-flight request
@@ -79,7 +80,7 @@ export function useAnalyticsQuery<T = unknown>({
     } finally {
       setLoading(false);
     }
-  }, [endpoint, dataKey, startDate, endDate, JSON.stringify(params)]);
+  }, [endpoint, dataKey, startDate, endDate, paramsKey]);
 
   useEffect(() => {
     if (!enabled) {

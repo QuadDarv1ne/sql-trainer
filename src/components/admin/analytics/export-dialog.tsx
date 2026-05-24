@@ -83,11 +83,12 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
         const pdfSections: AnalyticsSection[] = [];
 
         if (data.classReport) {
+          const report = data.classReport as { total_students?: number; active_students?: number; avg_completion_rate?: number; avg_attempts?: number };
           pdfData.overview = {
-            total_students: (data.classReport as any).total_students || 0,
-            active_students: (data.classReport as any).active_students || 0,
-            avg_completion_rate: (data.classReport as any).avg_completion_rate || 0,
-            avg_attempts: (data.classReport as any).avg_attempts || 0,
+            total_students: report.total_students || 0,
+            active_students: report.active_students || 0,
+            avg_completion_rate: report.avg_completion_rate || 0,
+            avg_attempts: report.avg_attempts || 0,
           };
           pdfSections.push('overview');
         }

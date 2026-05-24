@@ -19,6 +19,14 @@ import { generateClassReportPDF } from '@/lib/pdf-report';
 import { t, getLocale } from '@/lib/i18n';
 import { logger } from '@/lib/logger';
 
+interface StudentRecord {
+  name: string;
+  last_active?: number;
+  completion_rate: number;
+  avg_attempts: number;
+  tasks_completed: number;
+}
+
 interface TeacherExportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -58,29 +66,29 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
         generateClassReportPDF(
           {
             total_students: students.length,
-            active_students: students.filter((s: any) => s.last_active && s.last_active > Date.now() - 7 * 24 * 60 * 60 * 1000).length,
+            active_students: students.filter((s: StudentRecord) => s.last_active && s.last_active > Date.now() - 7 * 24 * 60 * 60 * 1000).length,
             avg_completion_rate: students.length > 0
-              ? Math.round(students.reduce((s: number, st: any) => s + st.completion_rate, 0) / students.length)
+              ? Math.round(students.reduce((s: number, st: StudentRecord) => s + st.completion_rate, 0) / students.length)
               : 0,
             avg_attempts: students.length > 0
-              ? Math.round(students.reduce((s: number, st: any) => s + st.avg_attempts, 0) / students.length * 10) / 10
+              ? Math.round(students.reduce((s: number, st: StudentRecord) => s + st.avg_attempts, 0) / students.length * 10) / 10
               : 0,
-            at_risk_count: students.filter((s: any) => s.tasks_completed < 5).length,
-            excelling_count: students.filter((s: any) => s.tasks_completed > 45).length,
+            at_risk_count: students.filter((s: StudentRecord) => s.tasks_completed < 5).length,
+            excelling_count: students.filter((s: StudentRecord) => s.tasks_completed > 45).length,
             top_performers: students
-              .filter((s: any) => s.tasks_completed > 30)
-              .sort((a: any, b: any) => b.tasks_completed - a.tasks_completed)
+              .filter((s: StudentRecord) => s.tasks_completed > 30)
+              .sort((a: StudentRecord, b: StudentRecord) => b.tasks_completed - a.tasks_completed)
               .slice(0, 5)
-              .map((s: any) => ({ name: s.name, tasks_completed: s.tasks_completed, avg_attempts: s.avg_attempts })),
+              .map((s: StudentRecord) => ({ name: s.name, tasks_completed: s.tasks_completed, avg_attempts: s.avg_attempts })),
             struggling_students: students
-              .filter((s: any) => s.avg_attempts > 4 && s.tasks_completed >= 3)
-              .sort((a: any, b: any) => b.avg_attempts - a.avg_attempts)
+              .filter((s: StudentRecord) => s.avg_attempts > 4 && s.tasks_completed >= 3)
+              .sort((a: StudentRecord, b: StudentRecord) => b.avg_attempts - a.avg_attempts)
               .slice(0, 5)
-              .map((s: any) => ({ name: s.name, tasks_completed: s.tasks_completed, avg_attempts: s.avg_attempts })),
+              .map((s: StudentRecord) => ({ name: s.name, tasks_completed: s.tasks_completed, avg_attempts: s.avg_attempts })),
             inactive_students: students
-              .filter((s: any) => !s.last_active || s.last_active < Date.now() - 7 * 24 * 60 * 60 * 1000)
+              .filter((s: StudentRecord) => !s.last_active || s.last_active < Date.now() - 7 * 24 * 60 * 60 * 1000)
               .slice(0, 10)
-              .map((s: any) => ({ name: s.name, last_active: s.last_active || 0 })),
+              .map((s: StudentRecord) => ({ name: s.name, last_active: s.last_active || 0 })),
           },
           {
             title: t('teacher.export.classReport'),
