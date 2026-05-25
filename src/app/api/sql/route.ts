@@ -8,16 +8,15 @@ import { logger } from '@/lib/logger';
 import { auth } from '@/lib/auth';
 
 /**
- * Extract client IP from request, preferring x-forwarded-for header for proxy reliability.
- * Falls back to request.ip if header is not present.
+ * Extract client IP from request using x-forwarded-for header for proxy reliability.
+ * Returns 'unknown' if header is not present.
  */
 function getIpFromRequest(request: NextRequest): string {
   const forwardedFor = request.headers.get('x-forwarded-for');
   if (forwardedFor) {
-    // x-forwarded-for can contain multiple IPs, take the first one
     return forwardedFor.split(',')[0].trim();
   }
-  return request.ip ?? 'unknown';
+  return 'unknown';
 }
 
 const sqlExecuteSchema = z.object({

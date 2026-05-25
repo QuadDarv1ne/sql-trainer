@@ -14,4 +14,7 @@ export const logger = {
   info: (message: string, ...args: unknown[]) => {
     console.info(`[INFO] ${message}`, ...args);
   },
+  debug: (message: string, ...args: unknown[]) => {
+    console.debug(`[DEBUG] ${message}`, ...args);
+  },
 };
