@@ -40,12 +40,27 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
     "no-useless-escape": "off",
   },
 }, {
+  // Scripts can use console.log and don't need strict rules
+  files: ["scripts/**/*.mjs", "scripts/**/*.js"],
+  rules: {
+    "no-console": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+  },
+}, {
   // Relaxed rules for test files
   files: ["src/__tests__/**/*.ts"],
   rules: {
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-require-imports": "off",
+    "no-unused-vars": "off",
+  },
+}, {
+  // Ignore generated files and build artifacts
+  files: ["next-env.d.ts"],
+  rules: {
+    "@typescript-eslint/no-unused-vars": "off",
+    "no-unused-vars": "off",
   },
 }, {
   // db-users.ts is a large legacy file — warn instead of error
