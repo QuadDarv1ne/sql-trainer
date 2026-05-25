@@ -113,7 +113,7 @@ export function renderReminderEmail(reminder: {
           ${typeLabels[reminder.type] || reminder.type} &middot; ${dueDate}
         </div>
         ${escapedDescription ? `<p>${escapedDescription}</p>` : ''}
-        <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}" class="cta">${tWithLocale(safeLocale, 'email.reminder.viewDeadline')}</a>
+        <a href="${process.env.NEXTAUTH_URL}" class="cta">${tWithLocale(safeLocale, 'email.reminder.viewDeadline')}</a>
       </div>
       <div class="footer">
         SQL Trainer &middot; ${new Date().getFullYear()}

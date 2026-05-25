@@ -6,6 +6,7 @@ import { ThemeProvider } from "next-themes";
 import ServiceWorkerRegister from "@/components/service-worker-register";
 import PwaInstallPrompt from "@/components/pwa-install-prompt";
 import { ThemeTimeSync } from "@/components/theme-time-sync";
+import "@/lib/server-env"; // Validate environment variables at startup
 
 export const viewport: Viewport = {
   themeColor: "#10b981",
