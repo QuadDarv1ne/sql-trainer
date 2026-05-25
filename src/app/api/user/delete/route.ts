@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { findUserByEmail, getDb } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+
+const deleteAccountSchema = z.object({
+  confirmPassword: z.string().min(1, 'Подтверждение пароля обязательно'),
+});
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -22,14 +27,15 @@ export async function DELETE(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { confirmPassword } = body;
-
-    if (!confirmPassword) {
+    const result = deleteAccountSchema.safeParse(body);
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'Подтверждение пароля обязательно' },
+        { success: false, error: result.error.errors[0].message },
         { status: 400 }
       );
     }
+
+    const { confirmPassword } = result.data;
 
     // Verify password before deletion
     const user = await findUserByEmail(session.user.email);

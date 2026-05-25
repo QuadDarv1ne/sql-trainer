@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { findUserByIdWithHash, updatePassword } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Текущий пароль обязателен'),
+  newPassword: z.string().min(6, 'Пароль должен содержать минимум 6 символов'),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,21 +28,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { currentPassword, newPassword } = body;
-
-    if (!currentPassword || !newPassword) {
+    const result = changePasswordSchema.safeParse(body);
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'Текущий и новый пароли обязательны' },
+        { success: false, error: result.error.errors[0].message },
         { status: 400 }
       );
     }
 
-    if (newPassword.length < 6) {
-      return NextResponse.json(
-        { success: false, error: 'Пароль должен содержать минимум 6 символов' },
-        { status: 400 }
-      );
-    }
+    const { currentPassword, newPassword } = result.data;
 
     // Verify current password
     const user = await findUserByIdWithHash(session.user.id);

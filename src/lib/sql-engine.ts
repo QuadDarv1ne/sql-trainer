@@ -295,6 +295,53 @@ const MAX_ROWS = 1000;
 /** Maximum query execution time in milliseconds */
 const MAX_EXECUTION_TIME_MS = 5000;
 
+/** Maximum number of cached schema databases */
+const MAX_SCHEMA_CACHE_SIZE = 10;
+
+/** Cache for initialized schema databases: key = schemaSql+dbType hash */
+const schemaCache = new Map<string, Database.Database>();
+
+/**
+ * Generate a simple hash for cache key from schema SQL and db type
+ */
+function schemaCacheKey(schemaSql: string, dbType: string): string {
+  let hash = 0;
+  const str = `${schemaSql}:${dbType}`;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return `${dbType}:${hash}`;
+}
+
+/**
+ * Clone a cached database to a new in-memory instance with the same schema.
+ * Uses SQL dump/restore approach for isolation.
+ */
+function cloneDatabase(source: Database.Database): Database.Database {
+  const dump = source.prepare("SELECT sql FROM sqlite_master WHERE sql IS NOT NULL AND type IN ('table', 'index')").all() as { sql: string }[];
+  const newDb = new Database(':memory:');
+  newDb.pragma('foreign_keys = ON');
+  for (const { sql } of dump) {
+    newDb.exec(sql);
+  }
+  return newDb;
+}
+
+/**
+ * Evict oldest entry if cache is full
+ */
+function evictCacheIfFull(): void {
+  if (schemaCache.size >= MAX_SCHEMA_CACHE_SIZE) {
+    const firstKey = schemaCache.keys().next().value;
+    if (firstKey) {
+      schemaCache.get(firstKey)?.close();
+      schemaCache.delete(firstKey);
+    }
+  }
+}
+
 /**
  * Execute prepared statements against an already-initialized database.
  * Shared logic between executeQuery and executeWithSchema.
@@ -430,28 +477,43 @@ export function executeWithSchema(
   dbType: 'sqlite' | 'postgresql' | 'clickhouse' = 'sqlite'
 ): QueryResult {
   const startTime = performance.now();
-  const db = new Database(':memory:');
-  db.pragma('foreign_keys = ON');
+  const cacheKey = schemaCacheKey(schemaSql, dbType);
+  let db: Database.Database | null = null;
 
   try {
-    let processedSchema = schemaSql;
-    if (dbType === 'postgresql') {
-      processedSchema = adaptPostgreSQLToSQLite(schemaSql);
-    } else if (dbType === 'clickhouse') {
-      processedSchema = adaptClickHouseToSQLite(schemaSql);
-    }
+    // Check cache first
+    const cached = schemaCache.get(cacheKey);
+    if (cached) {
+      db = cloneDatabase(cached);
+    } else {
+      db = new Database(':memory:');
+      db.pragma('foreign_keys = ON');
 
-    try {
-      db.exec(processedSchema);
-    } catch (schemaErr: unknown) {
-      const msg = schemaErr instanceof Error ? schemaErr.message : String(schemaErr);
-      return {
-        success: false,
-        columns: [],
-        rows: [],
-        error: `Ошибка создания схемы: ${msg}`,
-        executionTime: performance.now() - startTime,
-      };
+      let processedSchema = schemaSql;
+      if (dbType === 'postgresql') {
+        processedSchema = adaptPostgreSQLToSQLite(schemaSql);
+      } else if (dbType === 'clickhouse') {
+        processedSchema = adaptClickHouseToSQLite(schemaSql);
+      }
+
+      try {
+        db.exec(processedSchema);
+        // Cache the schema template
+        evictCacheIfFull();
+        schemaCache.set(cacheKey, db);
+        db = null; // db is now in cache, clone it for use
+        db = cloneDatabase(schemaCache.get(cacheKey)!);
+      } catch (schemaErr: unknown) {
+        const msg = schemaErr instanceof Error ? schemaErr.message : String(schemaErr);
+        db.close();
+        return {
+          success: false,
+          columns: [],
+          rows: [],
+          error: `Ошибка создания схемы: ${msg}`,
+          executionTime: performance.now() - startTime,
+        };
+      }
     }
 
     let processedSql = sql;
@@ -473,7 +535,7 @@ export function executeWithSchema(
       executionTime: performance.now() - startTime,
     };
   } finally {
-    db.close();
+    db?.close();
   }
 }
 
@@ -489,29 +551,44 @@ export function executeWithSchemaMulti(
   dbType: 'sqlite' | 'postgresql' | 'clickhouse' = 'sqlite'
 ): QueryResult[] {
   const startTime = performance.now();
-  const db = new Database(':memory:');
-  db.pragma('foreign_keys = ON');
+  const cacheKey = schemaCacheKey(schemaSql, dbType);
+  let db: Database.Database | null = null;
 
   try {
-    let processedSchema = schemaSql;
-    if (dbType === 'postgresql') {
-      processedSchema = adaptPostgreSQLToSQLite(schemaSql);
-    } else if (dbType === 'clickhouse') {
-      processedSchema = adaptClickHouseToSQLite(schemaSql);
-    }
+    // Check cache first
+    const cached = schemaCache.get(cacheKey);
+    if (cached) {
+      db = cloneDatabase(cached);
+    } else {
+      db = new Database(':memory:');
+      db.pragma('foreign_keys = ON');
 
-    try {
-      db.exec(processedSchema);
-    } catch (schemaErr: unknown) {
-      const msg = schemaErr instanceof Error ? schemaErr.message : String(schemaErr);
-      const errorResult: QueryResult = {
-        success: false,
-        columns: [],
-        rows: [],
-        error: `Ошибка создания схемы: ${msg}`,
-        executionTime: performance.now() - startTime,
-      };
-      return sqlInputs.map(() => ({ ...errorResult }));
+      let processedSchema = schemaSql;
+      if (dbType === 'postgresql') {
+        processedSchema = adaptPostgreSQLToSQLite(schemaSql);
+      } else if (dbType === 'clickhouse') {
+        processedSchema = adaptClickHouseToSQLite(schemaSql);
+      }
+
+      try {
+        db.exec(processedSchema);
+        // Cache the schema template
+        evictCacheIfFull();
+        schemaCache.set(cacheKey, db);
+        db = null;
+        db = cloneDatabase(schemaCache.get(cacheKey)!);
+      } catch (schemaErr: unknown) {
+        const msg = schemaErr instanceof Error ? schemaErr.message : String(schemaErr);
+        db.close();
+        const errorResult: QueryResult = {
+          success: false,
+          columns: [],
+          rows: [],
+          error: `Ошибка создания схемы: ${msg}`,
+          executionTime: performance.now() - startTime,
+        };
+        return sqlInputs.map(() => ({ ...errorResult }));
+      }
     }
 
     const results: QueryResult[] = [];
@@ -539,7 +616,7 @@ export function executeWithSchemaMulti(
     };
     return sqlInputs.map(() => ({ ...errorResult }));
   } finally {
-    db.close();
+    db?.close();
   }
 }
 

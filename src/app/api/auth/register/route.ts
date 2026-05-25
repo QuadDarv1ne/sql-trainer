@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { createUser } from '@/lib/db-users';
 import type { UserRole } from '@/lib/db-users';
 import { rateLimit } from '@/lib/rate-limit';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 import { logger } from '@/lib/logger';
+
+const registerSchema = z.object({
+  name: z.string().min(1, 'Имя обязательно').max(100, 'Имя слишком длинное'),
+  email: z.string().email('Некорректный email'),
+  password: z.string().min(8, 'Пароль должен содержать минимум 8 символов'),
+  phone: z.string().optional().or(z.literal('')),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,34 +26,20 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, email, password, phone } = body;
-
-    if (!name || !email || !password) {
+    const result = registerSchema.safeParse(body);
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'Имя, email и пароль обязательны' },
+        { success: false, error: result.error.errors[0].message },
         { status: 400 }
       );
     }
+
+    const { name, email, password, phone } = result.data;
 
     const sanitizedName = sanitizeName(name);
     if (sanitizedName.error) {
       return NextResponse.json(
         { success: false, error: sanitizedName.error },
-        { status: 400 }
-      );
-    }
-
-    if (password.length < 8) {
-      return NextResponse.json(
-        { success: false, error: 'Пароль должен содержать минимум 8 символов' },
-        { status: 400 }
-      );
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { success: false, error: 'Некорректный email' },
         { status: 400 }
       );
     }

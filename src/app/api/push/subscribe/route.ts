@@ -1,8 +1,19 @@
 import { auth } from '@/lib/auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { savePushSubscription } from '@/lib/db-users';
 import { logger } from '@/lib/logger';
 import { rateLimit } from '@/lib/rate-limit';
+
+const pushSubscribeSchema = z.object({
+  subscription: z.object({
+    endpoint: z.string().url('Invalid subscription endpoint'),
+    keys: z.object({
+      p256dh: z.string().min(1, 'p256dh key is required'),
+      auth: z.string().min(1, 'auth key is required'),
+    }),
+  }),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,11 +29,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { subscription } = body;
-
-    if (!subscription?.endpoint || !subscription?.keys?.p256dh || !subscription?.keys?.auth) {
-      return NextResponse.json({ error: 'Invalid subscription' }, { status: 400 });
+    const result = pushSubscribeSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json({ error: `Invalid subscription: ${result.error.errors[0].message}` }, { status: 400 });
     }
+
+    const { subscription } = result.data;
 
     savePushSubscription(session.user.id, {
       endpoint: subscription.endpoint,

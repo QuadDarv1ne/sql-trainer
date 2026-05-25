@@ -1,20 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { findUserByEmail, createResetCode, updatePassword, verifyResetCode, getUserById } from '@/lib/db-users';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+
+const resetRequestSchema = z.object({
+  email: z.string().email('Некорректный email'),
+});
+
+const resetConfirmSchema = z.object({
+  code: z.string().min(1, 'Код обязателен'),
+  newPassword: z.string().min(8, 'Пароль должен содержать минимум 8 символов'),
+});
 
 // Request password reset code
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email } = body;
-
-    if (!email) {
+    const result = resetRequestSchema.safeParse(body);
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'Email обязателен' },
+        { success: false, error: result.error.errors[0].message },
         { status: 400 }
       );
     }
+
+    const { email } = result.data;
 
     // Rate limit: max 3 requests per 15 minutes per email
     const rateLimitKey = `reset:${email}`;
@@ -57,21 +68,15 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { code, newPassword } = body;
-
-    if (!code || !newPassword) {
+    const result = resetConfirmSchema.safeParse(body);
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'Код и новый пароль обязательны' },
+        { success: false, error: result.error.errors[0].message },
         { status: 400 }
       );
     }
 
-    if (newPassword.length < 8) {
-      return NextResponse.json(
-        { success: false, error: 'Пароль должен содержать минимум 8 символов' },
-        { status: 400 }
-      );
-    }
+    const { code, newPassword } = result.data;
 
     // Rate limit: max 5 attempts per 15 minutes per code prefix
     const rateLimitKey = `reset-verify:${code.substring(0, 3)}`;
@@ -83,15 +88,15 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const result = await verifyResetCode(code);
-    if (!result) {
+    const verifyResult = await verifyResetCode(code);
+    if (!verifyResult) {
       return NextResponse.json(
         { success: false, error: 'Неверный или просроченный код' },
         { status: 400 }
       );
     }
 
-    const updated = await updatePassword(result.userId, newPassword);
+    const updated = await updatePassword(verifyResult.userId, newPassword);
     if (!updated) {
       return NextResponse.json(
         { success: false, error: 'Не удалось обновить пароль' },
@@ -99,7 +104,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const user = await getUserById(result.userId);
+    const user = await getUserById(verifyResult.userId);
     return NextResponse.json({
       success: true,
       message: 'Пароль успешно изменён',

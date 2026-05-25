@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { getUserById, updateUser } from '@/lib/db-users';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 import { logger } from '@/lib/logger';
 import { rateLimit } from '@/lib/rate-limit';
+
+const profileUpdateSchema = z.object({
+  name: z.string().min(1, 'Имя не может быть пустым').max(100, 'Имя слишком длинное').optional(),
+  phone: z.string().optional().or(z.literal('')),
+});
 
 export async function GET() {
   try {
@@ -38,15 +44,17 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, phone } = body;
+    const result = profileUpdateSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json(
+        { success: false, error: result.error.errors[0].message },
+        { status: 400 }
+      );
+    }
+
+    const { name, phone } = result.data;
 
     if (name !== undefined) {
-      if (typeof name !== 'string') {
-        return NextResponse.json(
-          { success: false, error: 'Имя должно быть строкой' },
-          { status: 400 }
-        );
-      }
       const sanitizedName = sanitizeName(name);
       if (sanitizedName.error) {
         return NextResponse.json(
@@ -57,13 +65,7 @@ export async function PUT(request: NextRequest) {
       body.name = sanitizedName.value;
     }
 
-    if (phone !== undefined) {
-      if (typeof phone !== 'string') {
-        return NextResponse.json(
-          { success: false, error: 'Телефон должен быть строкой' },
-          { status: 400 }
-        );
-      }
+    if (phone !== undefined && phone !== '') {
       const sanitizedPhone = sanitizePhone(phone);
       if (sanitizedPhone.error) {
         return NextResponse.json(

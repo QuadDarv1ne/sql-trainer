@@ -15,6 +15,11 @@ export const ROLE_PERMISSIONS: Record<string, Role[]> = {
   '/teacher': ['teacher', 'admin'],
 };
 
+// Pre-compiled route prefix -> minimum required role level for O(1) lookup
+const ROUTE_MIN_ROLES: [string, number][] = Object.entries(ROLE_PERMISSIONS).map(
+  ([route, roles]) => [route, Math.min(...roles.map((r) => ROLE_HIERARCHY[r]))]
+);
+
 export const ROLE_LABELS: Record<Role, string> = {
   student: 'Студент',
   teacher: 'Преподаватель',
@@ -28,9 +33,10 @@ export const ROLE_COLORS: Record<Role, string> = {
 };
 
 export function checkRoutePermission(userRole: Role, pathname: string): boolean {
-  for (const [route, allowedRoles] of Object.entries(ROLE_PERMISSIONS)) {
+  const userLevel = ROLE_HIERARCHY[userRole];
+  for (const [route, minRoleLevel] of ROUTE_MIN_ROLES) {
     if (pathname === route || pathname.startsWith(route + '/')) {
-      return allowedRoles.includes(userRole);
+      return userLevel >= minRoleLevel;
     }
   }
   return true; // No specific permission required
