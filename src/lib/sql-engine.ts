@@ -35,7 +35,7 @@ export interface ColumnInfo {
   primaryKey: boolean;
 }
 
-function splitStatements(sql: string): string[] {
+export function splitStatements(sql: string): string[] {
   const statements: string[] = [];
   let current = '';
   let inString = false;

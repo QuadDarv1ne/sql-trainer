@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { executeWithSchema, executeWithSchemaMulti } from '@/lib/sql-engine';
+import { executeWithSchema, executeWithSchemaMulti, splitStatements } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
@@ -28,65 +28,10 @@ function normalizeRow(row: Record<string, unknown>, columns: string[]): string {
 }
 
 /**
- * Split SQL statements respecting string literals.
- * Handles both single-quote (SQL standard) and double-quote identifiers.
- */
-function splitStatementsSafe(sql: string): string[] {
-  const statements: string[] = [];
-  let current = '';
-  let inString = false;
-  let stringChar = '';
-
-  for (let i = 0; i < sql.length; i++) {
-    const char = sql[i];
-
-    if (!inString && (char === "'" || char === '"')) {
-      inString = true;
-      stringChar = char;
-      current += char;
-      continue;
-    }
-
-    if (inString) {
-      current += char;
-      if (char === stringChar) {
-        const next = sql[i + 1];
-        if (next === stringChar) {
-          // Escaped quote ('' or "")
-          i++;
-          current += next;
-        } else {
-          inString = false;
-        }
-      }
-      continue;
-    }
-
-    if (char === ';') {
-      const trimmed = current.trim();
-      if (trimmed.length > 0) {
-        statements.push(trimmed);
-      }
-      current = '';
-      continue;
-    }
-
-    current += char;
-  }
-
-  const last = current.trim();
-  if (last.length > 0) {
-    statements.push(last);
-  }
-
-  return statements;
-}
-
-/**
  * Extract the last SELECT statement from a multi-statement SQL string.
  */
 function extractLastSelect(sql: string): string {
-  const statements = splitStatementsSafe(sql);
+  const statements = splitStatements(sql);
   for (let i = statements.length - 1; i >= 0; i--) {
     const trimmed = statements[i].toUpperCase();
     if (trimmed.startsWith('SELECT') || trimmed.startsWith('WITH')) {
