@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { useTheme } from 'next-themes';
 import {
   EditorView,
@@ -18,6 +18,8 @@ import {
   defaultKeymap,
   history,
   historyKeymap,
+  undo,
+  redo,
 } from '@codemirror/commands';
 import {
   syntaxHighlighting,
@@ -269,6 +271,11 @@ function createSchemaCompletion(schema: SchemaInfo | null) {
   };
 }
 
+export interface SQLEditorRef {
+  undo: () => void;
+  redo: () => void;
+}
+
 interface SQLEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -281,7 +288,7 @@ interface SQLEditorProps {
   onRedo?: () => void;
 }
 
-export default function SQLEditor({
+const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
   value,
   onChange,
   onRun,
@@ -291,7 +298,7 @@ export default function SQLEditor({
   onFormatSQL,
   onUndo,
   onRedo,
-}: SQLEditorProps) {
+}: SQLEditorProps, ref) {
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -335,6 +342,23 @@ export default function SQLEditor({
   useEffect(() => {
     schemaRef.current = schema;
   }, [schema]);
+
+  useImperativeHandle(ref, () => ({
+    undo: () => {
+      const view = viewRef.current;
+      if (view) {
+        undo({ state: view.state, dispatch: view.dispatch.bind(view) });
+      }
+      onUndo?.();
+    },
+    redo: () => {
+      const view = viewRef.current;
+      if (view) {
+        redo({ state: view.state, dispatch: view.dispatch.bind(view) });
+      }
+      onRedo?.();
+    },
+  }), [onUndo, onRedo]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -541,4 +565,6 @@ export default function SQLEditor({
       />
     </div>
   );
-}
+});
+
+export default SQLEditor;

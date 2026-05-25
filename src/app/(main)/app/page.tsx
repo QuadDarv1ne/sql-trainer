@@ -62,6 +62,8 @@ const SQLEditor = dynamic(() => import('@/components/sql-editor'), {
   ),
 });
 
+type SQLEditorRef = import('@/components/sql-editor').SQLEditorRef;
+
 // Dynamic import for SQL Reference
 const SQLReference = dynamic(() => import('@/components/sql-reference'), {
   ssr: false,
@@ -113,6 +115,8 @@ export default function HomePage() {
     onboardingCompleted,
     setOnboardingCompleted,
   } = useSQLTrainerStore();
+
+  const editorRef = useRef<SQLEditorRef>(null);
 
   // Show toast notifications for newly unlocked achievements
   const shownAchievementIdsRef = useRef<Set<string>>(new Set());
@@ -691,6 +695,8 @@ export default function HomePage() {
             onRestoreQuery={handleRestoreQuery}
             onLoadQuery={handleRestoreQuery}
             onInsertTemplate={handleInsertTemplate}
+            onUndo={() => editorRef.current?.undo()}
+            onRedo={() => editorRef.current?.redo()}
             currentTaskId={currentTaskId}
             practiceMode={practiceMode}
           />
@@ -700,6 +706,7 @@ export default function HomePage() {
             <ResizablePanel defaultSize={45} minSize={20}>
               <div className="h-full">
                 <SQLEditor
+                  ref={editorRef}
                   value={editorContent}
                   onChange={setEditorContent}
                   onRun={executeQuery}

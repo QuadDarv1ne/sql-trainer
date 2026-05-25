@@ -30,6 +30,8 @@ interface ActionBarProps {
   onRestoreQuery: (sql: string) => void;
   onLoadQuery: (sql: string) => void;
   onInsertTemplate: (sql: string) => void;
+  onUndo: () => void;
+  onRedo: () => void;
   currentTaskId: string | null;
   practiceMode: { active: boolean; currentIndex: number; taskOrder: string[]; completedInSession: string[] };
 }
@@ -43,6 +45,8 @@ export default function ActionBar({
   onRestoreQuery,
   onLoadQuery,
   onInsertTemplate,
+  onUndo,
+  onRedo,
   currentTaskId,
   practiceMode,
 }: ActionBarProps) {
@@ -112,7 +116,7 @@ export default function ActionBar({
               variant="ghost"
               size="sm"
               className="h-9 text-xs sm:h-8"
-              onClick={() => document.execCommand?.('undo')}
+              onClick={onUndo}
             >
               <Undo2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
               <kbd className="ml-1.5 h-4 items-center rounded border border-current/20 bg-current/10 px-1 text-[9px] font-mono hidden sm:inline-flex">
@@ -129,7 +133,7 @@ export default function ActionBar({
               variant="ghost"
               size="sm"
               className="h-9 text-xs sm:h-8"
-              onClick={() => document.execCommand?.('redo')}
+              onClick={onRedo}
             >
               <Redo2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
               <kbd className="ml-1.5 h-4 items-center rounded border border-current/20 bg-current/10 px-1 text-[9px] font-mono hidden sm:inline-flex">
