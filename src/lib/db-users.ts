@@ -3,6 +3,7 @@
  * Separate from the in-memory training database.
  * Uses a singleton connection to avoid SQLITE_BUSY during concurrent access.
  */
+/* eslint-disable @typescript-eslint/no-unused-vars -- catch blocks for expected errors */
 import Database from 'better-sqlite3';
 import bcrypt from 'bcryptjs';
 import path from 'path';
@@ -66,6 +67,7 @@ function initDatabase(): void {
     db.exec(`ALTER TABLE users ADD COLUMN deleted_at INTEGER DEFAULT NULL`);
   } catch {
     // Column already exists — safe to ignore
+    logger.debug('users.deleted_at column already exists');
   }
 
   db.exec(`
@@ -257,8 +259,9 @@ function seedAchievements(db: Database.Database): void {
   });
   try {
     insertMany(ACHIEVEMENTS);
-  } catch {
+  } catch (_err: unknown) {
     // Race condition during parallel build — achievements already seeded
+    logger.debug('Achievements already seeded, skipping');
   }
 }
 
@@ -941,8 +944,9 @@ export function getDBStats(): DBStats {
   let dbSizeBytes = 0;
   try {
     dbSizeBytes = fs.statSync(DB_PATH).size;
-  } catch {
+  } catch (_err: unknown) {
     // File doesn't exist yet
+    logger.debug('Database file does not exist yet, size is 0');
   }
 
   return {
@@ -3519,7 +3523,12 @@ export function getSystemHealth(): SystemHealth {
     const dbPath = path.join(process.cwd(), 'data', 'users.db');
     const walPath = dbPath + '-wal';
     let walSize = 0;
-    try { walSize = fs.statSync(walPath).size; } catch { walSize = 0; }
+    try {
+      walSize = fs.statSync(walPath).size;
+    } catch (_err: unknown) {
+      walSize = 0;
+      logger.debug('WAL file does not exist, size is 0');
+    }
 
     return {
       db_size_bytes: dbStats.dbSizeBytes,

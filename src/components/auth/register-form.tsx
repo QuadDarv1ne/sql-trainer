@@ -8,13 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import Link from 'next/link';
 import { Loader2, Mail, Lock, User, Phone, AlertCircle, CheckCircle2, Shield } from 'lucide-react';
 import { t } from '@/lib/i18n';
@@ -26,7 +19,6 @@ export default function RegisterForm() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('student');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -51,7 +43,7 @@ export default function RegisterForm() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, phone: phone || undefined, role }),
+        body: JSON.stringify({ name, email, password, phone: phone || undefined }),
       });
 
       const data = await res.json();
@@ -162,21 +154,14 @@ export default function RegisterForm() {
               </div>
             </div>
 
-            {/* Role */}
+            {/* Role info */}
             <div className="space-y-2">
-              <Label htmlFor="role" className="text-sm font-medium">{t('auth.role')}</Label>
+              <Label className="text-sm font-medium">{t('auth.role')}</Label>
               <div className="relative">
                 <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Select value={role} onValueChange={setRole}>
-                  <SelectTrigger id="role" className="pl-10 h-11">
-                    <SelectValue placeholder={t('auth.roleSelect')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="student">{t('auth.role.student')}</SelectItem>
-                    <SelectItem value="teacher">{t('auth.role.teacher')}</SelectItem>
-                    <SelectItem value="admin">{t('auth.role.admin')}</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="pl-10 h-11 flex items-center text-sm text-muted-foreground border rounded-md bg-muted/50 px-3">
+                  {t('auth.roleDefaultStudent')}
+                </div>
               </div>
             </div>
 

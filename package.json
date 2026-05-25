@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "private": true,
   "scripts": {
-    "dev": "node -e \"const net=require('net');const start=Number(process.env.PORT)||3000;const find=p=>new Promise(r=>{const s=net.createServer();s.listen(p,'127.0.0.1',()=>{s.close();r(p)});s.on('error',()=>r(find(p+1)))});find(start).then(p=>{console.log('Starting on port',p);require('child_process').spawn('npx',['next','dev','-p',String(p)],{stdio:'inherit',shell:true,env:{...process.env,NEXTAUTH_URL:'http://localhost:'+p}})})\" --",
+    "dev": "node scripts/find-port.js",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
