@@ -2,6 +2,7 @@
  * SQL Execution Engine
  * Wraps better-sqlite3 to execute SQL queries with support for both SQLite and PostgreSQL syntax.
  */
+import { performance } from 'perf_hooks';
 import Database from 'better-sqlite3';
 import { adaptPostgreSQLToSQLite } from './postgresql-adapter';
 import { adaptClickHouseToSQLite } from './clickhouse-adapter';
@@ -295,31 +296,19 @@ const MAX_ROWS = 1000;
 const MAX_EXECUTION_TIME_MS = 5000;
 
 /**
- * Check if execution has exceeded the time limit.
- */
-function checkTimeout(startTime: number): void {
-  const elapsed = performance.now() - startTime;
-  if (elapsed > MAX_EXECUTION_TIME_MS) {
-    throw new Error(
-      `Превышено время выполнения запроса (${MAX_EXECUTION_TIME_MS / 1000}с). Проверьте запрос на рекурсивные CTE или слишком большие JOIN.`
-    );
-  }
-}
-
-/**
  * Execute prepared statements against an already-initialized database.
  * Shared logic between executeQuery and executeWithSchema.
  */
 function executeStatements(
   db: Database.Database,
   statements: string[],
-  startTime: number
+  _batchStartTime: number
 ): QueryResult {
   let lastResult: QueryResult | null = null;
 
   for (const stmt of statements) {
-    // Check execution timeout
-    checkTimeout(startTime);
+    // Each statement gets its own timeout measurement
+    const stmtStartTime = performance.now();
 
     // Skip empty or comment-only statements
     if (isEmptyOrComment(stmt)) {
@@ -332,6 +321,14 @@ function executeStatements(
         const columns = statement.columns().map((col) => col.name);
         let rows = statement.all() as Record<string, unknown>[];
 
+        // Check timeout after execution
+        const executionTime = performance.now() - stmtStartTime;
+        if (executionTime > MAX_EXECUTION_TIME_MS) {
+          throw new Error(
+            `Превышено время выполнения запроса (${MAX_EXECUTION_TIME_MS / 1000}с). Проверьте запрос на рекурсивные CTE или слишком большие JOIN.`
+          );
+        }
+
         // Enforce row limit
         const truncated = rows.length > MAX_ROWS;
         if (truncated) {
@@ -342,28 +339,30 @@ function executeStatements(
           success: true,
           columns,
           rows,
-          executionTime: performance.now() - startTime,
+          executionTime,
           message: truncated
             ? `Результат ограничен ${MAX_ROWS} строками`
             : undefined,
         };
       } else if (isDDL(stmt)) {
         db.exec(stmt);
+        const executionTime = performance.now() - stmtStartTime;
         lastResult = {
           success: true,
           columns: [],
           rows: [],
-          executionTime: performance.now() - startTime,
+          executionTime,
           message: 'Операция DDL выполнена успешно',
         };
       } else {
         const statement = db.prepare(stmt);
         const result = statement.run();
+        const executionTime = performance.now() - stmtStartTime;
         lastResult = {
           success: true,
           columns: [],
           rows: [],
-          executionTime: performance.now() - startTime,
+          executionTime,
           message: `Запрос выполнен. Изменено строк: ${result.changes}`,
           affectedRows: result.changes,
         };
@@ -375,7 +374,7 @@ function executeStatements(
         columns: [],
         rows: [],
         error: errorMsg,
-        executionTime: performance.now() - startTime,
+        executionTime: performance.now() - stmtStartTime,
         suggestion: getSuggestionForError(errorMsg, stmt),
       };
     }
@@ -387,7 +386,7 @@ function executeStatements(
     success: true,
     columns: [],
     rows: [],
-    executionTime: performance.now() - startTime,
+    executionTime: performance.now() - _batchStartTime,
     message: 'Запрос выполнен успешно',
   };
 }
