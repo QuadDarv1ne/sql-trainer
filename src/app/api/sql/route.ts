@@ -183,10 +183,24 @@ export async function POST(request: NextRequest) {
 
     const effectiveDbType = VALID_DB_TYPES.includes(dbType as typeof VALID_DB_TYPES[number]) ? dbType : 'sqlite';
 
-    // MongoDB uses its own engine
+    // MongoDB uses its own engine — only for MongoDB tasks
     if (effectiveDbType === 'mongodb') {
       const task = taskId ? getTaskById(taskId) : null;
-      const schema = task?.schema ? JSON.parse(task.schema) : {};
+      if (!task || task.dbType !== 'mongodb') {
+        return NextResponse.json(
+          { success: false, error: 'Задание не поддерживает MongoDB', columns: [], rows: [], executionTime: 0 },
+          { status: 400 }
+        );
+      }
+      let schema: Record<string, unknown>;
+      try {
+        schema = JSON.parse(task.schema);
+      } catch {
+        return NextResponse.json(
+          { success: false, error: 'Ошибка схемы данных задания', columns: [], rows: [], executionTime: 0 },
+          { status: 500 }
+        );
+      }
       const result = executeMongoQuery(sql, schema);
       return NextResponse.json(result);
     }

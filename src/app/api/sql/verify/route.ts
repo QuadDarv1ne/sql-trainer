@@ -427,7 +427,15 @@ function verifyMongoDb(
     );
   }
 
-  const schema = task.schema ? JSON.parse(task.schema) : {};
+  let schema: Record<string, unknown>;
+  try {
+    schema = task.schema ? JSON.parse(task.schema) : {};
+  } catch {
+    return NextResponse.json(
+      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Ошибка схемы данных задания' },
+      { status: 500 }
+    );
+  }
 
   // Execute user query
   const userResult = executeMongoQuery(userQuery, schema);
