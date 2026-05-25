@@ -546,7 +546,7 @@ export default function ProfilePage() {
                           onChange={(e) => setNewPassword(e.target.value)}
                           className="pl-10 pr-10"
                           required
-                          minLength={6}
+                          minLength={8}
                         />
                         <Button
                           type="button"
@@ -597,7 +597,7 @@ export default function ProfilePage() {
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           className="pl-10 pr-10"
                           required
-                          minLength={6}
+                          minLength={8}
                         />
                         <Button
                           type="button"

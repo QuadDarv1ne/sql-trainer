@@ -247,7 +247,7 @@ export default function ResetPasswordForm() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="pl-10 pr-10"
                   required
-                  minLength={6}
+                  minLength={8}
                 />
                 <Button
                   type="button"
@@ -291,7 +291,7 @@ export default function ResetPasswordForm() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="pl-10 pr-10"
                   required
-                  minLength={6}
+                  minLength={8}
                 />
                 <Button
                   type="button"

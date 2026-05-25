@@ -32,7 +32,7 @@ export default function RegisterForm() {
       return;
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       setError(t('auth.passwordTooShort'));
       return;
     }
@@ -179,7 +179,7 @@ export default function RegisterForm() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 h-11"
                     required
-                    minLength={6}
+                    minLength={8}
                   />
                 </div>
               </div>
@@ -195,7 +195,7 @@ export default function RegisterForm() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pl-10 h-11"
                     required
-                    minLength={6}
+                    minLength={8}
                   />
                 </div>
               </div>

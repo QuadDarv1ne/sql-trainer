@@ -982,7 +982,7 @@ export function getTaskAnalytics(filters?: TimeRangeFilters): TaskAnalyticsEntry
       ROUND(100.0 * SUM(CASE WHEN attempts = 1 THEN 1 ELSE 0 END) / COUNT(*), 1) as first_attempt_rate
     FROM user_progress
   `;
-  const params: any[] = [];
+  const params: (number | string)[] = [];
 
   if (filters?.start_date || filters?.end_date) {
     query += ' WHERE 1=1';
@@ -1001,7 +1001,27 @@ export function getTaskAnalytics(filters?: TimeRangeFilters): TaskAnalyticsEntry
     ORDER BY avg_attempts DESC
   `;
 
-  return db.prepare(query).all(...params) as TaskAnalyticsEntry[];
+  const rawResults = db.prepare(query).all(...params) as Array<{
+    task_id: string;
+    completions: number;
+    avg_attempts: number;
+    first_attempt_rate: number;
+  }>;
+
+  // Enrich with title and difficulty from training tasks
+  const taskMap = new Map(TRAINING_TASKS.map((t) => [t.id, t]));
+
+  return rawResults.map((row) => {
+    const task = taskMap.get(row.task_id);
+    return {
+      task_id: row.task_id,
+      title: task?.title ?? row.task_id,
+      difficulty: task?.difficulty ?? 'unknown',
+      completions: row.completions,
+      avg_attempts: row.avg_attempts,
+      first_attempt_rate: row.first_attempt_rate,
+    };
+  });
 }
 
 export interface CompletionBucket {

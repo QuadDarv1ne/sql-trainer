@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { t } from '@/lib/i18n';
 import { Deadline } from '@/lib/db-users';
@@ -66,7 +66,7 @@ export function TeacherDeadlineManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const fetchDeadlines = async () => {
+  const fetchDeadlines = useCallback(async () => {
     try {
       setError(null);
       const res = await fetch('/api/admin/deadlines');
@@ -78,9 +78,9 @@ export function TeacherDeadlineManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
-  useEffect(() => { fetchDeadlines(); }, []);
+  useEffect(() => { fetchDeadlines(); }, [fetchDeadlines]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -98,7 +98,7 @@ export function TeacherDeadlineManager() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center">{t('teacher.loading')}</div>;
+  if (loading) return <div className="p-8 text-center" role="status">{t('teacher.loading')}</div>;
 
   if (error) {
     return (

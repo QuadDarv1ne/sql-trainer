@@ -66,9 +66,9 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       return NextResponse.json(
-        { success: false, error: 'Пароль должен содержать минимум 6 символов' },
+        { success: false, error: 'Пароль должен содержать минимум 8 символов' },
         { status: 400 }
       );
     }

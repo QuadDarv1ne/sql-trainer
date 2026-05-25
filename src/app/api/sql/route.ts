@@ -7,6 +7,19 @@ import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { logger } from '@/lib/logger';
 import { auth } from '@/lib/auth';
 
+/**
+ * Extract client IP from request, preferring x-forwarded-for header for proxy reliability.
+ * Falls back to request.ip if header is not present.
+ */
+function getIpFromRequest(request: NextRequest): string {
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  if (forwardedFor) {
+    // x-forwarded-for can contain multiple IPs, take the first one
+    return forwardedFor.split(',')[0].trim();
+  }
+  return request.ip ?? 'unknown';
+}
+
 const sqlExecuteSchema = z.object({
   sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
   dbType: z.enum(['sqlite', 'postgresql', 'clickhouse', 'mongodb']).optional(),
@@ -135,7 +148,7 @@ export async function POST(request: NextRequest) {
     // Rate limit: 30/min for anonymous, 60/min for authenticated
     const rateKey = isAuthenticated
       ? `sql:user:${session.user.id}`
-      : `sql:ip:${request.ip ?? 'unknown'}`;
+      : `sql:ip:${getIpFromRequest(request)}`;
 
     const maxQueries = isAuthenticated ? 60 : 30;
     const limitResult = rateLimit(rateKey, { max: maxQueries, windowMs: 60_000 });

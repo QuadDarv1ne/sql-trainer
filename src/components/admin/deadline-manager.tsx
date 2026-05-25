@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { t } from '@/lib/i18n';
 import { Deadline } from '@/lib/db-users';
@@ -67,7 +67,7 @@ export function DeadlineManager() {
   const [editDeadline, setEditDeadline] = useState<Deadline | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const fetchDeadlines = async () => {
+  const fetchDeadlines = useCallback(async () => {
     try {
       setError(null);
       const res = await fetch('/api/admin/deadlines?scope=all');
@@ -79,9 +79,9 @@ export function DeadlineManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
-  useEffect(() => { fetchDeadlines(); }, []);
+  useEffect(() => { fetchDeadlines(); }, [fetchDeadlines]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -99,7 +99,7 @@ export function DeadlineManager() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center">{t('admin.stats.loading')}</div>;
+  if (loading) return <div className="p-8 text-center" role="status">{t('admin.stats.loading')}</div>;
 
   if (error) {
     return (
