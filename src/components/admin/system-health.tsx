@@ -123,6 +123,7 @@ export default function SystemHealth() {
               disabled={refreshing}
               className="p-1 rounded hover:bg-accent disabled:opacity-50"
               title={t('admin.health.refresh')}
+              aria-label={t('admin.health.refresh')}
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             </button>

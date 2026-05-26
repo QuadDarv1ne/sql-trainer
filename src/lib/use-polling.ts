@@ -8,6 +8,7 @@
  */
 
 import { useEffect, useRef, useCallback, useState } from 'react';
+import { logger } from '@/lib/logger';
 
 interface UsePollingOptions {
   intervalMs?: number;
@@ -58,7 +59,7 @@ export function usePolling(
         // Immediately refresh when tab becomes visible (if not already fetching)
         if (!isFetchingRef.current) {
           const result = callbackRef.current();
-          if (result instanceof Promise) result.catch(() => {});
+          if (result instanceof Promise) result.catch((err) => logger.error('[usePolling] visibility refresh error:', err));
         }
       }
     };
@@ -70,7 +71,7 @@ export function usePolling(
   const refresh = useCallback(() => {
     if (!isFetchingRef.current) {
       const result = callbackRef.current();
-      if (result instanceof Promise) result.catch(() => {});
+      if (result instanceof Promise) result.catch((err) => logger.error('[usePolling] manual refresh error:', err));
     }
   }, []);
 
@@ -79,7 +80,7 @@ export function usePolling(
     setIsPaused(false);
     if (!isFetchingRef.current) {
       const result = callbackRef.current();
-      if (result instanceof Promise) result.catch(() => {});
+      if (result instanceof Promise) result.catch((err) => logger.error('[usePolling] resume error:', err));
     }
   }, []);
 

@@ -38,9 +38,9 @@ export default function DBStats() {
         if (!r.ok) throw new Error('Failed to fetch');
         return r.json();
       })
-      .then((data) => setStats(data.stats))
-      .catch(() => setStats(null))
-      .finally(() => setLoading(false));
+      .then((data) => { if (!controller.signal.aborted) setStats(data.stats); })
+      .catch(() => { if (!controller.signal.aborted) setStats(null); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
   }, []);
 

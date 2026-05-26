@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -48,23 +48,30 @@ export default function NotificationAnalytics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { startDate, endDate } = useDateRange();
+  const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
     const params = new URLSearchParams();
     if (startDate) params.set('startDate', String(startDate));
     if (endDate) params.set('endDate', String(endDate));
 
-    fetch(`/api/admin/analytics/notifications?${params}`)
+    fetch(`/api/admin/analytics/notifications?${params}`, { signal: controller.signal })
       .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch notification analytics')))
       .then(data => {
-        setChannels(data.by_channel || []);
-        setEmailQueue(data.email_queue);
-        setRecentFailures(data.recent_failures || []);
-        setDeliveryTrend(data.delivery_trend || []);
-        setOverallStats(data.overall_stats);
+        if (!controller.signal.aborted) {
+          setChannels(data.by_channel || []);
+          setEmailQueue(data.email_queue);
+          setRecentFailures(data.recent_failures || []);
+          setDeliveryTrend(data.delivery_trend || []);
+          setOverallStats(data.overall_stats);
+        }
       })
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
+      .catch((err) => { if (err.name !== 'AbortError' && !controller.signal.aborted) setError(t('analytics.error')); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
   }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;

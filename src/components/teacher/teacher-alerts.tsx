@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -19,16 +19,21 @@ export default function TeacherAlerts() {
   const [alerts, setAlerts] = useState<TeacherAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    fetch('/api/teacher/alerts')
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    fetch('/api/teacher/alerts', { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((data) => setAlerts(data.alerts))
-      .catch(() => setError(t('teacher.error')))
-      .finally(() => setLoading(false));
+      .then((data) => { if (!controller.signal.aborted) setAlerts(data.alerts); })
+      .catch((err) => { if (err.name !== 'AbortError' && !controller.signal.aborted) setError(t('teacher.error')); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
   }, []);
 
   if (loading) return <p className="text-center py-4">{t('teacher.loading')}</p>;
@@ -108,9 +113,9 @@ export default function TeacherAlerts() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {alerts.map((alert, index) => (
+            {alerts.map((alert) => (
               <div
-                key={index}
+                key={alert.studentId}
                 className={`flex items-start gap-3 p-4 rounded-lg border ${severityColors[alert.severity]}`}
               >
                 {typeIcons[alert.type]}

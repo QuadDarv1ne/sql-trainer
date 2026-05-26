@@ -65,9 +65,9 @@ export default function TaskPanel({
       <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
         <BookOpen className="h-12 w-12 text-muted-foreground/30" />
         <div>
-          <h3 className="text-sm font-medium text-muted-foreground">Выберите задание</h3>
+          <h3 className="text-sm font-medium text-muted-foreground">{t('task.selectTask')}</h3>
           <p className="mt-1 text-xs text-muted-foreground/70">
-            Выберите задание из списка слева или начните писать SQL запрос в редакторе
+            {t('task.selectTaskDesc')}
           </p>
         </div>
       </div>
@@ -105,12 +105,12 @@ export default function TaskPanel({
           {allCompleted ? (
             <>
               <PartyPopper className="mr-2 h-4 w-4" />
-              Все задания выполнены!
+              {t('task.allCompleted')}
             </>
           ) : (
             <>
               <ArrowRight className="mr-2 h-4 w-4" />
-              {nextTaskLabel || 'Следующее задание →'}
+              {nextTaskLabel || t('task.next')}
             </>
           )}
         </Button>

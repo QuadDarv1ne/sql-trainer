@@ -53,9 +53,9 @@ export default function LoginForm() {
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-md">
             <Mail className="h-6 w-6 text-white" />
           </div>
-          <CardTitle className="text-2xl font-bold text-center">Вход</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">{t('login.title')}</CardTitle>
         </div>
-        <CardDescription className="text-center">Введите email и пароль для входа в аккаунт</CardDescription>
+        <CardDescription className="text-center">{t('login.description')}</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
@@ -83,9 +83,9 @@ export default function LoginForm() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-sm font-medium">Пароль</Label>
+                <Label htmlFor="password" className="text-sm font-medium">{t('login.password')}</Label>
                 <Link href="/reset-password" className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
-                  Забыли пароль?
+                  {t('login.forgotPassword')}
                 </Link>
               </div>
               <div className="relative">
@@ -106,12 +106,12 @@ export default function LoginForm() {
         <CardFooter className="flex flex-col gap-4 pt-2 pb-6">
           <Button type="submit" className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 font-medium" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Войти
+            {t('login.submit')}
           </Button>
           <p className="text-sm text-center text-muted-foreground">
-            Нет аккаунта?{' '}
+            {t('login.noAccount')}{' '}
             <Link href="/register" className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
-              Зарегистрироваться
+              {t('login.register')}
             </Link>
           </p>
         </CardFooter>

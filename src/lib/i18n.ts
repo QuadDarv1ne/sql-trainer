@@ -185,6 +185,21 @@ export const translations: Record<Locale, Record<string, string>> = {
     'practiceMode.finish': 'Завершить',
     'practiceMode.taskInfo': 'Задание {current} из {total} · Выполнено: {completed}',
 
+    // Login Form
+    'login.title': 'Вход',
+    'login.description': 'Введите email и пароль для входа в аккаунт',
+    'login.password': 'Пароль',
+    'login.forgotPassword': 'Забыли пароль?',
+    'login.submit': 'Войти',
+    'login.noAccount': 'Нет аккаунта?',
+    'login.register': 'Зарегистрироваться',
+
+    // Task Panel
+    'task.selectTask': 'Выберите задание',
+    'task.selectTaskDesc': 'Выберите задание из списка слева или начните писать SQL запрос в редакторе',
+    'task.allCompleted': 'Все задания выполнены!',
+    'task.next': 'Следующее задание →',
+
     // Progress
     'progress.label': 'Прогресс',
     'progress.complete': 'Все задания выполнены!',
@@ -1931,6 +1946,21 @@ export const translations: Record<Locale, Record<string, string>> = {
     'practiceMode.next': 'Next',
     'practiceMode.finish': 'Finish',
     'practiceMode.taskInfo': 'Task {current} of {total} · Completed: {completed}',
+
+    // Login Form
+    'login.title': 'Sign In',
+    'login.description': 'Enter your email and password to sign in',
+    'login.password': 'Password',
+    'login.forgotPassword': 'Forgot password?',
+    'login.submit': 'Sign In',
+    'login.noAccount': "Don't have an account?",
+    'login.register': 'Sign Up',
+
+    // Task Panel
+    'task.selectTask': 'Select a task',
+    'task.selectTaskDesc': 'Select a task from the list on the left or start writing a SQL query in the editor',
+    'task.allCompleted': 'All tasks completed!',
+    'task.next': 'Next task →',
 
     // Progress
     'progress.label': 'Progress',
