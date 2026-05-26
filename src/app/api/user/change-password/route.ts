@@ -8,7 +8,7 @@ import { logger } from '@/lib/logger';
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Текущий пароль обязателен'),
-  newPassword: z.string().min(6, 'Пароль должен содержать минимум 6 символов'),
+  newPassword: z.string().min(8, 'Пароль должен содержать минимум 8 символов'),
 });
 
 export async function POST(request: NextRequest) {
@@ -51,6 +51,13 @@ export async function POST(request: NextRequest) {
     if (!valid) {
       return NextResponse.json(
         { success: false, error: 'Неверный текущий пароль' },
+        { status: 400 }
+      );
+    }
+
+    if (currentPassword === newPassword) {
+      return NextResponse.json(
+        { success: false, error: 'Новый пароль должен отличаться от текущего' },
         { status: 400 }
       );
     }

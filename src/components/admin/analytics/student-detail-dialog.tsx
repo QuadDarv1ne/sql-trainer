@@ -88,7 +88,10 @@ export default function StudentDetailDialog({
     if (!data?.student) return;
 
     fetch(`/api/admin/analytics/student/${data.student.user_id}/streak`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then(data => setStreak(data.streak || 0))
       .catch(() => setStreak(0));
   }, [data?.student]);
@@ -241,7 +244,7 @@ export default function StudentDetailDialog({
                       </span>
                     </div>
                     <Progress
-                      value={(data.student.intermediate_completed / 15) * 100}
+                      value={(data.student.intermediate_completed / 23) * 100}
                       className="h-2"
                     />
                   </CardContent>

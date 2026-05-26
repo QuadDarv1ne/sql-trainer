@@ -103,9 +103,13 @@ export const useSQLTrainerStore = create<CombinedState>()(
 
           const xpToAdd = xpGained > 0 ? xpGained : 0;
           const newXp = state.userStats.xp + xpToAdd;
-          const xpForNext = state.userStats.level * 100;
-          const newLevel = newXp >= xpForNext ? state.userStats.level + 1 : state.userStats.level;
-          const newLevelProgress = newXp >= xpForNext ? newXp - xpForNext : newXp;
+          // Calculate level: each level requires level * 100 XP (level 1→2 needs 100, 2→3 needs 200, etc.)
+          let newLevel = state.userStats.level;
+          let xpRemaining = newXp;
+          while (xpRemaining >= newLevel * 100) {
+            xpRemaining -= newLevel * 100;
+            newLevel++;
+          }
 
           return {
             completedTasks: updatedCompletedTasks,
@@ -113,7 +117,7 @@ export const useSQLTrainerStore = create<CombinedState>()(
               ...state.userStats,
               xp: newXp,
               level: newLevel,
-              levelProgress: newLevelProgress,
+              levelProgress: xpRemaining,
             },
           };
         });

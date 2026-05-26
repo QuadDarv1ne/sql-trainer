@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
-import { findUserByEmail, getDb } from '@/lib/db-users';
+import { findUserByIdWithHash, getDb } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
@@ -38,7 +38,7 @@ export async function DELETE(request: NextRequest) {
     const { confirmPassword } = result.data;
 
     // Verify password before deletion
-    const user = await findUserByEmail(session.user.email);
+    const user = await findUserByIdWithHash(session.user.id);
     if (!user) {
       return NextResponse.json(
         { success: false, error: 'Пользователь не найден' },

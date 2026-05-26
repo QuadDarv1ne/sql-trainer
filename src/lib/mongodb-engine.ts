@@ -201,8 +201,14 @@ function matchesOperator(docValue: unknown, op: string, expected: unknown): bool
     case '$exists': return expected ? docValue !== undefined : docValue === undefined;
     case '$regex': {
       if (typeof docValue !== 'string') return false;
-      const regex = expected instanceof RegExp ? expected : new RegExp(expected as string);
-      return regex.test(docValue);
+      try {
+        const pattern = typeof expected === 'string' ? expected : expected instanceof RegExp ? expected.source : '';
+        if (pattern.length > 1000) return false; // Prevent ReDoS with overly complex patterns
+        const regex = expected instanceof RegExp ? expected : new RegExp(pattern);
+        return regex.test(docValue);
+      } catch {
+        return false; // Invalid regex — treat as no match
+      }
     }
     case '$size': return Array.isArray(docValue) && docValue.length === expected;
     default: return docValue === expected;

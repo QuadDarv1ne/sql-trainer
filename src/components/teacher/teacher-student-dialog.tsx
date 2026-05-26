@@ -276,7 +276,7 @@ export default function TeacherStudentDialog({
                       </span>
                     </div>
                     <Progress
-                      value={(data.student.intermediate_completed / 15) * 100}
+                      value={(data.student.intermediate_completed / 23) * 100}
                       className="h-2"
                     />
                   </CardContent>

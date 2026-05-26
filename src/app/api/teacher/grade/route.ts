@@ -1,11 +1,21 @@
 import { NextResponse } from 'next/server';
 import { requireTeacher } from '@/lib/api-auth';
 import { getStudentGradeDistribution } from '@/lib/db-users';
+import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 
-export async function GET() {
+export async function GET(request: Request) {
   const authResult = await requireTeacher();
   if (authResult.error) return authResult.error;
+
+  const userId = authResult.userId;
+  const limit = rateLimit(`teacher-grade:${userId}`, { max: 30, windowMs: 60_000 });
+  if (!limit.success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Try again later.' },
+      { status: 429 }
+    );
+  }
 
   try {
     const distribution = getStudentGradeDistribution();

@@ -67,10 +67,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     // Rate limit: 10 task list requests per minute per IP
-    const ip = 'unknown';
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
     const limitResult = rateLimit(`init-training-list:${ip}`, { max: 10, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json(

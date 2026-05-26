@@ -243,7 +243,10 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetch('/api/user/profile')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((data) => {
         if (data.success) {
           setProfile(data.user);
@@ -286,7 +289,7 @@ export default function ProfilePage() {
       toast.error(t('profile.passwordsNoMatchToast'));
       return;
     }
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       toast.error(t('profile.passwordTooShort'));
       return;
     }

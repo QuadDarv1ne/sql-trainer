@@ -9,33 +9,13 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
-import { Code2, Table, Plus, Filter, Merge, FunctionSquare } from 'lucide-react';
+import { Code2, Filter, Merge, FunctionSquare } from 'lucide-react';
 
 interface SqlTemplatesProps {
   onInsertTemplate: (sql: string) => void;
 }
 
 const TEMPLATES = [
-  {
-    label: 'Создать таблицу',
-    icon: Table,
-    sql: `CREATE TABLE users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  email TEXT UNIQUE,
-  age INTEGER,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP
-);`,
-  },
-  {
-    label: 'Вставить данные',
-    icon: Plus,
-    sql: `INSERT INTO users (name, email, age)
-VALUES
-  ('Иван Петров', 'ivan@example.com', 30),
-  ('Мария Сидорова', 'maria@example.com', 25),
-  ('Алексей Козлов', 'alexey@example.com', 35);`,
-  },
   {
     label: 'Простой SELECT',
     icon: Filter,
