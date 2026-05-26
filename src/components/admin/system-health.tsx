@@ -57,9 +57,33 @@ export default function SystemHealth() {
   };
 
   useEffect(() => {
-    fetchData();
-    const interval = setInterval(() => fetchData(), 60000);
-    return () => clearInterval(interval);
+    const controller = new AbortController();
+    const fetchDataAbort = async () => {
+      try {
+        const r = await fetch('/api/admin/system', { signal: controller.signal });
+        if (!r.ok) throw new Error();
+        const d = await r.json();
+        if (!controller.signal.aborted) {
+          setHealth(d.health);
+          setError('');
+        }
+      } catch (e: unknown) {
+        if ((e as Error).name !== 'AbortError' && !controller.signal.aborted) {
+          setError(t('admin.health.error'));
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+          setRefreshing(false);
+        }
+      }
+    };
+    fetchDataAbort();
+    const interval = setInterval(fetchDataAbort, 60000);
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
   }, []);
 
   if (loading) return <p className="text-center py-4 text-muted-foreground">{t('analytics.loading')}</p>;

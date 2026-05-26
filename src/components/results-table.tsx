@@ -298,7 +298,7 @@ export default function ResultsTable({
               </TableRow>
             ) : (
               paginatedRows.map((row, idx) => (
-                <TableRow key={idx} className="text-sm">
+                <TableRow key={`page-${currentPage}-row-${idx}-${JSON.stringify(Object.values(row)).slice(0, 20)}`} className="text-sm">
                   <TableCell className="text-center text-xs text-muted-foreground">
                     {(currentPage - 1) * pageSize + idx + 1}
                   </TableCell>

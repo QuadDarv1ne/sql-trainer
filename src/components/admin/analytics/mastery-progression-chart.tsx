@@ -159,7 +159,7 @@ export default function MasteryProgressionChart({ apiEndpoint }: MasteryProgress
         </div>
 
         <div className="text-xs text-muted-foreground text-center">
-          {t('analytics.mastery.weekly')} &middot; {data.length} {data.length === 1 ? 'week' : 'weeks'}
+          {t('analytics.mastery.weekly')} · {data.length} {data.length === 1 ? 'week' : 'weeks'}
         </div>
       </CardContent>
     </Card>

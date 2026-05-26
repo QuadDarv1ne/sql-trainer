@@ -46,7 +46,7 @@ export function ReminderToastTrigger() {
             }
 
             toast.warning(r.title, {
-              description: `${t(typeLabels[r.type])} &middot; ${description}`,
+              description: `${t(typeLabels[r.type])} · ${description}`,
               duration: 8000,
             });
           }
@@ -62,7 +62,7 @@ export function ReminderToastTrigger() {
     // Poll every 5 minutes
     const interval = setInterval(fetchAndToast, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [session]);
+  }, [session?.user?.id]);
 
   return null;
 }

@@ -101,12 +101,12 @@ export const GET = withAnalyticsAuth(({ searchParams }) => {
   if (includeProgress) csv += ',Completion Rate,Last Active';
   csv += '\n';
   for (const student of students) {
-    csv += `${student.id},"${student.name}","${student.email}",${student.role},${student.tasks_completed},${student.avg_attempts ?? 0},${student.achievements_count ?? 0},${new Date(student.created_at).toISOString()}`;
+    csv += `${student.id},"${sanitizeCsvValue(student.name)}","${sanitizeCsvValue(student.email)}",${student.role},${student.tasks_completed},${student.avg_attempts ?? 0},${student.achievements_count ?? 0},${new Date(student.created_at).toISOString()}`;
     if (includeProgress) {
       const progress = getStudentProgressById(student.id);
       const rate = progress?.completion_rate ?? 0;
       const lastActive = student.last_active
-        ? new Date(student.last_active).toISOString()
+        ? sanitizeCsvValue(new Date(student.last_active).toISOString())
         : 'Never';
       csv += `,${rate},${lastActive}`;
     }
@@ -127,4 +127,12 @@ function escapeXml(str: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
+}
+
+function sanitizeCsvValue(value: string): string {
+  // Prevent CSV formula injection: prefix values starting with =, +, -, @ with a single quote
+  if (/^[=+\-@]/.test(value)) {
+    return `'${value}`;
+  }
+  return value;
 }

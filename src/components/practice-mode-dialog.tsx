@@ -58,7 +58,7 @@ export default function PracticeModeDialog() {
           </Button>
         </div>
         <p className="mb-2 text-xs text-emerald-600/70 dark:text-emerald-400/70">
-          Задание {currentIdx + 1} из {total} &middot; Выполнено: {completed}
+          Задание {currentIdx + 1} из {total} · Выполнено: {completed}
         </p>
         <div className="flex gap-2">
           <Button

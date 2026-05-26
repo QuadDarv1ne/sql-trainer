@@ -98,7 +98,7 @@ export function ReminderBell() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm">{r.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {t(typeLabels[r.type])} &middot; {formatDate(r.due_at)}
+                      {t(typeLabels[r.type])} · {formatDate(r.due_at)}
                     </p>
                     {r.description && (
                       <p className="text-xs text-muted-foreground mt-1">{r.description}</p>

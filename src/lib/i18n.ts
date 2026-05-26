@@ -1570,6 +1570,16 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.features.explain': 'EXPLAIN анализ',
     'landing.cta.title': 'Готовы начать?',
     'landing.cta.button': 'Создать аккаунт бесплатно',
+    'email.reminder.viewDeadline': 'Посмотреть дедлайн',
+    'email.reminder.overdue': 'Просрочено',
+    'email.reminder.dueSoon': 'Скоро истекает',
+    'email.reminder.hoursLeft': 'Осталось {{hours}} ч',
+    'email.reminder.daysLeft': 'Осталось {{days}} дн.',
+    'teacher.alerts.atRisk': 'Выполнено только {{completed}} из {{total}} заданий',
+    'teacher.alerts.inactive': 'Нет активности {{days}} дней',
+    'teacher.alerts.neverLoggedIn': 'Ни разу не входил в систему',
+    'teacher.alerts.struggling': 'Среднее число попыток: {{attempts}} (выполнено: {{completed}})',
+    'teacher.alerts.excelling': 'Отличная успеваемость: {{completed}} заданий, ср. {{attempts}} попытки',
   },
   en: {
     // Header
@@ -3135,6 +3145,16 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.features.explain': 'EXPLAIN analysis',
     'landing.cta.title': 'Ready to start?',
     'landing.cta.button': 'Create a free account',
+    'email.reminder.viewDeadline': 'View Deadline',
+    'email.reminder.overdue': 'Overdue',
+    'email.reminder.dueSoon': 'Due Soon',
+    'email.reminder.hoursLeft': '{{hours}}h remaining',
+    'email.reminder.daysLeft': '{{days}}d remaining',
+    'teacher.alerts.atRisk': 'Only {{completed}} of {{total}} tasks completed',
+    'teacher.alerts.inactive': 'No activity for {{days}} days',
+    'teacher.alerts.neverLoggedIn': 'Has never logged in',
+    'teacher.alerts.struggling': 'Average attempts: {{attempts}} (completed: {{completed}})',
+    'teacher.alerts.excelling': 'Excellent performance: {{completed}} tasks, avg {{attempts}} attempts',
   },
 };
 

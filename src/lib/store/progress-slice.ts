@@ -4,6 +4,9 @@
 import type { StateCreator } from 'zustand';
 export type { DbType } from '@/lib/training-tasks';
 
+const MAX_QUERY_HISTORY = 50;
+const MAX_SAVED_QUERIES = 50;
+
 export interface CompletedTask {
   taskId: string;
   completedAt: number;
@@ -118,7 +121,7 @@ export const createProgressSlice: StateCreator<ProgressSlice, [], [], ProgressSl
   queryHistory: [],
   addQueryHistory: (entry) =>
     set((state) => ({
-      queryHistory: [entry, ...state.queryHistory].slice(0, 50),
+      queryHistory: [entry, ...state.queryHistory].slice(0, MAX_QUERY_HISTORY),
     })),
   clearHistory: () => set({ queryHistory: [] }),
 
@@ -128,7 +131,7 @@ export const createProgressSlice: StateCreator<ProgressSlice, [], [], ProgressSl
       savedQueries: [
         { ...query, id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`, createdAt: Date.now() },
         ...state.savedQueries,
-      ].slice(0, 50),
+      ].slice(0, MAX_SAVED_QUERIES),
     })),
   deleteSavedQuery: (id) =>
     set((state) => ({

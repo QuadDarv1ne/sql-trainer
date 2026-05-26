@@ -118,7 +118,7 @@ export function generateStudentReportPDF(
       <h2>${tr.levelProgress}</h2>
       <div>
         <div class="info-row"><span class="label">${tr.beginner}:</span><span class="value">${student.beginner_completed}/8</span></div>
-        <div class="info-row"><span class="label">${tr.intermediate}:</span><span class="value">${student.intermediate_completed}/15</span></div>
+        <div class="info-row"><span class="label">${tr.intermediate}:</span><span class="value">${student.intermediate_completed}/23</span></div>
         <div class="info-row"><span class="label">${tr.advanced}:</span><span class="value">${student.advanced_completed}/25</span></div>
       </div>
 
