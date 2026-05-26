@@ -18,7 +18,7 @@ import { createPracticeModeSlice, type PracticeModeSlice } from './practice-mode
 import { createUISlice, type UISlice } from './ui-slice';
 import { createOnboardingSlice, type OnboardingSlice } from './onboarding-slice';
 import type { DbType } from '@/lib/training-tasks';
-import { TRAINING_TASKS } from '@/lib/training-tasks';
+import { TRAINING_TASKS, getTaskById } from '@/lib/training-tasks';
 import { ACHIEVEMENTS } from './gamification-slice';
 
 // Snapshot for undoing progress reset (30-second window)
@@ -184,11 +184,16 @@ export const useSQLTrainerStore = create<CombinedState>()(
       resetTaskProgress: (taskId: string) => {
         set((state) => {
           const newCompletedTasks = state.completedTasks.filter((t) => t.taskId !== taskId);
-          // Recalculate XP from remaining completed tasks (10 XP per task)
-          const baseXp = newCompletedTasks.length * 10;
+          // Recalculate XP from remaining completed tasks using difficulty-based XP
+          let totalXp = 0;
+          for (const ct of newCompletedTasks) {
+            const task = getTaskById(ct.taskId);
+            const xpBase = task?.difficulty === 'advanced' ? 30 : task?.difficulty === 'intermediate' ? 20 : 10;
+            totalXp += xpBase;
+          }
           // Recalculate level from new XP
           let newLevel = 1;
-          let xpRemaining = baseXp;
+          let xpRemaining = totalXp;
           while (xpRemaining >= newLevel * 100) {
             xpRemaining -= newLevel * 100;
             newLevel++;
@@ -199,7 +204,7 @@ export const useSQLTrainerStore = create<CombinedState>()(
             completedTasks: newCompletedTasks,
             userStats: {
               ...state.userStats,
-              xp: baseXp,
+              xp: totalXp,
               level: newLevel,
               levelProgress: levelProgressPercent,
             },

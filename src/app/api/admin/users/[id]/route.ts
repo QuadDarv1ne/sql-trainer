@@ -29,7 +29,10 @@ const adminUpdateUserSchema = z.object({
 });
 
 export const PUT = withAdminAuth(async ({ session, request, params }) => {
-  const { id } = params!;
+  if (!params?.id) {
+    return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+  }
+  const { id } = params;
   const body = await request.json();
 
   const result = adminUpdateUserSchema.safeParse(body);

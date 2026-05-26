@@ -81,7 +81,12 @@ function extractStatementTypes(sql: string): string[] {
       const quote = upper[i];
       i++;
       while (i < upper.length) {
-        if (upper[i] === quote && upper[i - 1] !== '\\') break;
+        // SQL uses '' for escaped quotes, not \'
+        if (upper[i] === quote && i + 1 < upper.length && upper[i + 1] === quote) {
+          i += 2; // Skip escaped quote
+          continue;
+        }
+        if (upper[i] === quote) break;
         i++;
       }
       i++;

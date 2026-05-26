@@ -6,6 +6,7 @@ import { performance } from 'perf_hooks';
 import Database from 'better-sqlite3';
 import { adaptPostgreSQLToSQLite } from './postgresql-adapter';
 import { adaptClickHouseToSQLite } from './clickhouse-adapter';
+import { t } from './i18n';
 
 export interface QueryResult {
   success: boolean;
@@ -92,13 +93,10 @@ export function splitStatements(sql: string): string[] {
     if (inString) {
       current += char;
       if (char === stringChar) {
-        // Check for escaped quote (both '' and \' styles)
+        // SQL uses '' for escaped quotes
         if (next === stringChar) {
           i++;
           current += next;
-        } else if (stringChar === "'" && prev === "\\") {
-          // Backslash-escaped quote
-          inString = false;
         } else {
           inString = false;
         }
@@ -189,101 +187,100 @@ function isDDL(sql: string): boolean {
 function getSuggestionForError(error: string, sql: string): string | undefined {
   const lowerError = error.toLowerCase();
 
-  // Common SQL errors and suggestions
   if (lowerError.includes('no such table')) {
     const match = error.match(/no such table: (\w+)/i);
     if (match) {
-      return `Таблица "${match[1]}" не существует. Проверьте название таблицы в FROM или JOIN.`;
+      return t('sql.error.tableNotExist', { table: match[1] });
     }
-    return 'Проверьте название таблицы — возможно, она не существует.';
+    return t('sql.error.tableNotExistGeneric');
   }
 
   if (lowerError.includes('no such column')) {
     const match = error.match(/no such column: (\w+)/i);
     if (match) {
-      return `Столбец "${match[1]}" не найден. Проверьте имя столбца или используйте алиас таблицы.`;
+      return t('sql.error.columnNotFound', { column: match[1] });
     }
-    return 'Проверьте имя столбца — возможно, оно написано неверно.';
+    return t('sql.error.columnNotFoundGeneric');
   }
 
   if (lowerError.includes('ambiguous column name')) {
-    return 'Имя столбца найдено в нескольких таблицах. Используйте алиас.таблица (например, e.name вместо name).';
+    return t('sql.error.ambiguousColumn');
   }
 
   if (lowerError.includes('syntax error') && lowerError.includes('near')) {
-    return 'Проверьте синтаксис запроса. Возможно, пропущена запятая, скобка или ключевое слово.';
+    return t('sql.error.syntax');
   }
 
   if (lowerError.includes('aggregate function')) {
-    return 'Агрегатные функции (COUNT, SUM, AVG, etc.) нельзя использовать в WHERE. Используйте HAVING для фильтрации агрегатов.';
+    return t('sql.error.aggregateInWhere');
   }
 
   if (lowerError.includes('group by')) {
-    return 'Все столбцы в SELECT (кроме агрегатных) должны быть в GROUP BY.';
+    return t('sql.error.groupBy');
   }
 
   if (lowerError.includes('unique constraint failed') || lowerError.includes('primary key')) {
-    return 'Нарушено ограничение уникальности. Возможно, вы пытаетесь вставить дублирующийся ключ.';
+    return t('sql.error.uniqueConstraint');
   }
 
   if (lowerError.includes('foreign key constraint failed')) {
-    return 'Нарушено ограничение внешнего ключа. Убедитесь, что связанные записи существуют.';
+    return t('sql.error.foreignKey');
   }
 
   if (lowerError.includes('cannot add foreign key')) {
-    return 'Не удалось добавить внешний ключ. Проверьте, что типы столбцов совпадают в обеих таблицах.';
+    return t('sql.error.cannotAddForeignKey');
   }
 
   if (lowerError.includes('order by')) {
-    return 'Проверьте порядок сортировки. ORDER BY должен быть после WHERE/GROUP BY/HAVING.';
+    return t('sql.error.orderBy');
   }
 
   if (lowerError.includes('limit')) {
-    return 'LIMIT должен быть последним в запросе (после ORDER BY).';
+    return t('sql.error.limit');
   }
 
   if (lowerError.includes('union') && lowerError.includes('different number')) {
-    return 'Все запросы в UNION должны иметь одинаковое количество столбцов.';
+    return t('sql.error.unionColumns');
   }
 
   if (lowerError.includes('subquery returned more than one row')) {
-    return 'Подзапрос вернул несколько строк. Используйте IN, EXISTS или добавьте LIMIT 1.';
+    return t('sql.error.subqueryMultipleRows');
   }
 
   if (lowerError.includes('division by zero')) {
-    return 'Деление на ноль. Используйте NULLIF или CASE для избежания деления на ноль.';
+    return t('sql.error.divisionByZero');
   }
 
   if (lowerError.includes('case') && lowerError.includes('end')) {
-    return 'Проверьте синтаксис CASE WHEN ... THEN ... ELSE ... END.';
+    return t('sql.error.caseSyntax');
   }
 
   if (lowerError.includes('window function')) {
-    return 'Оконные функции требуют OVER(). Например: ROW_NUMBER() OVER (ORDER BY column).';
+    return t('sql.error.windowFunction');
   }
 
   if (lowerError.includes('partition by')) {
-    return 'PARTITION BY используется внутри OVER(). Например: OVER (PARTITION BY column ORDER BY column).';
+    return t('sql.error.partitionBy');
   }
 
   if (lowerError.includes('trigger')) {
-    return 'Проверьте синтаксис CREATE TRIGGER. Триггеры выполняются автоматически при INSERT/UPDATE/DELETE.';
+    return t('sql.error.trigger');
   }
 
   if (lowerError.includes('transaction')) {
-    return 'Транзакция: BEGIN начинает, COMMIT фиксирует, ROLLBACK отменяет изменения.';
+    return t('sql.error.transaction');
   }
 
   if (lowerError.includes('fts') || lowerError.includes('match')) {
-    return 'FTS5 поиск: используйте MATCH для полнотекстового поиска. Например: WHERE table MATCH "слово".';
+    return t('sql.error.fts');
   }
 
   if (lowerError.includes('json')) {
-    return 'JSON функции: json_extract(data, "$.field") извлекает значение из JSON.';
+    return t('sql.error.json');
   }
 
   if (lowerError.includes('date') || lowerError.includes('time')) {
-    return 'Даты в SQLite: strftime("%Y", date), julianday(date1) - julianday(date2).';
+    return t('sql.error.date');
   }
 
   return undefined;
@@ -302,17 +299,13 @@ const MAX_SCHEMA_CACHE_SIZE = 10;
 const schemaCache = new Map<string, Database.Database>();
 
 /**
- * Generate a simple hash for cache key from schema SQL and db type
+ * Generate cache key from schema SQL and db type.
+ * Uses truncated SQL as key to avoid hash collisions.
  */
 function schemaCacheKey(schemaSql: string, dbType: string): string {
-  let hash = 0;
-  const str = `${schemaSql}:${dbType}`;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash |= 0;
-  }
-  return `${dbType}:${hash}`;
+  // Use first 500 chars of schema as key suffix (enough to distinguish schemas)
+  const prefix = schemaSql.length > 500 ? schemaSql.substring(0, 500) : schemaSql;
+  return `${dbType}:${prefix.length}:${prefix}`;
 }
 
 /**
@@ -383,7 +376,7 @@ function executeStatements(
         const executionTime = performance.now() - stmtStartTime;
         if (executionTime > MAX_EXECUTION_TIME_MS) {
           throw new Error(
-            `Превышено время выполнения запроса (${MAX_EXECUTION_TIME_MS / 1000}с). Проверьте запрос на рекурсивные CTE или слишком большие JOIN.`
+            t('sql.error.timeout', { seconds: String(MAX_EXECUTION_TIME_MS / 1000) })
           );
         }
 
@@ -399,7 +392,7 @@ function executeStatements(
           rows,
           executionTime,
           message: truncated
-            ? `Результат ограничен ${MAX_ROWS} строками`
+            ? t('sql.success.rowsLimited', { maxRows: String(MAX_ROWS) })
             : undefined,
         };
       } else if (isDDL(stmt)) {
@@ -410,7 +403,7 @@ function executeStatements(
           columns: [],
           rows: [],
           executionTime,
-          message: 'Операция DDL выполнена успешно',
+          message: t('sql.success.ddl'),
         };
       } else {
         const statement = db.prepare(stmt);
@@ -421,7 +414,7 @@ function executeStatements(
           columns: [],
           rows: [],
           executionTime,
-          message: `Запрос выполнен. Изменено строк: ${result.changes}`,
+          message: t('sql.success.dml', { changes: String(result.changes) }),
           affectedRows: result.changes,
         };
       }
@@ -445,7 +438,7 @@ function executeStatements(
     columns: [],
     rows: [],
     executionTime: performance.now() - batchStartTime,
-    message: 'Запрос выполнен успешно',
+    message: t('sql.success.generic'),
   };
 }
 
@@ -522,7 +515,7 @@ export function executeWithSchema(
           success: false,
           columns: [],
           rows: [],
-          error: `Ошибка создания схемы: ${msg}`,
+          error: t('sql.error.schemaCreate', { message: msg }),
           executionTime: performance.now() - startTime,
         };
       }
@@ -597,7 +590,7 @@ export function executeWithSchemaMulti(
           success: false,
           columns: [],
           rows: [],
-          error: `Ошибка создания схемы: ${msg}`,
+          error: t('sql.error.schemaCreate', { message: msg }),
           executionTime: performance.now() - startTime,
         };
         return sqlInputs.map(() => ({ ...errorResult }));

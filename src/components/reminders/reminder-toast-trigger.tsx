@@ -42,7 +42,7 @@ export function ReminderToastTrigger() {
               description = t('reminder.hoursLeft', { hours: String(hoursLeft) });
             } else {
               const days = Math.round(hoursLeft / 24);
-              description = `${days} дн.`;
+              description = t('reminder.daysLeft', { days: String(days) });
             }
 
             toast.warning(r.title, {

@@ -36,7 +36,12 @@ export const GET = withTeacherAuth(async ({ session, request }) => {
 });
 
 export const POST = withTeacherAuth(async ({ session, request }) => {
-  const body = await request.json();
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+  }
 
   const parsed = deadlineSchema.safeParse(body);
   if (!parsed.success) {

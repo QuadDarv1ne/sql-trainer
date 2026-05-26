@@ -13,7 +13,12 @@ const createUserSchema = z.object({
 });
 
 export const POST = withAdminAuth(async ({ request, session }) => {
-  const body = await request.json();
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+  }
   const validation = createUserSchema.safeParse(body);
 
   if (!validation.success) {

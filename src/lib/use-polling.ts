@@ -57,7 +57,8 @@ export function usePolling(
         setIsPaused(false);
         // Immediately refresh when tab becomes visible (if not already fetching)
         if (!isFetchingRef.current) {
-          callbackRef.current();
+          const result = callbackRef.current();
+          if (result instanceof Promise) result.catch(() => {});
         }
       }
     };
@@ -68,7 +69,8 @@ export function usePolling(
 
   const refresh = useCallback(() => {
     if (!isFetchingRef.current) {
-      callbackRef.current();
+      const result = callbackRef.current();
+      if (result instanceof Promise) result.catch(() => {});
     }
   }, []);
 
@@ -76,7 +78,8 @@ export function usePolling(
   const resume = useCallback(() => {
     setIsPaused(false);
     if (!isFetchingRef.current) {
-      callbackRef.current();
+      const result = callbackRef.current();
+      if (result instanceof Promise) result.catch(() => {});
     }
   }, []);
 
