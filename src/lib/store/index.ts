@@ -20,6 +20,7 @@ import { createOnboardingSlice, type OnboardingSlice } from './onboarding-slice'
 import type { DbType } from '@/lib/training-tasks';
 import { TRAINING_TASKS, getTaskById } from '@/lib/training-tasks';
 import { ACHIEVEMENTS } from './gamification-slice';
+import { calculateLevel } from './level-calculator';
 
 // Snapshot for undoing progress reset (30-second window)
 type ProgressSnapshot = {
@@ -67,24 +68,25 @@ type CombinedState = DatabaseSlice &
     undoReset: () => void;
   };
 
-// Type aliases for composing slices into the combined store.
-// Each slice is typed against its own narrow interface, but the composed store
-// passes the full state's set/get/store. These aliases bridge that gap.
+// Type helpers for composing narrow slices into the wider CombinedState.
+// Each slice creator is typed against its own narrow state, but the composed
+// store passes the full CombinedState's set/get/store. These casts bridge that gap.
+// This is the recommended Zustand pattern for slice composition.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnySet = (...args: any[]) => void;
+type SliceSet = (...args: any[]) => void;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyGet = (...args: any[]) => any;
+type SliceGet = (...args: any[]) => any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyPersistOpts = any;
+type SliceStore = any;
 
 export const useSQLTrainerStore = create<CombinedState>()(
   persist(
     (set, get, store) => ({
       // Database slice
-      ...createDatabaseSlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),
+      ...createDatabaseSlice(set as SliceSet, get as SliceGet, store as SliceStore),
 
       // Progress slice — spread base implementation first to satisfy ProgressSlice type
-      ...createProgressSlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),
+      ...createProgressSlice(set as SliceSet, get as SliceGet, store as SliceStore),
 
       // Override markTaskCompleted to include gamification (cross-slice coordination)
       markTaskCompleted: (taskId: string, attempts: number) => {
@@ -103,39 +105,31 @@ export const useSQLTrainerStore = create<CombinedState>()(
 
           const xpToAdd = xpGained > 0 ? xpGained : 0;
           const newXp = state.userStats.xp + xpToAdd;
-          // Calculate level: each level requires level * 100 XP (level 1→2 needs 100, 2→3 needs 200, etc.)
-          let newLevel = state.userStats.level;
-          let xpRemaining = newXp;
-          while (xpRemaining >= newLevel * 100) {
-            xpRemaining -= newLevel * 100;
-            newLevel++;
-          }
-          const xpNeeded = newLevel * 100;
-          const levelProgressPercent = Math.round((xpRemaining / xpNeeded) * 100);
+          const { level, progress } = calculateLevel(newXp);
 
           return {
             completedTasks: updatedCompletedTasks,
             userStats: {
               ...state.userStats,
               xp: newXp,
-              level: newLevel,
-              levelProgress: levelProgressPercent,
+              level,
+              levelProgress: progress,
             },
           };
         });
       },
 
       // Gamification slice
-      ...createGamificationSlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),
+      ...createGamificationSlice(set as SliceSet, get as SliceGet, store as SliceStore),
 
       // Practice mode slice
-      ...createPracticeModeSlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),
+      ...createPracticeModeSlice(set as SliceSet, get as SliceGet, store as SliceStore),
 
       // UI slice
-      ...createUISlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),
+      ...createUISlice(set as SliceSet, get as SliceGet, store as SliceStore),
 
       // Onboarding slice
-      ...createOnboardingSlice(set as AnySet, get as AnyGet, store as AnyPersistOpts),
+      ...createOnboardingSlice(set as SliceSet, get as SliceGet, store as SliceStore),
 
       // Override setCurrentTaskId to also clear UI state
       setCurrentTaskId: (id: string | null) => {
@@ -191,22 +185,14 @@ export const useSQLTrainerStore = create<CombinedState>()(
             const xpBase = task?.difficulty === 'advanced' ? 30 : task?.difficulty === 'intermediate' ? 20 : 10;
             totalXp += xpBase;
           }
-          // Recalculate level from new XP
-          let newLevel = 1;
-          let xpRemaining = totalXp;
-          while (xpRemaining >= newLevel * 100) {
-            xpRemaining -= newLevel * 100;
-            newLevel++;
-          }
-          const xpNeeded = newLevel * 100;
-          const levelProgressPercent = Math.round((xpRemaining / xpNeeded) * 100);
+          const { level, progress } = calculateLevel(totalXp);
           return {
             completedTasks: newCompletedTasks,
             userStats: {
               ...state.userStats,
               xp: totalXp,
-              level: newLevel,
-              levelProgress: levelProgressPercent,
+              level,
+              levelProgress: progress,
             },
           };
         });

@@ -3,6 +3,7 @@
  */
 import type { StateCreator } from 'zustand';
 import { TRAINING_TASKS } from '@/lib/training-tasks';
+import { calculateLevel } from './level-calculator';
 
 export interface Achievement {
   id: string;
@@ -113,30 +114,17 @@ const defaultStats: UserStats = {
   explainCount: 0,
 };
 
-function calculateLevelFn(totalXP: number) {
-  let level = 1;
-  let xpNeeded = 100;
-  let cumulativeXP = 0;
-
-  while (totalXP >= cumulativeXP + xpNeeded && level < 20) {
-    cumulativeXP += xpNeeded;
-    level++;
-    xpNeeded = level * 100;
-  }
-
-  const remainingXP = totalXP - cumulativeXP;
-  const progress = Math.round((remainingXP / xpNeeded) * 100);
-  const xpToNext = xpNeeded - remainingXP;
-
-  return { level, progress, xpToNext };
-}
-
-export const createGamificationSlice: StateCreator<GamificationSlice, [], [], GamificationSlice> = (set, get) => ({
+export const createGamificationSlice: StateCreator<
+  GamificationSlice,
+  [],
+  [],
+  GamificationSlice
+> = (set, get) => ({
   userStats: defaultStats,
   addXP: (amount) => {
     const { userStats } = get();
     const newXP = userStats.xp + amount;
-    const { level, progress, xpToNext } = calculateLevelFn(newXP);
+    const { level, progress, xpToNext } = calculateLevel(newXP);
     set({
       userStats: {
         ...userStats,
@@ -147,7 +135,7 @@ export const createGamificationSlice: StateCreator<GamificationSlice, [], [], Ga
     });
     return { level, progress, xpToNext };
   },
-  calculateLevel: calculateLevelFn,
+  calculateLevel: calculateLevel,
   incrementExplainCount: () => {
     const { userStats } = get();
     set({

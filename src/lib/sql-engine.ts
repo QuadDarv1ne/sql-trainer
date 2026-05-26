@@ -510,7 +510,7 @@ export function executeWithSchema(
         db = cloneDatabase(schemaCache.get(cacheKey)!);
       } catch (schemaErr: unknown) {
         const msg = schemaErr instanceof Error ? schemaErr.message : String(schemaErr);
-        db.close();
+        db?.close();
         return {
           success: false,
           columns: [],
@@ -585,7 +585,7 @@ export function executeWithSchemaMulti(
         db = cloneDatabase(schemaCache.get(cacheKey)!);
       } catch (schemaErr: unknown) {
         const msg = schemaErr instanceof Error ? schemaErr.message : String(schemaErr);
-        db.close();
+        db?.close();
         const errorResult: QueryResult = {
           success: false,
           columns: [],

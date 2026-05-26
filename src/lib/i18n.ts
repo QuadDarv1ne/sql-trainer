@@ -265,8 +265,6 @@ export const translations: Record<Locale, Record<string, string>> = {
     'task.showNextHint': 'Подсказка {level} уровня',
     'task.hintPenaltyTotal': 'Штраф за подсказки: -{penalty} XP',
     'task.solution': 'Решение',
-    'task.next': 'Следующее',
-    'task.related': 'Похожие задания',
 
     // Welcome panel
     'welcome.recommend': 'Рекомендуем далее',
@@ -1725,11 +1723,6 @@ export const translations: Record<Locale, Record<string, string>> = {
     'email.reminder.dueSoon': 'Скоро истекает',
     'email.reminder.hoursLeft': 'Осталось {{hours}} ч',
     'email.reminder.daysLeft': 'Осталось {{days}} дн.',
-    'teacher.alerts.atRisk': 'Выполнено только {{completed}} из {{total}} заданий',
-    'teacher.alerts.inactive': 'Нет активности {{days}} дней',
-    'teacher.alerts.neverLoggedIn': 'Ни разу не входил в систему',
-    'teacher.alerts.struggling': 'Среднее число попыток: {{attempts}} (выполнено: {{completed}})',
-    'teacher.alerts.excelling': 'Отличная успеваемость: {{completed}} заданий, ср. {{attempts}} попытки',
 
     // SQL Engine
     'sql.error.tableNotExist': 'Таблица "{{table}}" не существует. Проверьте название таблицы в FROM или JOIN.',
@@ -2056,8 +2049,6 @@ export const translations: Record<Locale, Record<string, string>> = {
     'task.showNextHint': 'Level {level} hint',
     'task.hintPenaltyTotal': 'Hint penalty: -{penalty} XP',
     'task.solution': 'Solution',
-    'task.next': 'Next',
-    'task.related': 'Related Tasks',
 
     // Welcome panel
     'welcome.recommend': 'Recommended Next',
@@ -3516,11 +3507,6 @@ export const translations: Record<Locale, Record<string, string>> = {
     'email.reminder.dueSoon': 'Due Soon',
     'email.reminder.hoursLeft': '{{hours}}h remaining',
     'email.reminder.daysLeft': '{{days}}d remaining',
-    'teacher.alerts.atRisk': 'Only {{completed}} of {{total}} tasks completed',
-    'teacher.alerts.inactive': 'No activity for {{days}} days',
-    'teacher.alerts.neverLoggedIn': 'Has never logged in',
-    'teacher.alerts.struggling': 'Average attempts: {{attempts}} (completed: {{completed}})',
-    'teacher.alerts.excelling': 'Excellent performance: {{completed}} tasks, avg {{attempts}} attempts',
 
     // SQL Engine
     'sql.error.tableNotExist': 'Table "{{table}}" does not exist. Check the table name in FROM or JOIN.',
