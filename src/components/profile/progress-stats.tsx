@@ -51,14 +51,14 @@ export default function ProgressStats() {
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold">Уровень {userStats.level}</h3>
+                <h3 className="font-semibold">{t('progress.level', { level: String(userStats.level) })}</h3>
                 <span className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
                   {userStats.xp} XP
                 </span>
               </div>
               <Progress value={userStats.levelProgress} className="mt-2 h-2" />
               <p className="mt-1 text-xs text-muted-foreground">
-                {userStats.levelProgress}% до уровня {userStats.level + 1}
+                {t('progress.toLevel', { progress: String(userStats.levelProgress), level: String(userStats.level + 1) })}
               </p>
             </div>
           </div>
@@ -72,7 +72,7 @@ export default function ProgressStats() {
             <Target className="h-8 w-8 text-emerald-500" />
             <div>
               <p className="text-2xl font-bold">{completedCount}/{totalTasks}</p>
-              <p className="text-xs text-muted-foreground">Заданий выполнено</p>
+              <p className="text-xs text-muted-foreground">{t('progress.tasksCompleted')}</p>
             </div>
           </CardContent>
         </Card>
@@ -81,7 +81,7 @@ export default function ProgressStats() {
             <Zap className="h-8 w-8 text-amber-500" />
             <div>
               <p className="text-2xl font-bold">{avgAttempts}</p>
-              <p className="text-xs text-muted-foreground">Среднее попыток</p>
+              <p className="text-xs text-muted-foreground">{t('progress.avgAttempts')}</p>
             </div>
           </CardContent>
         </Card>
@@ -90,7 +90,7 @@ export default function ProgressStats() {
             <Trophy className="h-8 w-8 text-purple-500" />
             <div>
               <p className="text-2xl font-bold">{bestResult ?? '—'}</p>
-              <p className="text-xs text-muted-foreground">Лучший результат</p>
+              <p className="text-xs text-muted-foreground">{t('progress.bestResult')}</p>
             </div>
           </CardContent>
         </Card>
@@ -99,7 +99,7 @@ export default function ProgressStats() {
             <Star className="h-8 w-8 text-sky-500" />
             <div>
               <p className="text-2xl font-bold">{unlockedAchievements.length}</p>
-              <p className="text-xs text-muted-foreground">Достижений</p>
+              <p className="text-xs text-muted-foreground">{t('progress.achievements')}</p>
             </div>
           </CardContent>
         </Card>
@@ -128,7 +128,7 @@ export default function ProgressStats() {
                 </span>
                 <span>
                   <Brain className="inline h-3 w-3 mr-1" />
-                  Запросов: {queryHistory.length}
+                  {t('progress.totalQueries')}: {queryHistory.length}
                 </span>
               </div>
             </div>
@@ -167,7 +167,7 @@ export default function ProgressStats() {
               </CardHeader>
               <CardContent>
                 <Progress value={pct} className="h-1.5" />
-                <p className="mt-1 text-xs text-muted-foreground">{completed}/{total} заданий</p>
+                <p className="mt-1 text-xs text-muted-foreground">{completed}/{total} {t('classReport.task')}</p>
               </CardContent>
             </Card>
           );

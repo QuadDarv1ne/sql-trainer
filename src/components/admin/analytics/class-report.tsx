@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Users, TrendingUp, Award, Clock, FileText, Download } from 'lucide-react';
+import { AlertCircle, Users, TrendingUp, Award, Clock, Download } from 'lucide-react';
 import { generateClassReportPDF } from '@/lib/pdf-report';
 import { t, getLocale } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
@@ -99,7 +99,7 @@ export default function ClassReport() {
           <CardContent>
             <div className="space-y-2">
               {report.top_performers.map((student, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg border">
+                <div key={`${student.name}-${index}`} className="flex items-center justify-between p-3 rounded-lg border">
                   <div className="flex items-center gap-3">
                     <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
                       #{index + 1}
@@ -107,8 +107,8 @@ export default function ClassReport() {
                     <span className="font-medium">{student.name}</span>
                   </div>
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="text-muted-foreground">{student.tasks_completed} {t('analytics.tasks.completions')}</span>
-                    <span className="text-muted-foreground">{t('analytics.tasks.avgAttempts')}: {student.avg_attempts}</span>
+                    <span className="text-muted-foreground">{student.tasks_completed} {t('classReport.task')}</span>
+                    <span className="text-muted-foreground">{t('classReport.avgAttemptsLabel')}: {student.avg_attempts}</span>
                   </div>
                 </div>
               ))}
@@ -126,12 +126,12 @@ export default function ClassReport() {
           <CardContent>
             <div className="space-y-2">
               {report.struggling_students.map((student, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-amber-200 dark:border-amber-900">
+                <div key={`${student.name}-${index}`} className="flex items-center justify-between p-3 rounded-lg border border-amber-200 dark:border-amber-900">
                   <span className="font-medium">{student.name}</span>
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="text-muted-foreground">{student.tasks_completed} {t('analytics.tasks.completions')}</span>
+                    <span className="text-muted-foreground">{student.tasks_completed} {t('classReport.task')}</span>
                     <Badge variant="outline" className="border-amber-500 text-amber-600">
-                      {t('analytics.tasks.avgAttempts')}: {student.avg_attempts}
+                      {t('classReport.avgAttemptsLabel')}: {student.avg_attempts}
                     </Badge>
                   </div>
                 </div>
@@ -150,14 +150,14 @@ export default function ClassReport() {
           <CardContent>
             <div className="space-y-2">
               {report.inactive_students.map((student, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-red-200 dark:border-red-900">
+                <div key={`${student.name}-${index}`} className="flex items-center justify-between p-3 rounded-lg border border-red-200 dark:border-red-900">
                   <span className="font-medium">{student.name}</span>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
                     <span>
                       {student.last_active
-                        ? t('analytics.classReport.daysAgo', { days: String(Math.floor((Date.now() - student.last_active) / (24 * 60 * 60 * 1000))) })
-                        : t('analytics.classReport.noActivity')}
+                        ? t('classReport.daysAgo', { days: String(Math.floor((Date.now() - student.last_active) / (24 * 60 * 60 * 1000))) })
+                        : t('classReport.neverActive')}
                     </span>
                   </div>
                 </div>

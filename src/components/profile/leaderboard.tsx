@@ -5,8 +5,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useSession } from 'next-auth/react';
-import { Loader2, Trophy, Medal, Star } from 'lucide-react';
+import { Loader2, Trophy, Medal } from 'lucide-react';
 import { logger } from '@/lib/logger';
+import { t } from '@/lib/i18n';
 
 interface LeaderboardEntry {
   user_id: string;
@@ -52,7 +53,7 @@ export default function LeaderboardTable() {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Trophy className="h-12 w-12 text-muted-foreground/40 mb-3" />
-          <p className="text-sm font-medium text-muted-foreground">Рейтинг пуст</p>
+          <p className="text-sm font-medium text-muted-foreground">{t('leaderboard.empty')}</p>
         </CardContent>
       </Card>
     );
@@ -73,10 +74,10 @@ export default function LeaderboardTable() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-10 text-center">#</TableHead>
-              <TableHead>Имя</TableHead>
-              <TableHead className="text-right">Заданий</TableHead>
-              <TableHead className="text-right">Попыток</TableHead>
+              <TableHead className="w-10 text-center">{t('leaderboard.rank')}</TableHead>
+              <TableHead>{t('leaderboard.name')}</TableHead>
+              <TableHead className="text-right">{t('leaderboard.tasks')}</TableHead>
+              <TableHead className="text-right">{t('leaderboard.attempts')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -93,7 +94,7 @@ export default function LeaderboardTable() {
                   </TableCell>
                   <TableCell className="font-medium">
                     {entry.name}
-                    {isCurrentUser && <Badge variant="secondary" className="ml-2 text-[10px]">Вы</Badge>}
+                    {isCurrentUser && <Badge variant="secondary" className="ml-2 text-[10px]">{t('leaderboard.you')}</Badge>}
                   </TableCell>
                   <TableCell className="text-right">
                     {entry.tasks_completed}

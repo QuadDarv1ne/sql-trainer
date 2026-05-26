@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,11 +22,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StudentAcademicProfile from '@/components/admin/analytics/student-academic-profile';
 import type { UserRole } from '@/lib/db-users';
 import { Users, Trash2, AlertCircle, CheckCircle2, ChevronUp, ChevronDown, Search, Plus, UserPlus, Undo2, Pencil, BookOpen } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 
 interface User {
   id: string;
@@ -72,24 +73,31 @@ export default function UserTable() {
   const [saving, setSaving] = useState(false);
   const [detailStudentId, setDetailStudentId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('active');
+  const controllerRef = useRef<AbortController | null>(null);
 
   const fetchUsers = useCallback(async () => {
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
     try {
       const [usersRes, deletedRes] = await Promise.all([
-        fetch('/api/admin/users'),
-        fetch('/api/admin/users/deleted'),
+        fetch('/api/admin/users', { signal: controller.signal }),
+        fetch('/api/admin/users/deleted', { signal: controller.signal }),
       ]);
       if (!usersRes.ok) throw new Error('Failed to load users');
       const usersData = await usersRes.json();
-      setUsers(usersData.users);
-      if (deletedRes.ok) {
+      if (!controller.signal.aborted) setUsers(usersData.users);
+      if (deletedRes.ok && !controller.signal.aborted) {
         const deletedData = await deletedRes.json();
         setDeletedUsers(deletedData.users);
       }
-    } catch {
-      setError(t('admin.users.error'));
+    } catch (e) {
+      if (!controller.signal.aborted) {
+        logger.error('Failed to fetch users:', e);
+        setError(t('admin.users.error'));
+      }
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   }, []);
 
@@ -141,6 +149,7 @@ export default function UserTable() {
       setSuccess(t('admin.users.roleUpdated'));
       fetchUsers();
     } catch (e) {
+      logger.error('Failed to update role:', e);
       setError(e instanceof Error ? e.message : t('admin.users.roleUpdateError'));
     }
   };
@@ -163,6 +172,7 @@ export default function UserTable() {
       });
       fetchUsers();
     } catch (e) {
+      logger.error('Failed to delete user:', e);
       setError(e instanceof Error ? e.message : t('admin.users.deleteError'));
     }
   };
@@ -209,6 +219,7 @@ export default function UserTable() {
       setBulkAction(null);
       fetchUsers();
     } catch (e) {
+      logger.error('Bulk action failed:', e);
       setError(e instanceof Error ? e.message : t('admin.users.roleUpdateError'));
     }
   };
@@ -236,6 +247,7 @@ export default function UserTable() {
       setNewUser({ email: '', name: '', password: '', phone: '', role: 'student' as UserRole });
       fetchUsers();
     } catch (e) {
+      logger.error('Failed to create user:', e);
       setError(e instanceof Error ? e.message : t('admin.users.createError'));
     } finally {
       setCreating(false);
@@ -255,6 +267,7 @@ export default function UserTable() {
       setSuccess(t('admin.users.restored'));
       fetchUsers();
     } catch (e) {
+      logger.error('Failed to restore user:', e);
       setError(e instanceof Error ? e.message : t('admin.users.restoreError'));
     }
   };
@@ -288,6 +301,7 @@ export default function UserTable() {
       setEditUser(null);
       fetchUsers();
     } catch (e) {
+      logger.error('Failed to update user:', e);
       setError(e instanceof Error ? e.message : t('admin.users.updateError'));
     } finally {
       setSaving(false);

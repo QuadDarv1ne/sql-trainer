@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { useTheme } from 'next-themes';
 import {
   EditorView,
@@ -11,7 +11,7 @@ import {
   drawSelection,
   highlightActiveLine,
 } from '@codemirror/view';
-import { EditorState, StateEffect, Compartment } from '@codemirror/state';
+import { EditorState, Compartment } from '@codemirror/state';
 import { sql } from '@codemirror/lang-sql';
 import { oneDark } from '@codemirror/theme-one-dark';
 import {
@@ -37,6 +37,7 @@ import {
 } from '@codemirror/autocomplete';
 import { searchKeymap } from '@codemirror/search';
 import { splitSqlSegments } from '@/lib/sql-utils';
+import { t } from '@/lib/i18n';
 
 export interface SchemaInfo {
   tables: {
@@ -142,22 +143,6 @@ const SQL_FUNCTIONS = [
   'FIRST_VALUE', 'LAST_VALUE', 'NTH_VALUE',
   'GROUP_CONCAT', 'PRINTF', 'UNICODE', 'CHAR',
 ];
-
-// SQL keywords for autocomplete
-const SQL_KEYWORDS = [
-  'SELECT', 'FROM', 'WHERE', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP',
-  'ALTER', 'TABLE', 'INTO', 'VALUES', 'SET', 'JOIN', 'INNER', 'LEFT', 'RIGHT',
-  'FULL', 'OUTER', 'CROSS', 'ON', 'GROUP', 'BY', 'ORDER', 'HAVING', 'LIMIT',
-  'OFFSET', 'UNION', 'ALL', 'DISTINCT', 'AS', 'AND', 'OR', 'NOT', 'IN', 'IS',
-  'NULL', 'BETWEEN', 'LIKE', 'EXISTS', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END',
-  'COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'COALESCE', 'NULLIF', 'CAST',
-  'ROW_NUMBER', 'RANK', 'DENSE_RANK', 'OVER', 'PARTITION', 'LAG', 'LEAD',
-  'FIRST_VALUE', 'LAST_VALUE', 'WITH', 'RECURSIVE', 'VIEW', 'INDEX', 'TRIGGER',
-  'BEGIN', 'COMMIT', 'ROLLBACK', 'TRANSACTION', 'PRIMARY', 'KEY', 'FOREIGN',
-  'REFERENCES', 'CONSTRAINT', 'DEFAULT', 'UNIQUE', 'CHECK',
-  'INTERSECT', 'EXCEPT', 'RETURNING', 'TRUE', 'FALSE',
-  'ASC', 'DESC', 'NULLS FIRST', 'NULLS LAST', 'FILTER', 'WITHIN',
-].map((label) => ({ label, type: 'keyword' }));
 
 // Light theme for SQL editor
 const lightTheme = EditorView.theme({
@@ -293,13 +278,13 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
   onChange,
   onRun,
   height = '300px',
-  placeholder = 'Введите SQL запрос...',
   schema = null,
   onFormatSQL,
   onUndo,
   onRedo,
 }: SQLEditorProps, ref) {
   const { theme } = useTheme();
+  const placeholder = t('sqlEditor.placeholder');
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);

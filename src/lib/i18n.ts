@@ -549,6 +549,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'admin.audit.entries': 'записей',
     'admin.audit.refresh': 'Обновить',
     'admin.audit.noEntries': 'Записи аудита пока отсутствуют',
+    'admin.audit.error': 'Не удалось загрузить журнал аудита',
     'admin.audit.time': 'Время',
     'admin.audit.actor': 'Исполнитель',
     'admin.audit.action': 'Действие',
@@ -653,6 +654,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'analytics.error': 'Не удалось загрузить данные',
     'analytics.noData': 'Нет данных',
     'analytics.noDataDescription': 'Данные появятся, когда студенты начнут выполнять задания',
+    'analytics.week': 'неделя',
+    'analytics.weeks': 'недели',
     'analytics.cohortComparison.title': 'Сравнение когорт',
     'analytics.streak.perfect': 'Серия с первой попытки',
 
@@ -1767,6 +1770,32 @@ export const translations: Record<Locale, Record<string, string>> = {
     'userMenu.security': 'Безопасность',
     'userMenu.trainer': 'Тренажёр',
     'userMenu.logout': 'Выйти',
+
+    // Leaderboard
+    'leaderboard.empty': 'Рейтинг пуст',
+    'leaderboard.rank': '#',
+    'leaderboard.name': 'Имя',
+    'leaderboard.tasks': 'Заданий',
+    'leaderboard.attempts': 'Попыток',
+    'leaderboard.you': 'Вы',
+
+    // Progress stats
+    'progress.level': 'Уровень {{level}}',
+    'progress.toLevel': '{{progress}}% до уровня {{level}}',
+    'progress.tasksCompleted': 'Заданий выполнено',
+    'progress.avgAttempts': 'Среднее попыток',
+    'progress.bestResult': 'Лучший результат',
+    'progress.achievements': 'Достижений',
+    'progress.totalQueries': 'Запросов',
+
+    // SQL Editor
+    'sqlEditor.placeholder': 'Введите SQL запрос...',
+
+    // Class report
+    'classReport.task': 'заданий',
+    'classReport.avgAttemptsLabel': 'Среднее попыток',
+    'classReport.daysAgo': '{{days}} дн. назад',
+    'classReport.neverActive': 'Неактивен',
   },
   en: {
     // Header
@@ -2311,6 +2340,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'admin.audit.entries': 'entries',
     'admin.audit.refresh': 'Refresh',
     'admin.audit.noEntries': 'No audit entries yet',
+    'admin.audit.error': 'Failed to load audit log',
     'admin.audit.time': 'Time',
     'admin.audit.actor': 'Actor',
     'admin.audit.action': 'Action',
@@ -2415,6 +2445,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'analytics.error': 'Failed to load data',
     'analytics.noData': 'No data',
     'analytics.noDataDescription': 'Data will appear once students start completing tasks',
+    'analytics.week': 'week',
+    'analytics.weeks': 'weeks',
     'analytics.cohortComparison.title': 'Cohort Comparison',
     'analytics.streak.perfect': 'Perfect Streak',
 
@@ -3529,6 +3561,32 @@ export const translations: Record<Locale, Record<string, string>> = {
     'userMenu.security': 'Security',
     'userMenu.trainer': 'Trainer',
     'userMenu.logout': 'Sign Out',
+
+    // Leaderboard
+    'leaderboard.empty': 'Leaderboard is empty',
+    'leaderboard.rank': '#',
+    'leaderboard.name': 'Name',
+    'leaderboard.tasks': 'Tasks',
+    'leaderboard.attempts': 'Attempts',
+    'leaderboard.you': 'You',
+
+    // Progress stats
+    'progress.level': 'Level {{level}}',
+    'progress.toLevel': '{{progress}}% to level {{level}}',
+    'progress.tasksCompleted': 'Tasks completed',
+    'progress.avgAttempts': 'Avg attempts',
+    'progress.bestResult': 'Best result',
+    'progress.achievements': 'Achievements',
+    'progress.totalQueries': 'Queries',
+
+    // SQL Editor
+    'sqlEditor.placeholder': 'Enter SQL query...',
+
+    // Class report
+    'classReport.task': 'tasks',
+    'classReport.avgAttemptsLabel': 'Avg attempts',
+    'classReport.daysAgo': '{{days}} days ago',
+    'classReport.neverActive': 'Never active',
   },
 };
 

@@ -1,17 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import {
   Card, CardContent, CardHeader, CardTitle,
 } from '@/components/ui/card';
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { t } from '@/lib/i18n';
+import { t, getLocale, plural } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
 
@@ -53,17 +50,23 @@ export default function MasteryProgressionChart({ apiEndpoint }: MasteryProgress
     'overall', 'select', 'joins', 'aggregation',
   ]);
   const { startDate, endDate } = useDateRange();
+  const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
     const params = new URLSearchParams();
     if (startDate) params.set('startDate', String(startDate));
     if (endDate) params.set('endDate', String(endDate));
 
-    fetch(`${apiEndpoint || '/api/admin/analytics/mastery'}?${params}`)
+    fetch(`${apiEndpoint || '/api/admin/analytics/mastery'}?${params}`, { signal: controller.signal })
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .then(d => setData(d.progression))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
+      .then(d => { if (!controller.signal.aborted) setData(d.progression); })
+      .catch(() => { if (!controller.signal.aborted) setError(t('analytics.error')); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
   }, [apiEndpoint, startDate, endDate]);
 
   const toggleSkill = (skill: string) => {
@@ -79,7 +82,7 @@ export default function MasteryProgressionChart({ apiEndpoint }: MasteryProgress
   if (!data || data.length === 0) return <EmptyState />;
 
   const chartData = data.map(w => ({
-    week: new Date(w.week_start).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }),
+    week: new Date(w.week_start).toLocaleDateString(getLocale(), { day: 'numeric', month: 'short' }),
     overall: Math.round(w.overall * 10) / 10,
     select: Math.round(w.skills.select * 10) / 10,
     joins: Math.round(w.skills.joins * 10) / 10,
@@ -159,7 +162,7 @@ export default function MasteryProgressionChart({ apiEndpoint }: MasteryProgress
         </div>
 
         <div className="text-xs text-muted-foreground text-center">
-          {t('analytics.mastery.weekly')} · {data.length} {data.length === 1 ? 'week' : 'weeks'}
+          {t('analytics.mastery.weekly')} · {data.length} {plural(data.length, t('analytics.week'), t('analytics.weeks'), t('analytics.weeks'))}
         </div>
       </CardContent>
     </Card>

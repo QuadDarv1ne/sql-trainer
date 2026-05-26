@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollText, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 
 interface AuditEntry {
   id: string;
@@ -25,17 +26,24 @@ export default function AuditLog() {
   const [error, setError] = useState('');
   const [limit, setLimit] = useState(50);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const controllerRef = useRef<AbortController | null>(null);
 
   const fetchLogs = useCallback(async () => {
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
     try {
-      const res = await fetch(`/api/admin/audit?limit=${limit}&offset=0`);
+      const res = await fetch(`/api/admin/audit?limit=${limit}&offset=0`, { signal: controller.signal });
       if (!res.ok) throw new Error('Failed to load audit log');
       const data = await res.json();
-      setLogs(data.logs);
-    } catch {
-      setError('Failed to load audit log');
+      if (!controller.signal.aborted) setLogs(data.logs);
+    } catch (e) {
+      if (!controller.signal.aborted) {
+        logger.error('Failed to load audit log:', e);
+        setError(t('admin.audit.error'));
+      }
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   }, [limit]);
 

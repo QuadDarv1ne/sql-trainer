@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -34,23 +34,34 @@ export default function EngagementMetrics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { startDate, endDate } = useDateRange();
+  const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
     const params = new URLSearchParams();
     if (startDate) params.set('startDate', String(startDate));
     if (endDate) params.set('endDate', String(endDate));
 
-    fetch(`/api/admin/analytics/engagement?${params}`)
+    fetch(`/api/admin/analytics/engagement?${params}`, { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((data) => setData(data.metrics))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
+      .then((data) => { if (!controller.signal.aborted) setData(data.metrics); })
+      .catch(() => { if (!controller.signal.aborted) setError(t('analytics.error')); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
   }, [startDate, endDate]);
 
+  const highEngagement = useMemo(() => data.filter(d => d.engagement_level === 'high').length, [data]);
+  const atRisk = useMemo(() => data.filter(d => d.engagement_level === 'at_risk').length, [data]);
+  const avgEngagement = useMemo(() => data.length > 0 ? Math.round(data.reduce((s, d) => s + d.engagement_score, 0) / data.length) : 0, [data]);
+
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
+
   if (error) {
     return (
       <Alert variant="destructive">
@@ -74,10 +85,6 @@ export default function EngagementMetrics() {
     low: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
     at_risk: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   };
-
-  const highEngagement = data.filter(d => d.engagement_level === 'high').length;
-  const atRisk = data.filter(d => d.engagement_level === 'at_risk').length;
-  const avgEngagement = Math.round(data.reduce((s, d) => s + d.engagement_score, 0) / data.length);
 
   return (
     <div className="space-y-6">
