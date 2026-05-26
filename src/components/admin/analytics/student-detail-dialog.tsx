@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,7 @@ import {
   Download,
 } from 'lucide-react';
 import { t, getLocale } from '@/lib/i18n';
+import { TRAINING_TASKS } from '@/lib/training-tasks';
 import { generateStudentReportPDF } from '@/lib/pdf-report';
 import LearningPathTimeline from './learning-path-timeline';
 
@@ -66,6 +67,12 @@ export default function StudentDetailDialog({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [streak, setStreak] = useState<number>(0);
+
+  const difficultyTotals = useMemo(() => ({
+    beginner: TRAINING_TASKS.filter(t => t.difficulty === 'beginner').length,
+    intermediate: TRAINING_TASKS.filter(t => t.difficulty === 'intermediate').length,
+    advanced: TRAINING_TASKS.filter(t => t.difficulty === 'advanced').length,
+  }), []);
 
   useEffect(() => {
     if (!open || !studentId) return;
@@ -228,7 +235,7 @@ export default function StudentDetailDialog({
                       </span>
                     </div>
                     <Progress
-                      value={(data.student.beginner_completed / 8) * 100}
+                      value={Math.min((data.student.beginner_completed / difficultyTotals.beginner) * 100, 100)}
                       className="h-2"
                     />
                   </CardContent>
@@ -244,7 +251,7 @@ export default function StudentDetailDialog({
                       </span>
                     </div>
                     <Progress
-                      value={(data.student.intermediate_completed / 23) * 100}
+                      value={Math.min((data.student.intermediate_completed / difficultyTotals.intermediate) * 100, 100)}
                       className="h-2"
                     />
                   </CardContent>
@@ -260,7 +267,7 @@ export default function StudentDetailDialog({
                       </span>
                     </div>
                     <Progress
-                      value={(data.student.advanced_completed / 25) * 100}
+                      value={Math.min((data.student.advanced_completed / difficultyTotals.advanced) * 100, 100)}
                       className="h-2"
                     />
                   </CardContent>

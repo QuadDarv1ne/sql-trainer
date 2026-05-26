@@ -164,6 +164,15 @@ export default function LeaderboardTable() {
                       key={key}
                       className={`cursor-pointer select-none ${className ?? ''}`}
                       onClick={() => handleSort(key)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleSort(key);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-sort={sortKey === key ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
                     >
                       <div className="flex items-center gap-1">
                         {label}

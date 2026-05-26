@@ -18,6 +18,11 @@ export function ReminderToastTrigger() {
   const { data: session } = useSession();
   const lastSeenRef = useRef<Set<string>>(new Set());
 
+  // Reset seen set when user changes
+  useEffect(() => {
+    lastSeenRef.current.clear();
+  }, [session?.user?.id]);
+
   useEffect(() => {
     if (!session?.user?.id) return;
 

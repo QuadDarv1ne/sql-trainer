@@ -346,7 +346,7 @@ export default function UserTable() {
           <>
             {selectedIds.size > 0 && (
               <div className="flex items-center gap-2 mb-4 p-3 bg-muted rounded-md">
-                <span className="text-sm font-medium">{selectedIds.size} selected</span>
+                <span className="text-sm font-medium">{t('admin.users.bulk.selected', { count: String(selectedIds.size) })}</span>
                 {bulkAction === null ? (
                   <>
                     <Button

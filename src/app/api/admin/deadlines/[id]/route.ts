@@ -13,13 +13,21 @@ const updateDeadlineSchema = z.object({
 });
 
 export const PUT = withTeacherAuth(async ({ session, request, params }) => {
-  const { id } = params!;
+  if (!params?.id) {
+    return NextResponse.json({ error: 'Deadline ID is required' }, { status: 400 });
+  }
+  const { id } = params;
   const existing = getDeadlineById(id);
   if (!existing) {
     return NextResponse.json({ error: 'Deadline not found' }, { status: 404 });
   }
 
-  const body = await request.json();
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+  }
   const validation = updateDeadlineSchema.safeParse(body);
 
   if (!validation.success) {
@@ -36,7 +44,10 @@ export const PUT = withTeacherAuth(async ({ session, request, params }) => {
 });
 
 export const DELETE = withTeacherAuth(async ({ session, params }) => {
-  const { id } = params!;
+  if (!params?.id) {
+    return NextResponse.json({ error: 'Deadline ID is required' }, { status: 400 });
+  }
+  const { id } = params;
   const success = deleteDeadline(id, session.user.id, session.user.id);
   if (!success) {
     return NextResponse.json({ error: 'Deadline not found or forbidden' }, { status: 404 });

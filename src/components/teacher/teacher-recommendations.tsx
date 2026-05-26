@@ -16,12 +16,6 @@ interface Recommendation {
   target_users?: string[];
 }
 
-const priorityLabels: Record<string, string> = {
-  high: t('analytics.churn.high'),
-  medium: t('analytics.churn.medium'),
-  low: t('analytics.churn.low'),
-};
-
 const priorityColors: Record<string, string> = {
   high: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
   medium: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
@@ -29,6 +23,12 @@ const priorityColors: Record<string, string> = {
 };
 
 export default function TeacherRecommendations() {
+  const priorityLabels: Record<string, string> = {
+    high: t('analytics.churn.high'),
+    medium: t('analytics.churn.medium'),
+    low: t('analytics.churn.low'),
+  };
+
   const [data, setData] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

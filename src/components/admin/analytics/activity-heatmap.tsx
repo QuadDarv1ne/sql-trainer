@@ -15,7 +15,6 @@ interface HeatmapData {
   week_number: number;
 }
 
-const DAY_NAMES = [t('analytics.heatmap.day1'), t('analytics.heatmap.day2'), t('analytics.heatmap.day3'), t('analytics.heatmap.day4'), t('analytics.heatmap.day5'), t('analytics.heatmap.day6'), t('analytics.heatmap.day7')];
 
 function getColor(count: number, maxCount: number): string {
   if (count === 0) return 'hsl(142, 33%, 96%)';
@@ -38,6 +37,7 @@ function getDarkColor(count: number, maxCount: number): string {
 }
 
 export default function ActivityHeatmap() {
+  const DAY_NAMES = [t('analytics.heatmap.day1'), t('analytics.heatmap.day2'), t('analytics.heatmap.day3'), t('analytics.heatmap.day4'), t('analytics.heatmap.day5'), t('analytics.heatmap.day6'), t('analytics.heatmap.day7')];
   const [data, setData] = useState<HeatmapData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

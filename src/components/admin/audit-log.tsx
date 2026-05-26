@@ -109,7 +109,13 @@ export default function AuditLog() {
                     {expandedId === log.id && log.details && (
                       <TableRow>
                         <TableCell colSpan={5} className="bg-muted">
-                          <pre className="text-xs p-2 overflow-x-auto">{JSON.stringify(JSON.parse(log.details), null, 2)}</pre>
+                          <pre className="text-xs p-2 overflow-x-auto">{(() => {
+                            try {
+                              return JSON.stringify(JSON.parse(log.details!), null, 2);
+                            } catch {
+                              return log.details;
+                            }
+                          })()}</pre>
                         </TableCell>
                       </TableRow>
                     )}
