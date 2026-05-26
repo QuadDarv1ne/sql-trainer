@@ -138,6 +138,7 @@ export default function HomePage() {
   const attemptCountRef = useRef(0);
   const practiceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mounted, setMounted] = useState(false);
+  const progressSyncRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -145,6 +146,7 @@ export default function HomePage() {
       if (practiceTimerRef.current) {
         clearTimeout(practiceTimerRef.current);
       }
+      progressSyncRef.current?.abort();
     };
   }, []);
   const [explainPlan, setExplainPlan] = useState<string | null>(null);
@@ -284,6 +286,8 @@ export default function HomePage() {
 
             // Sync progress to server for authenticated users
             if (session?.user) {
+              progressSyncRef.current?.abort();
+              progressSyncRef.current = new AbortController();
               fetch('/api/user/progress', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -291,11 +295,12 @@ export default function HomePage() {
                   taskId: currentTaskId,
                   attempts: attemptCountRef.current,
                 }),
+                signal: progressSyncRef.current.signal,
               })
                 .then((res) => {
                   if (!res.ok) throw new Error(`HTTP ${res.status}`);
                   // Check for new achievements after progress sync
-                  return fetch('/api/user/achievements?check=true');
+                  return fetch('/api/user/achievements?check=true', { signal: progressSyncRef.current!.signal });
                 })
                 .then((res) => {
                   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -311,7 +316,11 @@ export default function HomePage() {
                     });
                   }
                 })
-                .catch((e) => logger.error('Failed to check achievements', e));
+                .catch((e) => {
+                  if (e.name !== 'AbortError') {
+                    logger.error('Failed to check achievements', e);
+                  }
+                });
             }
           }
         } catch (e) {

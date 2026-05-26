@@ -22,7 +22,10 @@ export default function LeaderboardTable() {
 
   useEffect(() => {
     fetch('/api/user/leaderboard')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+      })
       .then((data) => {
         if (data.success) setLeaderboard(data.leaderboard);
       })

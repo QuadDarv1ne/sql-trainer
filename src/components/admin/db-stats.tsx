@@ -29,7 +29,10 @@ export default function DBStats() {
 
   useEffect(() => {
     fetch('/api/admin/stats')
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error('Failed to fetch');
+        return r.json();
+      })
       .then((data) => setStats(data.stats))
       .catch(() => setStats(null))
       .finally(() => setLoading(false));

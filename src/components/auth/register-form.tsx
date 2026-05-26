@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,20 @@ export default function RegisterForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const pendingSignIn = useRef<{ email: string; password: string } | null>(null);
+
+  useEffect(() => {
+    if (!pendingSignIn.current) return;
+    const timer = setTimeout(async () => {
+      const creds = pendingSignIn.current;
+      if (creds) {
+        await signIn('credentials', { email: creds.email, password: creds.password, redirect: false });
+        router.push('/app');
+        router.refresh();
+      }
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,12 +69,8 @@ export default function RegisterForm() {
 
       setSuccess(true);
 
-      // Auto sign in
-      setTimeout(async () => {
-        await signIn('credentials', { email, password, redirect: false });
-        router.push('/app');
-        router.refresh();
-      }, 1500);
+      // Auto sign in via useEffect with proper cleanup
+      pendingSignIn.current = { email, password };
     } catch {
       setError(t('auth.registerError'));
     } finally {

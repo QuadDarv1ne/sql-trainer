@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -72,7 +72,7 @@ export default function StudentComparisonDashboard() {
   };
 
   // Radar data
-  const radarData = comparisonData.length > 0
+  const radarData = useMemo(() => comparisonData.length > 0
     ? ['completion_rate', 'consistency_score', 'sessions_per_week'].map(metric => {
         const entry: Record<string, string | number> = { metric: t(`analytics.studentComparison.${metric}`) };
         for (const student of comparisonData) {
@@ -80,10 +80,10 @@ export default function StudentComparisonDashboard() {
         }
         return entry;
       })
-    : [];
+    : [], [comparisonData]);
 
   // Category bar chart data
-  const categoryData = comparisonData.length > 0
+  const categoryData = useMemo(() => comparisonData.length > 0
     ? comparisonData[0].category_completion.map(cat => {
         const entry: Record<string, string | number> = { category: cat.category };
         for (const student of comparisonData) {
@@ -92,7 +92,7 @@ export default function StudentComparisonDashboard() {
         }
         return entry;
       })
-    : [];
+    : [], [comparisonData]);
 
   return (
     <div className="space-y-6">

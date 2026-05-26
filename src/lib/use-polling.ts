@@ -21,6 +21,7 @@ export function usePolling(
   const { intervalMs = 30000, enabled = true } = options;
   const callbackRef = useRef(callback);
   const [isPaused, setIsPaused] = useState(false);
+  const isFetchingRef = useRef(false);
 
   // Keep callback ref current
   useEffect(() => {
@@ -28,8 +29,14 @@ export function usePolling(
   }, [callback]);
 
   const tick = useCallback(() => {
-    if (!isPaused && enabled) {
-      callbackRef.current();
+    if (!isPaused && enabled && !isFetchingRef.current) {
+      isFetchingRef.current = true;
+      const result = callbackRef.current();
+      if (result instanceof Promise) {
+        result.finally(() => { isFetchingRef.current = false; });
+      } else {
+        isFetchingRef.current = false;
+      }
     }
   }, [isPaused, enabled]);
 
@@ -48,8 +55,10 @@ export function usePolling(
         setIsPaused(true);
       } else {
         setIsPaused(false);
-        // Immediately refresh when tab becomes visible
-        callbackRef.current();
+        // Immediately refresh when tab becomes visible (if not already fetching)
+        if (!isFetchingRef.current) {
+          callbackRef.current();
+        }
       }
     };
 
@@ -58,13 +67,17 @@ export function usePolling(
   }, []);
 
   const refresh = useCallback(() => {
-    callbackRef.current();
+    if (!isFetchingRef.current) {
+      callbackRef.current();
+    }
   }, []);
 
   const pause = useCallback(() => setIsPaused(true), []);
   const resume = useCallback(() => {
     setIsPaused(false);
-    callbackRef.current();
+    if (!isFetchingRef.current) {
+      callbackRef.current();
+    }
   }, []);
 
   return { refresh, pause, resume, isPaused };

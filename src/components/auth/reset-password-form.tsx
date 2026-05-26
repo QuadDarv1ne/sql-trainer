@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -65,7 +65,7 @@ export default function ResetPasswordForm() {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  const passwordStrength = getPasswordStrength(newPassword);
+  const passwordStrength = useMemo(() => getPasswordStrength(newPassword), [newPassword]);
 
   const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault();

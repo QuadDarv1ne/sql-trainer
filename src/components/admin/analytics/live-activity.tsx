@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Activity, Users, Clock, RefreshCw } from 'lucide-react';
@@ -17,15 +17,15 @@ export default function LiveActivity() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
     fetch('/api/admin/analytics/live')
       .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch')))
       .then(d => { setData(d); setError(''); })
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
-  };
+  }, []);
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const { refresh, isPaused } = usePolling(fetchData, { intervalMs: 30000 });
 
@@ -39,7 +39,8 @@ export default function LiveActivity() {
         <div className="flex items-center gap-2">
           <h2 className="text-2xl font-bold">{t('analytics.live.title')}</h2>
           <Badge variant={data.active_now > 0 ? 'default' : 'secondary'} className="flex items-center gap-1">
-            <span className={`h-2 w-2 rounded-full ${data.active_now > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+            <span className={`h-2 w-2 rounded-full ${data.active_now > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} aria-hidden="true" />
+            <span className="sr-only">{data.active_now > 0 ? 'Active' : 'Inactive'}</span>
             {isPaused ? t('analytics.live.paused') : t('analytics.live')}
           </Badge>
         </div>
@@ -68,7 +69,7 @@ export default function LiveActivity() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{data.active_now}</div>
+            <div className="text-3xl font-bold">{data.active_last_5min.length}</div>
           </CardContent>
         </Card>
         <Card>
