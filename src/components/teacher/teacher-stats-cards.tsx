@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Users, CheckCircle, TrendingUp, AlertTriangle, Clock, Award } from 'lucide-react';
 import { t } from '@/lib/i18n';
@@ -18,12 +18,18 @@ export default function TeacherStatsCards() {
   const [stats, setStats] = useState<TeacherStats | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const controllerRef = useRef<AbortController | null>(null);
+
   useEffect(() => {
-    fetch('/api/teacher/stats')
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    fetch('/api/teacher/stats', { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => setStats(data.stats))
       .catch(() => setStats(null))
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   if (loading || !stats) return null;

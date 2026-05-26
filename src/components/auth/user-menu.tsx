@@ -2,6 +2,7 @@
 
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { t } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -62,7 +63,7 @@ export default function UserMenu() {
               <DropdownMenuItem asChild>
                 <Link href="/admin" className="cursor-pointer flex items-center gap-2">
                   <Settings className="h-4 w-4" />
-                  Панель администратора
+                  {t('userMenu.admin')}
                 </Link>
               </DropdownMenuItem>
             )}
@@ -70,7 +71,7 @@ export default function UserMenu() {
               <DropdownMenuItem asChild>
                 <Link href="/teacher" className="cursor-pointer flex items-center gap-2">
                   <GraduationCap className="h-4 w-4" />
-                  Панель преподавателя
+                  {t('userMenu.teacher')}
                 </Link>
               </DropdownMenuItem>
             )}
@@ -80,19 +81,19 @@ export default function UserMenu() {
         <DropdownMenuItem asChild>
           <Link href="/profile" className="cursor-pointer flex items-center gap-2">
             <User className="h-4 w-4" />
-            Профиль
+            {t('userMenu.profile')}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/profile#security" className="cursor-pointer flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            Безопасность
+            {t('userMenu.security')}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/app" className="cursor-pointer flex items-center gap-2">
             <LayoutDashboard className="h-4 w-4" />
-            Тренажёр
+            {t('userMenu.trainer')}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -104,7 +105,7 @@ export default function UserMenu() {
           }}
         >
           <LogOut className="h-4 w-4" />
-          Выйти
+          {t('userMenu.logout')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

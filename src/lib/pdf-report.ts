@@ -375,7 +375,7 @@ export function generateAnalyticsPDF(
   if (sections.includes('streaks') && data.streaks) {
     const s = data.streaks;
     const distRows = s.distribution.map(d =>
-      `<tr><td>${d.bucket}</td><td>${d.count}</td></tr>`
+      `<tr><td>${escapeHtml(d.bucket)}</td><td>${d.count}</td></tr>`
     ).join('');
     const topRows = s.top_streaks.map((t, i) =>
       `<tr><td>${i + 1}</td><td>${escapeHtml(t.name)}</td><td>${t.streak}</td></tr>`
@@ -399,7 +399,7 @@ export function generateAnalyticsPDF(
   if (sections.includes('onboarding') && data.onboarding) {
     const o = data.onboarding;
     const stageRows = o.stages.map(s =>
-      `<tr><td>${s.stage}</td><td>${s.users}</td><td>${s.drop_off_rate}%</td><td>${s.avg_hours}h</td></tr>`
+      `<tr><td>${escapeHtml(s.stage)}</td><td>${s.users}</td><td>${s.drop_off_rate}%</td><td>${s.avg_hours}h</td></tr>`
     ).join('');
     sectionsHTML += `
       <div class="section">
@@ -454,7 +454,7 @@ export function generateAnalyticsPDF(
   if (sections.includes('registrations') && data.registrations) {
     const r = data.registrations;
     const dailyRows = r.daily.slice(-14).map(d =>
-      `<tr><td>${d.date}</td><td>${d.count}</td></tr>`
+      `<tr><td>${escapeHtml(d.date)}</td><td>${d.count}</td></tr>`
     ).join('');
     sectionsHTML += `
       <div class="section">
@@ -510,7 +510,7 @@ export function generateAnalyticsPDF(
   if (sections.includes('audit') && data.audit) {
     const a = data.audit;
     const logRows = a.recent.slice(0, 50).map(l =>
-      `<tr><td>${l.timestamp}</td><td>${escapeHtml(l.action)}</td><td>${escapeHtml(l.user)}</td><td>${escapeHtml(l.target)}</td></tr>`
+      `<tr><td>${escapeHtml(l.timestamp)}</td><td>${escapeHtml(l.action)}</td><td>${escapeHtml(l.user)}</td><td>${escapeHtml(l.target)}</td></tr>`
     ).join('');
     sectionsHTML += `
       <div class="section">

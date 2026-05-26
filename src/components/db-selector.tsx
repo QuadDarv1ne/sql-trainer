@@ -5,6 +5,7 @@ import {
   Database,
 } from 'lucide-react';
 import type { DbType } from '@/lib/training-tasks';
+import { t } from '@/lib/i18n';
 
 interface DbSelectorProps {
   dbType: DbType;
@@ -15,22 +16,22 @@ const DB_OPTIONS: { value: DbType; label: string; description: string }[] = [
   {
     value: 'sqlite',
     label: 'SQLite',
-    description: 'Встроенная база данных',
+    description: t('db.sqlite'),
   },
   {
     value: 'postgresql',
     label: 'PostgreSQL',
-    description: 'Синтаксис PostgreSQL',
+    description: t('db.postgresql'),
   },
   {
     value: 'clickhouse',
     label: 'ClickHouse',
-    description: 'Синтаксис ClickHouse',
+    description: t('db.clickhouse'),
   },
   {
     value: 'mongodb',
     label: 'MongoDB',
-    description: 'MongoDB Query API',
+    description: t('db.mongodb'),
   },
 ];
 

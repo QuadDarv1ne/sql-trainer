@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Database, Users, BookOpen, Award, HardDrive } from 'lucide-react';
 import { t } from '@/lib/i18n';
@@ -27,8 +27,13 @@ export default function DBStats() {
   const [stats, setStats] = useState<DBStats | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const controllerRef = useRef<AbortController | null>(null);
+
   useEffect(() => {
-    fetch('/api/admin/stats')
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    fetch('/api/admin/stats', { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error('Failed to fetch');
         return r.json();
@@ -36,6 +41,7 @@ export default function DBStats() {
       .then((data) => setStats(data.stats))
       .catch(() => setStats(null))
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   if (loading) return <p className="text-center py-4">{t('admin.stats.loading')}</p>;

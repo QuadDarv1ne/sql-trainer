@@ -63,6 +63,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'auth.passwordsNoMatchLive': 'Пароли не совпадают',
     'auth.login.invalidCredentials': 'Неверный email или пароль',
     'auth.login.error': 'Ошибка входа. Попробуйте снова.',
+    'auth.error.title': 'Произошла ошибка',
+    'auth.error.desc': 'Ошибка при загрузке страницы. Попробуйте обновить страницу или войдите заново.',
+    'auth.error.retry': 'Попробовать снова',
+    'auth.error.goLogin': 'На вход',
 
     // Progress
     'progress.label': 'Прогресс',
@@ -93,6 +97,12 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.explainTooltip': 'Показать план выполнения запроса',
     'action.undo': 'Отменить',
     'action.redo': 'Повторить',
+
+    // Database selector
+    'db.sqlite': 'Встроенная база данных',
+    'db.postgresql': 'Синтаксис PostgreSQL',
+    'db.clickhouse': 'Синтаксис ClickHouse',
+    'db.mongodb': 'MongoDB Query API',
 
     // Sidebar
     'sidebar.search': 'Поиск заданий...',
@@ -1617,6 +1627,14 @@ export const translations: Record<Locale, Record<string, string>> = {
     'sql.success.dml': 'Запрос выполнен. Изменено строк: {{changes}}',
     'sql.success.rowsLimited': 'Результат ограничен {{maxRows}} строками',
     'sql.success.generic': 'Запрос выполнен успешно',
+
+    // User menu
+    'userMenu.admin': 'Панель администратора',
+    'userMenu.teacher': 'Панель преподавателя',
+    'userMenu.profile': 'Профиль',
+    'userMenu.security': 'Безопасность',
+    'userMenu.trainer': 'Тренажёр',
+    'userMenu.logout': 'Выйти',
   },
   en: {
     // Header
@@ -1675,6 +1693,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'auth.passwordsNoMatchLive': 'Passwords do not match',
     'auth.login.invalidCredentials': 'Invalid email or password',
     'auth.login.error': 'Login error. Please try again.',
+    'auth.error.title': 'An error occurred',
+    'auth.error.desc': 'An error occurred while loading the page. Please try refreshing or log in again.',
+    'auth.error.retry': 'Try again',
+    'auth.error.goLogin': 'Go to login',
 
     // Progress
     'progress.label': 'Progress',
@@ -1705,6 +1727,12 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.explainTooltip': 'Show query execution plan',
     'action.undo': 'Undo',
     'action.redo': 'Redo',
+
+    // Database selector
+    'db.sqlite': 'Built-in database',
+    'db.postgresql': 'PostgreSQL syntax',
+    'db.clickhouse': 'ClickHouse syntax',
+    'db.mongodb': 'MongoDB Query API',
 
     // Sidebar
     'sidebar.search': 'Search tasks...',
@@ -3229,6 +3257,14 @@ export const translations: Record<Locale, Record<string, string>> = {
     'sql.success.dml': 'Query executed. Rows affected: {{changes}}',
     'sql.success.rowsLimited': 'Result limited to {{maxRows}} rows',
     'sql.success.generic': 'Query executed successfully',
+
+    // User menu
+    'userMenu.admin': 'Admin Panel',
+    'userMenu.teacher': 'Teacher Panel',
+    'userMenu.profile': 'Profile',
+    'userMenu.security': 'Security',
+    'userMenu.trainer': 'Trainer',
+    'userMenu.logout': 'Sign Out',
   },
 };
 

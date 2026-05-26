@@ -41,7 +41,7 @@ const targetLabels: Record<Deadline['target_type'], string> = {
 };
 
 function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString('ru-RU', {
+  return new Date(ts).toLocaleDateString(typeof navigator !== 'undefined' ? navigator.language : 'en-US', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -56,7 +56,7 @@ function getTimeStatus(dueAt: number): { label: string; variant: 'destructive' |
   if (hoursLeft < 0) return { label: t('reminder.overdue'), variant: 'destructive' };
   if (hoursLeft < 24) return { label: t('reminder.dueSoon'), variant: 'destructive' };
   if (hoursLeft < 72) return { label: t('reminder.dueSoon'), variant: 'default' };
-  return { label: `${Math.round(hoursLeft)}ч`, variant: 'secondary' };
+  return { label: t('reminder.hoursLeft', { hours: Math.round(hoursLeft) }), variant: 'secondary' };
 }
 
 export function TeacherDeadlineManager() {

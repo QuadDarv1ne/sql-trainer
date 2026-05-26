@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -20,8 +20,13 @@ export default function LeaderboardTable() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const controllerRef = useRef<AbortController | null>(null);
+
   useEffect(() => {
-    fetch('/api/user/leaderboard')
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    fetch('/api/user/leaderboard', { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch');
         return res.json();
@@ -31,6 +36,7 @@ export default function LeaderboardTable() {
       })
       .catch((e) => logger.error('Failed to fetch leaderboard', e))
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   if (loading) {

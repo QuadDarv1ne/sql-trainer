@@ -1,5 +1,6 @@
 import React from 'react';
 import { GraduationCap } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,9 +18,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
         <div className="flex flex-col items-center">
           <h1 className="text-2xl font-bold tracking-tight">
-            SQL <span className="text-emerald-600">Тренажёр</span>
+            SQL <span className="text-emerald-600">{t('app.title').replace('SQL ', '')}</span>
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Интерактивное обучение SQL</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t('app.subtitle')}</p>
         </div>
       </div>
 
