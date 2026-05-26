@@ -17,8 +17,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const limit = Number.isNaN(parseInt(request.nextUrl.searchParams.get('limit') || '50')) ? 50 : parseInt(request.nextUrl.searchParams.get('limit') || '50');
-    const predictions = getChurnPredictions(limit);
+    const limit = Number(request.nextUrl.searchParams.get('limit')) || 50;
+    const predictions = getChurnPredictions(Math.min(limit, 500));
     return NextResponse.json({ predictions });
   } catch (error) {
     logger.error('GET /api/teacher/churn-prediction:', error);

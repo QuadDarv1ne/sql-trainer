@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import {
   Card, CardContent, CardHeader, CardTitle,
@@ -39,49 +39,40 @@ export default function SystemHealth() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const controllerRef = useRef<AbortController | null>(null);
 
   const fetchData = async (isRefresh = false) => {
+    // Abort previous request
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
     if (isRefresh) setRefreshing(true);
     try {
-      const r = await fetch('/api/admin/system');
+      const r = await fetch('/api/admin/system', { signal: controller.signal });
       if (!r.ok) throw new Error();
       const d = await r.json();
-      setHealth(d.health);
-      setError('');
-    } catch {
-      setError(t('admin.health.error'));
+      if (!controller.signal.aborted) {
+        setHealth(d.health);
+        setError('');
+      }
+    } catch (e: unknown) {
+      if ((e as Error).name !== 'AbortError' && !controller.signal.aborted) {
+        setError(t('admin.health.error'));
+      }
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+        setRefreshing(false);
+      }
     }
   };
 
   useEffect(() => {
-    const controller = new AbortController();
-    const fetchDataAbort = async () => {
-      try {
-        const r = await fetch('/api/admin/system', { signal: controller.signal });
-        if (!r.ok) throw new Error();
-        const d = await r.json();
-        if (!controller.signal.aborted) {
-          setHealth(d.health);
-          setError('');
-        }
-      } catch (e: unknown) {
-        if ((e as Error).name !== 'AbortError' && !controller.signal.aborted) {
-          setError(t('admin.health.error'));
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-          setRefreshing(false);
-        }
-      }
-    };
-    fetchDataAbort();
-    const interval = setInterval(fetchDataAbort, 60000);
+    fetchData();
+    const interval = setInterval(fetchData, 60000);
     return () => {
-      controller.abort();
+      controllerRef.current?.abort();
       clearInterval(interval);
     };
   }, []);

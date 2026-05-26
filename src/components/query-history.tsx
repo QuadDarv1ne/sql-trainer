@@ -88,7 +88,7 @@ export default function QueryHistory({ onRestoreQuery }: QueryHistoryProps) {
                 </span>
               </div>
               <div className="flex w-full items-center gap-2 pl-6 text-xs text-muted-foreground">
-                <span>{entry.executionTime.toFixed(1)} мс</span>
+                <span>{entry.executionTime.toFixed(1)} {t('results.ms')}</span>
                 {entry.rowCount !== undefined && (
                   <span>• {entry.rowCount} {plural(entry.rowCount, 'строка', 'строки', 'строк')}</span>
                 )}

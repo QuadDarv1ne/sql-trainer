@@ -62,8 +62,13 @@ export const POST = withAdminAuth(async ({ session, request }) => {
     );
   `);
 
-  const body = await request.json();
-  const { reportType, format = 'csv', schedule = 'weekly', emailRecipients = [] } = body;
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+  }
+  const { reportType, format = 'csv', schedule = 'weekly', emailRecipients = [] } = body as Record<string, unknown>;
 
   if (!reportType) {
     return NextResponse.json({ error: 'reportType is required' }, { status: 400 });

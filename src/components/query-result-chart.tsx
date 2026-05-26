@@ -120,16 +120,18 @@ export default function QueryResultChart({ columns, rows, onClose }: QueryResult
             size="sm"
             className="h-6 text-xs"
             onClick={() => setChartType('bar')}
+            aria-pressed={chartType === 'bar'}
           >
-            Столбцы
+            {t('results.chart.bar')}
           </Button>
           <Button
             variant={chartType === 'horizontal' ? 'default' : 'outline'}
             size="sm"
             className="h-6 text-xs"
             onClick={() => setChartType('horizontal')}
+            aria-pressed={chartType === 'horizontal'}
           >
-            Горизонт.
+            {t('results.chart.horizontal')}
           </Button>
           <Button
             variant="ghost"

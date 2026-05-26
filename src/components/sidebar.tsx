@@ -51,6 +51,58 @@ const CATEGORY_COLORS: Record<TaskCategory | 'base', string> = {
 
 type CategoryKey = TaskCategory | 'base';
 
+/** Standalone task row component — must be outside Sidebar to avoid re-mounting on every render */
+function TaskRow({
+  task,
+  isActive,
+  isDone,
+  isBookmarked,
+  onActivate,
+  onToggleBookmark,
+  t,
+}: {
+  task: TrainingTask;
+  isActive: boolean;
+  isDone: boolean;
+  isBookmarked: boolean;
+  onActivate: () => void;
+  onToggleBookmark: () => void;
+  t: (key: string) => string;
+}) {
+  return (
+    <div className="flex w-full items-center gap-1 rounded-md">
+      <button
+        onClick={onActivate}
+        aria-label={`${isDone ? '✓ ' : ''}${task.title}`}
+        className={`flex flex-1 items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm transition-colors hover:bg-muted/50 ${
+          isActive
+            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
+            : 'text-foreground/80'
+        }`}
+      >
+        {isDone ? (
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+        ) : (
+          <Circle className="h-4 w-4 shrink-0 text-muted-foreground/40" />
+        )}
+        <span className="leading-tight flex-1">{task.title}</span>
+      </button>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleBookmark();
+        }}
+        className={`rounded p-1.5 transition-colors hover:bg-muted/50 ${
+          isBookmarked ? 'text-amber-500' : 'text-muted-foreground/40'
+        }`}
+        aria-label={isBookmarked ? t('action.removeFromBookmark') : t('action.addToBookmark')}
+      >
+        <Bookmark className={`h-3.5 w-3.5 ${isBookmarked ? 'fill-amber-500' : ''}`} />
+      </button>
+    </div>
+  );
+}
+
 export default function Sidebar() {
   const { currentTaskId, setCurrentTaskId, completedTasks, sidebarOpen, bookmarkedTasks, toggleBookmark } =
     useSQLTrainerStore();
@@ -136,52 +188,6 @@ export default function Sidebar() {
       ...prev,
       [key]: !prev[key],
     }));
-  };
-
-  // Task row component
-  const TaskRow = ({ task }: { task: TrainingTask }) => {
-    const isActive = task.id === currentTaskId;
-    const isDone = completedIds.has(task.id);
-    const isBookmarked = bookmarkedIds.has(task.id);
-    return (
-      <div
-        key={task.id}
-        className="flex w-full items-center gap-1 rounded-md"
-      >
-        <button
-          onClick={() => setCurrentTaskId(task.id)}
-          aria-label={`${isDone ? '✓ ' : ''}${task.title}`}
-          className={`flex flex-1 items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm transition-colors hover:bg-muted/50 ${
-            isActive
-              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
-              : 'text-foreground/80'
-          }`}
-        >
-          {isDone ? (
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
-          ) : (
-            <Circle className="h-4 w-4 shrink-0 text-muted-foreground/40" />
-          )}
-          <span className="leading-tight flex-1">{task.title}</span>
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleBookmark(task.id);
-          }}
-          className={`rounded p-1.5 transition-colors hover:bg-muted/50 ${
-            isBookmarked
-              ? 'text-amber-500'
-              : 'text-muted-foreground/40'
-          }`}
-          aria-label={isBookmarked ? t('action.removeFromBookmark') : t('action.addToBookmark')}
-        >
-          <Bookmark
-            className={`h-3.5 w-3.5 ${isBookmarked ? 'fill-amber-500' : ''}`}
-          />
-        </button>
-      </div>
-    );
   };
 
   if (!sidebarOpen) return null;
@@ -356,7 +362,16 @@ export default function Sidebar() {
                           {(catIsExpanded || tasks.length <= 3 || categories.length === 1) && (
                             <div className="space-y-0.5 mt-1">
                               {tasks.map((task) => (
-                                <TaskRow key={task.id} task={task} />
+                                <TaskRow
+                                  key={task.id}
+                                  task={task}
+                                  isActive={task.id === currentTaskId}
+                                  isDone={completedIds.has(task.id)}
+                                  isBookmarked={bookmarkedIds.has(task.id)}
+                                  onActivate={() => setCurrentTaskId(task.id)}
+                                  onToggleBookmark={() => toggleBookmark(task.id)}
+                                  t={t}
+                                />
                               ))}
                             </div>
                           )}

@@ -110,6 +110,9 @@ export const translations: Record<Locale, Record<string, string>> = {
     'results.executeHint': 'Нажмите «Выполнить» или Ctrl+Enter для запуска',
     'results.title': 'Результаты запроса',
     'results.visualization': 'Визуализация',
+    'results.chart.bar': 'Столбцы',
+    'results.chart.horizontal': 'Горизонт.',
+    'results.noNumericData': 'Нет числовых данных для визуализации',
 
     // Task panel
     'task.hint': 'Подсказка',
@@ -1719,6 +1722,9 @@ export const translations: Record<Locale, Record<string, string>> = {
     'results.executeHint': 'Press "Execute" or Ctrl+Enter to run',
     'results.title': 'Query Results',
     'results.visualization': 'Visualization',
+    'results.chart.bar': 'Bar',
+    'results.chart.horizontal': 'Horizontal',
+    'results.noNumericData': 'No numeric data for visualization',
 
     // Task panel
     'task.hint': 'Hint',

@@ -36,11 +36,16 @@ export async function POST(request: NextRequest) {
 
     const { subscription } = result.data;
 
-    savePushSubscription(session.user.id, {
-      endpoint: subscription.endpoint,
-      p256dh: subscription.keys.p256dh,
-      auth: subscription.keys.auth,
-    });
+    try {
+      savePushSubscription(session.user.id, {
+        endpoint: subscription.endpoint,
+        p256dh: subscription.keys.p256dh,
+        auth: subscription.keys.auth,
+      });
+    } catch (dbError) {
+      logger.error('savePushSubscription failed:', dbError);
+      return NextResponse.json({ error: 'Failed to save subscription' }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

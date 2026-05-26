@@ -21,7 +21,7 @@ export async function GET(
     }
 
     const { id } = await params;
-    const student = await getStudentDetail(id);
+    const student = getStudentDetail(id);
     if (!student) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }

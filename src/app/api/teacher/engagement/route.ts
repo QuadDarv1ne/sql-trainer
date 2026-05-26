@@ -17,8 +17,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const limit = Number.isNaN(parseInt(request.nextUrl.searchParams.get('limit') || '50')) ? 50 : parseInt(request.nextUrl.searchParams.get('limit') || '50');
-    const metrics = getStudentEngagementMetrics(limit);
+    const limit = Number(request.nextUrl.searchParams.get('limit')) || 50;
+    const metrics = getStudentEngagementMetrics(Math.min(limit, 500));
     return NextResponse.json({ metrics });
   } catch (error) {
     logger.error('GET /api/teacher/engagement:', error);
