@@ -15,7 +15,7 @@ export default function ServiceWorkerRegister() {
           .register('/sw.js')
           .then((registration) => {
             if (process.env.NODE_ENV === 'development') {
-              console.log('[SW] Registered:', registration.scope);
+              logger.info('[SW] Registered:', registration.scope);
             }
           })
           .catch((error) => {

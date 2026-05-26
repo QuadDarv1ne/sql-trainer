@@ -19,7 +19,7 @@ import {
   List,
 } from 'lucide-react';
 import type { DatabaseInfo, TableInfo, ColumnInfo } from '@/lib/sql-engine';
-import { plural } from '@/lib/utils';
+import { t } from '@/lib/i18n';
 import ERDiagram from '@/components/er-diagram';
 
 interface SchemaViewerProps {
@@ -49,6 +49,18 @@ function getTypeColor(type: string) {
   return 'text-muted-foreground';
 }
 
+function getTablePlural(count: number): string {
+  if (count === 1) return t('schemaViewer.table');
+  if (count >= 2 && count <= 4) return t('schemaViewer.tables');
+  return t('schemaViewer.tablesp');
+}
+
+function getColumnPlural(count: number): string {
+  if (count === 1) return t('schemaViewer.column');
+  if (count >= 2 && count <= 4) return t('schemaViewer.columns');
+  return t('schemaViewer.columnsp');
+}
+
 export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerProps) {
   const [viewMode, setViewMode] = useState<'list' | 'diagram'>('list');
 
@@ -57,9 +69,9 @@ export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerPro
       <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
         <TableIcon className="h-10 w-10 text-muted-foreground/30" />
         <div>
-          <p className="text-sm text-muted-foreground">Схема базы данных</p>
+          <p className="text-sm text-muted-foreground">{t('schemaViewer.empty')}</p>
           <p className="mt-1 text-xs text-muted-foreground/70">
-            Выберите задание или выполните CREATE TABLE
+            {t('schemaViewer.emptyDesc')}
           </p>
         </div>
       </div>
@@ -72,7 +84,7 @@ export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerPro
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-sm font-medium">
             <TableIcon className="h-4 w-4 text-emerald-500" />
-            Структура базы данных
+            {t('schemaViewer.title')}
           </h3>
           <div className="flex gap-1">
             <Button
@@ -94,8 +106,7 @@ export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerPro
           </div>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
-          {schema.tables.length}{' '}
-          {plural(schema.tables.length, 'таблица', 'таблицы', 'таблиц')}
+          {schema.tables.length} {getTablePlural(schema.tables.length)}
         </p>
       </div>
       <ScrollArea className="flex-1">
@@ -125,7 +136,7 @@ function TableCard({ table, onPreview }: { table: TableInfo; onPreview?: (tableN
           <TableIcon className="h-4 w-4 text-emerald-500" />
           {table.name}
           <Badge variant="secondary" className="ml-auto text-xs px-2">
-            {table.columns.length} {plural(table.columns.length, 'поле', 'поля', 'полей')}
+            {table.columns.length} {getColumnPlural(table.columns.length)}
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -166,7 +177,7 @@ function TableCard({ table, onPreview }: { table: TableInfo; onPreview?: (tableN
               }}
             >
               <Eye className="mr-1.5 h-3.5 w-3.5" />
-              Предпросмотр
+              {t('schemaViewer.preview')}
               {isExpanded ? (
                 <ChevronUp className="ml-1.5 h-3.5 w-3.5" />
               ) : (

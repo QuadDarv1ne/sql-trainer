@@ -10,25 +10,27 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { Code2, Filter, Merge, FunctionSquare } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 interface SqlTemplatesProps {
   onInsertTemplate: (sql: string) => void;
 }
 
-const TEMPLATES = [
-  {
-    label: 'Простой SELECT',
-    icon: Filter,
-    sql: `SELECT name, email, age
+function getTemplates() {
+  return [
+    {
+      label: t('sqlTemplates.select'),
+      icon: Filter,
+      sql: `SELECT name, email, age
 FROM users
 WHERE age > 25
 ORDER BY name
 LIMIT 10;`,
-  },
-  {
-    label: 'Агрегация',
-    icon: Code2,
-    sql: `SELECT
+    },
+    {
+      label: t('sqlTemplates.aggregate'),
+      icon: Code2,
+      sql: `SELECT
   department,
   COUNT(*) as employee_count,
   AVG(salary) as avg_salary,
@@ -38,11 +40,11 @@ FROM employees
 GROUP BY department
 HAVING COUNT(*) > 5
 ORDER BY avg_salary DESC;`,
-  },
-  {
-    label: 'JOIN',
-    icon: Merge,
-    sql: `SELECT
+    },
+    {
+      label: t('sqlTemplates.join'),
+      icon: Merge,
+      sql: `SELECT
   e.name,
   d.department_name,
   p.project_name,
@@ -53,11 +55,11 @@ LEFT JOIN assignments a ON e.id = a.employee_id
 LEFT JOIN projects p ON a.project_id = p.id
 WHERE e.is_active = 1
 ORDER BY d.department_name, e.name;`,
-  },
-  {
-    label: 'Оконные функции',
-    icon: FunctionSquare,
-    sql: `SELECT
+    },
+    {
+      label: t('sqlTemplates.window'),
+      icon: FunctionSquare,
+      sql: `SELECT
   name,
   department,
   salary,
@@ -66,22 +68,24 @@ ORDER BY d.department_name, e.name;`,
   salary - AVG(salary) OVER (PARTITION BY department) as diff_from_avg
 FROM employees
 ORDER BY department, dept_rank;`,
-  },
-];
+    },
+  ];
+}
 
 export default function SqlTemplates({ onInsertTemplate }: SqlTemplatesProps) {
+  const templates = getTemplates();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="h-7 text-xs">
           <Code2 className="mr-1 h-3 w-3" />
-          Шаблоны
+          {t('sqlTemplates.label')}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56">
-        <DropdownMenuLabel>Шаблоны SQL</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('sqlTemplates.menu')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {TEMPLATES.map((template) => {
+        {templates.map((template) => {
           const Icon = template.icon;
           return (
             <DropdownMenuItem

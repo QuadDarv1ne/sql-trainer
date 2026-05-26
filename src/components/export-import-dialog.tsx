@@ -13,6 +13,7 @@ import {
 import { useSQLTrainerStore, type ExportData } from '@/lib/store';
 import { Download, Upload, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { t } from '@/lib/i18n';
 
 export default function ExportImportDialog() {
   const { exportProgress, importProgress } = useSQLTrainerStore();
@@ -33,8 +34,8 @@ export default function ExportImportDialog() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success('Прогресс экспортирован', {
-      description: `Выполнено заданий: ${data.completedTasks.length}`,
+    toast.success(t('exportImport.exported'), {
+      description: t('exportImport.exported') + `: ${data.completedTasks.length}`,
     });
   };
 
@@ -48,7 +49,7 @@ export default function ExportImportDialog() {
         const content = e.target?.result;
         if (typeof content !== 'string') {
           setImportStatus('error');
-          setImportError('Не удалось прочитать файл');
+          setImportError(t('exportImport.readError'));
           return;
         }
 
@@ -57,25 +58,25 @@ export default function ExportImportDialog() {
 
         if (result.success) {
           setImportStatus('success');
-          toast.success('Прогресс импортирован', {
-            description: `Загружено ${data.completedTasks.length} выполненных заданий`,
+          toast.success(t('exportImport.imported'), {
+            description: `${data.completedTasks.length} ${t('sidebar.completed')}`,
           });
         } else {
           setImportStatus('error');
-          setImportError(result.error || 'Ошибка импорта');
-          toast.error('Ошибка импорта', { description: result.error });
+          setImportError(result.error || t('exportImport.importError'));
+          toast.error(t('exportImport.importError'), { description: result.error });
         }
       } catch {
         setImportStatus('error');
-        setImportError('Неверный формат JSON файла');
-        toast.error('Ошибка импорта', {
-          description: 'Неверный формат JSON файла',
+        setImportError(t('exportImport.invalidFormat'));
+        toast.error(t('exportImport.importError'), {
+          description: t('exportImport.invalidFormat'),
         });
       }
     };
     reader.onerror = () => {
       setImportStatus('error');
-      setImportError('Не удалось прочитать файл');
+      setImportError(t('exportImport.readError'));
     };
     reader.readAsText(file);
   };
@@ -100,38 +101,38 @@ export default function ExportImportDialog() {
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" className="w-full text-xs">
           <Download className="mr-1.5 h-3.5 w-3.5" />
-          Экспорт / Импорт
+          {t('exportImport.button')}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Download className="h-5 w-5 text-emerald-500" />
-            Экспорт / Импорт прогресса
+            {t('exportImport.title')}
           </DialogTitle>
           <DialogDescription>
-            Сохраните или восстановите ваш прогресс обучения
+            {t('exportImport.desc')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
           {/* Export */}
           <div className="rounded-lg border border-border p-4">
-            <h4 className="mb-2 text-sm font-medium">Экспорт прогресса</h4>
+            <h4 className="mb-2 text-sm font-medium">{t('exportImport.exportTitle')}</h4>
             <p className="mb-3 text-xs text-muted-foreground">
-              Скачайте файл с вашими выполненными заданиями, избранным и серией
+              {t('exportImport.exportDesc')}
             </p>
             <Button onClick={handleExport} className="w-full" size="sm">
               <Download className="mr-2 h-4 w-4" />
-              Скачать прогресс
+              {t('exportImport.exportBtn')}
             </Button>
           </div>
 
           {/* Import */}
           <div className="rounded-lg border border-border p-4">
-            <h4 className="mb-2 text-sm font-medium">Импорт прогресса</h4>
+            <h4 className="mb-2 text-sm font-medium">{t('exportImport.importTitle')}</h4>
             <p className="mb-3 text-xs text-muted-foreground">
-              Загрузите ранее экспортированный файл прогресса
+              {t('exportImport.importDesc')}
             </p>
 
             <div
@@ -142,8 +143,8 @@ export default function ExportImportDialog() {
             >
               <Upload className="mx-auto h-8 w-8 text-muted-foreground/50" />
               <p className="mt-2 text-sm text-muted-foreground">
-                Перетащите файл сюда или{' '}
-                <span className="text-emerald-600 dark:text-emerald-400">выберите</span>
+                {t('exportImport.drop')}{' '}
+                <span className="text-emerald-600 dark:text-emerald-400">{t('exportImport.select')}</span>
               </p>
               <input
                 ref={fileInputRef}
@@ -158,7 +159,7 @@ export default function ExportImportDialog() {
             {importStatus === 'success' && (
               <div className="mt-3 flex items-center gap-2 rounded-md bg-emerald-50 p-2 text-sm text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
                 <CheckCircle2 className="h-4 w-4" />
-                Прогресс успешно загружен!
+                {t('exportImport.success')}
               </div>
             )}
 
@@ -172,7 +173,7 @@ export default function ExportImportDialog() {
 
           {/* Warning */}
           <div className="rounded-md bg-amber-50 p-3 text-xs text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
-            <strong>Внимание:</strong> Импорт заменит ваш текущий прогресс данными из файла
+            <strong>{t('exportImport.warning')}</strong> {t('exportImport.warningDesc')}
           </div>
         </div>
       </DialogContent>

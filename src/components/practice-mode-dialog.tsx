@@ -18,6 +18,7 @@ import {
   type Difficulty,
 } from '@/lib/training-tasks';
 import { Play, Shuffle, CheckCircle2, X } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 export default function PracticeModeDialog() {
   const { practiceMode, startPracticeMode, stopPracticeMode, nextPracticeTask, currentTaskId } =
@@ -45,7 +46,7 @@ export default function PracticeModeDialog() {
           <div className="flex items-center gap-2">
             <Shuffle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-              Режим практики
+              {t('practiceMode.title')}
             </span>
           </div>
           <Button
@@ -58,7 +59,7 @@ export default function PracticeModeDialog() {
           </Button>
         </div>
         <p className="mb-2 text-xs text-emerald-600/70 dark:text-emerald-400/70">
-          Задание {currentIdx + 1} из {total} · Выполнено: {completed}
+          {t('practiceMode.taskInfo', { current: currentIdx + 1, total, completed })}
         </p>
         <div className="flex gap-2">
           <Button
@@ -68,7 +69,7 @@ export default function PracticeModeDialog() {
             disabled={currentIdx >= total - 1}
           >
             <Play className="mr-1.5 h-3.5 w-3.5" />
-            Следующее
+            {t('practiceMode.next')}
           </Button>
           <Button
             size="sm"
@@ -76,7 +77,7 @@ export default function PracticeModeDialog() {
             className="flex-1"
             onClick={stopPracticeMode}
           >
-            Завершить
+            {t('practiceMode.finish')}
           </Button>
         </div>
       </div>
@@ -88,17 +89,17 @@ export default function PracticeModeDialog() {
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full">
           <Shuffle className="mr-2 h-4 w-4" />
-          Режим практики
+          {t('practiceMode.title')}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shuffle className="h-5 w-5 text-emerald-500" />
-            Режим практики
+            {t('practiceMode.title')}
           </DialogTitle>
           <DialogDescription>
-            Выберите уровень сложности для случайного порядка заданий
+            {t('practiceMode.desc')}
           </DialogDescription>
         </DialogHeader>
 
@@ -111,7 +112,7 @@ export default function PracticeModeDialog() {
             >
               <Play className="h-4 w-4 text-emerald-500" />
               <span className="flex-1 text-sm font-medium">
-                {d === 'all' ? 'Все задания' : DIFFICULTY_LABELS[d as Difficulty]}
+                {d === 'all' ? t('practiceMode.all') : DIFFICULTY_LABELS[d as Difficulty]}
               </span>
               {d !== 'all' && (
                 <Badge className={`${DIFFICULTY_COLORS[d as Difficulty]} text-[10px]`}>

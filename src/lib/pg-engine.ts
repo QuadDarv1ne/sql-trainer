@@ -162,7 +162,26 @@ export async function explainPgQuery(
       }
     }
 
-    const explainResult = await client.query(`EXPLAIN (FORMAT TEXT) ${sql}`);
+    // Validate SQL is a SELECT-like query (EXPLAIN only makes sense for read queries)
+    const trimmed = sql.trim().toLowerCase();
+    if (!trimmed.startsWith('select') && !trimmed.startsWith('with') && !trimmed.startsWith('explain')) {
+      return {
+        success: false,
+        columns: [],
+        rows: [],
+        error: 'PostgreSQL EXPLAIN error: Only SELECT queries are supported for EXPLAIN',
+      };
+    }
+    // Reject queries with destructive statements
+    if (/\b(drop|delete|truncate|alter|create|insert|update|grant|revoke)\b/i.test(trimmed.replace(/^(explain|select|with)\s*/i, ''))) {
+      return {
+        success: false,
+        columns: [],
+        rows: [],
+        error: 'PostgreSQL EXPLAIN error: Destructive statements are not allowed in EXPLAIN',
+      };
+    }
+    const explainResult = await client.query('EXPLAIN (FORMAT TEXT) ' + sql);
     const plan = explainResult.rows.map(r => Object.values(r).join('')).join('\n');
 
     await client.end();

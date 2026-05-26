@@ -242,21 +242,27 @@ export default function ProfilePage() {
   const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
-    fetch('/api/user/profile')
+    const controller = new AbortController();
+    fetch('/api/user/profile', { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
       .then((data) => {
-        if (data.success) {
+        if (!controller.signal.aborted && data.success) {
           setProfile(data.user);
           setEditName(data.user.name);
           setEditPhone(data.user.phone || '');
           setNewEmail(data.user.email);
         }
       })
-      .catch(() => toast.error(t('profile.loadError')))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        if (err.name !== 'AbortError') toast.error(t('profile.loadError'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
   }, []);
 
   const handleSave = async () => {

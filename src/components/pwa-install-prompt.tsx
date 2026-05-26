@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Download } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -51,7 +52,7 @@ export default function PwaInstallPrompt() {
     // Wait for the user to respond to the prompt
     const { outcome } = await deferredPrompt.userChoice;
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[PWA] User response: ${outcome}`);
+      logger.info(`[PWA] User response: ${outcome}`);
     }
 
     // We no longer need the deferred prompt
