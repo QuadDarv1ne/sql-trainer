@@ -4,6 +4,12 @@ import { findUserByIdWithHash, findUserByEmail, updateUser } from '@/lib/db-user
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+import { z } from 'zod';
+
+const changeEmailSchema = z.object({
+  newEmail: z.string().email('Неверный формат email'),
+  password: z.string().min(1, 'Пароль обязателен'),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,23 +28,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { newEmail, password } = body;
+    const validation = changeEmailSchema.safeParse(body);
 
-    if (!newEmail || !password) {
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, error: 'Новый email и пароль обязательны' },
+        { success: false, error: validation.error.errors[0]?.message ?? 'Неверный формат данных' },
         { status: 400 }
       );
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (typeof newEmail !== 'string' || !emailRegex.test(newEmail)) {
-      return NextResponse.json(
-        { success: false, error: 'Неверный формат email' },
-        { status: 400 }
-      );
-    }
+    const { newEmail, password } = validation.data;
 
     // Verify password
     const user = await findUserByIdWithHash(session.user.id);

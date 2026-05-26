@@ -1,18 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyResetCode } from '@/lib/db-users';
 import { logger } from '@/lib/logger';
+import { z } from 'zod';
+
+const verifyResetSchema = z.object({
+  code: z.string().min(1, 'Код обязателен'),
+});
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { code } = body;
+    const validation = verifyResetSchema.safeParse(body);
 
-    if (!code) {
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, error: 'Код обязателен' },
+        { success: false, error: validation.error.errors[0]?.message ?? 'Неверный формат данных' },
         { status: 400 }
       );
     }
+
+    const { code } = validation.data;
 
     const result = await verifyResetCode(code);
     if (!result) {

@@ -3,6 +3,12 @@ import { getTaskById, TRAINING_TASKS } from '@/lib/training-tasks';
 import { getSchemaInfo } from '@/lib/sql-engine';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+import { z } from 'zod';
+
+const initTrainingSchema = z.object({
+  taskId: z.string().min(1, 'taskId обязателен'),
+  dbType: z.enum(['sqlite', 'postgresql', 'clickhouse', 'mongodb']).optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,14 +23,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { taskId, dbType } = body;
+    const validation = initTrainingSchema.safeParse(body);
 
-    if (!taskId) {
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, error: 'taskId обязателен' },
+        { success: false, error: validation.error.errors[0]?.message ?? 'Неверный формат данных' },
         { status: 400 }
       );
     }
+
+    const { taskId, dbType } = validation.data;
 
     const task = getTaskById(taskId);
     if (!task) {

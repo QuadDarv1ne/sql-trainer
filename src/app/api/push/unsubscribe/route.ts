@@ -3,6 +3,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { deletePushSubscription } from '@/lib/db-users';
 import { logger } from '@/lib/logger';
 import { rateLimit } from '@/lib/rate-limit';
+import { z } from 'zod';
+
+const unsubscribeSchema = z.object({
+  endpoint: z.string().url('Неверный формат endpoint'),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,11 +23,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { endpoint } = body;
+    const validation = unsubscribeSchema.safeParse(body);
 
-    if (!endpoint) {
-      return NextResponse.json({ error: 'Missing endpoint' }, { status: 400 });
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error.errors[0]?.message ?? 'Missing endpoint' }, { status: 400 });
     }
+
+    const { endpoint } = validation.data;
 
     deletePushSubscription(session.user.id, endpoint);
     return NextResponse.json({ success: true });

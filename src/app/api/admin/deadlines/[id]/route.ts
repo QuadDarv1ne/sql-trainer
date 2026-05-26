@@ -1,6 +1,16 @@
 import { withTeacherAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { updateDeadline, deleteDeadline, getDeadlineById } from '@/lib/db-users';
+import { z } from 'zod';
+
+const updateDeadlineSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  dueDate: z.string().datetime().optional(),
+  courseId: z.string().optional(),
+}).refine((data) => Object.keys(data).length > 0, {
+  message: 'At least one field must be provided',
+});
 
 export const PUT = withTeacherAuth(async ({ session, request, params }) => {
   const { id } = params!;
@@ -10,7 +20,13 @@ export const PUT = withTeacherAuth(async ({ session, request, params }) => {
   }
 
   const body = await request.json();
-  const success = updateDeadline(id, body, session.user.id, session.user.id);
+  const validation = updateDeadlineSchema.safeParse(body);
+
+  if (!validation.success) {
+    return NextResponse.json({ error: validation.error.errors[0]?.message ?? 'Invalid data' }, { status: 400 });
+  }
+
+  const success = updateDeadline(id, validation.data, session.user.id, session.user.id);
   if (!success) {
     return NextResponse.json({ error: 'Forbidden or not found' }, { status: 403 });
   }

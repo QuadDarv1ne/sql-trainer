@@ -3,6 +3,12 @@ import { auth } from '@/lib/auth';
 import { getUserProgress, saveUserProgress } from '@/lib/db-users';
 import { logger } from '@/lib/logger';
 import { rateLimit } from '@/lib/rate-limit';
+import { z } from 'zod';
+
+const progressSchema = z.object({
+  taskId: z.string().min(1, 'taskId обязателен'),
+  attempts: z.number().int().nonnegative('attempts должен быть неотрицательным целым числом'),
+});
 
 export async function GET() {
   try {
@@ -33,18 +39,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { taskId, attempts } = body;
+    const validation = progressSchema.safeParse(body);
 
-    if (!taskId || attempts === undefined) {
-      return NextResponse.json({ success: false, error: 'taskId и attempts обязательны' }, { status: 400 });
-    }
-
-    if (typeof attempts !== 'number' || attempts < 0 || !Number.isInteger(attempts)) {
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, error: 'attempts должен быть неотрицательным целым числом' },
+        { success: false, error: validation.error.errors[0]?.message ?? 'Неверный формат данных' },
         { status: 400 }
       );
     }
+
+    const { taskId, attempts } = validation.data;
 
     await saveUserProgress(session.user.id, taskId, attempts);
     return NextResponse.json({ success: true });

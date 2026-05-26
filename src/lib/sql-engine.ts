@@ -343,13 +343,24 @@ function evictCacheIfFull(): void {
 }
 
 /**
+ * Move a key to the end of the cache (most recently used) for LRU behavior.
+ */
+function touchCacheKey(key: string): void {
+  const value = schemaCache.get(key);
+  if (value) {
+    schemaCache.delete(key);
+    schemaCache.set(key, value);
+  }
+}
+
+/**
  * Execute prepared statements against an already-initialized database.
  * Shared logic between executeQuery and executeWithSchema.
  */
 function executeStatements(
   db: Database.Database,
   statements: string[],
-  _batchStartTime: number
+  batchStartTime: number
 ): QueryResult {
   let lastResult: QueryResult | null = null;
 
@@ -433,7 +444,7 @@ function executeStatements(
     success: true,
     columns: [],
     rows: [],
-    executionTime: performance.now() - _batchStartTime,
+    executionTime: performance.now() - batchStartTime,
     message: 'Запрос выполнен успешно',
   };
 }
@@ -484,6 +495,7 @@ export function executeWithSchema(
     // Check cache first
     const cached = schemaCache.get(cacheKey);
     if (cached) {
+      touchCacheKey(cacheKey); // Mark as recently used
       db = cloneDatabase(cached);
     } else {
       db = new Database(':memory:');
@@ -558,6 +570,7 @@ export function executeWithSchemaMulti(
     // Check cache first
     const cached = schemaCache.get(cacheKey);
     if (cached) {
+      touchCacheKey(cacheKey); // Mark as recently used
       db = cloneDatabase(cached);
     } else {
       db = new Database(':memory:');
