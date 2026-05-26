@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const limit = parseInt(request.nextUrl.searchParams.get('limit') || '50');
+    const limit = Number.isNaN(parseInt(request.nextUrl.searchParams.get('limit') || '50')) ? 50 : parseInt(request.nextUrl.searchParams.get('limit') || '50');
     const predictions = getChurnPredictions(limit);
     return NextResponse.json({ predictions });
   } catch (error) {

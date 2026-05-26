@@ -21,12 +21,12 @@ export async function GET(
     }
 
     const { id } = await params;
-    const student = getStudentDetail(id);
+    const student = await getStudentDetail(id);
     if (!student) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
-    const achievements = getUserAchievements(id);
+    const achievements = await getUserAchievements(id);
     return NextResponse.json({ student, achievements });
   } catch (error) {
     logger.error('GET /api/teacher/student/[id]:', error);

@@ -368,14 +368,14 @@ export async function executeMongoQueryReal(
 ): Promise<MongoResult> {
   const startTime = Date.now();
 
+  let client: import('mongodb').MongoClient | undefined;
   try {
     const { MongoClient } = await import('mongodb');
-    const client = new MongoClient(connectionString, { serverSelectionTimeoutMS: 3000 });
+    client = new MongoClient(connectionString, { serverSelectionTimeoutMS: 3000 });
     await client.connect();
 
     const parsed = parseMongoQuery(queryStr);
     if (!parsed) {
-      await client.close();
       return {
         success: false,
         columns: [],
@@ -402,8 +402,6 @@ export async function executeMongoQueryReal(
       rows = await cursor.toArray();
     }
 
-    await client.close();
-
     const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
     const executionTime = Date.now() - startTime;
 
@@ -421,5 +419,7 @@ export async function executeMongoQueryReal(
       rows: [],
       error: `MongoDB error: ${message}`,
     };
+  } finally {
+    await client?.close();
   }
 }

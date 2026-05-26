@@ -4,7 +4,10 @@ import { NextResponse } from 'next/server';
 import { softDeleteUser, updateUserDetails } from '@/lib/db-users';
 
 export const DELETE = withAdminAuth(async ({ session, params }) => {
-  const { id } = params!;
+  if (!params?.id) {
+    return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+  }
+  const { id } = params;
 
   // Prevent admin from deleting themselves
   if (id === session.user.id) {

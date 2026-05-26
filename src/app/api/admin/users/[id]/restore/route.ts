@@ -3,7 +3,10 @@ import { restoreUser } from '@/lib/db-users';
 import { withAdminAuth } from '@/lib/api-auth';
 
 export const POST = withAdminAuth(async ({ session, params }) => {
-  const { id } = params!;
+  if (!params?.id) {
+    return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+  }
+  const { id } = params;
 
   const success = restoreUser(id, session.user.id);
   if (!success) {

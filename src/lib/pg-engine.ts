@@ -54,20 +54,22 @@ export async function executePgWithFallback(
     }
 
     const startTime = Date.now();
-    const result = await client.query(sql);
-    const executionTime = Date.now() - startTime;
+    try {
+      const result = await client.query(sql);
+      const executionTime = Date.now() - startTime;
 
-    const columns = result.fields.map((f: { name: string }) => f.name);
-    const rows = result.rows;
+      const columns = result.fields.map((f: { name: string }) => f.name);
+      const rows = result.rows;
 
-    await client.end();
-
-    return {
-      success: true,
-      columns,
-      rows,
-      executionTime,
-    };
+      return {
+        success: true,
+        columns,
+        rows,
+        executionTime,
+      };
+    } finally {
+      await client.end();
+    }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown PostgreSQL error';
     return {
@@ -100,20 +102,22 @@ export async function executePgQuery(
 
     await client.connect();
     const startTime = Date.now();
-    const result = await client.query(sql);
-    const executionTime = Date.now() - startTime;
+    try {
+      const result = await client.query(sql);
+      const executionTime = Date.now() - startTime;
 
-    const columns = result.fields.map((f: { name: string }) => f.name);
-    const rows = result.rows;
+      const columns = result.fields.map((f: { name: string }) => f.name);
+      const rows = result.rows;
 
-    await client.end();
-
-    return {
-      success: true,
-      columns,
-      rows,
-      executionTime,
-    };
+      return {
+        success: true,
+        columns,
+        rows,
+        executionTime,
+      };
+    } finally {
+      await client.end();
+    }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown PostgreSQL error';
     return {

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { Bell } from 'lucide-react';
-import { t } from '@/lib/i18n';
+import { t, getLocale } from '@/lib/i18n';
 import { toast } from 'sonner';
 import { PendingReminder } from '@/lib/db-users';
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,8 @@ const typeLabels: Record<PendingReminder['type'], string> = {
 };
 
 function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString('ru-RU', {
+  const locale = getLocale() === 'en' ? 'en-US' : 'ru-RU';
+  return new Date(ts).toLocaleDateString(locale, {
     day: 'numeric',
     month: 'short',
     hour: '2-digit',
@@ -58,7 +59,7 @@ export function ReminderBell() {
     fetchReminders();
     const interval = setInterval(fetchReminders, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [session, session?.user?.id, fetchReminders]);
+  }, [session?.user?.id, fetchReminders]);
 
   if (!session) return null;
 

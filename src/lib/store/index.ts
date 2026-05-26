@@ -110,6 +110,8 @@ export const useSQLTrainerStore = create<CombinedState>()(
             xpRemaining -= newLevel * 100;
             newLevel++;
           }
+          const xpNeeded = newLevel * 100;
+          const levelProgressPercent = Math.round((xpRemaining / xpNeeded) * 100);
 
           return {
             completedTasks: updatedCompletedTasks,
@@ -117,7 +119,7 @@ export const useSQLTrainerStore = create<CombinedState>()(
               ...state.userStats,
               xp: newXp,
               level: newLevel,
-              levelProgress: xpRemaining,
+              levelProgress: levelProgressPercent,
             },
           };
         });
@@ -180,9 +182,29 @@ export const useSQLTrainerStore = create<CombinedState>()(
 
       // Reset methods that affect multiple slices
       resetTaskProgress: (taskId: string) => {
-        set((state) => ({
-          completedTasks: state.completedTasks.filter((t) => t.taskId !== taskId),
-        }));
+        set((state) => {
+          const newCompletedTasks = state.completedTasks.filter((t) => t.taskId !== taskId);
+          // Recalculate XP from remaining completed tasks (10 XP per task)
+          const baseXp = newCompletedTasks.length * 10;
+          // Recalculate level from new XP
+          let newLevel = 1;
+          let xpRemaining = baseXp;
+          while (xpRemaining >= newLevel * 100) {
+            xpRemaining -= newLevel * 100;
+            newLevel++;
+          }
+          const xpNeeded = newLevel * 100;
+          const levelProgressPercent = Math.round((xpRemaining / xpNeeded) * 100);
+          return {
+            completedTasks: newCompletedTasks,
+            userStats: {
+              ...state.userStats,
+              xp: baseXp,
+              level: newLevel,
+              levelProgress: levelProgressPercent,
+            },
+          };
+        });
       },
       resetAllProgress: () => {
         // Save snapshot for potential undo (stored in a module-level variable)

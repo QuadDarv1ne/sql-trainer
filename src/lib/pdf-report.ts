@@ -841,7 +841,13 @@ function openPrintWindow(content: string): void {
   printWindow.document.close();
   printWindow.focus();
   setTimeout(() => {
-    printWindow.print();
-    printWindow.close();
+    try {
+      if (!printWindow.closed) {
+        printWindow.print();
+        printWindow.close();
+      }
+    } catch {
+      // Window may have been closed by user
+    }
   }, 250);
 }
