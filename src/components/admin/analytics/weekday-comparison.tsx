@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -15,34 +14,44 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import EmptyState from './empty-state';
+import { useAnalyticsQuery } from '@/lib/hooks';
+
+interface WeekdayData {
+  total_completions: number;
+  unique_students: number;
+  avg_attempts: number;
+  first_attempt_rate: number;
+}
+
+interface ComparisonData {
+  weekday: WeekdayData;
+  weekend: WeekdayData;
+  by_difficulty: Array<{ difficulty: string; weekday_completions: number; weekend_completions: number; weekday_avg_attempts: number; weekend_avg_attempts: number }>;
+  hourly_weekday: Array<{ hour: number; completions: number }>;
+  hourly_weekend: Array<{ hour: number; completions: number }>;
+}
 
 export default function WeekdayComparison() {
-  const [weekday, setWeekday] = useState<{ total_completions: number; unique_students: number; avg_attempts: number; first_attempt_rate: number } | null>(null);
-  const [weekend, setWeekend] = useState<{ total_completions: number; unique_students: number; avg_attempts: number; first_attempt_rate: number } | null>(null);
-  const [byDifficulty, setByDifficulty] = useState<Array<{ difficulty: string; weekday_completions: number; weekend_completions: number; weekday_avg_attempts: number; weekend_avg_attempts: number }>>([]);
-  const [hourlyWeekday, setHourlyWeekday] = useState<Array<{ hour: number; completions: number }>>([]);
-  const [hourlyWeekend, setHourlyWeekend] = useState<Array<{ hour: number; completions: number }>>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const { startDate, endDate } = useDateRange();
 
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (startDate) params.set('startDate', String(startDate));
-    if (endDate) params.set('endDate', String(endDate));
+  const { data, loading, error } = useAnalyticsQuery<ComparisonData>({
+    endpoint: '/api/admin/analytics/weekday-comparison',
+    transform: (json) => ({
+      weekday: json.weekday as WeekdayData,
+      weekend: json.weekend as WeekdayData,
+      by_difficulty: (json.by_difficulty || []) as ComparisonData['by_difficulty'],
+      hourly_weekday: (json.hourly_weekday || []) as ComparisonData['hourly_weekday'],
+      hourly_weekend: (json.hourly_weekend || []) as ComparisonData['hourly_weekend'],
+    }),
+    startDate,
+    endDate,
+  });
 
-    fetch(`/api/admin/analytics/weekday-comparison?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch weekday comparison')))
-      .then(data => {
-        setWeekday(data.weekday);
-        setWeekend(data.weekend);
-        setByDifficulty(data.by_difficulty || []);
-        setHourlyWeekday(data.hourly_weekday || []);
-        setHourlyWeekend(data.hourly_weekend || []);
-      })
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
-  }, [startDate, endDate]);
+  const weekday = data?.weekday || null;
+  const weekend = data?.weekend || null;
+  const byDifficulty = data?.by_difficulty || [];
+  const hourlyWeekday = data?.hourly_weekday || [];
+  const hourlyWeekend = data?.hourly_weekend || [];
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
@@ -55,7 +64,7 @@ export default function WeekdayComparison() {
     { metric: t('analytics.weekday.firstAttemptRate'), weekday: weekday.first_attempt_rate, weekend: weekend.first_attempt_rate },
   ];
 
-  const difficultyLabels: Record<string, string> = { beginner: 'Начальный', intermediate: 'Средний', advanced: 'Продвинутый' };
+  const difficultyLabels: Record<string, string> = { beginner: t('difficulty.beginner'), intermediate: t('difficulty.intermediate'), advanced: t('difficulty.advanced') };
 
   return (
     <div className="space-y-6">
@@ -123,7 +132,7 @@ export default function WeekdayComparison() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Сравнение метрик</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('analytics.weekday.metricComparison')}</CardTitle></CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={comparisonData}>

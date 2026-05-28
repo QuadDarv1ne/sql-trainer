@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -11,53 +10,38 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import EmptyState from './empty-state';
+import { useAnalyticsQuery } from '@/lib/hooks';
 
-interface AuditEntry {
-  action_type: string;
-  actor_name: string | null;
-  target_type: string;
-  target_id: string;
-  details: string;
-  created_at: number;
+interface AuditData {
+  entries: Array<{ action_type: string; actor_name: string | null; target_type: string; target_id: string; details: string; created_at: number }>;
+  summary: { total_actions: number; actions_by_type: Array<{ type: string; count: number }>; most_active_users: Array<{ name: string; action_count: number }>; actions_this_week: number; actions_this_month: number };
 }
 
 export default function AuditLog() {
-  const [entries, setEntries] = useState<AuditEntry[]>([]);
-  const [summary, setSummary] = useState<{
-    total_actions: number;
-    actions_by_type: Array<{ type: string; count: number }>;
-    most_active_users: Array<{ name: string; action_count: number }>;
-    actions_this_week: number;
-    actions_this_month: number;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const { startDate, endDate } = useDateRange();
 
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (startDate) params.set('startDate', String(startDate));
-    if (endDate) params.set('endDate', String(endDate));
+  const { data, loading, error } = useAnalyticsQuery<AuditData>({
+    endpoint: '/api/admin/analytics/audit',
+    transform: (json) => ({
+      entries: (json.entries || []) as AuditData['entries'],
+      summary: json.summary as AuditData['summary'],
+    }),
+    startDate,
+    endDate,
+  });
 
-    fetch(`/api/admin/analytics/audit?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch audit log')))
-      .then(data => {
-        setEntries(data.entries || []);
-        setSummary(data.summary);
-      })
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
-  }, [startDate, endDate]);
+  const entries = data?.entries || [];
+  const summary = data?.summary || null;
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
   if (!summary) return <EmptyState />;
 
   const actionLabels: Record<string, string> = {
-    deadline_created: 'Дедлайн создан',
-    deadline_updated: 'Дедлайн обновлён',
-    role_changed: 'Роль изменена',
-    notification_pref_changed: 'Настройки уведомлений',
+    deadline_created: t('analytics.audit.actions.deadlineCreated'),
+    deadline_updated: t('analytics.audit.actions.deadlineUpdated'),
+    role_changed: t('analytics.audit.actions.roleChanged'),
+    notification_pref_changed: t('analytics.audit.actions.notificationPref'),
   };
 
   const stats = [
@@ -87,7 +71,7 @@ export default function AuditLog() {
       <div className="grid gap-6 lg:grid-cols-2">
         {summary.actions_by_type.length > 0 && (
           <Card>
-            <CardHeader><CardTitle>Действия по типу</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t('analytics.audit.actionsByType')}</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-2">
                 {summary.actions_by_type.map(item => (
@@ -103,7 +87,7 @@ export default function AuditLog() {
 
         {summary.most_active_users.length > 0 && (
           <Card>
-            <CardHeader><CardTitle>Активные пользователи</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t('analytics.audit.mostActiveUsers')}</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-2">
                 {summary.most_active_users.map(item => (

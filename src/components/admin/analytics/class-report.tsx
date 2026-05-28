@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +9,7 @@ import { generateClassReportPDF } from '@/lib/pdf-report';
 import { t, getLocale } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
+import { useAnalyticsQuery } from '@/lib/hooks';
 
 interface ClassReport {
   total_students: number;
@@ -24,22 +24,14 @@ interface ClassReport {
 }
 
 export default function ClassReport() {
-  const [report, setReport] = useState<ClassReport | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const { startDate, endDate } = useDateRange();
 
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (startDate) params.set('startDate', String(startDate));
-    if (endDate) params.set('endDate', String(endDate));
-
-    fetch(`/api/admin/analytics/class-report?${params}`)
-      .then((r) => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch class report')))
-      .then((data) => setReport(data.report))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
-  }, [startDate, endDate]);
+  const { data: report, loading, error } = useAnalyticsQuery<ClassReport>({
+    endpoint: '/api/admin/analytics/class-report',
+    transform: (json) => (json.report || {}) as ClassReport,
+    startDate,
+    endDate,
+  });
 
   const handleGeneratePDF = () => {
     if (report) {

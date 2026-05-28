@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +7,7 @@ import { AlertCircle, Lightbulb, ListChecks } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
+import { useAnalyticsQuery } from '@/lib/hooks';
 
 interface Recommendation {
   user_id: string;
@@ -33,22 +33,14 @@ const typeLabels: Record<string, string> = {
 };
 
 export default function RecommendationsPanel() {
-  const [data, setData] = useState<Recommendation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const { startDate, endDate } = useDateRange();
 
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (startDate) params.set('startDate', String(startDate));
-    if (endDate) params.set('endDate', String(endDate));
-
-    fetch(`/api/admin/analytics/recommendations?${params}`)
-      .then((r) => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch recommendations')))
-      .then((data) => setData(data.recommendations))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
-  }, [startDate, endDate]);
+  const { data, loading, error } = useAnalyticsQuery<Recommendation[]>({
+    endpoint: '/api/admin/analytics/recommendations',
+    dataKey: 'recommendations',
+    startDate,
+    endDate,
+  });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -11,24 +10,27 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import EmptyState from './empty-state';
+import { useAnalyticsQuery } from '@/lib/hooks';
+
+interface CohortData {
+  cohorts: Array<{ cohort_week: string; total: number; week_1_retained: number; week_1_rate: number; week_2_retained: number; week_2_rate: number; week_4_retained: number; week_4_rate: number; week_8_retained: number; week_8_rate: number }>;
+  summary: { avg_week_1_rate: number; avg_week_4_rate: number; avg_week_8_rate: number };
+}
 
 export default function RetentionCohorts() {
-  const [cohorts, setCohorts] = useState<Array<{ cohort_week: string; total: number; week_1_retained: number; week_1_rate: number; week_2_retained: number; week_2_rate: number; week_4_retained: number; week_4_rate: number; week_8_retained: number; week_8_rate: number }>>([]);
-  const [summary, setSummary] = useState<{ avg_week_1_rate: number; avg_week_4_rate: number; avg_week_8_rate: number } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const { startDate, endDate } = useDateRange();
+  const { data, loading, error } = useAnalyticsQuery<CohortData>({
+    endpoint: '/api/admin/analytics/retention-cohorts',
+    transform: (json) => ({
+      cohorts: (json.cohorts || []) as CohortData['cohorts'],
+      summary: json.summary as CohortData['summary'],
+    }),
+    startDate,
+    endDate,
+  });
 
-  useEffect(() => {
-    fetch('/api/admin/analytics/retention-cohorts')
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch retention cohorts')))
-      .then(data => {
-        setCohorts(data.cohorts || []);
-        setSummary(data.summary);
-      })
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
-  }, [startDate, endDate]);
+  const cohorts = data?.cohorts || [];
+  const summary = data?.summary || null;
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;

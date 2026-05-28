@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Users, Activity, TrendingUp } from 'lucide-react';
@@ -10,28 +9,27 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import EmptyState from './empty-state';
+import { useAnalyticsQuery } from '@/lib/hooks';
+
+interface ActivityData {
+  daily: Array<{ date: string; dau: number; wau: number; mau: number }>;
+  summary: { current_dau: number; current_wau: number; current_mau: number; dau_wau_ratio: number; wau_mau_ratio: number };
+}
 
 export default function ActivitySummary() {
-  const [daily, setDaily] = useState<Array<{ date: string; dau: number; wau: number; mau: number }>>([]);
-  const [summary, setSummary] = useState<{ current_dau: number; current_wau: number; current_mau: number; dau_wau_ratio: number; wau_mau_ratio: number } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const { startDate, endDate } = useDateRange();
+  const { data, loading, error } = useAnalyticsQuery<ActivityData>({
+    endpoint: '/api/admin/analytics/activity-summary',
+    transform: (json) => ({
+      daily: (json.daily || []) as ActivityData['daily'],
+      summary: json.summary as ActivityData['summary'],
+    }),
+    startDate,
+    endDate,
+  });
 
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (startDate) params.set('startDate', String(startDate));
-    if (endDate) params.set('endDate', String(endDate));
-
-    fetch(`/api/admin/analytics/activity-summary?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch activity summary')))
-      .then(data => {
-        setDaily(data.daily || []);
-        setSummary(data.summary);
-      })
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
-  }, [startDate, endDate]);
+  const daily = data?.daily || [];
+  const summary = data?.summary || null;
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;

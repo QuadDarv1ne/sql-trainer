@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -9,26 +9,23 @@ import { t } from '@/lib/i18n';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
+import { useAnalyticsQuery } from '@/lib/hooks';
+
+interface ABTestData {
+  test_name: string;
+  group_a: { name: string; count: number; avg_attempts: number; completion_rate: number; avg_time_hours: number };
+  group_b: { name: string; count: number; avg_attempts: number; completion_rate: number; avg_time_hours: number };
+  metrics: Array<{ metric: string; group_a: number; group_b: number; difference: number; significant: boolean }>;
+}
 
 export default function ABTest() {
   const [testType, setTestType] = useState('learning_path');
-  const [data, setData] = useState<{
-    test_name: string;
-    group_a: { name: string; count: number; avg_attempts: number; completion_rate: number; avg_time_hours: number };
-    group_b: { name: string; count: number; avg_attempts: number; completion_rate: number; avg_time_hours: number };
-    metrics: Array<{ metric: string; group_a: number; group_b: number; difference: number; significant: boolean }>;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    setLoading(true);
-    fetch(`/api/admin/analytics/ab-test?testType=${testType}`)
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch AB test data')))
-      .then(setData)
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
-  }, [testType]);
+  const { data, loading, error } = useAnalyticsQuery<ABTestData>({
+    endpoint: '/api/admin/analytics/ab-test',
+    dataKey: '',
+    transform: (json) => json as unknown as ABTestData,
+    dependencies: [testType],
+  });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;

@@ -1247,6 +1247,12 @@ export const translations: Record<Locale, Record<string, string>> = {
     'analytics.audit.totalActions': 'Всего действий',
     'analytics.audit.thisWeek': 'За неделю',
     'analytics.audit.thisMonth': 'За месяц',
+    'analytics.audit.actionsByType': 'Действия по типу',
+    'analytics.audit.mostActiveUsers': 'Активные пользователи',
+    'analytics.audit.actions.deadlineCreated': 'Дедлайн создан',
+    'analytics.audit.actions.deadlineUpdated': 'Дедлайн обновлён',
+    'analytics.audit.actions.roleChanged': 'Роль изменена',
+    'analytics.audit.actions.notificationPref': 'Настройки уведомлений',
 
     // Weekday vs weekend
     'analytics.weekday.title': 'Будни vs Выходные',
@@ -1258,6 +1264,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'analytics.weekday.firstAttemptRate': '1-я попытка %',
     'analytics.weekday.byDifficulty': 'По сложности',
     'analytics.weekday.hourly': 'По часам',
+    'analytics.weekday.metricComparison': 'Сравнение метрик',
 
     // Hint usage
     'analytics.hintUsage.title': 'Аналитика подсказок',
@@ -3038,6 +3045,12 @@ export const translations: Record<Locale, Record<string, string>> = {
     'analytics.audit.totalActions': 'Total Actions',
     'analytics.audit.thisWeek': 'This Week',
     'analytics.audit.thisMonth': 'This Month',
+    'analytics.audit.actionsByType': 'Actions by Type',
+    'analytics.audit.mostActiveUsers': 'Most Active Users',
+    'analytics.audit.actions.deadlineCreated': 'Deadline created',
+    'analytics.audit.actions.deadlineUpdated': 'Deadline updated',
+    'analytics.audit.actions.roleChanged': 'Role changed',
+    'analytics.audit.actions.notificationPref': 'Notification preferences',
 
     // Weekday vs weekend
     'analytics.weekday.title': 'Weekday vs Weekend',
@@ -3049,6 +3062,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'analytics.weekday.firstAttemptRate': '1st Attempt %',
     'analytics.weekday.byDifficulty': 'By Difficulty',
     'analytics.weekday.hourly': 'By Hour',
+    'analytics.weekday.metricComparison': 'Metric Comparison',
 
     // Hint usage
     'analytics.hintUsage.title': 'Hint Usage Analytics',

@@ -10,7 +10,7 @@ interface UseAnalyticsQueryResult<T> {
   refetch: () => void;
 }
 
-interface UseAnalyticsQueryOptions {
+interface UseAnalyticsQueryOptions<TData = unknown> {
   /**
    * Base endpoint path (e.g., '/api/admin/analytics/activity').
    * Date range params are appended automatically when provided.
@@ -21,7 +21,7 @@ interface UseAnalyticsQueryOptions {
    * Key name in the response JSON that holds the data.
    * For `{ activity: [...] }` use `'activity'`.
    */
-  dataKey: string;
+  dataKey?: string;
 
   /**
    * Optional start timestamp for date range filtering.
@@ -37,6 +37,12 @@ interface UseAnalyticsQueryOptions {
    * Dependencies that trigger a refetch (besides dates).
    */
   dependencies?: unknown[];
+
+  /**
+   * Optional transform function to extract data from the full response.
+   * When provided, dataKey is ignored and the transform result is used.
+   */
+  transform?: (json: Record<string, unknown>) => TData;
 }
 
 /**
@@ -62,7 +68,8 @@ export function useAnalyticsQuery<T = unknown>({
   startDate,
   endDate,
   dependencies = [],
-}: UseAnalyticsQueryOptions): UseAnalyticsQueryResult<T> {
+  transform,
+}: UseAnalyticsQueryOptions<T>): UseAnalyticsQueryResult<T> {
   const [data, setData] = useState<T>([] as unknown as T);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,9 +92,9 @@ export function useAnalyticsQuery<T = unknown>({
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
-      .then((json) => {
+      .then((json: Record<string, unknown>) => {
         if (!controller.signal.aborted) {
-          setData(json[dataKey]);
+          setData(transform ? transform(json) : (json[dataKey ?? ''] as T));
         }
       })
       .catch(() => {
@@ -103,7 +110,7 @@ export function useAnalyticsQuery<T = unknown>({
 
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refetchCounter enables manual refetch
-  }, [endpoint, dataKey, startDate, endDate, refetchCounter, ...dependencies]);
+  }, [endpoint, dataKey, startDate, endDate, refetchCounter, transform, ...dependencies]);
 
   const refetch = () => setRefetchCounter((c) => c + 1);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import StudentDetailDialog from './student-detail-dialog';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
+import { useAnalyticsQuery } from '@/lib/hooks';
 
 interface StudentAlert {
   user_id: string;
@@ -39,24 +40,16 @@ const severityColors = {
 };
 
 export default function AlertsPanel() {
-  const [alerts, setAlerts] = useState<StudentAlert[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const { startDate, endDate } = useDateRange();
 
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (startDate) params.set('startDate', String(startDate));
-    if (endDate) params.set('endDate', String(endDate));
-
-    fetch(`/api/admin/analytics/alerts?${params}`)
-      .then((r) => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch alerts')))
-      .then((data) => setAlerts(data.alerts))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
-  }, [startDate, endDate]);
+  const { data: alerts, loading, error } = useAnalyticsQuery<StudentAlert[]>({
+    endpoint: '/api/admin/analytics/alerts',
+    dataKey: 'alerts',
+    startDate,
+    endDate,
+  });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
