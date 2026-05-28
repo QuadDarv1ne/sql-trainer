@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   reactStrictMode: true,
   serverExternalPackages: ['better-sqlite3'],
   // Force body size limit for API routes (1MB default)
