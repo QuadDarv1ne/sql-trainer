@@ -7144,21 +7144,27 @@ export function getTopicMastery(): {
 
 export function getExecutiveSummary(filters?: TimeRangeFilters) {
   const db = getDb();
-  const dateFilter = filters?.start_date && filters?.end_date
-    ? `WHERE created_at >= ${filters.start_date} AND created_at <= ${filters.end_date}`
-    : '';
-  const progressDateFilter = filters?.start_date && filters?.end_date
-    ? `WHERE completed_at >= ${filters.start_date} AND completed_at <= ${filters.end_date}`
-    : '';
-  const prevStart = filters?.start_date && filters?.end_date ? filters.start_date - (filters.end_date - filters.start_date) : null;
-  const prevEnd = filters?.end_date ? filters.start_date : null;
+  const hasDateFilters = !!(filters?.start_date && filters?.end_date);
+  const dateFilter = hasDateFilters ? 'WHERE created_at >= ? AND created_at <= ?' : '';
+  const progressDateFilter = hasDateFilters ? 'WHERE completed_at >= ? AND completed_at <= ?' : '';
+  const prevStart = hasDateFilters ? filters!.start_date - (filters!.end_date - filters!.start_date) : null;
+  const prevEnd = hasDateFilters ? filters!.start_date : null;
 
   // Current period stats
   const totalStudents = db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student'`).get() as { count: number };
   const activeNow = db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student' AND last_active >= ?`).get(Date.now() - 7 * 24 * 60 * 60 * 1000) as { count: number };
-  const totalCompletions = db.prepare(`SELECT COUNT(*) as count FROM user_progress ${progressDateFilter}`).get() as { count: number };
-  const avgAttempts = db.prepare(`SELECT AVG(attempts) as avg FROM user_progress ${progressDateFilter}`).get() as { avg: number | null };
-  const newRegistrations = db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student' ${dateFilter ? dateFilter.replace('created_at', 'created_at') : ''}`).get() as { count: number };
+
+  const totalCompletions = hasDateFilters
+    ? db.prepare(`SELECT COUNT(*) as count FROM user_progress WHERE completed_at >= ? AND completed_at <= ?`).get(filters!.start_date, filters!.end_date) as { count: number }
+    : db.prepare(`SELECT COUNT(*) as count FROM user_progress`).get() as { count: number };
+
+  const avgAttempts = hasDateFilters
+    ? db.prepare(`SELECT AVG(attempts) as avg FROM user_progress WHERE completed_at >= ? AND completed_at <= ?`).get(filters!.start_date, filters!.end_date) as { avg: number | null }
+    : db.prepare(`SELECT AVG(attempts) as avg FROM user_progress`).get() as { avg: number | null };
+
+  const newRegistrations = hasDateFilters
+    ? db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student' AND created_at >= ? AND created_at <= ?`).get(filters!.start_date, filters!.end_date) as { count: number }
+    : db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student'`).get() as { count: number };
 
   // Previous period for comparison
   let prevRegistrations = 0;

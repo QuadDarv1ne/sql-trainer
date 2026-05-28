@@ -4,6 +4,9 @@ import { getStudentEngagementMetrics } from '@/lib/db-users';
 import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
 import { logger } from '@/lib/logger';
+import { rateLimit } from '@/lib/rate-limit';
+
+const MAX_LIMIT = 500;
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,8 +20,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const limit = Number(request.nextUrl.searchParams.get('limit')) || 50;
-    const metrics = getStudentEngagementMetrics(Math.min(limit, 500));
+    // Rate limit: 30 requests per minute per teacher
+    const limitReq = rateLimit(`teacher-engagement:${session.user.id}`, { max: 30, windowMs: 60_000 });
+    if (!limitReq.success) {
+      return NextResponse.json({ error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
+    }
+
+    const limit = Math.min(Number(request.nextUrl.searchParams.get('limit')) || 50, MAX_LIMIT);
+    const metrics = getStudentEngagementMetrics(limit);
     return NextResponse.json({ metrics });
   } catch (error) {
     logger.error('GET /api/teacher/engagement:', error);
