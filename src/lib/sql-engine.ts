@@ -3,6 +3,7 @@
  * Wraps better-sqlite3 to execute SQL queries with support for both SQLite and PostgreSQL syntax.
  */
 import { performance } from 'perf_hooks';
+import { createHash } from 'crypto';
 import Database from 'better-sqlite3';
 import { adaptPostgreSQLToSQLite, detectDroppedFunctions } from './postgresql-adapter';
 import { adaptClickHouseToSQLite } from './clickhouse-adapter';
@@ -98,6 +99,11 @@ export function splitStatements(sql: string): string[] {
         if (next === stringChar) {
           i++;
           current += next;
+        } else if (prev === '\\') {
+          // Backslash-escaped quote — don't end the string
+          // Remove the backslash from current since SQLite doesn't use it
+          current = current.slice(0, -2); // remove backslash + quote
+          current += char; // re-add just the quote
         } else {
           inString = false;
         }
@@ -301,12 +307,11 @@ const schemaCache = new Map<string, Database.Database>();
 
 /**
  * Generate cache key from schema SQL and db type.
- * Uses truncated SQL as key to avoid hash collisions.
+ * Uses SHA-256 hash to avoid collisions for different schemas.
  */
 function schemaCacheKey(schemaSql: string, dbType: string): string {
-  // Use first 500 chars of schema as key suffix (enough to distinguish schemas)
-  const prefix = schemaSql.length > 500 ? schemaSql.substring(0, 500) : schemaSql;
-  return `${dbType}:${prefix.length}:${prefix}`;
+  const hash = createHash('sha256').update(schemaSql).digest('hex').slice(0, 16);
+  return `${dbType}:${hash}`;
 }
 
 /**
@@ -492,13 +497,15 @@ export function executeWithSchema(
   const startTime = performance.now();
   const cacheKey = schemaCacheKey(schemaSql, dbType);
   let db: Database.Database | null = null;
+  let clonedDb: Database.Database | null = null;
 
   try {
     // Check cache first
     const cached = schemaCache.get(cacheKey);
     if (cached) {
       touchCacheKey(cacheKey); // Mark as recently used
-      db = cloneDatabase(cached);
+      clonedDb = cloneDatabase(cached);
+      db = clonedDb;
     } else {
       db = new Database(':memory:');
       db.pragma('foreign_keys = ON');
@@ -515,11 +522,14 @@ export function executeWithSchema(
         // Cache the schema template
         evictCacheIfFull();
         schemaCache.set(cacheKey, db);
-        db = null; // db is now in cache, clone it for use
-        db = cloneDatabase(schemaCache.get(cacheKey)!);
+        const cachedDb = schemaCache.get(cacheKey)!;
+        db = null; // db is now in cache, don't close it in finally
+        clonedDb = cloneDatabase(cachedDb);
+        db = clonedDb;
       } catch (schemaErr: unknown) {
         const msg = schemaErr instanceof Error ? schemaErr.message : String(schemaErr);
         db?.close();
+        db = null;
         return {
           success: false,
           columns: [],
@@ -558,7 +568,11 @@ export function executeWithSchema(
       executionTime: performance.now() - startTime,
     };
   } finally {
-    db?.close();
+    clonedDb?.close();
+    // Close db only if it wasn't put in cache (i.e. clonedDb is same as db)
+    if (db && db !== clonedDb) {
+      db.close();
+    }
   }
 }
 
@@ -576,13 +590,15 @@ export function executeWithSchemaMulti(
   const startTime = performance.now();
   const cacheKey = schemaCacheKey(schemaSql, dbType);
   let db: Database.Database | null = null;
+  let clonedDb: Database.Database | null = null;
 
   try {
     // Check cache first
     const cached = schemaCache.get(cacheKey);
     if (cached) {
       touchCacheKey(cacheKey); // Mark as recently used
-      db = cloneDatabase(cached);
+      clonedDb = cloneDatabase(cached);
+      db = clonedDb;
     } else {
       db = new Database(':memory:');
       db.pragma('foreign_keys = ON');
@@ -599,11 +615,14 @@ export function executeWithSchemaMulti(
         // Cache the schema template
         evictCacheIfFull();
         schemaCache.set(cacheKey, db);
+        const cachedDb = schemaCache.get(cacheKey)!;
         db = null;
-        db = cloneDatabase(schemaCache.get(cacheKey)!);
+        clonedDb = cloneDatabase(cachedDb);
+        db = clonedDb;
       } catch (schemaErr: unknown) {
         const msg = schemaErr instanceof Error ? schemaErr.message : String(schemaErr);
         db?.close();
+        db = null;
         const errorResult: QueryResult = {
           success: false,
           columns: [],
@@ -649,7 +668,10 @@ export function executeWithSchemaMulti(
     };
     return sqlInputs.map(() => ({ ...errorResult }));
   } finally {
-    db?.close();
+    clonedDb?.close();
+    if (db && db !== clonedDb) {
+      db.close();
+    }
   }
 }
 

@@ -15,9 +15,38 @@ const sqliteAvailable = vi.hoisted(() => {
 
 const describeIf = sqliteAvailable ? describe : describe.skip;
 
-import { executeQuery, executeWithSchema } from '@/lib/sql-engine';
+import { executeQuery, executeWithSchema, splitStatements } from '@/lib/sql-engine';
 
 describeIf('sql-engine', () => {
+  describe('splitStatements', () => {
+    it('should split statements on semicolons', () => {
+      const sql = "SELECT 1; SELECT 2;";
+      expect(splitStatements(sql)).toEqual(['SELECT 1', 'SELECT 2']);
+    });
+
+    it('should not split inside single-quoted strings', () => {
+      const sql = "SELECT 'hello; world' as val";
+      expect(splitStatements(sql)).toEqual(["SELECT 'hello; world' as val"]);
+    });
+
+    it('should handle escaped quotes with doubled single quotes', () => {
+      const sql = "SELECT 'it''s fine; done' as val";
+      expect(splitStatements(sql)).toEqual(["SELECT 'it''s fine; done' as val"]);
+    });
+
+    it('should handle backslash-escaped quotes without splitting', () => {
+      const sql = "SELECT 'it\\'; done' as val";
+      const result = splitStatements(sql);
+      expect(result).toHaveLength(1);
+    });
+
+    it('should handle multiple statements with backslash-escaped quotes', () => {
+      const sql = "SELECT 'a\\'; b'; SELECT 2;";
+      const result = splitStatements(sql);
+      expect(result).toHaveLength(2);
+    });
+  });
+
   describe('executeQuery - DML after SELECT', () => {
     it('should return DML result when INSERT follows SELECT', () => {
       const sql = `
