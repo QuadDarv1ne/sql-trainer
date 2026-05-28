@@ -158,8 +158,8 @@ export default function TimeToCompleteChart() {
               name={t('analytics.timeToComplete.legendLabel')}
               radius={[0, 4, 4, 0]}
             >
-              {chartData.map((entry, index) => (
-                <Cell key={index} fill={DIFFICULTY_COLORS[entry.difficulty] || '#10b981'} />
+              {chartData.map((entry) => (
+                <Cell key={entry.name} fill={DIFFICULTY_COLORS[entry.difficulty] || '#10b981'} />
               ))}
             </Bar>
           </BarChart>

@@ -146,8 +146,8 @@ export default function DeadlineCompliance() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {overdueStudents.slice(0, 20).map((s, i) => (
-                  <TableRow key={`${s.user_id}-${s.deadline_title}-${i}`}>
+                {overdueStudents.slice(0, 20).map((s) => (
+                  <TableRow key={`${s.user_id}-${s.deadline_title}`}>
                     <TableCell>{s.name}</TableCell>
                     <TableCell>{s.deadline_title}</TableCell>
                     <TableCell><Badge variant="destructive">{s.days_overdue}</Badge></TableCell>

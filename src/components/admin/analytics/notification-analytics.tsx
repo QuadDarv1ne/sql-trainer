@@ -159,8 +159,8 @@ export default function NotificationAnalytics() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentFailures.slice(0, 10).map((f, i) => (
-                  <TableRow key={i}>
+                {recentFailures.slice(0, 10).map((f) => (
+                  <TableRow key={`${f.channel}-${f.user_name}-${f.sent_at}`}>
                     <TableCell><Badge>{f.channel}</Badge></TableCell>
                     <TableCell>{f.user_name}</TableCell>
                     <TableCell>{new Date(f.sent_at).toLocaleDateString()}</TableCell>

@@ -2030,9 +2030,9 @@ export interface ClassReport {
   avg_attempts: number;
   at_risk_count: number;
   excelling_count: number;
-  top_performers: { name: string; tasks_completed: number; avg_attempts: number }[];
-  struggling_students: { name: string; tasks_completed: number; avg_attempts: number }[];
-  inactive_students: { name: string; last_active: number }[];
+  top_performers: { user_id: string; name: string; tasks_completed: number; avg_attempts: number }[];
+  struggling_students: { user_id: string; name: string; tasks_completed: number; avg_attempts: number }[];
+  inactive_students: { user_id: string; name: string; last_active: number }[];
 }
 
 export function generateClassReport(filters?: TimeRangeFilters): ClassReport {
@@ -2072,6 +2072,7 @@ export function generateClassReport(filters?: TimeRangeFilters): ClassReport {
 
   const allStudents = db.prepare(`
     SELECT 
+      u.id as user_id,
       u.name,
       COUNT(up.task_id) as tasks_completed,
       ROUND(AVG(up.attempts * 1.0), 2) as avg_attempts,
@@ -2081,6 +2082,7 @@ export function generateClassReport(filters?: TimeRangeFilters): ClassReport {
     WHERE u.role = 'student'${studentDateCondition}
     GROUP BY u.id, u.name
   `).all(...studentDateParams) as {
+    user_id: string;
     name: string;
     tasks_completed: number;
     avg_attempts: number;
@@ -2103,19 +2105,19 @@ export function generateClassReport(filters?: TimeRangeFilters): ClassReport {
     .filter(s => s.tasks_completed > 30 && s.avg_attempts < 2.5)
     .sort((a, b) => b.tasks_completed - a.tasks_completed)
     .slice(0, 5)
-    .map(s => ({ name: s.name, tasks_completed: s.tasks_completed, avg_attempts: s.avg_attempts }));
+    .map(s => ({ user_id: s.user_id, name: s.name, tasks_completed: s.tasks_completed, avg_attempts: s.avg_attempts }));
 
   const strugglingStudents = allStudents
     .filter(s => s.avg_attempts > 4 && s.tasks_completed >= 3)
     .sort((a, b) => b.avg_attempts - a.avg_attempts)
     .slice(0, 5)
-    .map(s => ({ name: s.name, tasks_completed: s.tasks_completed, avg_attempts: s.avg_attempts }));
+    .map(s => ({ user_id: s.user_id, name: s.name, tasks_completed: s.tasks_completed, avg_attempts: s.avg_attempts }));
 
   const inactiveStudents = allStudents
     .filter(s => !s.last_active || s.last_active < sevenDaysAgo)
     .sort((a, b) => (a.last_active || 0) - (b.last_active || 0))
     .slice(0, 10)
-    .map(s => ({ name: s.name, last_active: s.last_active || 0 }));
+    .map(s => ({ user_id: s.user_id, name: s.name, last_active: s.last_active || 0 }));
 
   return {
     total_students: totalStudents.count,

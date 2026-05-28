@@ -128,8 +128,8 @@ export default function SessionAnalysisChart() {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {pieData.map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {pieData.map((entry) => (
+                    <Cell key={entry.name} fill={COLORS[pieData.indexOf(entry) % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip />

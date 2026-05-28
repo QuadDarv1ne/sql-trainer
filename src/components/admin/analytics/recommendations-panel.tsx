@@ -55,8 +55,8 @@ export default function RecommendationsPanel() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {data.map((rec, index) => (
-          <div key={index} className={`p-4 border-l-4 rounded ${priorityColors[rec.priority]}`}>
+        {data.map((rec) => (
+          <div key={rec.user_id} className={`p-4 border-l-4 rounded ${priorityColors[rec.priority]}`}>
             <div className="flex items-start gap-3">
               <Lightbulb className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
               <div className="flex-1 space-y-2">
@@ -84,8 +84,8 @@ export default function RecommendationsPanel() {
                     </span>
                   </div>
                   <ul className="text-sm space-y-1 ml-6 list-disc">
-                    {rec.action_items.map((item, i) => (
-                      <li key={i}>{item}</li>
+                    {rec.action_items.map((item) => (
+                      <li key={item}>{item}</li>
                     ))}
                   </ul>
                 </div>

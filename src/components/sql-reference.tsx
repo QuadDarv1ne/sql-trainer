@@ -187,12 +187,12 @@ export default function SQLReference({ onInsertExample }: SQLReferenceProps) {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-1.5 pt-1">
-                    {section.items.map((item, idx) => {
-                      const itemKey = `${section.id}-${idx}`;
+                    {section.items.map((item) => {
+                      const itemKey = `${section.id}-${item.code}`;
                       const isCopied = copiedIndex === itemKey;
                       return (
                         <div
-                          key={idx}
+                          key={itemKey}
                           className="group rounded-md bg-muted/50 px-2.5 py-1.5 transition-colors hover:bg-muted/80"
                         >
                           <div className="flex items-start justify-between gap-2">

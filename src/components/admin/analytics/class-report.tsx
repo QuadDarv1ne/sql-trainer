@@ -18,9 +18,9 @@ interface ClassReport {
   avg_attempts: number;
   at_risk_count: number;
   excelling_count: number;
-  top_performers: Array<{ name: string; tasks_completed: number; avg_attempts: number }>;
-  struggling_students: Array<{ name: string; tasks_completed: number; avg_attempts: number }>;
-  inactive_students: Array<{ name: string; last_active: number }>;
+  top_performers: Array<{ user_id: string; name: string; tasks_completed: number; avg_attempts: number }>;
+  struggling_students: Array<{ user_id: string; name: string; tasks_completed: number; avg_attempts: number }>;
+  inactive_students: Array<{ user_id: string; name: string; last_active: number }>;
 }
 
 export default function ClassReport() {
@@ -90,11 +90,11 @@ export default function ClassReport() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {report.top_performers.map((student, index) => (
-                <div key={`${student.name}-${index}`} className="flex items-center justify-between p-3 rounded-lg border">
+              {report.top_performers.map((student) => (
+                <div key={student.user_id} className="flex items-center justify-between p-3 rounded-lg border">
                   <div className="flex items-center gap-3">
                     <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
-                      #{index + 1}
+                      #{report.top_performers.indexOf(student) + 1}
                     </Badge>
                     <span className="font-medium">{student.name}</span>
                   </div>
@@ -117,8 +117,8 @@ export default function ClassReport() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {report.struggling_students.map((student, index) => (
-                <div key={`${student.name}-${index}`} className="flex items-center justify-between p-3 rounded-lg border border-amber-200 dark:border-amber-900">
+              {report.struggling_students.map((student) => (
+                <div key={student.user_id} className="flex items-center justify-between p-3 rounded-lg border border-amber-200 dark:border-amber-900">
                   <span className="font-medium">{student.name}</span>
                   <div className="flex items-center gap-4 text-sm">
                     <span className="text-muted-foreground">{student.tasks_completed} {t('classReport.task')}</span>
@@ -141,8 +141,8 @@ export default function ClassReport() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {report.inactive_students.map((student, index) => (
-                <div key={`${student.name}-${index}`} className="flex items-center justify-between p-3 rounded-lg border border-red-200 dark:border-red-900">
+              {report.inactive_students.map((student) => (
+                <div key={student.user_id} className="flex items-center justify-between p-3 rounded-lg border border-red-200 dark:border-red-900">
                   <span className="font-medium">{student.name}</span>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />

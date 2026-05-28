@@ -72,8 +72,8 @@ export default function LearningPathTimeline({ userId }: LearningPathTimelinePro
         </div>
 
         <div className="space-y-1 max-h-40 overflow-y-auto">
-          {timeline.slice(-20).reverse().map((entry, i) => (
-            <div key={i} className="flex items-center justify-between py-1 border-b text-sm">
+          {timeline.slice(-20).reverse().map((entry) => (
+            <div key={`${entry.task_id}-${entry.completed_at}`} className="flex items-center justify-between py-1 border-b text-sm">
               <div className="flex items-center gap-2">
                 <Badge variant="outline" style={{ borderColor: diffColors[entry.difficulty] }}>
                   {entry.difficulty}

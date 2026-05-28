@@ -148,11 +148,11 @@ export default function QueryResultChart({ columns, rows, onClose }: QueryResult
       <div className="flex-1 overflow-auto p-4">
         {chartType === 'bar' ? (
           <div className="flex items-end gap-2" style={{ height: '100%', minHeight: '200px' }}>
-            {chartData.map((d, idx) => {
+            {chartData.map((d) => {
               const heightPercent = (Math.abs(d.value) / maxValue) * 100;
               return (
                 <div
-                  key={idx}
+                  key={d.label}
                   className="flex flex-1 flex-col items-center gap-1"
                 >
                   <span className="text-[10px] font-mono text-muted-foreground">
@@ -177,10 +177,10 @@ export default function QueryResultChart({ columns, rows, onClose }: QueryResult
           </div>
         ) : (
           <div className="space-y-2">
-            {chartData.map((d, idx) => {
+            {chartData.map((d) => {
               const widthPercent = (Math.abs(d.value) / maxValue) * 100;
               return (
-                <div key={idx} className="flex items-center gap-2">
+                <div key={d.label} className="flex items-center gap-2">
                   <span
                     className="w-24 shrink-0 truncate text-right text-xs font-mono text-muted-foreground"
                     title={d.label}

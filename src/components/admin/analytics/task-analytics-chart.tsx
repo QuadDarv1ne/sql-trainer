@@ -121,8 +121,8 @@ export default function TaskAnalyticsChart() {
               <Tooltip />
               <Legend />
               <Bar dataKey="avg_attempts" name={t('analytics.tasks.avgAttempts')}>
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={DIFFICULTY_COLORS[entry.difficulty] || '#888888'} />
+                {chartData.map((entry) => (
+                  <Cell key={entry.name} fill={DIFFICULTY_COLORS[entry.difficulty] || '#888888'} />
                 ))}
               </Bar>
             </BarChart>

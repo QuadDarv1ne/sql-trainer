@@ -78,8 +78,8 @@ export default function GradeDistributionChart({ apiEndpoint = '/api/admin/analy
               labelFormatter={(label) => `${t('analytics.grade.bracket')}: ${label}`}
             />
             <Bar dataKey="student_count" name={t('analytics.grade.students')} radius={[4, 4, 0, 0]}>
-              {data.map((_, index) => (
-                <Cell key={index} fill={BAR_COLORS[index % BAR_COLORS.length]} />
+              {data.map((entry) => (
+                <Cell key={entry.bracket} fill={BAR_COLORS[data.indexOf(entry) % BAR_COLORS.length]} />
               ))}
             </Bar>
           </BarChart>

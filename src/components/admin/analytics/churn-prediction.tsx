@@ -158,8 +158,8 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1 max-w-[200px]">
-                        {prediction.risk_factors.slice(0, 2).map((factor, i) => (
-                          <p key={i} className="text-xs text-muted-foreground truncate">{factor}</p>
+                        {prediction.risk_factors.slice(0, 2).map((factor) => (
+                          <p key={factor} className="text-xs text-muted-foreground truncate">{factor}</p>
                         ))}
                         {prediction.risk_factors.length > 2 && (
                           <p className="text-xs text-muted-foreground">+{prediction.risk_factors.length - 2} {t('analytics.churn.more')}</p>

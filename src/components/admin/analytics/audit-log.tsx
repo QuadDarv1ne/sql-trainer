@@ -117,8 +117,8 @@ export default function AuditLog() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {entries.slice(0, 30).map((entry, i) => (
-                  <TableRow key={`${entry.target_id}-${i}`}>
+                {entries.slice(0, 30).map((entry) => (
+                  <TableRow key={`${entry.target_id}-${entry.created_at}`}>
                     <TableCell className="text-sm">{new Date(entry.created_at).toLocaleDateString()}</TableCell>
                     <TableCell><Badge>{actionLabels[entry.action_type] || entry.action_type}</Badge></TableCell>
                     <TableCell>{entry.actor_name || '—'}</TableCell>

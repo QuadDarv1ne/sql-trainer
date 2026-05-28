@@ -174,10 +174,10 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-1 text-sm">
-                      {data.recommendations.map((rec, idx) => {
+                      {data.recommendations.map((rec) => {
                         const key = rec.startsWith('focus_on_') ? `focus_on_${rec.replace('focus_on_', '')}` : rec;
                         const label = recommendationLabels[key] || rec;
-                        return <li key={idx} className="flex items-center gap-2"><span className="text-amber-500">•</span>{label}</li>;
+                        return <li key={rec} className="flex items-center gap-2"><span className="text-amber-500">•</span>{label}</li>;
                       })}
                     </ul>
                   </CardContent>
@@ -222,8 +222,8 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                     <p className="text-sm text-muted-foreground">{t('analytics.student.neverActive')}</p>
                   ) : (
                     <div className="space-y-2">
-                      {data.recent_activity.map((activity, idx) => (
-                        <div key={idx} className="flex items-center justify-between py-2 border-b last:border-0">
+                      {data.recent_activity.map((activity) => (
+                        <div key={activity.task_id} className="flex items-center justify-between py-2 border-b last:border-0">
                           <div>
                             <p className="font-medium text-sm">{activity.task_title}</p>
                             <p className="text-xs text-muted-foreground">
@@ -255,8 +255,8 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                     <p className="text-sm text-muted-foreground">{t('analytics.student.noAchievements')}</p>
                   ) : (
                     <div className="grid gap-2 sm:grid-cols-2">
-                      {data.achievements.map((achievement, idx) => (
-                        <div key={idx} className="flex items-start gap-2 p-3 rounded-lg border">
+                      {data.achievements.map((achievement) => (
+                        <div key={`${achievement.title}-${achievement.earned_at}`} className="flex items-start gap-2 p-3 rounded-lg border">
                           <Award className="h-4 w-4 text-purple-600 mt-0.5 shrink-0" />
                           <div>
                             <p className="text-sm font-medium">{achievement.title}</p>

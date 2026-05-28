@@ -99,8 +99,8 @@ export default function TeacherRecommendations() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {data.map((rec, i) => (
-            <div key={i} className="rounded-lg border p-4">
+          {data.map((rec) => (
+            <div key={rec.title} className="rounded-lg border p-4">
               <div className="flex items-start justify-between gap-2 mb-2">
                 <h4 className="font-medium">{rec.title}</h4>
                 <Badge className={priorityColors[rec.priority] || ''}>

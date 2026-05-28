@@ -140,9 +140,9 @@ export function generateClassReportPDF(
     avg_attempts: number;
     at_risk_count: number;
     excelling_count: number;
-    top_performers: Array<{ name: string; tasks_completed: number; avg_attempts: number }>;
-    struggling_students: Array<{ name: string; tasks_completed: number; avg_attempts: number }>;
-    inactive_students: Array<{ name: string; last_active: number }>;
+    top_performers: Array<{ user_id: string; name: string; tasks_completed: number; avg_attempts: number }>;
+    struggling_students: Array<{ user_id: string; name: string; tasks_completed: number; avg_attempts: number }>;
+    inactive_students: Array<{ user_id: string; name: string; last_active: number }>;
   },
   options: PDFReportOptions
 ): void {

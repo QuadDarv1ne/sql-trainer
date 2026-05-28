@@ -162,8 +162,8 @@ export default function LearningPlan() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {plan.milestones.map((m, i) => (
-                    <div key={i} className="flex items-center justify-between py-2 border-b last:border-0">
+                  {plan.milestones.map((m) => (
+                    <div key={`${m.milestone}-${m.target_date}`} className="flex items-center justify-between py-2 border-b last:border-0">
                       <span>{m.milestone}</span>
                       <Badge variant="outline">{m.target_date}</Badge>
                     </div>
@@ -184,8 +184,8 @@ export default function LearningPlan() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {plan.risk_factors.map((risk, i) => (
-                    <div key={i} className="flex items-center gap-2 py-1">
+                  {plan.risk_factors.map((risk) => (
+                    <div key={risk} className="flex items-center gap-2 py-1">
                       <XCircle className="h-4 w-4 text-red-500" />
                       <span className="text-sm">{risk}</span>
                     </div>

@@ -141,8 +141,8 @@ export default function ABTest() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {data.metrics.map((m, i) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b last:border-0">
+            {data.metrics.map((m) => (
+              <div key={m.metric} className="flex items-center justify-between py-2 border-b last:border-0">
                 <div className="flex items-center gap-2">
                   {m.significant ? (
                     <CheckCircle2 className="h-5 w-5 text-green-500" />
