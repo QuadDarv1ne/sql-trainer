@@ -20,7 +20,6 @@ interface LearningPathTimelineProps {
 
 export default function LearningPathTimeline({ userId }: LearningPathTimelineProps) {
   const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
-  const [student, setStudent] = useState<{ name: string; email: string; tasks_completed: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -30,7 +29,6 @@ export default function LearningPathTimeline({ userId }: LearningPathTimelinePro
       try {
         const res = await fetch(`/api/admin/analytics/student/${userId}/timeline`);
         const json = await res.json();
-        setStudent(json.student);
         setTimeline(json.timeline || []);
       } catch (err) {
         setError(err as Error);

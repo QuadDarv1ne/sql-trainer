@@ -24,7 +24,7 @@ export interface AppConfig {
  * Uses net.createServer() to probe port availability.
  */
 export async function findFreePort(startFrom: number = 3000): Promise<number> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     const server = net.createServer();
     server.listen(startFrom, '127.0.0.1', () => {
       server.close();

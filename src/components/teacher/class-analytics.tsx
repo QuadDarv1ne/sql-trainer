@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import DataCard from '@/components/ui/data-card';
 import { t } from '@/lib/i18n';
@@ -106,7 +105,7 @@ export default function ClassAnalytics() {
           onRetry={loadData}
         >
           <div className="space-y-2">
-            {(data?.topTasks || []).slice(0, 5).map((task, i) => (
+            {(data?.topTasks || []).slice(0, 5).map((task) => (
               <div key={task.task_id} className="flex items-center justify-between p-2 rounded border">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">{task.task_id}</span>
@@ -128,7 +127,7 @@ export default function ClassAnalytics() {
           onRetry={loadData}
         >
           <div className="space-y-2">
-            {(data?.strugglingTasks || []).slice(0, 5).map((task, i) => (
+            {(data?.strugglingTasks || []).slice(0, 5).map((task) => (
               <div key={task.task_id} className="flex items-center justify-between p-2 rounded border border-red-200 dark:border-red-900">
                 <span className="text-sm font-medium">{task.task_id}</span>
                 <div className="flex items-center gap-4 text-sm">

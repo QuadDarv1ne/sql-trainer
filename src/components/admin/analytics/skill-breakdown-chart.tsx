@@ -69,8 +69,6 @@ export default function SkillBreakdownChart({ apiEndpoint }: SkillBreakdownChart
     fullMark: 100,
   }));
 
-  const avgScore = chartData.reduce((s, d) => s + d.score, 0) / chartData.length;
-
   return (
     <Card>
       <CardHeader>

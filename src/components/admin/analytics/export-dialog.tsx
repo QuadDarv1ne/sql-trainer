@@ -76,7 +76,6 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
       const { data } = await res.json();
 
       const filename = `analytics-export-${new Date().toISOString().slice(0, 10)}`;
-      const allData = Object.values(data).flat() as Record<string, unknown>[];
 
       if (format === 'pdf') {
         const pdfData: AnalyticsPDFData = {};
@@ -104,9 +103,6 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
           locale: t('locale') === 'ru' ? 'ru' : 'en',
         });
       } else if (format === 'csv') {
-        const columns = allData.length
-          ? Object.keys(allData[0]).map(k => ({ key: k, label: k }))
-          : [];
         // Export each section separately
         for (const [key, sectionData] of Object.entries(data)) {
           if (key === 'exportedAt') continue;

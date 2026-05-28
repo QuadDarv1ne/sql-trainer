@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, AlertTriangle, TrendingUp, Clock, Award, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, AlertTriangle, TrendingUp, Clock, CheckCircle2 } from 'lucide-react';
 import { t } from '@/lib/i18n';
 
 interface TeacherAlert {

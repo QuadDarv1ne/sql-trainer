@@ -3,6 +3,7 @@
  */
 import { logger } from './logger';
 
+// eslint-disable-next-line no-undef -- RequestInit is a valid browser global
 interface SafeFetchOptions extends RequestInit {
   maxRetries?: number;
   retryDelay?: number;

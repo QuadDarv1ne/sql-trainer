@@ -8,7 +8,6 @@ import { Progress } from '@/components/ui/progress';
 import { AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import {
   ResponsiveContainer,
-  BarChart,
   Bar,
   XAxis,
   YAxis,
@@ -42,15 +41,6 @@ const topicLabels: Record<string, string> = {
   subqueries: 'Подзапросы',
   dml: 'DML',
   advanced: 'Продвинутый',
-};
-
-const topicLabelsEn: Record<string, string> = {
-  select: 'SELECT',
-  joins: 'JOINs',
-  aggregation: 'Aggregation',
-  subqueries: 'Subqueries',
-  dml: 'DML',
-  advanced: 'Advanced',
 };
 
 export default function TopicPerformanceChart() {

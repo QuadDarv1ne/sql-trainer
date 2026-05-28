@@ -18,7 +18,6 @@ const LOCALES: { code: Locale; label: string; flag: string }[] = [
 
 export default function LocaleSelector() {
   const [locale, setLocalLocale] = useState<Locale>(() => getLocale());
-  const [mounted, setMounted] = useState(() => typeof window !== 'undefined');
 
   const handleLocaleChange = (newLocale: Locale) => {
     setLocale(newLocale);
@@ -26,8 +25,6 @@ export default function LocaleSelector() {
     // Reload page to apply translation
     window.location.reload();
   };
-
-  if (!mounted) return null;
 
   const current = LOCALES.find((l) => l.code === locale);
 

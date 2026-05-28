@@ -7,7 +7,7 @@ import { AlertCircle, TrendingUp, Users } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import EmptyState from './empty-state';
 import { useAnalyticsQuery } from '@/lib/hooks';

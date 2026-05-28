@@ -18,7 +18,7 @@ import {
   GitBranch,
   List,
 } from 'lucide-react';
-import type { DatabaseInfo, TableInfo, ColumnInfo } from '@/lib/sql-engine';
+import type { DatabaseInfo, TableInfo } from '@/lib/sql-engine';
 import { t } from '@/lib/i18n';
 import ERDiagram from '@/components/er-diagram';
 

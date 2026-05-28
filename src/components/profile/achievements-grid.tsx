@@ -1,10 +1,9 @@
 'use client';
 
 import type * as React from 'react';
-import { useSQLTrainerStore, ACHIEVEMENTS, type Achievement } from '@/lib/store';
+import { useSQLTrainerStore, ACHIEVEMENTS } from '@/lib/store';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import * as LucideIcons from 'lucide-react';
 
 // Map achievement icons to Lucide icon names
 const ACHIEVEMENT_ICONS: Record<string, string> = {
@@ -19,10 +18,6 @@ const ACHIEVEMENT_ICONS: Record<string, string> = {
   '📚': 'BookOpen',
   '💥': 'Zap',
 };
-
-function getIcon(name: string): React.ComponentType<{ className?: string }> {
-  return (LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[name] || LucideIcons.Award;
-}
 
 export default function AchievementsGrid() {
   const { unlockedAchievements } = useSQLTrainerStore();
@@ -48,8 +43,6 @@ export default function AchievementsGrid() {
         {allAchievements.map((a) => {
           const unlocked = unlockedIds.has(a.id);
           const unlockedData = unlockedAchievements.find((u) => u.id === a.id);
-          const iconName = ACHIEVEMENT_ICONS[a.icon] || 'Award';
-          const IconComponent = getIcon(iconName);
 
           return (
             <Card

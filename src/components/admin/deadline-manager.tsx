@@ -81,7 +81,7 @@ export function DeadlineManager() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => { fetchDeadlines(); }, [fetchDeadlines]);
 

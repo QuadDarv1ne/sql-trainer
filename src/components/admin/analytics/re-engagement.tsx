@@ -8,13 +8,11 @@ import { AlertCircle, RotateCcw, Users, Clock } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Legend,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
-import EmptyState from './empty-state';
 
 export default function ReEngagement() {
   const [reEngagedStudents, setReEngagedStudents] = useState<Array<{ user_id: string; name: string; email: string; last_gap_days: number; re_engaged_at: number; tasks_before_gap: number; tasks_after_gap: number }>>([]);
@@ -22,7 +20,6 @@ export default function ReEngagement() {
   const [rate, setRate] = useState(0);
   const [avgGap, setAvgGap] = useState(0);
   const [totalReEngaged, setTotalReEngaged] = useState(0);
-  const [totalStudents, setTotalStudents] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { startDate, endDate } = useDateRange();
@@ -40,7 +37,6 @@ export default function ReEngagement() {
         setRate(data.re_engagement_rate || 0);
         setAvgGap(data.avg_gap_days || 0);
         setTotalReEngaged(data.total_re_engaged || 0);
-        setTotalStudents(data.total_students || 0);
       })
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));

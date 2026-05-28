@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import RoleBadge from '@/components/auth/role-badge';
-import { User, LayoutDashboard, LogOut, Settings, Shield, Users, GraduationCap } from 'lucide-react';
+import { User, LayoutDashboard, LogOut, Settings, Shield, GraduationCap } from 'lucide-react';
 import Link from 'next/link';
 import type { Role } from '@/lib/rbac';
 

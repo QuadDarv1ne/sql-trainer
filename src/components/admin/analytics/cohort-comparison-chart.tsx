@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { t } from '@/lib/i18n';
 import EmptyState from './empty-state';
 
@@ -14,8 +14,6 @@ interface CohortComparisonEntry {
   avg_velocity: number;
   avg_engagement_score: number;
 }
-
-const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'];
 
 export default function CohortComparisonChart() {
   const [data, setData] = useState<CohortComparisonEntry[]>([]);

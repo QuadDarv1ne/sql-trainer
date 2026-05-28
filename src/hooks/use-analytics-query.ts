@@ -80,6 +80,7 @@ export function useAnalyticsQuery<T = unknown>({
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- paramsKey is the stable serialization of params
   }, [endpoint, dataKey, startDate, endDate, paramsKey]);
 
   useEffect(() => {

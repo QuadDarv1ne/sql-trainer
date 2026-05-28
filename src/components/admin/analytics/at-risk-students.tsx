@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, ArrowUpRight, ArrowDownRight, Minus, Users } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Minus, Users } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { AnalyticsCard } from './analytics-card';

@@ -531,7 +531,7 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
       view.destroy();
       viewRef.current = null;
     };
-  }, []);
+  }, [emitHistoryChange]);
 
   // Update theme when it changes using compartment reconfigure (preserves undo history)
   useEffect(() => {

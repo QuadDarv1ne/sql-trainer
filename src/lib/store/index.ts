@@ -17,9 +17,7 @@ import { createGamificationSlice, type GamificationSlice, type Achievement } fro
 import { createPracticeModeSlice, type PracticeModeSlice } from './practice-mode-slice';
 import { createUISlice, type UISlice } from './ui-slice';
 import { createOnboardingSlice, type OnboardingSlice } from './onboarding-slice';
-import type { DbType } from '@/lib/training-tasks';
 import { TRAINING_TASKS, getTaskById } from '@/lib/training-tasks';
-import { ACHIEVEMENTS } from './gamification-slice';
 import { calculateLevel } from './level-calculator';
 
 // Snapshot for undoing progress reset (30-second window)

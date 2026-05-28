@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -53,7 +53,6 @@ export default function GradeDistributionChart({ apiEndpoint = '/api/admin/analy
   if (!data.length) return <EmptyState />;
 
   const totalStudents = data.reduce((s, d) => s + d.student_count, 0);
-  const avgScore = data.reduce((s, d) => s + d.percentage, 0) / data.length;
 
   return (
     <Card>

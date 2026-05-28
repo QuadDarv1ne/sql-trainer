@@ -24,16 +24,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-interface DeadlineFormData {
-  id?: string;
-  title: string;
-  description: string;
-  type: Deadline['type'];
-  targetType: Deadline['target_type'];
-  dueDate: string;
-  dueTime: string;
-}
-
 interface CreateDeadlineDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -88,7 +78,8 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess, deadline }
 
     setLoading(true);
     try {
-      const url = isEdit ? `/api/admin/deadlines/${deadline!.id}` : '/api/admin/deadlines';
+      if (isEdit && !deadline) throw new Error('Deadline not found');
+      const url = isEdit ? `/api/admin/deadlines/${deadline.id}` : '/api/admin/deadlines';
       const method = isEdit ? 'PUT' : 'POST';
       const res = await fetch(url, {
         method,

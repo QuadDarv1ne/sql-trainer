@@ -3,10 +3,9 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { DIFFICULTY_LABELS, DIFFICULTY_COLORS, TRAINING_TASKS, type TrainingTask } from '@/lib/training-tasks';
-import { generateProgressiveHints, getNextHintLevel, calculateHintPenalty, type ProgressiveHint } from '@/lib/progressive-hints';
+import { DIFFICULTY_LABELS, DIFFICULTY_COLORS, type TrainingTask } from '@/lib/training-tasks';
+import { generateProgressiveHints, getNextHintLevel } from '@/lib/progressive-hints';
 import { t } from '@/lib/i18n';
 import {
   BookOpen,
@@ -35,7 +34,6 @@ interface TaskPanelProps {
   onShowSolution: () => void;
   onUseSolution: (sql: string) => void;
   onNextTask: () => void;
-  onPrevTask?: () => void;
   onNextRelated?: (index: number) => void;
   nextTaskLabel?: string;
   isLastTask?: boolean;
@@ -53,10 +51,9 @@ export default function TaskPanel({
   onShowSolution,
   onUseSolution,
   onNextTask,
-  onPrevTask,
   onNextRelated,
   nextTaskLabel,
-  isLastTask = false,
+  isLastTask: _isLastTask = false,
   allCompleted = false,
   relatedTasks = [],
 }: TaskPanelProps) {

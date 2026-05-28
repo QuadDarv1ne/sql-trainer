@@ -4,11 +4,14 @@ import { getStudentGradeDistribution } from '@/lib/db-users';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 
-export async function GET(request: Request) {
+export async function GET() {
   const authResult = await requireTeacher();
   if (authResult.error) return authResult.error;
 
-  const userId = authResult.session!.user.id;
+  if (!authResult.session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const userId = authResult.session.user.id;
   const limit = rateLimit(`teacher-grade:${userId}`, { max: 30, windowMs: 60_000 });
   if (!limit.success) {
     return NextResponse.json(

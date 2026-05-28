@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   ResponsiveContainer,
@@ -60,7 +59,6 @@ function formatDuration(ms: number): string {
 }
 
 export default function RegistrationFunnel() {
-  const [showChart, setShowChart] = useState(true);
   const { data, loading, error, refetch } = useAnalyticsQuery<RegistrationFunnelData>({
     endpoint: '/api/admin/analytics/registration-funnel',
     dataKey: 'registrationFunnel',

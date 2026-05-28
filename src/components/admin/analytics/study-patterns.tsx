@@ -1,12 +1,12 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Clock, CalendarDays, TrendingUp, Users, Activity } from 'lucide-react';
+import { Clock, TrendingUp, Users, Activity } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { AnalyticsCard } from './analytics-card';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 
 interface StudyPatternSummary {
@@ -51,7 +51,6 @@ export default function StudyPatterns() {
     );
   }
 
-  const maxHourly = Math.max(...data.hourly_distribution.map(d => d.sessions), 1);
   const maxHeatmap = Math.max(...data.day_hour_heatmap.flat(), 1);
 
   return (

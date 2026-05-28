@@ -78,7 +78,7 @@ export function TeacherDeadlineManager() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => { fetchDeadlines(); }, [fetchDeadlines]);
 

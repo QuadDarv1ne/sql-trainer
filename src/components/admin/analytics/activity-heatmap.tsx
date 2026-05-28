@@ -26,16 +26,6 @@ function getColor(count: number, maxCount: number): string {
   return 'hsl(142, 70%, 30%)';
 }
 
-function getDarkColor(count: number, maxCount: number): string {
-  if (count === 0) return 'hsl(142, 15%, 18%)';
-  const intensity = count / maxCount;
-  if (intensity < 0.2) return 'hsl(142, 40%, 22%)';
-  if (intensity < 0.4) return 'hsl(142, 50%, 28%)';
-  if (intensity < 0.6) return 'hsl(142, 55%, 35%)';
-  if (intensity < 0.8) return 'hsl(142, 60%, 42%)';
-  return 'hsl(142, 65%, 50%)';
-}
-
 export default function ActivityHeatmap() {
   const DAY_NAMES = [t('analytics.heatmap.day1'), t('analytics.heatmap.day2'), t('analytics.heatmap.day3'), t('analytics.heatmap.day4'), t('analytics.heatmap.day5'), t('analytics.heatmap.day6'), t('analytics.heatmap.day7')];
   const [data, setData] = useState<HeatmapData[]>([]);
@@ -108,11 +98,13 @@ export default function ActivityHeatmap() {
   const dataByWeek = new Map<number, HeatmapData[]>();
   data.forEach((d) => {
     if (!dataByWeek.has(d.week_number)) dataByWeek.set(d.week_number, []);
-    dataByWeek.get(d.week_number)!.push(d);
+    const week = dataByWeek.get(d.week_number);
+    if (week) week.push(d);
   });
 
   Array.from(dataByWeek.keys()).sort((a, b) => a - b).forEach((w) => {
-    weeks.push(dataByWeek.get(w)!);
+    const weekData = dataByWeek.get(w);
+    if (weekData) weeks.push(weekData);
   });
 
   const totalDays = data.length;

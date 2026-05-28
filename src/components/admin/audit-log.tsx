@@ -118,8 +118,9 @@ export default function AuditLog() {
                       <TableRow>
                         <TableCell colSpan={5} className="bg-muted">
                           <pre className="text-xs p-2 overflow-x-auto">{(() => {
+                            if (!log.details) return '';
                             try {
-                              return JSON.stringify(JSON.parse(log.details!), null, 2);
+                              return JSON.stringify(JSON.parse(log.details), null, 2);
                             } catch {
                               return log.details;
                             }

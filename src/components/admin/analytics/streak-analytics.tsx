@@ -9,7 +9,6 @@ import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line, ScatterChart, Scatter, ZAxis,
 } from 'recharts';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,

@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
-import { useSQLTrainerStore, type QueryHistoryEntry } from '@/lib/store';
+import { useSQLTrainerStore } from '@/lib/store';
 import { t } from '@/lib/i18n';
 import { History, CheckCircle2, XCircle, Clock, RotateCcw } from 'lucide-react';
 import { plural } from '@/lib/utils';

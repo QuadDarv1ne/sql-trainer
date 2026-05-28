@@ -13,7 +13,6 @@ import EmptyState from './empty-state';
 
 export default function RegistrationTrends() {
   const [daily, setDaily] = useState<Array<{ date: string; count: number; cumulative: number }>>([]);
-  const [weekly, setWeekly] = useState<Array<{ week: string; count: number }>>([]);
   const [summary, setSummary] = useState<{ new_this_week: number; new_this_month: number; total: number; weekly_growth_rate: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,7 +27,6 @@ export default function RegistrationTrends() {
       .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch registration trends')))
       .then(data => {
         setDaily(data.daily || []);
-        setWeekly(data.weekly || []);
         setSummary(data.summary);
       })
       .catch(() => setError(t('analytics.error')))

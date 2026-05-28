@@ -298,7 +298,8 @@ export default function HomePage() {
                 .then((res) => {
                   if (!res.ok) throw new Error(`HTTP ${res.status}`);
                   // Check for new achievements after progress sync
-                  return fetch('/api/user/achievements?check=true', { signal: progressSyncRef.current!.signal });
+                  const signal = progressSyncRef.current;
+                  return fetch('/api/user/achievements?check=true', { signal: signal ? signal.signal : undefined });
                 })
                 .then((res) => {
                   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -397,6 +398,7 @@ export default function HomePage() {
     setEditorContent,
     setLastResult,
     setVerification,
+    setTotalHintPenalty,
     editorContent,
     currentTask,
   ]);

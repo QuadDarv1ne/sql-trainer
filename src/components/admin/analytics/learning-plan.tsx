@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, CheckCircle2, XCircle, Target, Calendar, TrendingUp, BookOpen, Search } from 'lucide-react';
+import { AlertCircle, XCircle, Target, Calendar, BookOpen, Search } from 'lucide-react';
 import { t } from '@/lib/i18n';
 
 export default function LearningPlan() {

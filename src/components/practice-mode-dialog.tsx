@@ -17,11 +17,11 @@ import {
   DIFFICULTY_COLORS,
   type Difficulty,
 } from '@/lib/training-tasks';
-import { Play, Shuffle, CheckCircle2, X } from 'lucide-react';
+import { Play, Shuffle, X } from 'lucide-react';
 import { t } from '@/lib/i18n';
 
 export default function PracticeModeDialog() {
-  const { practiceMode, startPracticeMode, stopPracticeMode, nextPracticeTask, currentTaskId } =
+  const { practiceMode, startPracticeMode, stopPracticeMode, nextPracticeTask } =
     useSQLTrainerStore();
   const [open, setOpen] = useState(false);
 

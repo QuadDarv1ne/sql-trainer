@@ -230,11 +230,12 @@ function aggregateGroup(
       ? String(getNestedValue(doc, _id.slice(1)) ?? 'null')
       : JSON.stringify(_id);
     if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push(doc);
+    const group = groups.get(key);
+    if (group) group.push(doc);
   }
 
   const results: Record<string, unknown>[] = [];
-  for (const [key, groupDocs] of groups) {
+  for (const [, groupDocs] of groups) {
     const result: Record<string, unknown> = {};
     if (typeof _id === 'string' && _id !== '$_id') {
       result._id = getNestedValue(groupDocs[0], _id.slice(1));

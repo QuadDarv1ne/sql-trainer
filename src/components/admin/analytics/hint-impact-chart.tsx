@@ -8,13 +8,10 @@ import { Progress } from '@/components/ui/progress';
 import { AlertCircle } from 'lucide-react';
 import {
   ResponsiveContainer,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ScatterChart,
   Scatter,
   ZAxis,

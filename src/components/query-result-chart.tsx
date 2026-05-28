@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BarChart3, X } from 'lucide-react';
@@ -28,17 +27,6 @@ const CHART_COLORS = [
   'bg-teal-500',
   'bg-indigo-500',
   'bg-orange-500',
-];
-
-const CHART_COLORS_DARK = [
-  'bg-emerald-400',
-  'bg-sky-400',
-  'bg-amber-400',
-  'bg-purple-400',
-  'bg-rose-400',
-  'bg-teal-400',
-  'bg-indigo-400',
-  'bg-orange-400',
 ];
 
 export default function QueryResultChart({ columns, rows, onClose }: QueryResultChartProps) {

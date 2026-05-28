@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, AlertTriangle, CheckCircle, TrendingUp, Award, Eye } from 'lucide-react';
+import { AlertCircle, AlertTriangle, TrendingUp, Award, Eye } from 'lucide-react';
 import StudentDetailDialog from './student-detail-dialog';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';

@@ -2,7 +2,7 @@
  * Configuration-driven tab registry for the analytics dashboard.
  * Replaces hardcoded TabsTrigger/TabsContent pairs.
  */
-import { LucideIcon, LayoutDashboard, Users, TrendingUp, Activity, AlertTriangle, Target, BookOpen, Award, BarChart3, Clock, PieChart, FileText, Settings, Zap, Search, Eye, Calendar, GitBranch, Lightbulb, Shield, Mail, Flame, UserPlus, CalendarDays, Timer, BarChart, MessageSquare } from 'lucide-react';
+import { LucideIcon, LayoutDashboard, Users, TrendingUp, Activity, AlertTriangle, Target, BookOpen, Award, BarChart3, Clock, PieChart, FileText, Settings, Zap, Eye, Calendar, GitBranch, Lightbulb, Shield, Mail, Flame, UserPlus, CalendarDays, BarChart } from 'lucide-react';
 
 export type TabCategory = 'general' | 'students' | 'performance' | 'engagement' | 'system';
 

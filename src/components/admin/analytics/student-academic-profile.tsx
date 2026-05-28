@@ -5,9 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, TrendingUp, TrendingDown, Minus, Target, Flame, Award, BookOpen, AlertTriangle, Lightbulb, Clock, Mail } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Target, Flame, Award, BookOpen, AlertTriangle, Lightbulb, Clock } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import EmptyState from './empty-state';
 

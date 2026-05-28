@@ -58,7 +58,7 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
         // Fetch class report data and generate PDF
         const res = await fetch(`/api/teacher/analytics?${params}`);
         if (!res.ok) throw new Error('Export failed');
-        const { analytics } = await res.json();
+        const { analytics: _analytics } = await res.json();
 
         const progressRes = await fetch('/api/teacher/students/progress');
         const { students } = await progressRes.json();
