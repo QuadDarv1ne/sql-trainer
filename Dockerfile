@@ -26,6 +26,11 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
+# Create data directory with correct ownership for SQLite database persistence
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
+
+VOLUME ["/app/data"]
+
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
