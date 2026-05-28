@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 import { Deadline } from '@/lib/db-users';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -75,6 +76,7 @@ export function DeadlineManager() {
       if (res.ok) setDeadlines(data.deadlines || []);
       else throw new Error(data.error || 'Failed to load deadlines');
     } catch (err) {
+      logger.error('Failed to load deadlines:', err);
       setError(err instanceof Error ? err.message : t('admin.stats.loading'));
     } finally {
       setLoading(false);
@@ -92,6 +94,7 @@ export function DeadlineManager() {
       toast.success(t('deadline.deleted'));
       fetchDeadlines();
     } catch (err: unknown) {
+      logger.error('Failed to delete deadline:', err);
       const message = err instanceof Error ? err.message : t('admin.stats.loading');
       toast.error(message);
     } finally {

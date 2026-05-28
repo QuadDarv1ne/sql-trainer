@@ -137,6 +137,44 @@ export function withTeacherAuth(
 }
 
 /**
+ * Higher-order wrapper for any authenticated user (no specific role required).
+ * Replaces manual `const session = await auth()` checks in user-facing routes.
+ */
+export function withUserAuth(
+  handler: (ctx: RouteHandlerContext) => Promise<NextResponse>
+) {
+  return async (
+    request: Request,
+    context?: { params?: Promise<Record<string, string>> | Record<string, string> }
+  ): Promise<NextResponse> => {
+    const session = (await auth()) as AuthSession | null;
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Rate limit user requests: 60 per minute per user
+    const userId = session.user.id;
+    const limitResult = rateLimit(`user:${userId}`, { max: 60, windowMs: 60_000 });
+    if (!limitResult.success) {
+      return NextResponse.json({ error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
+    }
+
+    const params = context?.params
+      ? 'then' in context.params
+        ? await context.params
+        : context.params
+      : undefined;
+
+    try {
+      return await handler({ session, request, params });
+    } catch (error) {
+      logger.error('User handler error:', error);
+      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+  };
+}
+
+/**
  * Higher-order wrapper for analytics GET routes.
  * Handles admin auth + date param parsing in one call.
  * Replaces the ~18 lines of boilerplate repeated across 50+ analytics routes.

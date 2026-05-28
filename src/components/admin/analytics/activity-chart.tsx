@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -16,6 +15,7 @@ import {
 } from 'recharts';
 import { t, getLocale } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
+import { useAnalyticsQuery } from '@/lib/hooks';
 
 interface ActivityEntry {
   date: string;
@@ -24,31 +24,13 @@ interface ActivityEntry {
 }
 
 export default function ActivityChart() {
-  const [data, setData] = useState<ActivityEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const { startDate, endDate } = useDateRange();
-  const controllerRef = useRef<AbortController | null>(null);
-
-  useEffect(() => {
-    controllerRef.current?.abort();
-    const controller = new AbortController();
-    controllerRef.current = controller;
-
-    const params = new URLSearchParams();
-    if (startDate) params.set('startDate', String(startDate));
-    if (endDate) params.set('endDate', String(endDate));
-
-    fetch(`/api/admin/analytics/activity?${params}`, { signal: controller.signal })
-      .then((r) => {
-        if (!r.ok) throw new Error('Failed to load');
-        return r.json();
-      })
-      .then((data) => { if (!controller.signal.aborted) setData(data.activity); })
-      .catch(() => { if (!controller.signal.aborted) setError(t('analytics.error')); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
-    return () => controller.abort();
-  }, [startDate, endDate]);
+  const { data, loading, error } = useAnalyticsQuery<ActivityEntry[]>({
+    endpoint: '/api/admin/analytics/activity',
+    dataKey: 'activity',
+    startDate,
+    endDate,
+  });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) {

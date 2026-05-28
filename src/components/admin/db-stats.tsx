@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Database, Users, BookOpen, Award, HardDrive } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 
 interface DBStats {
   totalUsers: number;
@@ -39,7 +40,12 @@ export default function DBStats() {
         return r.json();
       })
       .then((data) => { if (!controller.signal.aborted) setStats(data.stats); })
-      .catch(() => { if (!controller.signal.aborted) setStats(null); })
+      .catch((e) => {
+        if (!controller.signal.aborted) {
+          logger.error('Failed to fetch DB stats:', e);
+          setStats(null);
+        }
+      })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
   }, []);
