@@ -1,5 +1,6 @@
 'use client';
 
+import type * as React from 'react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { t } from '@/lib/i18n';

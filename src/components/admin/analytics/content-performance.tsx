@@ -20,7 +20,7 @@ interface TaskMetric {
   hint_count: number;
 }
 
-interface ContentPerformance {
+interface ContentPerformanceData {
   hardest_tasks: TaskMetric[];
   easiest_tasks: TaskMetric[];
   most_hinted_tasks: TaskMetric[];
@@ -83,7 +83,7 @@ function TaskTable({ title, icon: Icon, tasks, metricKey, metricLabel }: { title
 }
 
 export default function ContentPerformance() {
-  const { data, loading, error, refetch } = useAnalyticsQuery<ContentPerformance>({
+  const { data, loading, error, refetch } = useAnalyticsQuery<ContentPerformanceData>({
     endpoint: '/api/admin/analytics/content-performance',
     dataKey: 'contentPerformance',
   });

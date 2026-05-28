@@ -1701,11 +1701,6 @@ export function getDifficultyComparison(filters?: TimeRangeFilters): DifficultyC
   });
 }
 
-export interface TimeRangeFilters {
-  start_date?: number;
-  end_date?: number;
-}
-
 export function getDailyActivityWithFilters(days = 30, filters?: TimeRangeFilters): DailyActivityEntry[] {
   const db = getDb();
   

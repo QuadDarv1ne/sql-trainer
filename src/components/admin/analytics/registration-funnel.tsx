@@ -16,7 +16,7 @@ import { t } from '@/lib/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { AnalyticsCard } from './analytics-card';
 
-interface RegistrationFunnel {
+interface RegistrationFunnelData {
   funnel: {
     total_registered: number;
     completed_first_task: number;
@@ -61,7 +61,7 @@ function formatDuration(ms: number): string {
 
 export default function RegistrationFunnel() {
   const [showChart, setShowChart] = useState(true);
-  const { data, loading, error, refetch } = useAnalyticsQuery<RegistrationFunnel>({
+  const { data, loading, error, refetch } = useAnalyticsQuery<RegistrationFunnelData>({
     endpoint: '/api/admin/analytics/registration-funnel',
     dataKey: 'registrationFunnel',
   });

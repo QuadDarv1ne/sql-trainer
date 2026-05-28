@@ -47,32 +47,6 @@ const TYPE_MAP: Record<string, string> = {
 };
 
 /**
- * Map MySQL functions to SQLite equivalents.
- */
-const FUNCTION_MAP: Record<string, string> = {
-  IFNULL: 'COALESCE',
-  NOW: "datetime('now')",
-  CURDATE: "date('now')",
-  CURRENT_DATE: "date('now')",
-  CURTIME: "time('now')",
-  CURRENT_TIME: "time('now')",
-  SYSDATE: "datetime('now')",
-  CURRENT_TIMESTAMP: "datetime('now')",
-  LOCALTIME: "datetime('now')",
-  LOCALTIMESTAMP: "datetime('now')",
-  UTC_TIMESTAMP: "datetime('now')",
-  UTC_DATE: "date('now')",
-  UTC_TIME: "time('now')",
-  DATABASE: 'sqlite_version()',
-  VERSION: 'sqlite_version()',
-  USER: "'root@localhost'",
-  CURRENT_USER: "'root@localhost'",
-  LAST_INSERT_ID: 'last_insert_rowid()',
-  RAND: 'RANDOM',
-  UUID: "lower(hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-4' || substr(hex(randomblob(2)),2) || '-' || substr('89ab',abs(random()) % 4 + 1, 1) || substr(hex(randomblob(2)),2) || '-' || hex(randomblob(6)))",
-};
-
-/**
  * Detect which MySQL functions were dropped during adaptation.
  */
 export function detectDroppedFunctions(originalSql: string, adaptedSql: string): string[] {
@@ -246,13 +220,7 @@ function adaptDataTypes(sql: string): string {
   // Replace MySQL data types with SQLite equivalents
   for (const [mysqlType, sqliteType] of Object.entries(TYPE_MAP)) {
     const regex = new RegExp(`\\b${mysqlType}(?:\\s*\\([^)]*\\))?`, 'gi');
-    result = result.replace(regex, (match) => {
-      // Preserve length for TEXT types
-      if (sqliteType === 'TEXT') {
-        return sqliteType;
-      }
-      return sqliteType;
-    });
+    result = result.replace(regex, () => sqliteType);
   }
 
   // Handle VARCHAR(n) -> TEXT

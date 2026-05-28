@@ -1,5 +1,6 @@
 'use client';
 
+import type * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';

@@ -6,7 +6,7 @@ import { Database, Users, BookOpen, Award, HardDrive } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { logger } from '@/lib/logger';
 
-interface DBStats {
+interface DBStatsData {
   totalUsers: number;
   studentsCount: number;
   teachersCount: number;
@@ -25,7 +25,7 @@ function formatBytes(bytes: number): string {
 }
 
 export default function DBStats() {
-  const [stats, setStats] = useState<DBStats | null>(null);
+  const [stats, setStats] = useState<DBStatsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const controllerRef = useRef<AbortController | null>(null);

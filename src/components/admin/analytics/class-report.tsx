@@ -11,7 +11,7 @@ import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
 import { useAnalyticsQuery } from '@/lib/hooks';
 
-interface ClassReport {
+interface ClassReportData {
   total_students: number;
   active_students: number;
   avg_completion_rate: number;
@@ -26,9 +26,9 @@ interface ClassReport {
 export default function ClassReport() {
   const { startDate, endDate } = useDateRange();
 
-  const { data: report, loading, error } = useAnalyticsQuery<ClassReport>({
+  const { data: report, loading, error } = useAnalyticsQuery<ClassReportData>({
     endpoint: '/api/admin/analytics/class-report',
-    transform: (json) => (json.report || {}) as ClassReport,
+    transform: (json) => (json.report || {}) as ClassReportData,
     startDate,
     endDate,
   });

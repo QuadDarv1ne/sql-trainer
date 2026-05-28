@@ -1,5 +1,6 @@
 'use client';
 
+import type * as React from 'react';
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {

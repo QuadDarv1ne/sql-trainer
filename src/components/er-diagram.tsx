@@ -1,5 +1,6 @@
 'use client';
 
+import type * as React from 'react';
 import { useState, useCallback, useRef } from 'react';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

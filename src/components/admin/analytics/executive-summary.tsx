@@ -6,7 +6,7 @@ import { t } from '@/lib/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { AnalyticsCard } from './analytics-card';
 
-interface ExecutiveSummary {
+interface ExecutiveSummaryData {
   total_students: number;
   active_this_week: number;
   total_completions: number;
@@ -44,7 +44,7 @@ function KPIStat({ icon: Icon, label, value, trend, suffix = '' }: { icon: typeo
 }
 
 export default function ExecutiveSummary() {
-  const { data, loading, error, refetch } = useAnalyticsQuery<ExecutiveSummary>({
+  const { data, loading, error, refetch } = useAnalyticsQuery<ExecutiveSummaryData>({
     endpoint: '/api/admin/analytics/executive-summary',
     dataKey: 'executiveSummary',
   });

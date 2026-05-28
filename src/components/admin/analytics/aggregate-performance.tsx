@@ -18,7 +18,7 @@ import { AnalyticsCard } from './analytics-card';
 
 const DAY_NAMES_RU = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 
-interface AggregatePerformance {
+interface AggregatePerformanceData {
   level_distribution: { beginner: number; intermediate: number; advanced: number };
   activity_heatmap: number[][];
   weekly_trend: Array<{ week: string; completions: number; unique_users: number }>;
@@ -60,7 +60,7 @@ function HeatmapCell({ value, max }: { value: number; max: number }) {
 }
 
 export default function AggregatePerformance() {
-  const { data, loading, error, refetch } = useAnalyticsQuery<AggregatePerformance>({
+  const { data, loading, error, refetch } = useAnalyticsQuery<AggregatePerformanceData>({
     endpoint: '/api/admin/analytics/aggregate-performance',
     dataKey: 'aggregatePerformance',
   });
