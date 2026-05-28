@@ -20,12 +20,12 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob:",
-              "font-src 'self'",
+              "font-src 'self' data:",
               "connect-src 'self'",
-              "media-src 'self'",
+              "media-src 'none'",
               "object-src 'none'",
               "frame-src 'none'",
               "base-uri 'self'",
@@ -40,7 +40,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'X-Frame-Options',
-            value: 'DENY',
+            value: 'SAMEORIGIN',
           },
           {
             key: 'Referrer-Policy',
