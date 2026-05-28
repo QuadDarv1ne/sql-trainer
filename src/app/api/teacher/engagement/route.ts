@@ -1,36 +1,12 @@
-import { auth } from '@/lib/auth';
-import { NextRequest, NextResponse } from 'next/server';
+import { withTeacherAuth } from '@/lib/api-auth';
+import { NextResponse } from 'next/server';
 import { getStudentEngagementMetrics } from '@/lib/db-users';
-import type { Role } from '@/lib/rbac';
-import { hasRole } from '@/lib/rbac';
-import { logger } from '@/lib/logger';
-import { rateLimit } from '@/lib/rate-limit';
 
 const MAX_LIMIT = 500;
 
-export async function GET(request: NextRequest) {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userRole = (session.user as { role?: Role }).role;
-    if (!userRole || !hasRole(userRole, 'teacher')) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // Rate limit: 30 requests per minute per teacher
-    const limitReq = rateLimit(`teacher-engagement:${session.user.id}`, { max: 30, windowMs: 60_000 });
-    if (!limitReq.success) {
-      return NextResponse.json({ error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
-    }
-
-    const limit = Math.min(Number(request.nextUrl.searchParams.get('limit')) || 50, MAX_LIMIT);
-    const metrics = getStudentEngagementMetrics(limit);
-    return NextResponse.json({ metrics });
-  } catch (error) {
-    logger.error('GET /api/teacher/engagement:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
-}
+export const GET = withTeacherAuth(async ({ request }) => {
+  const url = new URL(request.url);
+  const limit = Math.min(Number(url.searchParams.get('limit')) || 50, MAX_LIMIT);
+  const metrics = getStudentEngagementMetrics(limit);
+  return NextResponse.json({ metrics });
+});

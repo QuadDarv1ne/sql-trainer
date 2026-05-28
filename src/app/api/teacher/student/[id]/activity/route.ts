@@ -1,42 +1,24 @@
-import { auth } from '@/lib/auth';
-import { NextRequest, NextResponse } from 'next/server';
+import { withTeacherAuth } from '@/lib/api-auth';
+import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db-users';
-import type { Role } from '@/lib/rbac';
-import { hasRole } from '@/lib/rbac';
-import { logger } from '@/lib/logger';
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userRole = (session.user as { role?: Role }).role;
-    if (!userRole || !hasRole(userRole, 'teacher')) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    const { id } = await params;
-
-    const db = getDb();
-    const activity = db.prepare(`
-      SELECT 
-        DATE(completed_at / 86400000 * 86400000) as date,
-        COUNT(*) as completions
-      FROM user_progress
-      WHERE user_id = ?
-      GROUP BY date
-      ORDER BY date ASC
-      LIMIT 30
-    `).all(id) as Array<{ date: string; completions: number }>;
-
-    return NextResponse.json({ activity });
-  } catch (error) {
-    logger.error('GET /api/teacher/student/[id]/activity:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+export const GET = withTeacherAuth(async ({ params }) => {
+  const id = params?.id as string | undefined;
+  if (!id) {
+    return NextResponse.json({ error: 'Student ID is required' }, { status: 400 });
   }
-}
+
+  const db = getDb();
+  const activity = db.prepare(`
+    SELECT
+      DATE(completed_at / 86400000 * 86400000) as date,
+      COUNT(*) as completions
+    FROM user_progress
+    WHERE user_id = ?
+    GROUP BY date
+    ORDER BY date ASC
+    LIMIT 30
+  `).all(id) as Array<{ date: string; completions: number }>;
+
+  return NextResponse.json({ activity });
+});
