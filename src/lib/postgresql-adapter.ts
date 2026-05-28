@@ -142,6 +142,46 @@ function applyFunctionReplacements(sql: string): string {
   return result;
 }
 
+/**
+ * Detect PostgreSQL functions in the SQL that would be silently dropped by the adapter.
+ * Returns a list of function names that are present in the SQL but have no SQLite equivalent.
+ */
+export function detectDroppedFunctions(sql: string): string[] {
+  const droppedFunctions = Object.entries(FUNCTION_MAP)
+    .filter(([, sqliteFunc]) => sqliteFunc === null)
+    .map(([pgFunc]) => pgFunc);
+
+  const found: string[] = [];
+  for (const func of droppedFunctions) {
+    if (new RegExp(`\\b${func}\\b`, 'gi').test(sql)) {
+      found.push(func);
+    }
+  }
+  return found;
+}
+
+/**
+ * Result of adapting PostgreSQL SQL to SQLite, including any warnings.
+ */
+export interface AdaptResult {
+  sql: string;
+  warnings: string[];
+}
+
+/**
+ * Adapt PostgreSQL SQL to SQLite and return any warnings about dropped functions.
+ */
+export function adaptWithWarnings(sql: string): AdaptResult {
+  const dropped = detectDroppedFunctions(sql);
+  const warnings = dropped.map(
+    (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`
+  );
+  return {
+    sql: adaptPostgreSQLToSQLite(sql),
+    warnings,
+  };
+}
+
 export function adaptPostgreSQLToSQLite(sql: string): string {
   let result = sql;
 

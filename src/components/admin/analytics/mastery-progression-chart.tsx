@@ -8,7 +8,7 @@ import {
   Card, CardContent, CardHeader, CardTitle,
 } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { t, getLocale, plural } from '@/lib/i18n';
+import { t, getLocale } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
 
@@ -162,7 +162,7 @@ export default function MasteryProgressionChart({ apiEndpoint }: MasteryProgress
         </div>
 
         <div className="text-xs text-muted-foreground text-center">
-          {t('analytics.mastery.weekly')} · {data.length} {plural(data.length, t('analytics.week'), t('analytics.weeks'), t('analytics.weeks'))}
+          {t('analytics.mastery.weekly')} · {data.length} {t('analytics.weeks')}
         </div>
       </CardContent>
     </Card>

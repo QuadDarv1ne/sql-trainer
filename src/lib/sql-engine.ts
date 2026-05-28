@@ -4,7 +4,7 @@
  */
 import { performance } from 'perf_hooks';
 import Database from 'better-sqlite3';
-import { adaptPostgreSQLToSQLite } from './postgresql-adapter';
+import { adaptPostgreSQLToSQLite, detectDroppedFunctions } from './postgresql-adapter';
 import { adaptClickHouseToSQLite } from './clickhouse-adapter';
 import { t } from './i18n';
 
@@ -18,6 +18,7 @@ export interface QueryResult {
   affectedRows?: number;
   suggestion?: string;
   explainPlan?: string;
+  warnings?: string[];
 }
 
 export interface DatabaseInfo {
@@ -452,7 +453,12 @@ export function executeQuery(
 
   try {
     let processedSql = sql;
+    let warnings: string[] = [];
     if (dbType === 'postgresql') {
+      const dropped = detectDroppedFunctions(sql);
+      warnings = dropped.map(
+        (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`
+      );
       processedSql = adaptPostgreSQLToSQLite(sql);
     } else if (dbType === 'clickhouse') {
       processedSql = adaptClickHouseToSQLite(sql);
@@ -460,6 +466,9 @@ export function executeQuery(
 
     const statements = splitStatements(processedSql);
     const result = executeStatements(db, statements, startTime);
+    if (warnings.length > 0) {
+      result.warnings = warnings;
+    }
     return result;
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
@@ -522,14 +531,23 @@ export function executeWithSchema(
     }
 
     let processedSql = sql;
+    let warnings: string[] = [];
     if (dbType === 'postgresql') {
+      const dropped = detectDroppedFunctions(sql);
+      warnings = dropped.map(
+        (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`
+      );
       processedSql = adaptPostgreSQLToSQLite(sql);
     } else if (dbType === 'clickhouse') {
       processedSql = adaptClickHouseToSQLite(sql);
     }
 
     const statements = splitStatements(processedSql);
-    return executeStatements(db, statements, startTime);
+    const result = executeStatements(db, statements, startTime);
+    if (warnings.length > 0) {
+      result.warnings = warnings;
+    }
+    return result;
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     return {
@@ -600,14 +618,23 @@ export function executeWithSchemaMulti(
     const results: QueryResult[] = [];
     for (const sql of sqlInputs) {
       let processedSql = sql;
+      let warnings: string[] = [];
       if (dbType === 'postgresql') {
+        const dropped = detectDroppedFunctions(sql);
+        warnings = dropped.map(
+          (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`
+        );
         processedSql = adaptPostgreSQLToSQLite(sql);
       } else if (dbType === 'clickhouse') {
         processedSql = adaptClickHouseToSQLite(sql);
       }
 
       const statements = splitStatements(processedSql);
-      results.push(executeStatements(db, statements, startTime));
+      const result = executeStatements(db, statements, startTime);
+      if (warnings.length > 0) {
+        result.warnings = warnings;
+      }
+      results.push(result);
     }
 
     return results;

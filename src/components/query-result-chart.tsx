@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BarChart3, X } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 interface ChartData {
   label: string;

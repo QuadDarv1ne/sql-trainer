@@ -24,7 +24,8 @@ function normalizeValue(val: unknown): string {
 }
 
 function normalizeRow(row: Record<string, unknown>, columns: string[]): string {
-  return columns.map((col) => normalizeValue(row[col])).join('|');
+  const sortedCols = [...columns].sort((a, b) => a.localeCompare(b));
+  return sortedCols.map((col) => normalizeValue(row[col])).join('|');
 }
 
 /**
@@ -324,13 +325,17 @@ function compareResults(
 
   // If row count matches but content differs — find first difference
   let diffDetail = '';
-  for (let i = 0; i < Math.min(userRowsNormalized.length, expectedRowsNormalized.length); i++) {
-    if (userRowsNormalized[i] !== expectedRowsNormalized[i]) {
-      const cols = userResult.columns;
+  const sortedColumns = [...userResult.columns].sort((a, b) => a.localeCompare(b));
+  const userRowsByIndex = userResult.rows
+    .map((row) => sortedColumns.map((col) => normalizeValue(row[col])).join('|'));
+  const expectedRowsByIndex = solutionResult.rows
+    .map((row) => sortedColumns.map((col) => normalizeValue(row[col])).join('|'));
+  for (let i = 0; i < Math.min(userRowsByIndex.length, expectedRowsByIndex.length); i++) {
+    if (userRowsByIndex[i] !== expectedRowsByIndex[i]) {
       const userRow = userResult.rows[i];
       const expectedRow = solutionResult.rows[i];
       const diffCols: string[] = [];
-      for (const col of cols) {
+      for (const col of sortedColumns) {
         const uVal = normalizeValue(userRow[col]);
         const eVal = normalizeValue(expectedRow[col]);
         if (uVal !== eVal) {
