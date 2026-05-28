@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { findUserByEmail, createResetCode, updatePassword, verifyResetCode, getUserById } from '@/lib/db-users';
+import { findUserByEmail, createResetCode, updatePassword, verifyResetCode, getUserById, queueEmail } from '@/lib/db-users';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+import { escapeHtml, getUserEmail } from '@/lib/email';
 
 const resetRequestSchema = z.object({
   email: z.string().email('Некорректный email'),
@@ -45,10 +46,31 @@ export async function POST(request: NextRequest) {
 
     const code = await createResetCode(user.id, 'email');
 
-    // In production: send code via email/SMS
-    // For development: log confirmation without exposing the code
-    if (process.env.NODE_ENV === 'development') {
-      logger.info('Password reset code generated', { userId: user.id, channel: 'email' });
+    // Queue the reset code email for delivery
+    const userEmail = getUserEmail(user.id);
+    if (userEmail) {
+      const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?code=${encodeURIComponent(code)}`;
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px; border-radius: 12px 12px 0 0;">
+            <h1 style="margin: 0; font-size: 24px;">SQL Trainer</h1>
+          </div>
+          <div style="background: #f8f9fa; padding: 24px; border-radius: 0 0 12px 12px;">
+            <p>Ваш код для сброса пароля:</p>
+            <div style="background: #fff; border: 2px solid #667eea; border-radius: 8px; padding: 16px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 4px; margin: 16px 0;">
+              ${escapeHtml(code)}
+            </div>
+            <p>Или перейдите по ссылке: <a href="${escapeHtml(resetUrl)}" style="color: #667eea;">Сбросить пароль</a></p>
+            <p style="color: #6b7280; font-size: 14px;">Если вы не запрашивали сброс пароля, проигнорируйте это письмо.</p>
+          </div>
+        </body>
+        </html>
+      `;
+      queueEmail(user.id, 'Сброс пароля — SQL Trainer', html);
+      logger.info('Password reset code queued', { userId: user.id, email: userEmail });
     }
 
     return NextResponse.json({
