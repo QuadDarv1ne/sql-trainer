@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import DataCard from '@/components/ui/data-card';
@@ -32,22 +32,28 @@ export default function TeacherRecommendations() {
   const [data, setData] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const controllerRef = useRef<AbortController | null>(null);
 
   const loadData = useCallback(() => {
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
     setLoading(true);
     setError('');
-    fetch('/api/teacher/recommendations')
+    fetch('/api/teacher/recommendations', { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((res) => setData(res.data))
-      .catch(() => setError(t('teacher.error')))
-      .finally(() => setLoading(false));
+      .then((res) => { if (!controller.signal.aborted) setData(res.data); })
+      .catch(() => { if (!controller.signal.aborted) setError(t('teacher.error')); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
   }, []);
 
   useEffect(() => {
     loadData();
+    return () => controllerRef.current?.abort();
   }, [loadData]);
 
   if (loading) {

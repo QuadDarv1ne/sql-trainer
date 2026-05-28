@@ -11,6 +11,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'app.title': 'SQL Тренажёр',
     'app.subtitle': 'Интерактивная платформа для изучения SQL',
     'common.retry': 'Повторить',
+    'error.rateLimit': 'Слишком много запросов. Подождите немного',
 
     // Auth
     'auth.register': 'Регистрация',
@@ -1795,6 +1796,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'app.title': 'SQL Trainer',
     'app.subtitle': 'Interactive platform for learning SQL',
     'common.retry': 'Retry',
+    'error.rateLimit': 'Too many requests. Please wait a moment',
 
     // Auth
     'auth.register': 'Register',

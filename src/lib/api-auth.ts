@@ -9,6 +9,9 @@ import type { Role } from '@/lib/rbac';
 import { hasRole } from '@/lib/rbac';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+import { t } from '@/lib/i18n';
+
+const RATE_LIMIT_MESSAGE = 'error.rateLimit';
 
 interface AuthSession {
   user: {
@@ -44,15 +47,30 @@ export async function requireTeacher() {
   return { error: null, session };
 }
 
+/**
+ * Maximum valid timestamp (~year 3000) to reject impossibly large values.
+ */
+const MAX_VALID_TIMESTAMP = 32503680000000; // 3000-01-01T00:00:00Z
+
 export function parseDateParams(searchParams: URLSearchParams) {
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
   const start = startDate ? parseInt(startDate, 10) : NaN;
   const end = endDate ? parseInt(endDate, 10) : NaN;
-  return {
-    startDate: isNaN(start) ? null : start,
-    endDate: isNaN(end) ? null : end,
-  };
+
+  // Reject NaN, negative, or impossibly large timestamps
+  if (isNaN(start) || start <= 0 || start > MAX_VALID_TIMESTAMP) {
+    return { startDate: null, endDate: null };
+  }
+  if (isNaN(end) || end <= 0 || end > MAX_VALID_TIMESTAMP) {
+    return { startDate: null, endDate: null };
+  }
+  // Ensure startDate <= endDate
+  if (start > end) {
+    return { startDate: null, endDate: null };
+  }
+
+  return { startDate: start, endDate: end };
 }
 
 type RouteHandlerContext = {
@@ -84,7 +102,7 @@ export function withAdminAuth(
     const userId = authResult.session.user.id;
     const limitResult = rateLimit(`admin:${userId}`, { max: 30, windowMs: 60_000 });
     if (!limitResult.success) {
-      return NextResponse.json({ error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
+      return NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 });
     }
 
     const params = context?.params
@@ -118,7 +136,7 @@ export function withTeacherAuth(
     const userId = authResult.session.user.id;
     const limitResult = rateLimit(`teacher:${userId}`, { max: 30, windowMs: 60_000 });
     if (!limitResult.success) {
-      return NextResponse.json({ error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
+      return NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 });
     }
 
     const params = context?.params
@@ -156,7 +174,7 @@ export function withUserAuth(
     const userId = session.user.id;
     const limitResult = rateLimit(`user:${userId}`, { max: 60, windowMs: 60_000 });
     if (!limitResult.success) {
-      return NextResponse.json({ error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
+      return NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 });
     }
 
     const params = context?.params
@@ -192,7 +210,7 @@ export function withAnalyticsAuth(
     const userId = authResult.session.user.id;
     const limitResult = rateLimit(`analytics:${userId}`, { max: 30, windowMs: 60_000 });
     if (!limitResult.success) {
-      return NextResponse.json({ error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
+      return NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 });
     }
 
     const url = new URL(request.url);

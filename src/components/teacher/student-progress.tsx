@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { TRAINING_TASKS } from '@/lib/training-tasks';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -51,6 +51,7 @@ export default function StudentProgressTable() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const controllerRef = useRef<AbortController | null>(null);
 
   const handleViewDetails = (userId: string) => {
     setSelectedStudentId(userId);
@@ -58,14 +59,20 @@ export default function StudentProgressTable() {
   };
 
   useEffect(() => {
-    fetch('/api/teacher/students/progress')
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
+    fetch('/api/teacher/students/progress', { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load progress');
         return r.json();
       })
-      .then((data) => setStudents(data.students))
-      .catch(() => setError(t('teacher.error')))
-      .finally(() => setLoading(false));
+      .then((data) => { if (!controller.signal.aborted) setStudents(data.students); })
+      .catch(() => { if (!controller.signal.aborted) setError(t('teacher.error')); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+
+    return () => controller.abort();
   }, []);
 
   const handleSort = (key: SortKey) => {

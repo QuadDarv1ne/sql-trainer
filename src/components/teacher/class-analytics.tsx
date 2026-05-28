@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import DataCard from '@/components/ui/data-card';
@@ -29,22 +29,28 @@ export default function ClassAnalytics() {
   const [data, setData] = useState<ClassAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const controllerRef = useRef<AbortController | null>(null);
 
   const loadData = useCallback(() => {
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
     setLoading(true);
     setError('');
-    fetch('/api/teacher/analytics')
+    fetch('/api/teacher/analytics', { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((res) => setData(res.analytics))
-      .catch(() => setError(t('teacher.error')))
-      .finally(() => setLoading(false));
+      .then((res) => { if (!controller.signal.aborted) setData(res.analytics); })
+      .catch(() => { if (!controller.signal.aborted) setError(t('teacher.error')); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
   }, []);
 
   useEffect(() => {
     loadData();
+    return () => controllerRef.current?.abort();
   }, [loadData]);
 
   const difficultyLabels: Record<string, string> = {

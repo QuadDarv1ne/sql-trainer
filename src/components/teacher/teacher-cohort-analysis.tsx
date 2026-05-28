@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -27,16 +27,23 @@ export default function TeacherCohortAnalysis() {
   const [data, setData] = useState<CohortEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    fetch('/api/teacher/cohort')
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
+    fetch('/api/teacher/cohort', { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((res) => setData(res.data))
-      .catch(() => setError(t('teacher.error')))
-      .finally(() => setLoading(false));
+      .then((res) => { if (!controller.signal.aborted) setData(res.data); })
+      .catch(() => { if (!controller.signal.aborted) setError(t('teacher.error')); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+
+    return () => controller.abort();
   }, []);
 
   if (loading) return <p className="text-center py-4">{t('teacher.loading')}</p>;
