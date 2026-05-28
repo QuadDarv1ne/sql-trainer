@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const authResult = await requireTeacher();
   if (authResult.error) return authResult.error;
 
-  const userId = authResult.userId;
+  const userId = authResult.session!.user.id;
   const limit = rateLimit(`teacher-grade:${userId}`, { max: 30, windowMs: 60_000 });
   if (!limit.success) {
     return NextResponse.json(
