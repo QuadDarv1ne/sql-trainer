@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { logger } from '@/lib/logger';
 import { auth } from '@/lib/auth';
+import type { MongoSchema } from '@/lib/mongodb-engine';
 
 /**
  * Extract client IP from request using x-forwarded-for header for proxy reliability.
@@ -197,9 +198,9 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      let schema: Record<string, unknown>;
+      let schema: MongoSchema;
       try {
-        schema = JSON.parse(task.schema);
+        schema = JSON.parse(task.schema) as MongoSchema;
       } catch {
         return NextResponse.json(
           { success: false, error: 'Ошибка схемы данных задания', columns: [], rows: [], executionTime: 0 },

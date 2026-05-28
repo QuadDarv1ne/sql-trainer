@@ -21,15 +21,12 @@ import Sidebar from '@/components/sidebar';
 import TaskPanel from '@/components/task-panel';
 import DbSelector from '@/components/db-selector';
 import SchemaViewer from '@/components/schema-viewer';
-import SqlTemplates from '@/components/sql-templates';
-import SavedQueries from '@/components/saved-queries';
 import ShortcutsHelp from '@/components/shortcuts-help';
 import LocaleSelector from '@/components/locale-selector';
 import UserMenu from '@/components/auth/user-menu';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   ResizableHandle,
   ResizablePanel,
@@ -106,7 +103,6 @@ export default function HomePage() {
     markTaskCompleted,
     completedTasks,
     updateStreak,
-    streak,
     practiceMode,
     nextPracticeTask,
     unlockedAchievements,

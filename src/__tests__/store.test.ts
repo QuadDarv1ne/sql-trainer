@@ -207,7 +207,6 @@ describe('store — undo reset', () => {
   it('should undo a progress reset within time window', () => {
     // markTaskCompleted now also awards XP (10 for beginner task)
     useSQLTrainerStore.getState().markTaskCompleted('task_1', 1);
-    const xpAfterTask = useSQLTrainerStore.getState().userStats.xp;
 
     useSQLTrainerStore.getState().addXP(50);
     const totalXP = useSQLTrainerStore.getState().userStats.xp;

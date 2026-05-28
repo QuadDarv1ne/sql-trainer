@@ -5,6 +5,7 @@ import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { logger } from '@/lib/logger';
+import type { MongoSchema } from '@/lib/mongodb-engine';
 
 const sqlVerifySchema = z.object({
   sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
@@ -377,9 +378,9 @@ function verifyMongoDb(
     );
   }
 
-  let schema: Record<string, unknown>;
+  let schema: MongoSchema;
   try {
-    schema = task.schema ? JSON.parse(task.schema) : {};
+    schema = task.schema ? JSON.parse(task.schema) as MongoSchema : {};
   } catch {
     return NextResponse.json(
       { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Ошибка схемы данных задания' },

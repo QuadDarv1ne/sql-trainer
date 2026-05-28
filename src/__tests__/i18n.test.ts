@@ -62,7 +62,7 @@ describe('i18n', () => {
 
     it('has no empty translation values', () => {
       for (const locale of ['ru', 'en'] as Locale[]) {
-        for (const [key, value] of Object.entries(translations[locale])) {
+        for (const [_key, value] of Object.entries(translations[locale])) {
           expect(value).not.toBe('');
         }
       }

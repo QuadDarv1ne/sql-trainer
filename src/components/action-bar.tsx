@@ -152,7 +152,7 @@ export default function ActionBar({
 
         <QueryHistory onRestoreQuery={onRestoreQuery} />
 
-        <SavedQueries onLoadQuery={onRestoreQuery} />
+        <SavedQueries onLoadQuery={onLoadQuery} />
 
         {!currentTask && <SqlTemplates onInsertTemplate={onInsertTemplate} />}
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectDroppedFunctions, adaptWithWarnings, adaptPostgreSQLToSQLite } from '@/lib/postgresql-adapter';
+import { detectDroppedFunctions, adaptWithWarnings } from '@/lib/postgresql-adapter';
 
 describe('detectDroppedFunctions', () => {
   it('should return empty array when no dropped functions are present', () => {

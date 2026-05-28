@@ -2,7 +2,7 @@
  * Find an available port starting from the given port number.
  * Increments by 1 until a free port is found.
  */
-/* eslint-disable @typescript-eslint/no-require-imports, no-console */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const net = require('net');
 
 function findAvailablePort(startPort) {

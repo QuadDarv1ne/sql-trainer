@@ -8,8 +8,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   AlertDialog,
@@ -24,7 +22,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import {
-  Loader2, User, Mail, Phone, Calendar, Save, Lock, Eye, EyeOff,
+  Loader2, User, Mail, Phone, Save, Lock, Eye, EyeOff,
   Trash2, AlertTriangle, Shield, CheckCircle2, AlertCircle, RotateCcw,
   Bookmark, Copy,
 } from 'lucide-react';
@@ -205,7 +203,7 @@ function ResetProgressCard({ onReset }: { onReset: () => void }) {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { data: session, update } = useSession();
+  const { update } = useSession();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [editName, setEditName] = useState('');

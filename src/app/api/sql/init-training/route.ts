@@ -43,7 +43,25 @@ export async function POST(request: NextRequest) {
     }
 
     const effectiveDbType = dbType || task.dbType;
-    const schemaInfo = getSchemaInfo(task.schema, effectiveDbType);
+
+    // MongoDB doesn't use SQL schema - return empty schema info
+    if (effectiveDbType === 'mongodb') {
+      return NextResponse.json({
+        success: true,
+        task: {
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          difficulty: task.difficulty,
+          taskText: task.taskText,
+          hint: task.hint,
+          schema: task.schema,
+        },
+        schema: { tables: [] },
+      });
+    }
+
+    const schemaInfo = getSchemaInfo(task.schema, effectiveDbType as 'sqlite' | 'postgresql' | 'clickhouse');
 
     return NextResponse.json({
       success: true,
