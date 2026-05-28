@@ -5,8 +5,9 @@
 import { performance } from 'perf_hooks';
 import { createHash } from 'crypto';
 import Database from 'better-sqlite3';
-import { adaptPostgreSQLToSQLite, detectDroppedFunctions } from './postgresql-adapter';
+import { adaptPostgreSQLToSQLite, detectDroppedFunctions as detectPgDroppedFunctions } from './postgresql-adapter';
 import { adaptClickHouseToSQLite } from './clickhouse-adapter';
+import { adaptMySQLToSQLite, detectDroppedFunctions as detectMysqlDroppedFunctions } from './mysql-adapter';
 import { t } from './i18n';
 
 export interface QueryResult {
@@ -450,7 +451,7 @@ function executeStatements(
 
 export function executeQuery(
   sql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite'
 ): QueryResult {
   const startTime = performance.now();
   const db = new Database(':memory:');
@@ -460,13 +461,19 @@ export function executeQuery(
     let processedSql = sql;
     let warnings: string[] = [];
     if (dbType === 'postgresql') {
-      const dropped = detectDroppedFunctions(sql);
+      const dropped = detectPgDroppedFunctions(sql);
       warnings = dropped.map(
         (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`
       );
       processedSql = adaptPostgreSQLToSQLite(sql);
     } else if (dbType === 'clickhouse') {
       processedSql = adaptClickHouseToSQLite(sql);
+    } else if (dbType === 'mysql') {
+      const dropped = detectMysqlDroppedFunctions(sql, adaptMySQLToSQLite(sql));
+      warnings = dropped.map(
+        (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`
+      );
+      processedSql = adaptMySQLToSQLite(sql);
     }
 
     const statements = splitStatements(processedSql);
@@ -492,7 +499,7 @@ export function executeQuery(
 export function executeWithSchema(
   sql: string,
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite'
 ): QueryResult {
   const startTime = performance.now();
   const cacheKey = schemaCacheKey(schemaSql, dbType);
@@ -515,6 +522,8 @@ export function executeWithSchema(
         processedSchema = adaptPostgreSQLToSQLite(schemaSql);
       } else if (dbType === 'clickhouse') {
         processedSchema = adaptClickHouseToSQLite(schemaSql);
+      } else if (dbType === 'mysql') {
+        processedSchema = adaptMySQLToSQLite(schemaSql);
       }
 
       try {
@@ -543,13 +552,19 @@ export function executeWithSchema(
     let processedSql = sql;
     let warnings: string[] = [];
     if (dbType === 'postgresql') {
-      const dropped = detectDroppedFunctions(sql);
+      const dropped = detectPgDroppedFunctions(sql);
       warnings = dropped.map(
         (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`
       );
       processedSql = adaptPostgreSQLToSQLite(sql);
     } else if (dbType === 'clickhouse') {
       processedSql = adaptClickHouseToSQLite(sql);
+    } else if (dbType === 'mysql') {
+      const dropped = detectMysqlDroppedFunctions(sql, adaptMySQLToSQLite(sql));
+      warnings = dropped.map(
+        (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`
+      );
+      processedSql = adaptMySQLToSQLite(sql);
     }
 
     const statements = splitStatements(processedSql);
@@ -585,7 +600,7 @@ export function executeWithSchema(
 export function executeWithSchemaMulti(
   sqlInputs: string[],
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite'
 ): QueryResult[] {
   const startTime = performance.now();
   const cacheKey = schemaCacheKey(schemaSql, dbType);
@@ -608,6 +623,8 @@ export function executeWithSchemaMulti(
         processedSchema = adaptPostgreSQLToSQLite(schemaSql);
       } else if (dbType === 'clickhouse') {
         processedSchema = adaptClickHouseToSQLite(schemaSql);
+      } else if (dbType === 'mysql') {
+        processedSchema = adaptMySQLToSQLite(schemaSql);
       }
 
       try {
@@ -639,13 +656,19 @@ export function executeWithSchemaMulti(
       let processedSql = sql;
       let warnings: string[] = [];
       if (dbType === 'postgresql') {
-        const dropped = detectDroppedFunctions(sql);
+        const dropped = detectPgDroppedFunctions(sql);
         warnings = dropped.map(
           (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`
         );
         processedSql = adaptPostgreSQLToSQLite(sql);
       } else if (dbType === 'clickhouse') {
         processedSql = adaptClickHouseToSQLite(sql);
+      } else if (dbType === 'mysql') {
+        const dropped = detectMysqlDroppedFunctions(sql, adaptMySQLToSQLite(sql));
+        warnings = dropped.map(
+          (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`
+        );
+        processedSql = adaptMySQLToSQLite(sql);
       }
 
       const statements = splitStatements(processedSql);
@@ -677,7 +700,7 @@ export function executeWithSchemaMulti(
 
 export function getSchemaInfo(
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite'
 ): DatabaseInfo {
   const db = new Database(':memory:');
   db.pragma('foreign_keys = ON');
@@ -688,6 +711,8 @@ export function getSchemaInfo(
       processedSchema = adaptPostgreSQLToSQLite(schemaSql);
     } else if (dbType === 'clickhouse') {
       processedSchema = adaptClickHouseToSQLite(schemaSql);
+    } else if (dbType === 'mysql') {
+      processedSchema = adaptMySQLToSQLite(schemaSql);
     }
 
     db.exec(processedSchema);
@@ -734,7 +759,7 @@ export function getSchemaInfo(
 export function explainQuery(
   sql: string,
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mongodb' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' | 'mongodb' = 'sqlite'
 ): { success: boolean; plan?: string; error?: string } {
   const db = new Database(':memory:');
   db.pragma('foreign_keys = ON');
@@ -745,6 +770,8 @@ export function explainQuery(
       processedSchema = adaptPostgreSQLToSQLite(schemaSql);
     } else if (dbType === 'clickhouse') {
       processedSchema = adaptClickHouseToSQLite(schemaSql);
+    } else if (dbType === 'mysql') {
+      processedSchema = adaptMySQLToSQLite(schemaSql);
     }
 
     db.exec(processedSchema);
