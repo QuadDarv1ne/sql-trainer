@@ -1,4 +1,4 @@
-import { withAdminAuth, parseDateParams } from '@/lib/api-auth';
+import { withAdminAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db-users';
 

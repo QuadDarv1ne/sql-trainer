@@ -6,7 +6,7 @@ import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 import { smtpConfig, isEmailConfigured } from './notification-config';
 import { tWithLocale, type Locale } from './i18n';
-import { getDb, queueEmail, getDueEmails, markEmailSent, markEmailFailed } from './db-users';
+import { getDb, getDueEmails, markEmailSent, markEmailFailed } from './db-users';
 import { escapeHtml as _escapeHtml } from './html-utils';
 
 export { _escapeHtml as escapeHtml };

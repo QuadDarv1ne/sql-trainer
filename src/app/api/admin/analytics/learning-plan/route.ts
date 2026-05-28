@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { generateLearningPlan } from '@/lib/db-users';
-import { withAnalyticsAuth, positiveIntParam } from '@/lib/api-auth';
+import { withAnalyticsAuth } from '@/lib/api-auth';
 
 export const GET = withAnalyticsAuth(({ searchParams }) => {
   const userId = searchParams.get('userId');

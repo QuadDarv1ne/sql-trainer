@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getActiveUsersCount, getAvgAttemptsPerTask, getDBStats, getAllUsers } from '@/lib/db-users';
+import { getActiveUsersCount, getAvgAttemptsPerTask, getAllUsers } from '@/lib/db-users';
 import { withAnalyticsAuth } from '@/lib/api-auth';
 
 export const GET = withAnalyticsAuth(({ startDate, endDate }) => {
@@ -9,7 +9,6 @@ export const GET = withAnalyticsAuth(({ startDate, endDate }) => {
 
   const activeUsers7d = getActiveUsersCount(7, filters);
   const avgAttempts = getAvgAttemptsPerTask(filters);
-  const dbStats = getDBStats();
   const allUsers = getAllUsers();
   const students = allUsers.filter(u => u.role === 'student');
   const totalStudents = students.length;

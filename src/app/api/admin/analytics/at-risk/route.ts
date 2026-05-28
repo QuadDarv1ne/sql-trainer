@@ -1,4 +1,4 @@
-import { withAdminAuth, parseDateParams } from '@/lib/api-auth';
+import { withAdminAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { getAtRiskStudents } from '@/lib/db-users';
 import { getCached, setCached, SHORT_TTL } from '@/lib/analytics-cache';

@@ -1,25 +1,13 @@
-import { auth } from '@/lib/auth';
+import { withUserAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { getPendingReminders, logReminderDelivery } from '@/lib/db-users';
-import { logger } from '@/lib/logger';
 
-export async function GET() {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+export const GET = withUserAuth(async ({ session }) => {
+  const reminders = getPendingReminders(session.user.id);
 
-    const reminders = getPendingReminders(session.user.id);
-
-    // Log in-app delivery for each reminder
-    for (const reminder of reminders) {
-      logReminderDelivery(reminder.deadline_id, session.user.id, 'in_app');
-    }
-
-    return NextResponse.json({ reminders, count: reminders.length });
-  } catch (error) {
-    logger.error('GET /api/user/reminders:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  for (const reminder of reminders) {
+    logReminderDelivery(reminder.deadline_id, session.user.id, 'in_app');
   }
-}
+
+  return NextResponse.json({ reminders, count: reminders.length });
+});

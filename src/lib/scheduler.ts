@@ -3,7 +3,7 @@
  * Called periodically from API routes to trigger reminder processing.
  */
 import { getDueReminders, markScheduleSent, markScheduleFailed, getNotificationPreferences, getDb, queueEmail } from './db-users';
-import { processEmailQueue, renderReminderEmail, getUserEmail } from './email';
+import { processEmailQueue, renderReminderEmail } from './email';
 import { sendPushToUser } from './push-notifications';
 import { logger } from './logger';
 

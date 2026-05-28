@@ -3,9 +3,6 @@ import { getActivityHeatmap } from '@/lib/db-users';
 import { withAnalyticsAuth, intParam } from '@/lib/api-auth';
 
 export const GET = withAnalyticsAuth(({ startDate, endDate, searchParams }) => {
-  const filters = startDate && endDate
-    ? { start_date: startDate, end_date: endDate }
-    : undefined;
   const days = startDate && endDate
     ? Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24))
     : intParam(searchParams, 'days') ?? 90;
