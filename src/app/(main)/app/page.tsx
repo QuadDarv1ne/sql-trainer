@@ -117,6 +117,8 @@ export default function HomePage() {
   } = useSQLTrainerStore();
 
   const editorRef = useRef<SQLEditorRef>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
 
   // Show toast notifications for newly unlocked achievements
   const shownAchievementIdsRef = useRef<Set<string>>(new Set());
@@ -706,6 +708,8 @@ export default function HomePage() {
             onInsertTemplate={handleInsertTemplate}
             onUndo={() => editorRef.current?.undo()}
             onRedo={() => editorRef.current?.redo()}
+            canUndo={canUndo}
+            canRedo={canRedo}
             currentTaskId={currentTaskId}
             practiceMode={practiceMode}
           />
@@ -720,6 +724,10 @@ export default function HomePage() {
                   onChange={setEditorContent}
                   onRun={executeQuery}
                   onFormatSQL={() => setEditorContent(formatSQL(editorContent))}
+                  onHistoryChange={(canUndo, canRedo) => {
+                    setCanUndo(canUndo);
+                    setCanRedo(canRedo);
+                  }}
                   height="100%"
                   placeholder={
                     currentTask

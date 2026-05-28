@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useEffect, useRef, forwardRef, useImperativeHandle, useCallback } from 'react';
 import { useTheme } from 'next-themes';
 import {
   EditorView,
@@ -259,6 +259,8 @@ function createSchemaCompletion(schema: SchemaInfo | null) {
 export interface SQLEditorRef {
   undo: () => void;
   redo: () => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
 }
 
 interface SQLEditorProps {
@@ -271,6 +273,7 @@ interface SQLEditorProps {
   onFormatSQL?: () => void;
   onUndo?: () => void;
   onRedo?: () => void;
+  onHistoryChange?: (canUndo: boolean, canRedo: boolean) => void;
 }
 
 const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
@@ -282,6 +285,7 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
   onFormatSQL,
   onUndo,
   onRedo,
+  onHistoryChange,
 }: SQLEditorProps, ref) {
   const { theme } = useTheme();
   const placeholder = t('sqlEditor.placeholder');
@@ -296,9 +300,21 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
   const themeRef = useRef(theme);
   const themeCompartmentRef = useRef<Compartment>(new Compartment());
   const initialValueRef = useRef(value);
+  const canUndoRef = useRef(false);
+  const canRedoRef = useRef(false);
+  const historyCountRef = useRef(0);
 
   // Compute isDark directly from theme
   const isDark = theme !== 'light';
+
+  const emitHistoryChange = useCallback((docChanged?: boolean) => {
+    if (docChanged) {
+      historyCountRef.current++;
+      canUndoRef.current = historyCountRef.current > 0;
+      canRedoRef.current = false; // New action clears redo stack
+    }
+    onHistoryChange?.(canUndoRef.current, canRedoRef.current);
+  }, [onHistoryChange]);
 
   useEffect(() => {
     themeRef.current = theme;
@@ -333,6 +349,12 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
       const view = viewRef.current;
       if (view) {
         undo({ state: view.state, dispatch: view.dispatch.bind(view) });
+        if (historyCountRef.current > 0) {
+          historyCountRef.current--;
+        }
+        canUndoRef.current = historyCountRef.current > 0;
+        canRedoRef.current = true;
+        emitHistoryChange();
       }
       onUndo?.();
     },
@@ -340,10 +362,16 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
       const view = viewRef.current;
       if (view) {
         redo({ state: view.state, dispatch: view.dispatch.bind(view) });
+        historyCountRef.current++;
+        canUndoRef.current = true;
+        canRedoRef.current = false;
+        emitHistoryChange();
       }
       onRedo?.();
     },
-  }), [onUndo, onRedo]);
+    canUndo: () => canUndoRef.current,
+    canRedo: () => canRedoRef.current,
+  }), [onUndo, onRedo, emitHistoryChange]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -430,6 +458,13 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
           return false;
         },
       },
+      {
+        key: 'Mod-Shift-z',
+        run: () => {
+          onRedoRef.current?.();
+          return false;
+        },
+      },
     ]);
 
     const state = EditorState.create({
@@ -478,6 +513,7 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             onChangeRef.current(update.state.doc.toString());
+            emitHistoryChange(true);
           }
         }),
         EditorView.lineWrapping,
