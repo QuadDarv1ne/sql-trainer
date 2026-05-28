@@ -31,7 +31,7 @@ export const PUT = withTeacherAuth(async ({ session, request, params }) => {
   const validation = updateDeadlineSchema.safeParse(body);
 
   if (!validation.success) {
-    return NextResponse.json({ error: validation.error.errors[0]?.message ?? 'Invalid data' }, { status: 400 });
+    return NextResponse.json({ error: validation.error.issues[0]?.message ?? 'Invalid data' }, { status: 400 });
   }
 
   const success = updateDeadline(id, validation.data, session.user.id, session.user.id);

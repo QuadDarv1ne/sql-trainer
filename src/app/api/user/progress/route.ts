@@ -19,7 +19,7 @@ export const POST = withUserAuth(async ({ session, request }) => {
 
   if (!validation.success) {
     return NextResponse.json(
-      { success: false, error: validation.error.errors[0]?.message ?? 'Неверный формат данных' },
+      { success: false, error: validation.error.issues[0]?.message ?? 'Неверный формат данных' },
       { status: 400 }
     );
   }

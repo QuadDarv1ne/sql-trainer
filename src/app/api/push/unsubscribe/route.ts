@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const validation = unsubscribeSchema.safeParse(body);
 
     if (!validation.success) {
-      return NextResponse.json({ error: validation.error.errors[0]?.message ?? 'Missing endpoint' }, { status: 400 });
+      return NextResponse.json({ error: validation.error.issues[0]?.message ?? 'Missing endpoint' }, { status: 400 });
     }
 
     const { endpoint } = validation.data;

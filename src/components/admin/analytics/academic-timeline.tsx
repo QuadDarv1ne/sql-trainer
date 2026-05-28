@@ -106,7 +106,7 @@ export default function AcademicTimeline() {
                 const Icon = eventIcons[event.event_type] || Calendar;
                 const color = eventColors[event.event_type] || 'bg-gray-500';
                 return (
-                  <div key={`${event.event_type}-${event.created_at}`} className="relative pl-8">
+                  <div key={`${event.event_type}-${event.timestamp}`} className="relative pl-8">
                     <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full ${color} border-2 border-background`} />
                     <div className="flex items-start gap-3">
                       <Icon className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const result = pushSubscribeSchema.safeParse(body);
     if (!result.success) {
-      return NextResponse.json({ error: `Invalid subscription: ${result.error.errors[0].message}` }, { status: 400 });
+      return NextResponse.json({ error: `Invalid subscription: ${result.error.issues[0].message}` }, { status: 400 });
     }
 
     const { subscription } = result.data;

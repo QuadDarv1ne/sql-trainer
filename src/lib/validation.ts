@@ -15,7 +15,7 @@ export function validateBody<T extends z.ZodType>(
   const result = schema.safeParse(body);
 
   if (!result.success) {
-    const firstError = result.error.errors[0]?.message ?? 'Неверный формат данных';
+    const firstError = result.error.issues[0]?.message ?? 'Неверный формат данных';
     return {
       response: NextResponse.json(
         { success: false, error: firstError },

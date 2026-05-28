@@ -6,7 +6,7 @@ import { withAdminAuth } from '@/lib/api-auth';
 const bulkRoleSchema = z.object({
   action: z.literal('role'),
   userIds: z.array(z.string()).min(1, 'userIds must be a non-empty array'),
-  role: z.enum(['student', 'teacher', 'admin'], { errorMap: () => ({ message: 'Invalid role' }) }),
+  role: z.enum(['student', 'teacher', 'admin'], { message: 'Invalid role' }),
 });
 
 const bulkDeleteSchema = z.object({
@@ -26,7 +26,7 @@ export const POST = withAdminAuth(async ({ session, request }) => {
 
   const result = bulkActionSchema.safeParse(body);
   if (!result.success) {
-    return NextResponse.json({ error: result.error.errors[0].message }, { status: 400 });
+    return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 });
   }
 
   const data = result.data;

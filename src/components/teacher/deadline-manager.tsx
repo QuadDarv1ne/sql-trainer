@@ -56,7 +56,7 @@ function getTimeStatus(dueAt: number): { label: string; variant: 'destructive' |
   if (hoursLeft < 0) return { label: t('reminder.overdue'), variant: 'destructive' };
   if (hoursLeft < 24) return { label: t('reminder.dueSoon'), variant: 'destructive' };
   if (hoursLeft < 72) return { label: t('reminder.dueSoon'), variant: 'default' };
-  return { label: t('reminder.hoursLeft', { hours: Math.round(hoursLeft) }), variant: 'secondary' };
+  return { label: t('reminder.hoursLeft', { hours: String(Math.round(hoursLeft)) }), variant: 'secondary' };
 }
 
 export function TeacherDeadlineManager() {

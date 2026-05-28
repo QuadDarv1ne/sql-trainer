@@ -59,7 +59,7 @@ export default function PracticeModeDialog() {
           </Button>
         </div>
         <p className="mb-2 text-xs text-emerald-600/70 dark:text-emerald-400/70">
-          {t('practiceMode.taskInfo', { current: currentIdx + 1, total, completed })}
+          {t('practiceMode.taskInfo', { current: String(currentIdx + 1), total: String(total), completed: String(completed) })}
         </p>
         <div className="flex gap-2">
           <Button

@@ -8,7 +8,7 @@ const VALID_ROLES: UserRole[] = ['student', 'teacher', 'admin'];
 
 const roleUpdateSchema = z.object({
   role: z.enum(VALID_ROLES as [string, ...string[]], {
-    errorMap: () => ({ message: 'Invalid role. Must be one of: student, teacher, admin' }),
+    message: 'Invalid role. Must be one of: student, teacher, admin',
   }),
 });
 
@@ -21,7 +21,7 @@ export const PUT = withAdminAuth(async ({ session, request, params }) => {
   const validation = roleUpdateSchema.safeParse(body);
 
   if (!validation.success) {
-    return NextResponse.json({ error: validation.error.errors[0]?.message ?? 'Invalid role' }, { status: 400 });
+    return NextResponse.json({ error: validation.error.issues[0]?.message ?? 'Invalid role' }, { status: 400 });
   }
 
   const { role } = validation.data;

@@ -37,7 +37,7 @@ export const PUT = withAdminAuth(async ({ session, request, params }) => {
 
   const result = adminUpdateUserSchema.safeParse(body);
   if (!result.success) {
-    return NextResponse.json({ error: result.error.errors[0].message }, { status: 400 });
+    return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 });
   }
 
   const { name, email, phone } = result.data;

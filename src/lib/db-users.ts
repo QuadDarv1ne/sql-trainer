@@ -7149,8 +7149,8 @@ export function getExecutiveSummary(filters?: TimeRangeFilters) {
   const hasDateFilters = !!(filters?.start_date && filters?.end_date);
   const dateFilter = hasDateFilters ? 'WHERE created_at >= ? AND created_at <= ?' : '';
   const progressDateFilter = hasDateFilters ? 'WHERE completed_at >= ? AND completed_at <= ?' : '';
-  const prevStart = hasDateFilters ? filters!.start_date - (filters!.end_date - filters!.start_date) : null;
-  const prevEnd = hasDateFilters ? filters!.start_date : null;
+  const prevStart = hasDateFilters && filters ? (() => { const start = filters.start_date; const end = filters.end_date; return start && end ? start - (end - start) : null; })() : null;
+  const prevEnd = hasDateFilters && filters ? filters.start_date ?? null : null;
 
   // Current period stats
   const totalStudents = db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student'`).get() as { count: number };
