@@ -14,6 +14,7 @@ import {
 import { useSQLTrainerStore } from '@/lib/store';
 import { useSession } from 'next-auth/react';
 import { t } from '@/lib/i18n';
+import { ACHIEVEMENTS } from '@/lib/store/gamification-slice';
 import {
   GraduationCap,
   ChevronDown,
@@ -25,6 +26,7 @@ import {
   Bookmark,
   Search,
   X,
+  Star,
 } from 'lucide-react';
 import { CATEGORY_ICONS } from '@/lib/category-icons';
 import { useState, useMemo } from 'react';
@@ -104,7 +106,7 @@ function TaskRow({
 }
 
 export default function Sidebar() {
-  const { currentTaskId, setCurrentTaskId, completedTasks, sidebarOpen, bookmarkedTasks, toggleBookmark } =
+  const { currentTaskId, setCurrentTaskId, completedTasks, sidebarOpen, bookmarkedTasks, toggleBookmark, unlockedAchievements } =
     useSQLTrainerStore();
   const { data: session } = useSession();
 
@@ -214,6 +216,24 @@ export default function Sidebar() {
             ? t('progress.complete')
             : `${Math.round(progressPercent)}% ${t('progress.percent')}`}
         </p>
+
+        {/* Achievement progress */}
+        <div className="flex items-center gap-2 rounded-md bg-muted/30 px-2.5 py-1.5">
+          <Star className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+          <span className="text-xs text-muted-foreground">
+            {t('sidebar.achievements')}: {unlockedAchievements.length}/{Object.keys(ACHIEVEMENTS).length}
+          </span>
+          {unlockedAchievements.length < Object.keys(ACHIEVEMENTS).length && (
+            <span className="text-[10px] text-muted-foreground/60 truncate ml-auto">
+              {(() => {
+                const allKeys = Object.keys(ACHIEVEMENTS);
+                const unlockedIds = new Set(unlockedAchievements.map(a => a.id));
+                const nextKey = allKeys.find(k => !unlockedIds.has(ACHIEVEMENTS[k].id));
+                return nextKey ? `→ ${ACHIEVEMENTS[nextKey].icon} ${ACHIEVEMENTS[nextKey].title}` : '';
+              })()}
+            </span>
+          )}
+        </div>
 
         {/* Search */}
         <div className="relative">

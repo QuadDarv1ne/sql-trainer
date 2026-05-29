@@ -66,6 +66,11 @@ const SQLReference = dynamic(() => import('@/components/sql-reference'), {
   ssr: false,
 });
 
+// Dynamic import for SQL Glossary
+const SQLGlossary = dynamic(() => import('@/components/sql-glossary'), {
+  ssr: false,
+});
+
 // Dynamic import for Welcome Panel
 const WelcomePanel = dynamic(() => import('@/components/welcome-panel'), {
   ssr: false,
@@ -150,6 +155,7 @@ export default function HomePage() {
   const [explainPlan, setExplainPlan] = useState<string | null>(null);
   const [explainSuggestions, setExplainSuggestions] = useState<string[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(!onboardingCompleted);
+  const [referenceTab, setReferenceTab] = useState<'reference' | 'glossary'>('reference');
 
   // Load server progress on mount for authenticated users
   useEffect(() => {
@@ -817,8 +823,37 @@ export default function HomePage() {
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={25} minSize={15}>
-              <div className="p-3">
-                <SQLReference onInsertExample={(sql) => setEditorContent(sql)} />
+              <div className="flex h-full flex-col">
+                {/* Tab switcher */}
+                <div className="flex border-b border-border/50">
+                  <button
+                    onClick={() => setReferenceTab('reference')}
+                    className={`flex-1 px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                      referenceTab === 'reference'
+                        ? 'bg-muted text-foreground border-b-2 border-emerald-500'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {t('sqlRef.title')}
+                  </button>
+                  <button
+                    onClick={() => setReferenceTab('glossary')}
+                    className={`flex-1 px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                      referenceTab === 'glossary'
+                        ? 'bg-muted text-foreground border-b-2 border-emerald-500'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {t('glossary.title')}
+                  </button>
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  {referenceTab === 'reference' ? (
+                    <SQLReference onInsertExample={(sql) => setEditorContent(sql)} />
+                  ) : (
+                    <SQLGlossary />
+                  )}
+                </div>
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

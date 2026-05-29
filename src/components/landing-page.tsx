@@ -74,6 +74,51 @@ const features = [
   { icon: Search, labelKey: 'landing.features.explain' },
 ];
 
+const curriculumLevels = [
+  {
+    level: 'landing.curriculum.beginner.title',
+    color: 'text-emerald-600 dark:text-emerald-400',
+    bgColor: 'bg-emerald-50 dark:bg-emerald-950/30',
+    borderColor: 'border-emerald-200 dark:border-emerald-800',
+    topics: [
+      'landing.curriculum.beginner.topics.select',
+      'landing.curriculum.beginner.topics.where',
+      'landing.curriculum.beginner.topics.orderby',
+      'landing.curriculum.beginner.topics.aggregates',
+      'landing.curriculum.beginner.topics.groupby',
+      'landing.curriculum.beginner.topics.distinct',
+    ],
+  },
+  {
+    level: 'landing.curriculum.intermediate.title',
+    color: 'text-amber-600 dark:text-amber-400',
+    bgColor: 'bg-amber-50 dark:bg-amber-950/30',
+    borderColor: 'border-amber-200 dark:border-amber-800',
+    topics: [
+      'landing.curriculum.intermediate.topics.joins',
+      'landing.curriculum.intermediate.topics.subqueries',
+      'landing.curriculum.intermediate.topics.case',
+      'landing.curriculum.intermediate.topics.union',
+      'landing.curriculum.intermediate.topics.dates',
+      'landing.curriculum.intermediate.topics.transactions',
+    ],
+  },
+  {
+    level: 'landing.curriculum.advanced.title',
+    color: 'text-red-600 dark:text-red-400',
+    bgColor: 'bg-red-50 dark:bg-red-950/30',
+    borderColor: 'border-red-200 dark:border-red-800',
+    topics: [
+      'landing.curriculum.advanced.topics.windows',
+      'landing.curriculum.advanced.topics.ctes',
+      'landing.curriculum.advanced.topics.constraints',
+      'landing.curriculum.advanced.topics.explain',
+      'landing.curriculum.advanced.topics.triggers',
+      'landing.curriculum.advanced.topics.json',
+    ],
+  },
+];
+
 export default function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-background via-background to-muted/30">
@@ -152,6 +197,33 @@ export default function LandingPage() {
               </CardContent>
             </Card>
           ))}
+        </div>
+      </section>
+
+      {/* Curriculum */}
+      <section className="relative z-10 px-6 sm:px-8 lg:px-12 pb-16">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2">{t('landing.curriculum.title')}</h2>
+          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">{t('landing.curriculum.subtitle')}</p>
+          <div className="grid gap-6 md:grid-cols-3">
+            {curriculumLevels.map((lvl) => (
+              <Card key={lvl.level} className={`border ${lvl.borderColor}`}>
+                <CardContent className="p-5">
+                  <div className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold mb-4 ${lvl.bgColor} ${lvl.color}`}>
+                    {t(lvl.level)}
+                  </div>
+                  <ul className="space-y-2">
+                    {lvl.topics.map((topic) => (
+                      <li key={topic} className="flex items-start gap-2 text-sm">
+                        <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                        <span className="text-muted-foreground">{t(topic)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 

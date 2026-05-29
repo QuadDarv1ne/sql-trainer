@@ -29,13 +29,18 @@ export {
   MONGODB_TASKS,
 } from './tasks/mongodb';
 
+export {
+  MYSQL_TASKS,
+} from './tasks/mysql';
+
 // Combined array of all tasks (clickhouse tasks are already in difficulty files)
 import { BEGINNER_TASKS } from './tasks/beginner';
 import { INTERMEDIATE_TASKS } from './tasks/intermediate';
 import { ADVANCED_TASKS } from './tasks/advanced';
 import { MONGODB_TASKS } from './tasks/mongodb';
+import { MYSQL_TASKS } from './tasks/mysql';
 
-export const TRAINING_TASKS = [...BEGINNER_TASKS, ...INTERMEDIATE_TASKS, ...ADVANCED_TASKS, ...MONGODB_TASKS];
+export const TRAINING_TASKS = [...BEGINNER_TASKS, ...INTERMEDIATE_TASKS, ...ADVANCED_TASKS, ...MONGODB_TASKS, ...MYSQL_TASKS];
 
 export function getTasksByDifficulty(difficulty: import('./tasks/types').Difficulty): import('./tasks/types').TrainingTask[] {
   return TRAINING_TASKS.filter((t) => t.difficulty === difficulty);

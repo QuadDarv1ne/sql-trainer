@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { DIFFICULTY_LABELS, DIFFICULTY_COLORS, type TrainingTask } from '@/lib/training-tasks';
 import { generateProgressiveHints, getNextHintLevel } from '@/lib/progressive-hints';
 import { t } from '@/lib/i18n';
+import ContextualTips from '@/components/contextual-tips';
 import {
   BookOpen,
   CheckCircle2,
@@ -141,6 +142,9 @@ export default function TaskPanel({
           </CardContent>
         </Card>
       </div>
+
+      {/* Contextual SQL tips based on current task */}
+      <ContextualTips task={task} />
 
       {/* Related tasks */}
       {relatedTasks.length > 0 && (

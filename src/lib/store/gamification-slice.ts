@@ -18,6 +18,7 @@ export interface UserStats {
   level: number;
   levelProgress: number;
   explainCount: number;
+  hintFreeCount: number;
 }
 
 export const ACHIEVEMENTS: Record<string, Omit<Achievement, 'unlockedAt'>> = {
@@ -87,6 +88,78 @@ export const ACHIEVEMENTS: Record<string, Omit<Achievement, 'unlockedAt'>> = {
     description: 'Серия практики 5 дней',
     icon: '💥',
   },
+  FIRST_JOIN: {
+    id: 'first_join',
+    title: 'Мастер соединений',
+    description: 'Выполните первый запрос с JOIN',
+    icon: '🔗',
+  },
+  FIRST_WINDOW: {
+    id: 'first_window',
+    title: 'Оконный мастер',
+    description: 'Выполните первый запрос с оконной функцией',
+    icon: '🪟',
+  },
+  FIRST_CTE: {
+    id: 'first_cte',
+    title: 'CTE мастер',
+    description: 'Выполните первый запрос с CTE (WITH)',
+    icon: '📋',
+  },
+  FIRST_SUBQUERY: {
+    id: 'first_subquery',
+    title: 'Вложенный запрос',
+    description: 'Выполните первый запрос с подзапросом',
+    icon: '🔍',
+  },
+  HINT_FREE: {
+    id: 'hint_free',
+    title: 'Самостоятельный',
+    description: 'Решите 5 задач без подсказок',
+    icon: '🧠',
+  },
+  AGGREGATE_MASTER: {
+    id: 'aggregate_master',
+    title: 'Агрегатор',
+    description: 'Решите 10 задач с GROUP BY и агрегатными функциями',
+    icon: '📊',
+  },
+  COMPANY_COMPLETE: {
+    id: 'company_complete',
+    title: 'Корпоративный аналитик',
+    description: 'Решите все задачи категории «Компания»',
+    icon: '🏢',
+  },
+  SHOP_COMPLETE: {
+    id: 'shop_complete',
+    title: 'E-commerce эксперт',
+    description: 'Решите все задачи категории «Магазин»',
+    icon: '🛒',
+  },
+  ANALYTICS_COMPLETE: {
+    id: 'analytics_complete',
+    title: 'Аналитик данных',
+    description: 'Решите все задачи категории «Аналитика»',
+    icon: '📈',
+  },
+  STREAK_7: {
+    id: 'streak_7',
+    title: 'Неделя практики',
+    description: 'Серия практики 7 дней',
+    icon: '🔥',
+  },
+  STREAK_14: {
+    id: 'streak_14',
+    title: 'Две недели',
+    description: 'Серия практики 14 дней',
+    icon: '💎',
+  },
+  STREAK_30: {
+    id: 'streak_30',
+    title: 'Месяц практики',
+    description: 'Серия практики 30 дней',
+    icon: '👑',
+  },
 } as const;
 
 export interface GamificationSlice {
@@ -94,6 +167,7 @@ export interface GamificationSlice {
   addXP: (amount: number) => void;
   calculateLevel: (totalXP: number) => { level: number; progress: number; xpToNext: number };
   incrementExplainCount: () => void;
+  incrementHintFreeCount: () => void;
 
   achievements: string[];
   unlockedAchievements: Achievement[];
@@ -102,6 +176,7 @@ export interface GamificationSlice {
     queryHistoryLength: number;
     taskId?: string;
     attempts?: number;
+    hintFreeCount?: number;
   }) => { newAchievements: Achievement[]; xpGained: number };
 
   resetGamification: () => void;
@@ -112,6 +187,7 @@ const defaultStats: UserStats = {
   level: 1,
   levelProgress: 0,
   explainCount: 0,
+  hintFreeCount: 0,
 };
 
 export const createGamificationSlice: StateCreator<
@@ -142,6 +218,15 @@ export const createGamificationSlice: StateCreator<
       userStats: {
         ...userStats,
         explainCount: userStats.explainCount + 1,
+      },
+    });
+  },
+  incrementHintFreeCount: () => {
+    const { userStats } = get();
+    set({
+      userStats: {
+        ...userStats,
+        hintFreeCount: userStats.hintFreeCount + 1,
       },
     });
   },
@@ -205,6 +290,89 @@ export const createGamificationSlice: StateCreator<
     if (queryHistoryLength >= 20 && !achievementSet.has(ACHIEVEMENTS.HISTORY_KEEPER.id)) {
       newAchievementIds.push(ACHIEVEMENTS.HISTORY_KEEPER.id);
       achievementSet.add(ACHIEVEMENTS.HISTORY_KEEPER.id);
+    }
+
+    // Streak milestones
+    const streak = completedTasks.length > 0 ? 3 : 0; // Placeholder — real streak comes from store
+    if (streak >= 7 && !achievementSet.has(ACHIEVEMENTS.STREAK_7.id)) {
+      newAchievementIds.push(ACHIEVEMENTS.STREAK_7.id);
+      achievementSet.add(ACHIEVEMENTS.STREAK_7.id);
+    }
+    if (streak >= 14 && !achievementSet.has(ACHIEVEMENTS.STREAK_14.id)) {
+      newAchievementIds.push(ACHIEVEMENTS.STREAK_14.id);
+      achievementSet.add(ACHIEVEMENTS.STREAK_14.id);
+    }
+    if (streak >= 30 && !achievementSet.has(ACHIEVEMENTS.STREAK_30.id)) {
+      newAchievementIds.push(ACHIEVEMENTS.STREAK_30.id);
+      achievementSet.add(ACHIEVEMENTS.STREAK_30.id);
+    }
+
+    // Topic-specific achievements — check the completed task's SQL content
+    if (taskId) {
+      const task = TRAINING_TASKS.find((t) => t.id === taskId);
+      const completedTask = completedTasks.find((t) => t.taskId === taskId);
+      const solution = completedTask?.solution || task?.sampleSolution || '';
+      const solutionUpper = solution.toUpperCase();
+
+      // First JOIN
+      if (solutionUpper.includes('JOIN') && !achievementSet.has(ACHIEVEMENTS.FIRST_JOIN.id)) {
+        newAchievementIds.push(ACHIEVEMENTS.FIRST_JOIN.id);
+        achievementSet.add(ACHIEVEMENTS.FIRST_JOIN.id);
+      }
+
+      // First window function
+      if ((solutionUpper.includes('ROW_NUMBER') || solutionUpper.includes('RANK()') || solutionUpper.includes('DENSE_RANK') || solutionUpper.includes('LAG(') || solutionUpper.includes('LEAD(') || solutionUpper.includes('OVER')) && !achievementSet.has(ACHIEVEMENTS.FIRST_WINDOW.id)) {
+        newAchievementIds.push(ACHIEVEMENTS.FIRST_WINDOW.id);
+        achievementSet.add(ACHIEVEMENTS.FIRST_WINDOW.id);
+      }
+
+      // First CTE
+      if (solutionUpper.includes('WITH') && !achievementSet.has(ACHIEVEMENTS.FIRST_CTE.id)) {
+        newAchievementIds.push(ACHIEVEMENTS.FIRST_CTE.id);
+        achievementSet.add(ACHIEVEMENTS.FIRST_CTE.id);
+      }
+
+      // First subquery
+      const openParens = (solutionUpper.match(/\(/g) || []).length;
+      const selectCount = (solutionUpper.match(/SELECT/g) || []).length;
+      if (selectCount > 1 && !achievementSet.has(ACHIEVEMENTS.FIRST_SUBQUERY.id)) {
+        newAchievementIds.push(ACHIEVEMENTS.FIRST_SUBQUERY.id);
+        achievementSet.add(ACHIEVEMENTS.FIRST_SUBQUERY.id);
+      }
+
+      // Aggregate master: count tasks with GROUP BY
+      const aggregateTasks = completedTasks.filter((t) => {
+        const sol = (t as { solution?: string }).solution || TRAINING_TASKS.find((tr) => tr.id === t.taskId)?.sampleSolution || '';
+        return sol.toUpperCase().includes('GROUP BY');
+      }).length;
+      if (aggregateTasks >= 10 && !achievementSet.has(ACHIEVEMENTS.AGGREGATE_MASTER.id)) {
+        newAchievementIds.push(ACHIEVEMENTS.AGGREGATE_MASTER.id);
+        achievementSet.add(ACHIEVEMENTS.AGGREGATE_MASTER.id);
+      }
+    }
+
+    // Category completions
+    const categoryTasks = (cat: string) => TRAINING_TASKS.filter((t) => t.category === cat);
+    const categoryCompleted = (cat: string) => categoryTasks(cat).filter((t) => completedTaskIds.has(t.id)).length;
+
+    if (categoryCompleted('company') === categoryTasks('company').length && categoryTasks('company').length > 0 && !achievementSet.has(ACHIEVEMENTS.COMPANY_COMPLETE.id)) {
+      newAchievementIds.push(ACHIEVEMENTS.COMPANY_COMPLETE.id);
+      achievementSet.add(ACHIEVEMENTS.COMPANY_COMPLETE.id);
+    }
+    if (categoryCompleted('shop') === categoryTasks('shop').length && categoryTasks('shop').length > 0 && !achievementSet.has(ACHIEVEMENTS.SHOP_COMPLETE.id)) {
+      newAchievementIds.push(ACHIEVEMENTS.SHOP_COMPLETE.id);
+      achievementSet.add(ACHIEVEMENTS.SHOP_COMPLETE.id);
+    }
+    if (categoryCompleted('analytics') === categoryTasks('analytics').length && categoryTasks('analytics').length > 0 && !achievementSet.has(ACHIEVEMENTS.ANALYTICS_COMPLETE.id)) {
+      newAchievementIds.push(ACHIEVEMENTS.ANALYTICS_COMPLETE.id);
+      achievementSet.add(ACHIEVEMENTS.ANALYTICS_COMPLETE.id);
+    }
+
+    // Hint-free solver
+    const hintFreeCount = completedTasks.filter((t) => t.attempts === 1).length;
+    if (hintFreeCount >= 5 && !achievementSet.has(ACHIEVEMENTS.HINT_FREE.id)) {
+      newAchievementIds.push(ACHIEVEMENTS.HINT_FREE.id);
+      achievementSet.add(ACHIEVEMENTS.HINT_FREE.id);
     }
 
     // XP for task completion

@@ -14,6 +14,7 @@ import {
 import { useSQLTrainerStore } from '@/lib/store';
 import { t } from '@/lib/i18n';
 import { plural } from '@/lib/utils';
+import { recommendByConcept, CONCEPT_LABELS } from '@/lib/concept-engine';
 import {
   Trophy,
   Target,
@@ -70,8 +71,8 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
     return TRAINING_TASKS.find((t) => !completedTasks.some((ct) => ct.taskId === t.id));
   }, [completedTasks]);
 
-  // Recommended task based on skill progression
-  const recommendedTask = useMemo(() => {
+  // Recommended task based on skill progression + concept gaps
+  const { recommendedTask, missingConceptLabel } = useMemo(() => {
     // Find the highest difficulty level the user has completed at least one task
     const completedDifficulties = new Set(
       completedTasks
@@ -79,15 +80,10 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
         .filter(Boolean)
     );
 
-    // If user has completed advanced tasks, recommend intermediate/advanced
-    // If user has completed intermediate, recommend more intermediate or start advanced
-    // If user is beginner or hasn't started, recommend beginner
-    
     let targetDifficulty: Difficulty | null = 'beginner';
     if (completedDifficulties.has('advanced')) {
       targetDifficulty = 'advanced';
     } else if (completedDifficulties.has('intermediate')) {
-      // Check if they've done most intermediate tasks
       const intermediateCompleted = completedTasks.filter(
         (ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'intermediate'
       ).length;
@@ -101,10 +97,23 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
       targetDifficulty = beginnerCompleted >= beginnerTotal * 0.5 ? 'intermediate' : 'beginner';
     }
 
-    // Find first incomplete task at target difficulty
-    return TRAINING_TASKS.find(
+    // Try concept-aware recommendation first
+    const completedIds = completedTasks.map((ct) => ct.taskId);
+    const conceptRec = recommendByConcept(completedIds, TRAINING_TASKS, targetDifficulty);
+
+    if (conceptRec) {
+      return {
+        recommendedTask: conceptRec.task,
+        missingConceptLabel: CONCEPT_LABELS[conceptRec.missingConcept],
+      };
+    }
+
+    // Fallback: first incomplete task at target difficulty
+    const fallback = TRAINING_TASKS.find(
       (t) => t.difficulty === targetDifficulty && !completedTasks.some((ct) => ct.taskId === t.id)
     ) || firstIncompleteTask;
+
+    return { recommendedTask: fallback, missingConceptLabel: null };
   }, [completedTasks, firstIncompleteTask]);
 
   return (
@@ -202,11 +211,16 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
       {recommendedTask && (
         <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 dark:border-emerald-800 dark:from-emerald-950/30 dark:to-teal-950/20">
           <CardContent className="p-4">
-            <div className="mb-3 flex items-center gap-2">
+            <div className="mb-3 flex items-center gap-2 flex-wrap">
               <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                 {t('welcome.recommend')}
               </span>
+              {missingConceptLabel && (
+                <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400">
+                  {t('welcome.needPractice', { default: 'Нужно practice' })}: {missingConceptLabel}
+                </Badge>
+              )}
             </div>
             <button
               onClick={() => setCurrentTaskId(recommendedTask.id)}
