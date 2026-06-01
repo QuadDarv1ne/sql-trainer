@@ -4,6 +4,7 @@ import { findUserByEmail, createResetCode, updatePassword, verifyResetCode, getU
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { escapeHtml, getUserEmail } from '@/lib/email';
+import { validateBody } from '@/lib/validation';
 
 const resetRequestSchema = z.object({
   email: z.string().email('Некорректный email'),
@@ -21,13 +22,8 @@ const resetConfirmSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const result = resetRequestSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+    const result = validateBody(body, resetRequestSchema);
+    if ('response' in result) return result.response;
 
     const { email } = result.data;
 
@@ -93,13 +89,8 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const result = resetConfirmSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+    const result = validateBody(body, resetConfirmSchema);
+    if ('response' in result) return result.response;
 
     const { code, newPassword } = result.data;
 

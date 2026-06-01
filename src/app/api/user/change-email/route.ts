@@ -4,6 +4,7 @@ import { findUserByIdWithHash, findUserByEmail, updateUser } from '@/lib/db-user
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
 
 const changeEmailSchema = z.object({
@@ -28,14 +29,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const validation = changeEmailSchema.safeParse(body);
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { success: false, error: validation.error.issues[0]?.message ?? 'Неверный формат данных' },
-        { status: 400 }
-      );
-    }
+    const validation = validateBody(body, changeEmailSchema);
+    if ('response' in validation) return validation.response;
 
     const { newEmail, password } = validation.data;
 

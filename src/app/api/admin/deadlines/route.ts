@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { createDeadline, getAllDeadlines, getDeadlinesForCreator, buildReminderSchedule } from '@/lib/db-users';
 import { hasRole } from '@/lib/rbac';
 import { z } from 'zod';
+import { validateBody } from '@/lib/validation';
 
 const deadlineSchema = z.object({
   type: z.enum(['course', 'exam', 'task', 'inactivity']),
@@ -43,13 +44,8 @@ export const POST = withTeacherAuth(async ({ session, request }) => {
     return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
   }
 
-  const parsed = deadlineSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues.map((e: z.ZodIssue) => e.message).join('; ') },
-      { status: 400 }
-    );
-  }
+  const parsed = validateBody(body, deadlineSchema);
+  if ('response' in parsed) return parsed.response;
 
   const { type, title, description, targetType, targetId, taskId, dueAt } = parsed.data;
 

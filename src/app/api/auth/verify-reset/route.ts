@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyResetCode } from '@/lib/db-users';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
 
 const verifyResetSchema = z.object({
@@ -11,14 +12,8 @@ const verifyResetSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const validation = verifyResetSchema.safeParse(body);
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { success: false, error: validation.error.issues[0]?.message ?? 'Неверный формат данных' },
-        { status: 400 }
-      );
-    }
+    const validation = validateBody(body, verifyResetSchema);
+    if ('response' in validation) return validation.response;
 
     const { code } = validation.data;
 

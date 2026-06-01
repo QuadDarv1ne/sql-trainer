@@ -3,6 +3,7 @@ import { withAdminAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { softDeleteUser, updateUserDetails } from '@/lib/db-users';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
+import { validateBody } from '@/lib/validation';
 
 export const DELETE = withAdminAuth(async ({ session, params }) => {
   if (!params?.id) {
@@ -42,10 +43,8 @@ export const PUT = withAdminAuth(async ({ session, request, params }) => {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const result = adminUpdateUserSchema.safeParse(body);
-  if (!result.success) {
-    return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 });
-  }
+  const result = validateBody(body, adminUpdateUserSchema);
+  if ('response' in result) return result.response;
 
   const { name, email, phone } = result.data;
 

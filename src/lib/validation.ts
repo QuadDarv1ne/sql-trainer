@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server';
  */
 export function validateBody<T extends z.ZodType>(
   body: unknown,
-  schema: T
+  schema: T,
 ): { data: z.infer<T> } | { response: NextResponse } {
   const result = schema.safeParse(body);
 
@@ -19,12 +19,40 @@ export function validateBody<T extends z.ZodType>(
     return {
       response: NextResponse.json(
         { success: false, error: firstError },
-        { status: 400 }
+        { status: 400 },
       ),
     };
   }
 
   return { data: result.data };
+}
+
+/**
+ * Parse JSON from request and validate against a Zod schema in one step.
+ * Handles JSON parse errors internally.
+ *
+ * Usage:
+ *   const result = await parseAndValidate(req, schema);
+ *   if ('response' in result) return result.response;
+ *   const { sql, taskId } = result.data;
+ */
+export async function parseAndValidate<T extends z.ZodType>(
+  request: Request,
+  schema: T,
+): Promise<{ data: z.infer<T> } | { response: NextResponse }> {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return {
+      response: NextResponse.json(
+        { success: false, error: 'Неверный формат запроса' },
+        { status: 400 },
+      ),
+    };
+  }
+
+  return validateBody(body, schema);
 }
 
 /**
@@ -34,23 +62,15 @@ export function validateBody<T extends z.ZodType>(
  */
 export function withValidation<T extends z.ZodType>(
   schema: T,
-  handler: (req: Request, data: z.infer<T>) => Promise<NextResponse>
+  handler: (req: Request, data: z.infer<T>) => Promise<NextResponse>,
 ) {
   return async (req: Request): Promise<NextResponse> => {
-    try {
-      const body = await req.json();
-      const validation = validateBody(body, schema);
+    const validation = await parseAndValidate(req, schema);
 
-      if ('response' in validation) {
-        return validation.response;
-      }
-
-      return handler(req, validation.data);
-    } catch {
-      return NextResponse.json(
-        { success: false, error: 'Неверный формат запроса' },
-        { status: 400 }
-      );
+    if ('response' in validation) {
+      return validation.response;
     }
+
+    return handler(req, validation.data);
   };
 }

@@ -2,6 +2,7 @@ import { withTeacherAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { updateDeadline, deleteDeadline, getDeadlineById } from '@/lib/db-users';
 import { z } from 'zod';
+import { validateBody } from '@/lib/validation';
 
 const updateDeadlineSchema = z.object({
   title: z.string().optional(),
@@ -28,11 +29,8 @@ export const PUT = withTeacherAuth(async ({ session, request, params }) => {
   } catch {
     return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
   }
-  const validation = updateDeadlineSchema.safeParse(body);
-
-  if (!validation.success) {
-    return NextResponse.json({ error: validation.error.issues[0]?.message ?? 'Invalid data' }, { status: 400 });
-  }
+  const validation = validateBody(body, updateDeadlineSchema);
+  if ('response' in validation) return validation.response;
 
   const success = updateDeadline(id, validation.data, session.user.id, session.user.id);
   if (!success) {

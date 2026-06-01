@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeWithSchema, executeWithSchemaMulti, splitStatements } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
+import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { logger } from '@/lib/logger';
@@ -56,16 +57,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const parsed = sqlVerifySchema.safeParse(body);
-
-    if (!parsed.success) {
-      const formatted = parsed.error.format();
-      const firstError = formatted.taskId?._errors?.[0] || formatted.sql?._errors?.[0] || formatted._errors?.[0] || 'Неверный формат запроса';
-      return NextResponse.json(
-        { verified: false, userRowCount: 0, expectedRowCount: 0, message: firstError },
-        { status: 400 }
-      );
-    }
+    const parsed = validateBody(body, sqlVerifySchema);
+    if ('response' in parsed) return parsed.response;
 
     const { sql, taskId, dbType } = parsed.data;
 

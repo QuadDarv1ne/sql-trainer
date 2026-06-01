@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { getUserById, updateUser } from '@/lib/db-users';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 import { rateLimit } from '@/lib/rate-limit';
+import { validateBody } from '@/lib/validation';
 
 const profileUpdateSchema = z.object({
   name: z.string().min(1, 'Имя не может быть пустым').max(100, 'Имя слишком длинное').optional(),
@@ -25,13 +26,8 @@ export const PUT = withUserAuth(async ({ request, session }) => {
     return NextResponse.json({ success: false, error: 'Слишком много попыток. Попробуйте позже' }, { status: 429 });
   }
 
-  const result = profileUpdateSchema.safeParse(await request.json());
-  if (!result.success) {
-    return NextResponse.json(
-      { success: false, error: result.error.issues[0].message },
-      { status: 400 }
-    );
-  }
+  const result = validateBody(await request.json(), profileUpdateSchema);
+  if ('response' in result) return result.response;
 
   const { name, phone } = result.data;
 

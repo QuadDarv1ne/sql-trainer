@@ -5,6 +5,7 @@ import { findUserByIdWithHash, updatePassword } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+import { validateBody } from '@/lib/validation';
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Текущий пароль обязателен'),
@@ -31,13 +32,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const result = changePasswordSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+    const result = validateBody(body, changePasswordSchema);
+    if ('response' in result) return result.response;
 
     const { currentPassword, newPassword } = result.data;
 

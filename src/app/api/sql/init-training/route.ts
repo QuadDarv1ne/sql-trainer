@@ -3,6 +3,7 @@ import { getTaskById, TRAINING_TASKS } from '@/lib/training-tasks';
 import { getSchemaInfo } from '@/lib/sql-engine';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
+import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
 
 const initTrainingSchema = z.object({
@@ -23,14 +24,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const validation = initTrainingSchema.safeParse(body);
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { success: false, error: validation.error.issues[0]?.message ?? 'Неверный формат данных' },
-        { status: 400 }
-      );
-    }
+    const validation = validateBody(body, initTrainingSchema);
+    if ('response' in validation) return validation.response;
 
     const { taskId, dbType } = validation.data;
 

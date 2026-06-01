@@ -4,6 +4,7 @@ import { deletePushSubscription } from '@/lib/db-users';
 import { logger } from '@/lib/logger';
 import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
+import { validateBody } from '@/lib/validation';
 
 const unsubscribeSchema = z.object({
   endpoint: z.string().url('Неверный формат endpoint'),
@@ -23,11 +24,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const validation = unsubscribeSchema.safeParse(body);
-
-    if (!validation.success) {
-      return NextResponse.json({ error: validation.error.issues[0]?.message ?? 'Missing endpoint' }, { status: 400 });
-    }
+    const validation = validateBody(body, unsubscribeSchema);
+    if ('response' in validation) return validation.response;
 
     const { endpoint } = validation.data;
 

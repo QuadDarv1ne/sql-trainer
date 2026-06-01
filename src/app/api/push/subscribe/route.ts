@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
 import { savePushSubscription } from '@/lib/db-users';
 import { logger } from '@/lib/logger';
@@ -29,10 +30,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const result = pushSubscribeSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json({ error: `Invalid subscription: ${result.error.issues[0].message}` }, { status: 400 });
-    }
+    const result = validateBody(body, pushSubscribeSchema);
+    if ('response' in result) return result.response;
 
     const { subscription } = result.data;
 

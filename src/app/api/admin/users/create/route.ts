@@ -3,6 +3,7 @@ import { createUser } from '@/lib/db-users';
 import { withAdminAuth } from '@/lib/api-auth';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 import { z } from 'zod';
+import { validateBody } from '@/lib/validation';
 
 const createUserSchema = z.object({
   email: z.string().email('Invalid email format'),
@@ -22,11 +23,8 @@ export const POST = withAdminAuth(async ({ request, session }) => {
   } catch {
     return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
   }
-  const validation = createUserSchema.safeParse(body);
-
-  if (!validation.success) {
-    return NextResponse.json({ error: validation.error.issues[0].message }, { status: 400 });
-  }
+  const validation = validateBody(body, createUserSchema);
+  if ('response' in validation) return validation.response;
 
   const { email, name, password, phone, role } = validation.data;
 

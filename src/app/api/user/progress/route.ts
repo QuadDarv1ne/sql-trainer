@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { withUserAuth } from '@/lib/api-auth';
 import { getUserProgress, saveUserProgress } from '@/lib/db-users';
 import { z } from 'zod';
+import { parseAndValidate } from '@/lib/validation';
 
 const progressSchema = z.object({
   taskId: z.string().min(1, 'taskId обязателен'),
@@ -14,21 +15,8 @@ export const GET = withUserAuth(async ({ session }) => {
 });
 
 export const POST = withUserAuth(async ({ session, request }) => {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const validation = progressSchema.safeParse(body);
-
-  if (!validation.success) {
-    return NextResponse.json(
-      { success: false, error: validation.error.issues[0]?.message ?? 'Неверный формат данных' },
-      { status: 400 }
-    );
-  }
+  const validation = await parseAndValidate(request, progressSchema);
+  if ('response' in validation) return validation.response;
 
   const { taskId, attempts } = validation.data;
   await saveUserProgress(session.user.id, taskId, attempts);

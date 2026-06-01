@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { explainQuery } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
+import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
@@ -69,16 +70,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const parsed = sqlExplainSchema.safeParse(body);
-
-    if (!parsed.success) {
-      const formatted = parsed.error.format();
-      const firstError = formatted.taskId?._errors?.[0] || formatted.sql?._errors?.[0] || formatted._errors?.[0] || 'Неверный формат запроса';
-      return NextResponse.json(
-        { success: false, error: firstError },
-        { status: 400 }
-      );
-    }
+    const parsed = validateBody(body, sqlExplainSchema);
+    if ('response' in parsed) return parsed.response;
 
     const { sql, dbType, taskId } = parsed.data;
 

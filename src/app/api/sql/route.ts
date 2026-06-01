@@ -7,6 +7,7 @@ import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { logger } from '@/lib/logger';
 import { auth } from '@/lib/auth';
 import type { MongoSchema } from '@/lib/mongodb-engine';
+import { validateBody } from '@/lib/validation';
 
 /**
  * Extract client IP from request using x-forwarded-for header for proxy reliability.
@@ -165,16 +166,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const parsed = sqlExecuteSchema.safeParse(body);
-
-    if (!parsed.success) {
-      const formatted = parsed.error.format();
-      const firstError = formatted.sql?._errors?.[0] || formatted._errors?.[0] || 'Неверный формат запроса';
-      return NextResponse.json(
-        { success: false, error: firstError, columns: [], rows: [], executionTime: 0 },
-        { status: 400 }
-      );
-    }
+    const parsed = validateBody(body, sqlExecuteSchema);
+    if ('response' in parsed) return parsed.response;
 
     const { sql, dbType, taskId } = parsed.data;
 

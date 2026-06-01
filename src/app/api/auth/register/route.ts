@@ -5,6 +5,7 @@ import type { UserRole } from '@/lib/db-users';
 import { rateLimit } from '@/lib/rate-limit';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 import { logger } from '@/lib/logger';
+import { validateBody } from '@/lib/validation';
 
 const registerSchema = z.object({
   name: z.string().min(1, 'Имя обязательно').max(100, 'Имя слишком длинное'),
@@ -29,13 +30,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const result = registerSchema.safeParse(body);
-    if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error.issues[0].message },
-        { status: 400 }
-      );
-    }
+    const result = validateBody(body, registerSchema);
+    if ('response' in result) return result.response;
 
     const { name, email, password, phone } = result.data;
 
