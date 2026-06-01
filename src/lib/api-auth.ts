@@ -85,111 +85,76 @@ type AnalyticsHandlerContext = {
   searchParams: URLSearchParams;
 };
 
-export function withAdminAuth(
-  handler: (ctx: RouteHandlerContext) => NextResponse | Promise<NextResponse>
+/**
+ * Resolve params from context, handling both sync and promise-based params
+ * (Next.js 15+ uses promise-based params).
+ */
+async function resolveParams(
+  context?: { params?: Promise<Record<string, string>> | Record<string, string> }
+): Promise<Record<string, string> | undefined> {
+  if (!context?.params) return undefined;
+  return 'then' in context.params ? await context.params : context.params;
+}
+
+/**
+ * Factory that creates a role-scoped auth wrapper with rate limiting and error handling.
+ * Eliminates the near-identical withAdminAuth / withTeacherAuth implementations.
+ */
+function withRoleAuth(
+  roleCheck: () => Promise<{ error: NextResponse | null; session: AuthSession | null }>,
+  rateLimitPrefix: string,
+  rateLimitMax: number,
+  errorLabel: string
 ) {
-  return async (
-    request: Request,
-    context?: { params?: Promise<Record<string, string>> | Record<string, string> }
-  ): Promise<NextResponse> => {
-    const authResult = await requireAdmin();
-    if (!authResult.session) {
-      return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
-    }
+  return function (
+    handler: (ctx: RouteHandlerContext) => NextResponse | Promise<NextResponse>
+  ) {
+    return async (
+      request: Request,
+      context?: { params?: Promise<Record<string, string>> | Record<string, string> }
+    ): Promise<NextResponse> => {
+      const authResult = await roleCheck();
+      if (!authResult.session) {
+        return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
+      }
 
-    // Rate limit admin requests: 30 per minute per user
-    const userId = authResult.session.user.id;
-    const limitResult = rateLimit(`admin:${userId}`, { max: 30, windowMs: 60_000 });
-    if (!limitResult.success) {
-      return NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 });
-    }
+      const userId = authResult.session.user.id;
+      const limitResult = rateLimit(`${rateLimitPrefix}:${userId}`, { max: rateLimitMax, windowMs: 60_000 });
+      if (!limitResult.success) {
+        return NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 });
+      }
 
-    const params = context?.params
-      ? 'then' in context.params
-        ? await context.params
-        : context.params
-      : undefined;
+      const params = await resolveParams(context);
 
-    try {
-      return await handler({ session: authResult.session, request, params });
-    } catch (error) {
-      logger.error('Admin handler error:', error);
-      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-    }
+      try {
+        return await handler({ session: authResult.session, request, params });
+      } catch (error) {
+        logger.error(`${errorLabel} handler error:`, error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+      }
+    };
   };
 }
 
-export function withTeacherAuth(
-  handler: (ctx: RouteHandlerContext) => NextResponse | Promise<NextResponse>
-) {
-  return async (
-    request: Request,
-    context?: { params?: Promise<Record<string, string>> | Record<string, string> }
-  ): Promise<NextResponse> => {
-    const authResult = await requireTeacher();
-    if (!authResult.session) {
-      return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
-    }
+export const withAdminAuth = withRoleAuth(requireAdmin, 'admin', 30, 'Admin');
+export const withTeacherAuth = withRoleAuth(requireTeacher, 'teacher', 30, 'Teacher');
 
-    // Rate limit teacher requests: 30 per minute per user
-    const userId = authResult.session.user.id;
-    const limitResult = rateLimit(`teacher:${userId}`, { max: 30, windowMs: 60_000 });
-    if (!limitResult.success) {
-      return NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 });
-    }
-
-    const params = context?.params
-      ? 'then' in context.params
-        ? await context.params
-        : context.params
-      : undefined;
-
-    try {
-      return await handler({ session: authResult.session, request, params });
-    } catch (error) {
-      logger.error('Teacher handler error:', error);
-      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-    }
-  };
+/**
+ * Check that user is authenticated (no specific role required).
+ */
+async function requireUser() {
+  const session = (await auth()) as AuthSession | null;
+  if (!session?.user?.id) {
+    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }), session: null };
+  }
+  return { error: null, session };
 }
 
 /**
  * Higher-order wrapper for any authenticated user (no specific role required).
  * Replaces manual `const session = await auth()` checks in user-facing routes.
  */
-export function withUserAuth(
-  handler: (ctx: RouteHandlerContext) => NextResponse | Promise<NextResponse>
-) {
-  return async (
-    request: Request,
-    context?: { params?: Promise<Record<string, string>> | Record<string, string> }
-  ): Promise<NextResponse> => {
-    const session = (await auth()) as AuthSession | null;
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Rate limit user requests: 60 per minute per user
-    const userId = session.user.id;
-    const limitResult = rateLimit(`user:${userId}`, { max: 60, windowMs: 60_000 });
-    if (!limitResult.success) {
-      return NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 });
-    }
-
-    const params = context?.params
-      ? 'then' in context.params
-        ? await context.params
-        : context.params
-      : undefined;
-
-    try {
-      return await handler({ session, request, params });
-    } catch (error) {
-      logger.error('User handler error:', error);
-      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-    }
-  };
-}
+export const withUserAuth = withRoleAuth(requireUser, 'user', 60, 'User');
 
 /**
  * Higher-order wrapper for analytics GET routes.
