@@ -25,8 +25,7 @@ export interface ProgressiveHintsConfig {
 export function generateProgressiveHints(
   taskId: string,
   oldHint: string,
-  taskText: string,
-  _sampleSolution: string
+  taskText: string
 ): ProgressiveHint[] {
   // For tasks that haven't been migrated yet, create a single level 3 hint
   // from the old hint field, and generate basic level 1 and 2

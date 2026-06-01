@@ -37,7 +37,6 @@ interface TaskPanelProps {
   onNextTask: () => void;
   onNextRelated?: (index: number) => void;
   nextTaskLabel?: string;
-  isLastTask?: boolean;
   allCompleted?: boolean;
   relatedTasks?: TrainingTask[];
 }
@@ -54,7 +53,6 @@ export default function TaskPanel({
   onNextTask,
   onNextRelated,
   nextTaskLabel,
-  isLastTask: _isLastTask = false,
   allCompleted = false,
   relatedTasks = [],
 }: TaskPanelProps) {
@@ -175,7 +173,7 @@ export default function TaskPanel({
       {/* Progressive Hints */}
       {(() => {
         if (!task) return null;
-        const hints = generateProgressiveHints(task.id, task.hint, task.taskText, task.sampleSolution);
+        const hints = generateProgressiveHints(task.id, task.hint, task.taskText);
         const nextLevel = getNextHintLevel(hintLevel);
         const hintLevelLabels = [
           '',

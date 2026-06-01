@@ -62,7 +62,7 @@ describe('i18n', () => {
 
     it('has no empty translation values', () => {
       for (const locale of ['ru', 'en'] as Locale[]) {
-        for (const [_key, value] of Object.entries(translations[locale])) {
+        for (const value of Object.values(translations[locale])) {
           expect(value).not.toBe('');
         }
       }
@@ -71,7 +71,7 @@ describe('i18n', () => {
 
   describe('getPlural', () => {
     it('returns a string', () => {
-      expect(typeof getPlural('results.row', 1)).toBe('string');
+      expect(typeof getPlural('results.row')).toBe('string');
     });
   });
 });

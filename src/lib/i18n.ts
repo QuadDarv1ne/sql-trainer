@@ -3754,7 +3754,7 @@ export function tWithLocale(locale: Locale, key: string, params?: Record<string,
   return value;
 }
 
-export function getPlural(key: string, _count: number): string {
+export function getPlural(key: string): string {
   // For now, just return the key and let the caller handle pluralization
   return t(key);
 }

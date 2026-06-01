@@ -380,7 +380,7 @@ export default function HomePage() {
         const nextLevel = getNextHintLevel(hintLevel);
         if (nextLevel !== null && currentTask) {
           setHintLevel(nextLevel);
-          const hints = generateProgressiveHints(currentTask.id, currentTask.hint, currentTask.taskText, currentTask.sampleSolution);
+          const hints = generateProgressiveHints(currentTask.id, currentTask.hint, currentTask.taskText);
           setTotalHintPenalty(calculateHintPenalty(hints, nextLevel));
         }
       }
@@ -791,7 +791,7 @@ export default function HomePage() {
                         const nextLevel = getNextHintLevel(hintLevel);
                         if (nextLevel !== null && currentTask) {
                           setHintLevel(nextLevel);
-                          const hints = generateProgressiveHints(currentTask.id, currentTask.hint, currentTask.taskText, currentTask.sampleSolution);
+                          const hints = generateProgressiveHints(currentTask.id, currentTask.hint, currentTask.taskText);
                           setTotalHintPenalty(calculateHintPenalty(hints, nextLevel));
                         }
                       }}
@@ -801,7 +801,6 @@ export default function HomePage() {
                       onNextTask={goToNextTask}
                       onNextRelated={(index) => goToRelatedTask(index)}
                       nextTaskLabel={nextTaskInfo.label}
-                      isLastTask={nextTaskInfo.isLastTask}
                       allCompleted={nextTaskInfo.allCompleted}
                       relatedTasks={relatedTasks}
                     />

@@ -5,20 +5,6 @@ import { useSQLTrainerStore, ACHIEVEMENTS } from '@/lib/store';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-// Map achievement icons to Lucide icon names
-const ACHIEVEMENT_ICONS: Record<string, string> = {
-  '🎯': 'Target',
-  '🌱': 'Sprout',
-  '⭐': 'Star',
-  '🏆': 'Trophy',
-  '💯': 'Award',
-  '🔥': 'Flame',
-  '👑': 'Crown',
-  '📊': 'BarChart3',
-  '📚': 'BookOpen',
-  '💥': 'Zap',
-};
-
 export default function AchievementsGrid() {
   const { unlockedAchievements } = useSQLTrainerStore();
   const unlockedIds = new Set(unlockedAchievements.map((a) => a.id));

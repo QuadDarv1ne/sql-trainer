@@ -310,7 +310,6 @@ export const createGamificationSlice: StateCreator<
     // Topic-specific achievements — check the completed task's SQL content
     if (taskId) {
       const task = TRAINING_TASKS.find((t) => t.id === taskId);
-      const completedTask = completedTasks.find((t) => t.taskId === taskId);
       const solution = task?.sampleSolution || '';
       const solutionUpper = solution.toUpperCase();
 
@@ -333,7 +332,6 @@ export const createGamificationSlice: StateCreator<
       }
 
       // First subquery
-      const openParens = (solutionUpper.match(/\(/g) || []).length;
       const selectCount = (solutionUpper.match(/SELECT/g) || []).length;
       if (selectCount > 1 && !achievementSet.has(ACHIEVEMENTS.FIRST_SUBQUERY.id)) {
         newAchievementIds.push(ACHIEVEMENTS.FIRST_SUBQUERY.id);
