@@ -2122,6 +2122,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'sidebar.search': 'Search tasks...',
     'sidebar.clearSearch': 'Clear search',
     'sidebar.all': 'All',
+    'sidebar.achievements': 'Achievements',
 
     // Results
     'results.row': 'row',
@@ -2151,6 +2152,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     // Welcome panel
     'welcome.recommend': 'Recommended Next',
     'welcome.recent': 'Recently Completed',
+    'welcome.needPractice': 'Needs Practice',
     'welcome.tips': 'Tips',
     'welcome.progressLabel': 'Overall Progress',
     'welcome.streak.day': 'day',

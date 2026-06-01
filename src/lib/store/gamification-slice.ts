@@ -311,7 +311,7 @@ export const createGamificationSlice: StateCreator<
     if (taskId) {
       const task = TRAINING_TASKS.find((t) => t.id === taskId);
       const completedTask = completedTasks.find((t) => t.taskId === taskId);
-      const solution = completedTask?.solution || task?.sampleSolution || '';
+      const solution = task?.sampleSolution || '';
       const solutionUpper = solution.toUpperCase();
 
       // First JOIN
