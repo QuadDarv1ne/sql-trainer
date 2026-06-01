@@ -15,7 +15,7 @@ const sqliteAvailable = vi.hoisted(() => {
 
 const describeIf = sqliteAvailable ? describe : describe.skip;
 
-import { executeQuery, executeWithSchema, splitStatements } from '@/lib/sql-engine';
+import { executeQuery, executeWithSchema, executeWithSchemaMulti, getSchemaInfo, explainQuery, splitStatements } from '@/lib/sql-engine';
 
 describeIf('sql-engine', () => {
   describe('splitStatements', () => {
@@ -309,6 +309,442 @@ describeIf('sql-engine', () => {
       const result = executeWithSchema(query, schema, 'postgresql');
       expect(result.warnings).toBeDefined();
       expect(result.warnings?.some(w => w.includes('DATE_TRUNC'))).toBe(true);
+    });
+  });
+
+  describe('executeQuery - validation', () => {
+    it('should reject empty input', () => {
+      const result = executeQuery('');
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+
+    it('should reject whitespace-only input', () => {
+      const result = executeQuery('   \n\t  ');
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+
+    it('should allow DROP TABLE statements', () => {
+      const schema = `CREATE TABLE temp_table (id INTEGER PRIMARY KEY)`;
+      const result = executeQuery(`${schema}; DROP TABLE temp_table;`);
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('executeQuery - DDL operations', () => {
+    it('should create a table and return DDL success message', () => {
+      const result = executeQuery('CREATE TABLE test_ddl (id INTEGER PRIMARY KEY, name TEXT)');
+      expect(result.success).toBe(true);
+      expect(result.message).toBe('Операция DDL выполнена успешно');
+      expect(result.columns).toEqual([]);
+      expect(result.rows).toEqual([]);
+    });
+
+    it('should alter a table successfully', () => {
+      const sql = `
+        CREATE TABLE test_alter (id INTEGER PRIMARY KEY);
+        ALTER TABLE test_alter ADD COLUMN email TEXT;
+      `;
+      const result = executeQuery(sql);
+      expect(result.success).toBe(true);
+      expect(result.message).toBe('Операция DDL выполнена успешно');
+    });
+
+    it('should truncate a table', () => {
+      const sql = `
+        CREATE TABLE test_truncate (id INTEGER PRIMARY KEY);
+        INSERT INTO test_truncate VALUES (1);
+        DELETE FROM test_truncate;
+      `;
+      const result = executeQuery(sql);
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('executeQuery - DML operations', () => {
+    it('should insert rows and report affectedRows', () => {
+      const sql = `
+        CREATE TABLE test_dml (id INTEGER PRIMARY KEY, name TEXT);
+        INSERT INTO test_dml VALUES (1, 'Alice');
+      `;
+      const result = executeQuery(sql);
+      expect(result.success).toBe(true);
+      expect(result.affectedRows).toBe(1);
+      expect(result.message).toContain('1');
+    });
+
+    it('should update rows and report affectedRows', () => {
+      const sql = `
+        CREATE TABLE test_update (id INTEGER PRIMARY KEY, name TEXT);
+        INSERT INTO test_update VALUES (1, 'Alice'), (2, 'Bob');
+        UPDATE test_update SET name = 'Charlie' WHERE id = 1;
+      `;
+      const result = executeQuery(sql);
+      expect(result.success).toBe(true);
+      expect(result.affectedRows).toBe(1);
+    });
+
+    it('should delete rows and report affectedRows', () => {
+      const sql = `
+        CREATE TABLE test_delete (id INTEGER PRIMARY KEY, name TEXT);
+        INSERT INTO test_delete VALUES (1, 'Alice'), (2, 'Bob');
+        DELETE FROM test_delete WHERE id = 1;
+      `;
+      const result = executeQuery(sql);
+      expect(result.success).toBe(true);
+      expect(result.affectedRows).toBe(1);
+    });
+  });
+
+  describe('executeQuery - error handling and suggestions', () => {
+    it('should suggest table does not exist', () => {
+      const result = executeQuery('SELECT * FROM nonexistent_table');
+      expect(result.success).toBe(false);
+      expect(result.suggestion).toBeDefined();
+      expect(result.suggestion).toContain('nonexistent_table');
+    });
+
+    it('should suggest column not found', () => {
+      const sql = `
+        CREATE TABLE test_col_err (id INTEGER PRIMARY KEY);
+        SELECT nonexistent_col FROM test_col_err;
+      `;
+      const result = executeQuery(sql);
+      expect(result.success).toBe(false);
+      expect(result.suggestion).toBeDefined();
+      expect(result.suggestion).toContain('nonexistent_col');
+    });
+
+    it('should handle syntax errors gracefully', () => {
+      const result = executeQuery('SELEC * FROM test');
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+
+    it('should handle unique constraint violation', () => {
+      const sql = `
+        CREATE TABLE test_unique (id INTEGER PRIMARY KEY);
+        INSERT INTO test_unique VALUES (1);
+        INSERT INTO test_unique VALUES (1);
+      `;
+      const result = executeQuery(sql);
+      expect(result.success).toBe(false);
+      expect(result.suggestion).toBeDefined();
+    });
+  });
+
+  describe('executeQuery - WITH and PRAGMA', () => {
+    it('should execute WITH (CTE) queries', () => {
+      const result = executeQuery("WITH cte AS (SELECT 1 as val) SELECT * FROM cte");
+      expect(result.success).toBe(true);
+      expect(result.rows).toEqual([{ val: 1 }]);
+    });
+
+    it('should execute PRAGMA queries', () => {
+      const result = executeQuery('PRAGMA table_list');
+      expect(result.success).toBe(true);
+      expect(result.columns).toBeDefined();
+    });
+  });
+
+  describe('executeQuery - MySQL adapter', () => {
+    it('should handle MySQL backtick identifiers', () => {
+      const schema = `CREATE TABLE test_mysql (\`id\` INTEGER PRIMARY KEY, \`name\` TEXT)`;
+      const query = 'SELECT `name` FROM test_mysql';
+      const result = executeWithSchema(query, schema, 'mysql');
+      expect(result.success).toBe(true);
+    });
+
+    it('should handle MySQL IFNULL function', () => {
+      const schema = `CREATE TABLE test_ifnull (id INTEGER PRIMARY KEY, val TEXT)`;
+      const query = "SELECT IFNULL(val, 'default') as result FROM test_ifnull";
+      const result = executeWithSchema(query, schema, 'mysql');
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('executeQuery - ClickHouse adapter', () => {
+    it('should handle ClickHouse array syntax', () => {
+      const schema = `CREATE TABLE test_ch (id INTEGER PRIMARY KEY, name TEXT)`;
+      const query = "SELECT * FROM test_ch WHERE name IN ('a', 'b')";
+      const result = executeWithSchema(query, schema, 'clickhouse');
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('executeQuery - MongoDB unsupported', () => {
+    it('should return warning for MongoDB type', () => {
+      const schema = `CREATE TABLE test_mongo (id INTEGER PRIMARY KEY)`;
+      const query = 'SELECT * FROM test_mongo';
+      const result = executeWithSchema(query, schema, 'mongodb' as unknown as 'sqlite');
+      expect(result.warnings).toBeDefined();
+      expect(result.warnings?.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('executeQuery - row limit', () => {
+    it('should limit results to MAX_ROWS and include truncation message', () => {
+      const sql = `
+        CREATE TABLE test_limit (id INTEGER PRIMARY KEY);
+        ${Array.from({ length: 1001 }, (_, i) => `INSERT INTO test_limit VALUES (${i})`).join(';')};
+        SELECT * FROM test_limit;
+      `;
+      const result = executeQuery(sql);
+      expect(result.success).toBe(true);
+      expect(result.rows).toHaveLength(1000);
+      expect(result.message).toContain('1000');
+    });
+  });
+
+  describe('executeQuery - execution time', () => {
+    it('should include execution time in result', () => {
+      const result = executeQuery('SELECT 1 as val');
+      expect(result.executionTime).toBeGreaterThan(0);
+    });
+  });
+
+  describe('getSchemaInfo', () => {
+    it('should return table info for a given schema', () => {
+      const schema = `
+        CREATE TABLE users (
+          id INTEGER PRIMARY KEY,
+          name TEXT NOT NULL,
+          email TEXT DEFAULT 'test@test.com'
+        );
+        CREATE TABLE orders (
+          id INTEGER PRIMARY KEY,
+          user_id INTEGER,
+          amount REAL
+        );
+      `;
+      const info = getSchemaInfo(schema);
+      expect(info.tables).toHaveLength(2);
+      const usersTable = info.tables.find(t => t.name === 'users');
+      expect(usersTable).toBeDefined();
+      expect(usersTable?.columns).toHaveLength(3);
+      expect(usersTable?.columns[0].primaryKey).toBe(true);
+      expect(usersTable?.columns[1].notNull).toBe(true);
+    });
+
+    it('should return empty tables for empty schema', () => {
+      const info = getSchemaInfo('');
+      expect(info.tables).toHaveLength(0);
+    });
+
+    it('should handle PostgreSQL schema types', () => {
+      const schema = `
+        CREATE TABLE pg_table (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(100),
+          active BOOLEAN DEFAULT TRUE
+        );
+      `;
+      const info = getSchemaInfo(schema, 'postgresql');
+      expect(info.tables).toHaveLength(1);
+      expect(info.tables[0].columns.length).toBeGreaterThan(0);
+    });
+
+    it('should handle MySQL schema types', () => {
+      const schema = `
+        CREATE TABLE mysql_table (
+          id INTEGER PRIMARY KEY AUTO_INCREMENT,
+          name TEXT
+        );
+      `;
+      const info = getSchemaInfo(schema, 'mysql');
+      expect(info.tables).toHaveLength(1);
+    });
+
+    it('should handle ClickHouse schema types', () => {
+      const schema = `
+        CREATE TABLE ch_table (
+          id INTEGER PRIMARY KEY,
+          name TEXT
+        );
+      `;
+      const info = getSchemaInfo(schema, 'clickhouse');
+      expect(info.tables).toHaveLength(1);
+    });
+  });
+
+  describe('explainQuery', () => {
+    it('should return execution plan for a SELECT query', () => {
+      const schema = `
+        CREATE TABLE explain_test (id INTEGER PRIMARY KEY, name TEXT);
+        CREATE INDEX idx_name ON explain_test(name);
+      `;
+      const query = 'SELECT * FROM explain_test WHERE name = "test"';
+      const result = explainQuery(query, schema);
+      expect(result.success).toBe(true);
+      expect(result.plan).toBeDefined();
+      expect(result.plan).toBeDefined();
+    });
+
+    it('should handle EXPLAIN for invalid query', () => {
+      const schema = `CREATE TABLE explain_err (id INTEGER PRIMARY KEY)`;
+      const query = 'SELECT * FROM nonexistent';
+      const result = explainQuery(query, schema);
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+    });
+
+    it('should handle PostgreSQL schema in explain', () => {
+      const schema = `CREATE TABLE pg_explain (id SERIAL PRIMARY KEY, name VARCHAR(100))`;
+      const query = 'SELECT * FROM pg_explain WHERE id = 1';
+      const result = explainQuery(query, schema, 'postgresql');
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('executeWithSchemaMulti', () => {
+    it('should execute multiple queries on the same schema', () => {
+      const schema = `
+        CREATE TABLE multi_test (id INTEGER PRIMARY KEY, name TEXT);
+        INSERT INTO multi_test VALUES (1, 'Alice');
+        INSERT INTO multi_test VALUES (2, 'Bob');
+      `;
+      const inputs = [
+        "SELECT * FROM multi_test WHERE id = 1",
+        "SELECT * FROM multi_test WHERE id = 2",
+      ];
+      const results = executeWithSchemaMulti(inputs, schema);
+      expect(results).toHaveLength(2);
+      expect(results[0].success).toBe(true);
+      expect(results[0].rows).toHaveLength(1);
+      expect(results[0].rows[0].name).toBe('Alice');
+      expect(results[1].success).toBe(true);
+      expect(results[1].rows[0].name).toBe('Bob');
+    });
+
+    it('should persist DML changes across queries in multi execution', () => {
+      const schema = `
+        CREATE TABLE persist_test (id INTEGER PRIMARY KEY, name TEXT);
+        INSERT INTO persist_test VALUES (1, 'Initial');
+      `;
+      const inputs = [
+        "UPDATE persist_test SET name = 'Updated' WHERE id = 1",
+        "SELECT * FROM persist_test WHERE id = 1",
+      ];
+      const results = executeWithSchemaMulti(inputs, schema);
+      expect(results).toHaveLength(2);
+      expect(results[0].success).toBe(true);
+      expect(results[1].success).toBe(true);
+      expect(results[1].rows[0].name).toBe('Updated');
+    });
+
+    it('should return error results for all inputs when schema is invalid', () => {
+      const invalidSchema = 'INVALID SQL STATEMENT';
+      const inputs = ['SELECT 1', 'SELECT 2'];
+      const results = executeWithSchemaMulti(inputs, invalidSchema);
+      expect(results).toHaveLength(2);
+      expect(results[0].success).toBe(false);
+      expect(results[1].success).toBe(false);
+    });
+
+    it('should handle PostgreSQL schema in multi execution', () => {
+      const schema = `
+        CREATE TABLE pg_multi (id SERIAL PRIMARY KEY, name VARCHAR(100));
+        INSERT INTO pg_multi (name) VALUES ('Alice');
+        INSERT INTO pg_multi (name) VALUES ('Bob');
+      `;
+      const inputs = [
+        "SELECT * FROM pg_multi WHERE name ILIKE 'alice'",
+        "SELECT COUNT(*) as cnt FROM pg_multi",
+      ];
+      const results = executeWithSchemaMulti(inputs, schema, 'postgresql');
+      expect(results).toHaveLength(2);
+      expect(results[0].success).toBe(true);
+      expect(results[1].success).toBe(true);
+    });
+
+    it('should handle MySQL schema in multi execution', () => {
+      const schema = `
+        CREATE TABLE mysql_multi (id INTEGER PRIMARY KEY, name TEXT);
+        INSERT INTO mysql_multi VALUES (1, 'test');
+      `;
+      const inputs = ["SELECT * FROM mysql_multi"];
+      const results = executeWithSchemaMulti(inputs, schema, 'mysql');
+      expect(results).toHaveLength(1);
+      expect(results[0].success).toBe(true);
+    });
+
+    it('should handle ClickHouse schema in multi execution', () => {
+      const schema = `
+        CREATE TABLE ch_multi (id INTEGER PRIMARY KEY, name TEXT);
+        INSERT INTO ch_multi VALUES (1, 'test');
+      `;
+      const inputs = ["SELECT * FROM ch_multi"];
+      const results = executeWithSchemaMulti(inputs, schema, 'clickhouse');
+      expect(results).toHaveLength(1);
+      expect(results[0].success).toBe(true);
+    });
+  });
+
+  describe('splitStatements - edge cases', () => {
+    it('should handle empty input', () => {
+      expect(splitStatements('')).toEqual([]);
+    });
+
+    it('should handle whitespace-only input', () => {
+      expect(splitStatements('   \n\t  ')).toEqual([]);
+    });
+
+    it('should handle comment-only input', () => {
+      const result = splitStatements('-- just a comment');
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBe('-- just a comment');
+    });
+
+    it('should handle block comment only', () => {
+      const result = splitStatements('/* block comment */');
+      expect(result).toHaveLength(0);
+    });
+
+    it('should handle string with semicolons inside double quotes', () => {
+      const result = splitStatements('SELECT "col;name" as val');
+      expect(result).toHaveLength(1);
+    });
+
+    it('should handle mixed case statements', () => {
+      const result = splitStatements('select 1; SELECT 2; SeLeCt 3;');
+      expect(result).toEqual(['select 1', 'SELECT 2', 'SeLeCt 3']);
+    });
+  });
+
+  describe('executeQuery - comment-only and empty statements', () => {
+    it('should handle comment-only SQL', () => {
+      const result = executeQuery('-- just a comment');
+      expect(result.success).toBe(true);
+      expect(result.message).toBeDefined();
+    });
+
+    it('should handle SQL with only semicolons', () => {
+      const result = executeQuery(';;;');
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('executeWithSchema - schema caching and LRU behavior', () => {
+    it('should cache schema and reuse it', () => {
+      const schema = `CREATE TABLE cache_test (id INTEGER PRIMARY KEY, name TEXT)`;
+      const query = 'SELECT * FROM cache_test';
+
+      // First call initializes and caches schema
+      const result1 = executeWithSchema(query, schema);
+      expect(result1.success).toBe(true);
+
+      // Second call should use cached schema
+      const result2 = executeWithSchema(query, schema);
+      expect(result2.success).toBe(true);
+    });
+
+    it('should handle invalid schema gracefully', () => {
+      const invalidSchema = 'NOT VALID SQL AT ALL !!!';
+      const query = 'SELECT 1';
+      const result = executeWithSchema(query, invalidSchema);
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
     });
   });
 });
