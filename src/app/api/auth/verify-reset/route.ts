@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyResetCode } from '@/lib/db-users';
+import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { z } from 'zod';
 
@@ -20,6 +21,16 @@ export async function POST(request: NextRequest) {
     }
 
     const { code } = validation.data;
+
+    // Rate limit: max 5 attempts per 15 minutes per code prefix
+    const rateLimitKey = `reset-verify:${code.substring(0, 3)}`;
+    const limitResult = rateLimit(rateLimitKey, { max: 5, windowMs: 15 * 60 * 1000 });
+    if (!limitResult.success) {
+      return NextResponse.json(
+        { success: false, error: 'Слишком много попыток. Попробуйте позже' },
+        { status: 429 }
+      );
+    }
 
     const result = await verifyResetCode(code);
     if (!result) {
