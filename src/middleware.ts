@@ -4,7 +4,7 @@ import type { Role } from '@/lib/rbac';
 import { generateCsrfTokenEdge, validateCsrfTokenEdge, isCsrfProtectedMethod } from '@/lib/csrf';
 
 // Routes that require authentication
-const protectedRoutes = ['/profile', '/app'];
+const protectedRoutes = ['/profile', '/app', '/register'];
 
 // Routes that require specific roles
 const roleProtectedRoutes: Record<string, Role[]> = {

@@ -7,6 +7,8 @@ import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 import { logger } from '@/lib/logger';
 import { validateBody } from '@/lib/validation';
 
+const ALLOWED_SELF_ROLES: UserRole[] = ['student', 'teacher'];
+
 const registerSchema = z.object({
   name: z.string().min(1, 'Имя обязательно').max(100, 'Имя слишком длинное'),
   email: z.string().email('Некорректный email'),
@@ -15,6 +17,7 @@ const registerSchema = z.object({
     .min(8, 'Пароль должен содержать минимум 8 символов')
     .max(128, 'Пароль слишком длинный (максимум 128 символов)'),
   phone: z.string().optional().or(z.literal('')),
+  role: z.enum(ALLOWED_SELF_ROLES as [string, ...string[]]).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -33,7 +36,7 @@ export async function POST(request: NextRequest) {
     const result = validateBody(body, registerSchema);
     if ('response' in result) return result.response;
 
-    const { name, email, password, phone } = result.data;
+    const { name, email, password, phone, role } = result.data;
 
     const sanitizedName = sanitizeName(name);
     if (sanitizedName.error) {
@@ -51,8 +54,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Always assign 'student' role — role changes must be done by admin
-    const userRole: UserRole = 'student';
+    // Use requested role or default to 'student'; only allow self-registration roles
+    const userRole: UserRole = (role && ALLOWED_SELF_ROLES.includes(role as UserRole))
+      ? (role as UserRole)
+      : 'student';
 
     const user = await createUser(email, sanitizedName.value, password, sanitizedPhone.value || undefined, userRole);
     if (!user) {

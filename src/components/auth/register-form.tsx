@@ -10,8 +10,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
-import { Loader2, Mail, Lock, User, Phone, AlertCircle, CheckCircle2, Shield } from 'lucide-react';
+import { Loader2, Mail, Lock, User, Phone, AlertCircle, CheckCircle2, Shield, Users, GraduationCap } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { ROLE_LABELS } from '@/lib/rbac';
+import type { Role } from '@/lib/rbac';
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -20,6 +22,7 @@ export default function RegisterForm() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState<Role>('student');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -58,7 +61,7 @@ export default function RegisterForm() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, phone: phone || undefined }),
+        body: JSON.stringify({ name, email, password, phone: phone || undefined, role }),
       });
 
       const data = await res.json();
@@ -165,14 +168,44 @@ export default function RegisterForm() {
               </div>
             </div>
 
-            {/* Role info */}
+            {/* Role selector */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">{t('auth.role')}</Label>
-              <div className="relative">
-                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <div className="pl-10 h-11 flex items-center text-sm text-muted-foreground border rounded-md bg-muted/50 px-3">
-                  {t('auth.roleDefaultStudent')}
-                </div>
+              <Label htmlFor="role" className="text-sm font-medium">{t('auth.role')}</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRole('student')}
+                  className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
+                    role === 'student'
+                      ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20'
+                      : 'border-border bg-muted/30 hover:bg-muted/50'
+                  }`}
+                >
+                  <Users className={`h-5 w-5 flex-shrink-0 ${role === 'student' ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+                  <div className="text-left">
+                    <div className={`text-sm font-medium ${role === 'student' ? 'text-emerald-700 dark:text-emerald-400' : ''}`}>
+                      {ROLE_LABELS.student}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{t('auth.role.studentDesc', { default: 'Практика SQL-запросов' })}</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('teacher')}
+                  className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
+                    role === 'teacher'
+                      ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/20'
+                      : 'border-border bg-muted/30 hover:bg-muted/50'
+                  }`}
+                >
+                  <GraduationCap className={`h-5 w-5 flex-shrink-0 ${role === 'teacher' ? 'text-amber-600' : 'text-muted-foreground'}`} />
+                  <div className="text-left">
+                    <div className={`text-sm font-medium ${role === 'teacher' ? 'text-amber-700 dark:text-amber-400' : ''}`}>
+                      {ROLE_LABELS.teacher}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{t('auth.role.teacherDesc', { default: 'Аналитика и прогресс студентов' })}</div>
+                  </div>
+                </button>
               </div>
             </div>
 
