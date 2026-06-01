@@ -100,11 +100,9 @@ export function splitStatements(sql: string): string[] {
         if (next === stringChar) {
           i++;
           current += next;
-        } else if (prev === '\\') {
+        } else if (prev === '\\' && next !== stringChar) {
           // Backslash-escaped quote — don't end the string
-          // Remove the backslash from current since SQLite doesn't use it
-          current = current.slice(0, -2); // remove backslash + quote
-          current += char; // re-add just the quote
+          // Keep the backslash as-is since SQLite preserves it in string literals
         } else {
           inString = false;
         }
