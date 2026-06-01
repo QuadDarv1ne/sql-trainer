@@ -11,6 +11,7 @@ import fs from 'fs';
 import { TRAINING_TASKS } from './training-tasks';
 import { logger } from './logger';
 import { t } from './i18n';
+import { toTitleCase } from './string-utils';
 
 export type UserRole = 'student' | 'teacher' | 'admin';
 const VALID_ROLES: UserRole[] = ['student', 'teacher', 'admin'];
@@ -2200,10 +2201,8 @@ export function getErrorPatternAnalysis(filters?: TimeRangeFilters): ErrorPatter
   return taskAttempts.map(task => {
     const difficulty = task.task_id.startsWith('beginner-') ? 'beginner'
       : task.task_id.startsWith('intermediate-') ? 'intermediate' : 'advanced';
-    
-    const taskName = task.task_id
-      .replace(/-/g, ' ')
-      .replace(/\b\w/g, c => c.toUpperCase());
+
+    const taskName = toTitleCase(task.task_id.replace(/-/g, ' '));
 
     return {
       task_id: task.task_id,
@@ -2253,10 +2252,8 @@ export function getTimeToCompleteEstimates(filters?: TimeRangeFilters): TimeToCo
   return taskOrderData.map((task, index) => {
     const difficulty = task.task_id.startsWith('beginner-') ? 'beginner'
       : task.task_id.startsWith('intermediate-') ? 'intermediate' : 'advanced';
-    
-    const taskName = task.task_id
-      .replace(/-/g, ' ')
-      .replace(/\b\w/g, c => c.toUpperCase());
+
+    const taskName = toTitleCase(task.task_id.replace(/-/g, ' '));
 
     // Estimate: beginner=2min, intermediate=4min, advanced=6min base
     const baseTime = difficulty === 'beginner' ? 2 : difficulty === 'intermediate' ? 4 : 6;
@@ -4051,7 +4048,7 @@ export function getTaskPerformanceDetail(filters?: TimeRangeFilters): TaskPerfor
 
     return {
       task_id: task.task_id,
-      task_name: task.task_id.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      task_name: toTitleCase(task.task_id),
       difficulty,
       total_attempts: task.total_attempts,
       unique_students: task.unique_students,
@@ -4620,9 +4617,7 @@ export function getBottleneckAnalysis(filters?: TimeRangeFilters): BottleneckEnt
     else if (dropOffRate > 15 || task.avg_attempts > 2.5) severity = 'medium';
     else severity = 'low';
 
-    const title = task.task_id
-      .replace(/-/g, ' ')
-      .replace(/\b\w/g, c => c.toUpperCase());
+    const title = toTitleCase(task.task_id.replace(/-/g, ' '));
 
     return {
       task_id: task.task_id,
