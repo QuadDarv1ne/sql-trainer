@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import type { Role } from '@/lib/rbac';
+import { generateCsrfTokenEdge, validateCsrfTokenEdge, isCsrfProtectedMethod } from '@/lib/csrf';
 
 // Routes that require authentication
 const protectedRoutes = ['/profile', '/app'];
@@ -13,6 +14,9 @@ const roleProtectedRoutes: Record<string, Role[]> = {
 
 // Routes that should redirect to /app if already authenticated
 const authRoutes = ['/login', '/register', '/reset-password'];
+
+// API routes that handle state-changing operations and need CSRF validation
+const csrfProtectedApiPrefixes = ['/api/admin', '/api/user', '/api/auth/register', '/api/auth/reset-password', '/api/auth/verify-reset', '/api/push', '/api/deadlines'];
 
 const securityHeaders = {
   'X-DNS-Prefetch-Control': 'on',
@@ -38,9 +42,24 @@ const securityHeaders = {
   ].join('; '),
 };
 
+function isCsrfProtectedRoute(pathname: string): boolean {
+  return csrfProtectedApiPrefixes.some((prefix) => pathname.startsWith(prefix));
+}
+
 export default auth(async (request) => {
   const pathname = request.nextUrl.pathname;
   const session = await auth();
+
+  // CSRF validation for state-changing API requests
+  if (isCsrfProtectedRoute(pathname) && isCsrfProtectedMethod(request.method)) {
+    const isValid = validateCsrfTokenEdge(request);
+    if (!isValid) {
+      return NextResponse.json(
+        { success: false, error: 'CSRF validation failed' },
+        { status: 403 }
+      );
+    }
+  }
 
   // Redirect authenticated users away from auth pages to workspace
   if (authRoutes.includes(pathname) && session) {
@@ -70,6 +89,15 @@ export default auth(async (request) => {
   }
 
   const response = NextResponse.next();
+
+  // Generate CSRF token for authenticated requests
+  if (session) {
+    const { rawToken, setCookieHeaders } = await generateCsrfTokenEdge();
+    response.headers.set('X-CSRF-Token', rawToken);
+    for (const cookieHeader of setCookieHeaders) {
+      response.headers.append('Set-Cookie', cookieHeader);
+    }
+  }
 
   // Apply security headers to all responses
   for (const [key, value] of Object.entries(securityHeaders)) {

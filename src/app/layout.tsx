@@ -6,6 +6,7 @@ import { ThemeProvider } from "next-themes";
 import ServiceWorkerRegister from "@/components/service-worker-register";
 import PwaInstallPrompt from "@/components/pwa-install-prompt";
 import { ThemeTimeSync } from "@/components/theme-time-sync";
+import { CsrfTokenMeta } from "./csrf-token-meta";
 import "@/lib/server-env"; // Validate environment variables at startup
 
 export const viewport: Viewport = {
@@ -57,6 +58,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <CsrfTokenMeta />
       </head>
       <body className="font-sans antialiased bg-background text-foreground">
         <ThemeProvider

@@ -5,6 +5,9 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     include: ['src/__tests__/**/*.test.ts', 'src/__tests__/**/*.test.tsx'],
+    env: {
+      AUTH_SECRET: 'test-secret-for-csrf-unit-tests',
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
