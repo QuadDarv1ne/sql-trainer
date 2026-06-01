@@ -4,7 +4,7 @@ import type { Role } from '@/lib/rbac';
 import { generateCsrfTokenEdge, validateCsrfTokenEdge, isCsrfProtectedMethod } from '@/lib/csrf';
 
 // Routes that require authentication
-const protectedRoutes = ['/profile', '/app', '/register'];
+const protectedRoutes = ['/profile', '/app', '/register', '/dashboard'];
 
 // Routes that require specific roles
 const roleProtectedRoutes: Record<string, Role[]> = {
@@ -63,7 +63,9 @@ export default auth(async (request) => {
 
   // Redirect authenticated users away from auth pages to workspace
   if (authRoutes.includes(pathname) && session) {
-    return NextResponse.redirect(new URL('/app', request.url));
+    const userRole = (session.user as { role?: Role })?.role;
+    const landingPage = userRole === 'teacher' ? '/teacher' : userRole === 'admin' ? '/admin' : '/dashboard';
+    return NextResponse.redirect(new URL(landingPage, request.url));
   }
 
   // Redirect unauthenticated users to login
@@ -71,6 +73,18 @@ export default auth(async (request) => {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Redirect authenticated students from /app to /dashboard
+  if (pathname === '/app' && session) {
+    const userRole = (session.user as { role?: Role })?.role;
+    if (userRole === 'student') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    } else if (userRole === 'teacher') {
+      return NextResponse.redirect(new URL('/teacher', request.url));
+    } else if (userRole === 'admin') {
+      return NextResponse.redirect(new URL('/admin', request.url));
+    }
   }
 
   // Role-based route protection

@@ -91,9 +91,9 @@ export default function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/app" className="cursor-pointer flex items-center gap-2">
+          <Link href={userRole === 'student' ? '/dashboard' : '/app'} className="cursor-pointer flex items-center gap-2">
             <LayoutDashboard className="h-4 w-4" />
-            {t('userMenu.trainer')}
+            {userRole === 'student' ? t('userMenu.dashboard') : t('userMenu.trainer')}
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
