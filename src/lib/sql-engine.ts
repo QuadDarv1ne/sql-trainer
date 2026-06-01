@@ -188,8 +188,11 @@ const UNSUPPORTED_FUNC_WARNING = (func: string) =>
  */
 function adaptSqlForExecution(
   sql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' | 'mongodb'
 ): { processedSql: string; warnings: string[] } {
+  if (dbType === 'mongodb') {
+    return { processedSql: sql, warnings: [t('sql.warning.mongodbNotSupported')] };
+  }
   if (dbType === 'postgresql') {
     const dropped = detectPgDroppedFunctions(sql);
     return { processedSql: adaptPostgreSQLToSQLite(sql), warnings: dropped.map(UNSUPPORTED_FUNC_WARNING) };
@@ -216,6 +219,30 @@ function adaptSchemaForDbType(
   if (dbType === 'clickhouse') return adaptClickHouseToSQLite(schemaSql);
   if (dbType === 'mysql') return adaptMySQLToSQLite(schemaSql);
   return schemaSql;
+}
+
+/**
+ * Validate SQL input before execution.
+ * Returns error message if invalid, undefined otherwise.
+ */
+function validateInput(sql: string): string | undefined {
+  if (!sql || !sql.trim()) {
+    return t('sql.error.emptyInput');
+  }
+
+  // Check for potentially dangerous operations
+  const trimmed = stripLeadingComments(sql).toUpperCase().trim();
+  if (trimmed.startsWith('DROP') && !trimmed.includes('DROP TABLE IF EXISTS') && !trimmed.includes('DROP INDEX IF EXISTS')) {
+    // Allow DROP but warn
+    return undefined; // Let it execute, error handling will catch if table doesn't exist
+  }
+
+  // Check length limit
+  if (sql.length > 50000) {
+    return t('sql.error.inputTooLong', { max: '50000', actual: String(sql.length) });
+  }
+
+  return undefined;
 }
 
 function isDDL(sql: string): boolean {
@@ -509,6 +536,18 @@ export function executeQuery(
   dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite'
 ): QueryResult {
   const startTime = performance.now();
+
+  const validationError = validateInput(sql);
+  if (validationError) {
+    return {
+      success: false,
+      columns: [],
+      rows: [],
+      error: validationError,
+      executionTime: performance.now() - startTime,
+    };
+  }
+
   const db = new Database(':memory:');
   db.pragma('foreign_keys = ON');
 
@@ -541,6 +580,18 @@ export function executeWithSchema(
   dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite'
 ): QueryResult {
   const startTime = performance.now();
+
+  const validationError = validateInput(sql);
+  if (validationError) {
+    return {
+      success: false,
+      columns: [],
+      rows: [],
+      error: validationError,
+      executionTime: performance.now() - startTime,
+    };
+  }
+
   const cacheKey = schemaCacheKey(schemaSql, dbType);
   let db: Database.Database | null = null;
   let clonedDb: Database.Database | null = null;

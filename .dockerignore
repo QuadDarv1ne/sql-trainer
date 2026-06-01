@@ -17,3 +17,12 @@ build/
 e2e/
 playwright-report/
 test-results/
+coverage/
+data/
+.git/
+.github/
+*.md
+!README.md
+Dockerfile
+docker-compose.yml
+docker-compose.override.yml
