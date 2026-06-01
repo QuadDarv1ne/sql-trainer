@@ -1,5 +1,5 @@
 import { withTeacherAuth } from '@/lib/api-auth';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import {
   getTeacherStudentProgress,
   getStudentEngagementMetrics,

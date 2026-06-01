@@ -308,7 +308,7 @@ describeIf('sql-engine', () => {
       const query = 'SELECT DATE_TRUNC("month", NOW()) as month_start FROM test';
       const result = executeWithSchema(query, schema, 'postgresql');
       expect(result.warnings).toBeDefined();
-      expect(result.warnings!.some(w => w.includes('DATE_TRUNC'))).toBe(true);
+      expect(result.warnings?.some(w => w.includes('DATE_TRUNC'))).toBe(true);
     });
   });
 });

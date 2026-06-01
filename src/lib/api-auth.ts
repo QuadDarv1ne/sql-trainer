@@ -86,7 +86,7 @@ type AnalyticsHandlerContext = {
 };
 
 export function withAdminAuth(
-  handler: (ctx: RouteHandlerContext) => Promise<NextResponse>
+  handler: (ctx: RouteHandlerContext) => NextResponse | Promise<NextResponse>
 ) {
   return async (
     request: Request,
@@ -120,7 +120,7 @@ export function withAdminAuth(
 }
 
 export function withTeacherAuth(
-  handler: (ctx: RouteHandlerContext) => Promise<NextResponse>
+  handler: (ctx: RouteHandlerContext) => NextResponse | Promise<NextResponse>
 ) {
   return async (
     request: Request,
@@ -158,7 +158,7 @@ export function withTeacherAuth(
  * Replaces manual `const session = await auth()` checks in user-facing routes.
  */
 export function withUserAuth(
-  handler: (ctx: RouteHandlerContext) => Promise<NextResponse>
+  handler: (ctx: RouteHandlerContext) => NextResponse | Promise<NextResponse>
 ) {
   return async (
     request: Request,
