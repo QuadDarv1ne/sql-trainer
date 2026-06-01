@@ -14,7 +14,13 @@ export const GET = withUserAuth(async ({ session }) => {
 });
 
 export const POST = withUserAuth(async ({ session, request }) => {
-  const body = await request.json();
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
+  }
+
   const validation = progressSchema.safeParse(body);
 
   if (!validation.success) {

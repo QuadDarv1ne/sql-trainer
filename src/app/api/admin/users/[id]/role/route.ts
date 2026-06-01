@@ -17,7 +17,14 @@ export const PUT = withAdminAuth(async ({ session, request, params }) => {
     return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
   }
   const { id } = params;
-  const body = await request.json();
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+
   const validation = roleUpdateSchema.safeParse(body);
 
   if (!validation.success) {
