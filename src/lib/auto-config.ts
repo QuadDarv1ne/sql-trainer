@@ -132,7 +132,9 @@ export function getOptimalDatabase(configs: DatabaseConfig[]): DatabaseConfig {
   if (adapter) return adapter;
 
   // Fallback to SQLite in-memory
-  return configs.find(c => c.type === 'sqlite')!;
+  const sqliteConfig = configs.find(c => c.type === 'sqlite');
+  if (!sqliteConfig) throw new Error('SQLite configuration not found');
+  return sqliteConfig;
 }
 
 /**

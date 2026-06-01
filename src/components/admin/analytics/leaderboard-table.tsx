@@ -170,8 +170,6 @@ export default function LeaderboardTable() {
                           handleSort(key);
                         }
                       }}
-                      role="button"
-                      tabIndex={0}
                       aria-sort={sortKey === key ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
                     >
                       <div className="flex items-center gap-1">

@@ -250,11 +250,13 @@ describe('store — export/import', () => {
   it('should reject invalid import data', () => {
     const state = useSQLTrainerStore.getState();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(state.importProgress(null as unknown as any)).toEqual({
       success: false,
       error: expect.any(String),
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(state.importProgress({ version: 999 } as any)).toEqual({
       success: false,
       error: expect.any(String),

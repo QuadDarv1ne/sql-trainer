@@ -563,7 +563,8 @@ export function executeWithSchema(
         // Cache the schema template
         evictCacheIfFull();
         schemaCache.set(cacheKey, db);
-        const cachedDb = schemaCache.get(cacheKey)!;
+        const cachedDb = schemaCache.get(cacheKey);
+        if (!cachedDb) throw new Error('Failed to cache database template');
         db = null; // db is now in cache, don't close it in finally
         clonedDb = cloneDatabase(cachedDb);
         db = clonedDb;
@@ -641,7 +642,8 @@ export function executeWithSchemaMulti(
         // Cache the schema template
         evictCacheIfFull();
         schemaCache.set(cacheKey, db);
-        const cachedDb = schemaCache.get(cacheKey)!;
+        const cachedDb = schemaCache.get(cacheKey);
+        if (!cachedDb) throw new Error('Failed to cache database template');
         db = null;
         clonedDb = cloneDatabase(cachedDb);
         db = clonedDb;

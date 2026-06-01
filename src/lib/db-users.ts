@@ -1042,7 +1042,7 @@ export function getCompletionDistribution(filters?: TimeRangeFilters): Completio
   ];
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND up.completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -1150,7 +1150,7 @@ export function getAchievementStats(filters?: TimeRangeFilters): AchievementStat
   ).get() as { count: number };
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND ua.earned_at >= ?';
     dateParams.push(filters.start_date);
@@ -1214,7 +1214,7 @@ export function getDailyActivity(days = 30, filters?: TimeRangeFilters): DailyAc
     FROM user_progress
     WHERE completed_at >= ?
   `;
-  const params: any[] = [cutoff];
+  const params: unknown[] = [cutoff];
 
   if (filters?.start_date && filters.start_date > cutoff) {
     params[0] = filters.start_date;
@@ -1261,7 +1261,7 @@ export function getAdminLeaderboard(limit = 50, filters?: TimeRangeFilters): Adm
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND up.completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -1311,7 +1311,7 @@ export function getActiveUsersCount(days = 7, filters?: TimeRangeFilters): numbe
     FROM user_progress
     WHERE completed_at >= ?
   `;
-  const params: any[] = [cutoff];
+  const params: unknown[] = [cutoff];
 
   if (filters?.start_date && filters.start_date > cutoff) {
     params[0] = filters.start_date;
@@ -1329,7 +1329,7 @@ export function getAvgAttemptsPerTask(filters?: TimeRangeFilters): number {
   const db = getDb();
 
   let query = 'SELECT ROUND(AVG(attempts * 1.0), 2) as avg FROM user_progress';
-  const params: any[] = [];
+  const params: unknown[] = [];
 
   if (filters?.start_date || filters?.end_date) {
     query += ' WHERE 1=1';
@@ -1422,7 +1422,7 @@ export function getCohortAnalysis(filters?: TimeRangeFilters): CohortEntry[] {
   const db = getDb();
 
   let userDateCondition = '';
-  const userDateParams: any[] = [];
+  const userDateParams: unknown[] = [];
   if (filters?.start_date) {
     userDateCondition += ' AND u.created_at >= ?';
     userDateParams.push(filters.start_date);
@@ -1448,7 +1448,7 @@ export function getCohortAnalysis(filters?: TimeRangeFilters): CohortEntry[] {
     const monthOffsets = [0, 1, 2, 3];
     const retention = monthOffsets.map(offset => {
       let progressDateCondition = '';
-      const progressDateParams: any[] = [cohort.cohort_month, `+${offset} months`];
+      const progressDateParams: unknown[] = [cohort.cohort_month, `+${offset} months`];
       if (filters?.start_date) {
         progressDateCondition += ' AND up.completed_at >= ?';
         progressDateParams.push(filters.start_date);
@@ -1505,7 +1505,7 @@ export function getStudentPerformanceCards(limit = 20, filters?: TimeRangeFilter
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND up.completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -1649,7 +1649,7 @@ export function getDifficultyComparison(filters?: TimeRangeFilters): DifficultyC
 
   return difficulties.map(difficulty => {
     let dateCondition = '';
-    const dateParams: any[] = [`${difficulty}-%`];
+    const dateParams: unknown[] = [`${difficulty}-%`];
     if (filters?.start_date) {
       dateCondition += ' AND completed_at >= ?';
       dateParams.push(filters.start_date);
@@ -1719,7 +1719,7 @@ export function getDailyActivityWithFilters(days = 30, filters?: TimeRangeFilter
     FROM user_progress
     WHERE completed_at >= ?
   `;
-  const params: any[] = [cutoff];
+  const params: unknown[] = [cutoff];
 
   if (filters?.end_date) {
     query += ' AND completed_at <= ?';
@@ -1774,7 +1774,7 @@ export function generateStudentAlerts(filters?: TimeRangeFilters): StudentAlert[
 
   // Single query: fetch all student data with progress and last activity
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND up.completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -1894,7 +1894,7 @@ export function generateRecommendations(filters?: TimeRangeFilters): Recommendat
   const recommendations: Recommendation[] = [];
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND up.completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -2040,7 +2040,7 @@ export function generateClassReport(filters?: TimeRangeFilters): ClassReport {
   ).get() as { count: number };
 
   let activeDateCondition = '';
-  const activeDateParams: any[] = [sevenDaysAgo];
+  const activeDateParams: unknown[] = [sevenDaysAgo];
   if (filters?.start_date && filters.start_date > sevenDaysAgo) {
     activeDateParams[0] = filters.start_date;
   }
@@ -2055,7 +2055,7 @@ export function generateClassReport(filters?: TimeRangeFilters): ClassReport {
   `).get(...activeDateParams) as { count: number };
 
   let studentDateCondition = '';
-  const studentDateParams: any[] = [];
+  const studentDateParams: unknown[] = [];
   if (filters?.start_date) {
     studentDateCondition += ' AND up.completed_at >= ?';
     studentDateParams.push(filters.start_date);
@@ -2168,7 +2168,7 @@ export function getErrorPatternAnalysis(filters?: TimeRangeFilters): ErrorPatter
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -2221,7 +2221,7 @@ export function getTimeToCompleteEstimates(filters?: TimeRangeFilters): TimeToCo
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -2320,7 +2320,7 @@ export function getStudentEngagementMetrics(limit: number = 50, filters?: TimeRa
   const dayMs = 24 * 60 * 60 * 1000;
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -2418,7 +2418,7 @@ export function getChurnPredictions(limit: number = 50, filters?: TimeRangeFilte
   const dayMs = 24 * 60 * 60 * 1000;
 
   let baseDateCondition = '';
-  const baseDateParams: any[] = [];
+  const baseDateParams: unknown[] = [];
   if (filters?.start_date) {
     baseDateCondition += ' AND completed_at >= ?';
     baseDateParams.push(filters.start_date);
@@ -2575,7 +2575,7 @@ export function getWeekOverWeekComparison(filters?: TimeRangeFilters): WeekOverW
   const previousWeekStart = now - 2 * weekMs;
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -2788,7 +2788,7 @@ export function getTaskCompletionFunnel(filters?: TimeRangeFilters): FunnelStage
   ];
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -2896,7 +2896,7 @@ export function getMasteryProgression(weeks: number = 12, filters?: TimeRangeFil
     FROM user_progress
     WHERE completed_at >= ?
   `;
-  const params: any[] = [effectiveCutoff];
+  const params: unknown[] = [effectiveCutoff];
 
   if (filters?.end_date) {
     query += ' AND completed_at <= ?';
@@ -3012,7 +3012,9 @@ export function createDeadline(data: {
   if (actorId) {
     logAudit(actorId, 'deadline_created', 'deadline', id, JSON.stringify({ title: data.title, type: data.type, dueAt: data.dueAt }));
   }
-  return getDeadlineById(id)!;
+  const deadline = getDeadlineById(id);
+  if (!deadline) throw new Error(`Failed to retrieve newly created deadline ${id}`);
+  return deadline;
 }
 
 export function getDeadlineById(id: string): Deadline | undefined {
@@ -3048,7 +3050,7 @@ export function updateDeadline(id: string, data: {
     if (user?.role !== 'admin') return false;
   }
   const fields: string[] = [];
-  const values: any[] = [];
+  const values: unknown[] = [];
   if (data.title !== undefined) { fields.push('title = ?'); values.push(data.title); }
   if (data.description !== undefined) { fields.push('description = ?'); values.push(data.description); }
   if (data.type !== undefined) { fields.push('type = ?'); values.push(data.type); }
@@ -3095,7 +3097,7 @@ export function getPendingReminders(userId: string): PendingReminder[] {
       SELECT deadline_id FROM reminder_log WHERE user_id = ? AND channel = 'in_app'
     )
   `;
-  const params: any[] = [now, userId];
+  const params: unknown[] = [now, userId];
 
   if (user.role === 'student') {
     query += ` AND (
@@ -3590,7 +3592,7 @@ export function getStudentGradeDistribution(filters?: TimeRangeFilters): GradeDi
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -3655,7 +3657,7 @@ export function getStudentGrowthTrends(weeks: number = 12, filters?: TimeRangeFi
     const weekStart = weekEnd - 7 * 24 * 60 * 60 * 1000;
 
     let userDateCondition = '';
-    const userDateParams: any[] = [weekStart, weekEnd];
+    const userDateParams: unknown[] = [weekStart, weekEnd];
     if (filters?.start_date) {
       userDateCondition += ' AND created_at >= ?';
       userDateParams.push(filters.start_date);
@@ -3670,7 +3672,7 @@ export function getStudentGrowthTrends(weeks: number = 12, filters?: TimeRangeFi
     `).get(...userDateParams) as { c: number }).c;
 
     let progressDateCondition = '';
-    const progressDateParams: any[] = [weekStart, weekEnd];
+    const progressDateParams: unknown[] = [weekStart, weekEnd];
     if (filters?.start_date) {
       progressDateCondition += ' AND completed_at >= ?';
       progressDateParams.push(filters.start_date);
@@ -3806,7 +3808,7 @@ export function getErrorTrendAnalysis(days: number = 90, filters?: TimeRangeFilt
     FROM user_progress
     WHERE completed_at >= ?
   `;
-  const params: any[] = [cutoff];
+  const params: unknown[] = [cutoff];
 
   if (filters?.end_date) {
     query += ' AND completed_at <= ?';
@@ -3906,7 +3908,7 @@ export function getStudentLearningPace(filters?: TimeRangeFilters): LearningPace
 
   return students.map(student => {
     let query = 'SELECT completed_at FROM user_progress WHERE user_id = ? ORDER BY completed_at ASC';
-    const params: any[] = [student.id];
+    const params: unknown[] = [student.id];
     if (filters?.start_date) {
       query += ' AND completed_at >= ?';
       params.push(filters.start_date);
@@ -3976,7 +3978,7 @@ export function getTaskPerformanceDetail(filters?: TimeRangeFilters): TaskPerfor
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -4090,7 +4092,7 @@ export function getLearningTimePatterns(days: number = 30, filters?: TimeRangeFi
   const db = getDb();
   
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' WHERE completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -4282,7 +4284,7 @@ export function getTopicPerformanceAnalysis(filters?: TimeRangeFilters): TopicPe
     }
 
     let baseDateCondition = '';
-    const baseDateParams: any[] = [...cat.taskIds];
+    const baseDateParams: unknown[] = [...cat.taskIds];
     if (filters?.start_date) {
       baseDateCondition += ' AND completed_at >= ?';
       baseDateParams.push(filters.start_date);
@@ -4354,7 +4356,7 @@ export function getPredictiveGrades(filters?: TimeRangeFilters): PredictiveGrade
   const dayMs = 24 * 60 * 60 * 1000;
 
   let baseDateCondition = '';
-  const baseDateParams: any[] = [];
+  const baseDateParams: unknown[] = [];
   if (filters?.start_date) {
     baseDateCondition += ' AND completed_at >= ?';
     baseDateParams.push(filters.start_date);
@@ -4466,7 +4468,7 @@ export function getLearningPathEffectiveness(filters?: TimeRangeFilters): Learni
   });
 
   let baseDateCondition = '';
-  const baseDateParams: any[] = [];
+  const baseDateParams: unknown[] = [];
   if (filters?.start_date) {
     baseDateCondition += ' AND completed_at >= ?';
     baseDateParams.push(filters.start_date);
@@ -4547,7 +4549,7 @@ export function getBottleneckAnalysis(filters?: TimeRangeFilters): BottleneckEnt
   const db = getDb();
 
   let baseDateCondition = '';
-  const baseDateParams: any[] = [];
+  const baseDateParams: unknown[] = [];
   if (filters?.start_date) {
     baseDateCondition += ' AND completed_at >= ?';
     baseDateParams.push(filters.start_date);
@@ -4771,7 +4773,7 @@ export function getTaskCategoryPerformance(filters?: TimeRangeFilters): Category
     const placeholders = taskIds.map(() => '?').join(',');
 
     let baseDateCondition = '';
-    const baseDateParams: any[] = [...taskIds];
+    const baseDateParams: unknown[] = [...taskIds];
     if (filters?.start_date) {
       baseDateCondition += ' AND completed_at >= ?';
       baseDateParams.push(filters.start_date);
@@ -4926,7 +4928,7 @@ export function getHintImpactAnalysis(filters?: TimeRangeFilters): HintImpactEnt
   const hasHintTable = tables.some(t => t.name === 'hint_usage');
 
   let baseDateCondition = '';
-  const baseDateParams: any[] = [];
+  const baseDateParams: unknown[] = [];
   if (filters?.start_date) {
     baseDateCondition += ' AND completed_at >= ?';
     baseDateParams.push(filters.start_date);
@@ -5059,7 +5061,7 @@ export function getDeadlineCompliance(filters?: TimeRangeFilters): DeadlineCompl
   const now = Date.now();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND d.due_at >= ?';
     dateParams.push(filters.start_date);
@@ -5228,7 +5230,7 @@ export function getNotificationDeliveryStats(filters?: TimeRangeFilters): Notifi
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND sent_at >= ?';
     dateParams.push(filters.start_date);
@@ -5492,7 +5494,7 @@ export function getOnboardingFunnel(filters?: TimeRangeFilters): OnboardingFunne
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND u.created_at >= ?';
     dateParams.push(filters.start_date);
@@ -5537,14 +5539,14 @@ export function getOnboardingFunnel(filters?: TimeRangeFilters): OnboardingFunne
   ];
 
   // Average time calculations
-  const withCompletion = students.filter(s => s.first_completion !== null);
+  const withCompletion = students.filter((s): s is typeof s & { first_completion: number } => s.first_completion !== null);
   const avgTimeToFirst = withCompletion.length > 0
-    ? Math.round(withCompletion.reduce((s, st) => s + (st.first_completion! - st.created_at) / (60 * 60 * 1000), 0) / withCompletion.length * 10) / 10
+    ? Math.round(withCompletion.reduce((s, st) => s + (Number(st.first_completion) - st.created_at) / (60 * 60 * 1000), 0) / withCompletion.length * 10) / 10
     : 0;
 
-  const withFive = students.filter(s => s.total_completed >= 5 && s.first_completion !== null);
+  const withFive = students.filter((s): s is typeof s & { first_completion: number } => s.total_completed >= 5 && s.first_completion !== null);
   const avgTimeToFive = withFive.length > 0
-    ? Math.round(withFive.reduce((s, st) => s + (st.first_completion! - st.created_at) / (60 * 60 * 1000), 0) / withFive.length * 10) / 10
+    ? Math.round(withFive.reduce((s, st) => s + (Number(st.first_completion) - st.created_at) / (60 * 60 * 1000), 0) / withFive.length * 10) / 10
     : 0;
 
   // Weekly trend
@@ -5608,7 +5610,7 @@ export function getReEngagementMetrics(filters?: TimeRangeFilters): ReEngagement
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND up.completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -5900,7 +5902,7 @@ export function getRegistrationTrends(filters?: TimeRangeFilters): RegistrationT
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND created_at >= ?';
     dateParams.push(filters.start_date);
@@ -6009,7 +6011,7 @@ export function getActivitySummary(filters?: TimeRangeFilters): ActivitySummaryR
   const dayMs = 24 * 60 * 60 * 1000;
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -6116,7 +6118,7 @@ export function getHintUsageAnalytics(filters?: TimeRangeFilters): HintUsageAnal
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND h.revealed_at >= ?';
     dateParams.push(filters.start_date);
@@ -6266,7 +6268,7 @@ export function getAuditLog(filters?: TimeRangeFilters): AuditLogReport {
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND d.created_at >= ?';
     dateParams.push(filters.start_date);
@@ -6404,7 +6406,7 @@ export function getWeekdayVsWeekendPerformance(filters?: TimeRangeFilters): Week
   const db = getDb();
 
   let dateCondition = '';
-  const dateParams: any[] = [];
+  const dateParams: unknown[] = [];
   if (filters?.start_date) {
     dateCondition += ' AND completed_at >= ?';
     dateParams.push(filters.start_date);
@@ -7147,20 +7149,24 @@ export function getExecutiveSummary(filters?: TimeRangeFilters) {
   const prevStart = hasDateFilters && filters ? (() => { const start = filters.start_date; const end = filters.end_date; return start && end ? start - (end - start) : null; })() : null;
   const prevEnd = hasDateFilters && filters ? filters.start_date ?? null : null;
 
+  // Extract date params to avoid non-null assertions
+  const startDate = filters?.start_date;
+  const endDate = filters?.end_date;
+
   // Current period stats
   const totalStudents = db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student'`).get() as { count: number };
   const activeNow = db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student' AND last_active >= ?`).get(Date.now() - 7 * 24 * 60 * 60 * 1000) as { count: number };
 
   const totalCompletions = hasDateFilters
-    ? db.prepare(`SELECT COUNT(*) as count FROM user_progress WHERE completed_at >= ? AND completed_at <= ?`).get(filters!.start_date, filters!.end_date) as { count: number }
+    ? db.prepare(`SELECT COUNT(*) as count FROM user_progress WHERE completed_at >= ? AND completed_at <= ?`).get(startDate, endDate) as { count: number }
     : db.prepare(`SELECT COUNT(*) as count FROM user_progress`).get() as { count: number };
 
   const avgAttempts = hasDateFilters
-    ? db.prepare(`SELECT AVG(attempts) as avg FROM user_progress WHERE completed_at >= ? AND completed_at <= ?`).get(filters!.start_date, filters!.end_date) as { avg: number | null }
+    ? db.prepare(`SELECT AVG(attempts) as avg FROM user_progress WHERE completed_at >= ? AND completed_at <= ?`).get(startDate, endDate) as { avg: number | null }
     : db.prepare(`SELECT AVG(attempts) as avg FROM user_progress`).get() as { avg: number | null };
 
   const newRegistrations = hasDateFilters
-    ? db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student' AND created_at >= ? AND created_at <= ?`).get(filters!.start_date, filters!.end_date) as { count: number }
+    ? db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student' AND created_at >= ? AND created_at <= ?`).get(startDate, endDate) as { count: number }
     : db.prepare(`SELECT COUNT(*) as count FROM users WHERE role = 'student'`).get() as { count: number };
 
   // Previous period for comparison

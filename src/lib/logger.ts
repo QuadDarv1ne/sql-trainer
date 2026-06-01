@@ -3,6 +3,7 @@
  * Uses console methods but provides a centralized point for future enhancements
  * (e.g., structured logging, error tracking services).
  */
+/* eslint-disable no-console -- intentional console usage in logger */
 
 export const logger = {
   error: (message: string, error?: unknown) => {
