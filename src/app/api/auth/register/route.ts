@@ -9,7 +9,10 @@ import { logger } from '@/lib/logger';
 const registerSchema = z.object({
   name: z.string().min(1, 'Имя обязательно').max(100, 'Имя слишком длинное'),
   email: z.string().email('Некорректный email'),
-  password: z.string().min(8, 'Пароль должен содержать минимум 8 символов'),
+  password: z
+    .string()
+    .min(8, 'Пароль должен содержать минимум 8 символов')
+    .max(128, 'Пароль слишком длинный (максимум 128 символов)'),
   phone: z.string().optional().or(z.literal('')),
 });
 

@@ -11,7 +11,10 @@ const resetRequestSchema = z.object({
 
 const resetConfirmSchema = z.object({
   code: z.string().min(1, 'Код обязателен'),
-  newPassword: z.string().min(8, 'Пароль должен содержать минимум 8 символов'),
+  newPassword: z
+    .string()
+    .min(8, 'Пароль должен содержать минимум 8 символов')
+    .max(128, 'Пароль слишком длинный (максимум 128 символов)'),
 });
 
 // Request password reset code

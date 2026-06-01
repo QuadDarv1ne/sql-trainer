@@ -8,7 +8,10 @@ import { logger } from '@/lib/logger';
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Текущий пароль обязателен'),
-  newPassword: z.string().min(8, 'Пароль должен содержать минимум 8 символов'),
+  newPassword: z
+    .string()
+    .min(8, 'Пароль должен содержать минимум 8 символов')
+    .max(128, 'Пароль слишком длинный (максимум 128 символов)'),
 });
 
 export async function POST(request: NextRequest) {

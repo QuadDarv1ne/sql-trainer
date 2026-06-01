@@ -7,7 +7,10 @@ import { z } from 'zod';
 const createUserSchema = z.object({
   email: z.string().email('Invalid email format'),
   name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password is too long (max 128 characters)'),
   phone: z.string().optional(),
   role: z.enum(['student', 'teacher', 'admin']).optional(),
 });
