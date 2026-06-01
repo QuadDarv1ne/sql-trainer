@@ -37,7 +37,7 @@ export default function ActivityChart() {
       </Alert>
     );
   }
-  if (!data.length) return <p className="text-center py-4">{t('analytics.noData')}</p>;
+  if (!data || !data.length) return <p className="text-center py-4">{t('analytics.noData')}</p>;
 
   const chartData = data.map((entry) => ({
     ...entry,

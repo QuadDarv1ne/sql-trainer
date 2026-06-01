@@ -39,14 +39,14 @@ export default function RecommendationsPanel() {
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
-  if (!data.length) return <EmptyState title={t('analytics.recommendations.noRecommendations')} />;
+  if (!data || !data.length) return <EmptyState title={t('analytics.recommendations.noRecommendations')} />;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Lightbulb className="h-5 w-5 text-amber-600" />
-          {t('analytics.recommendations.title')} ({data.length})
+          {t('analytics.recommendations.title')} ({data?.length ?? 0})
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

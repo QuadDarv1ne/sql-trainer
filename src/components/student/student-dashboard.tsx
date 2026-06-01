@@ -420,7 +420,7 @@ export default function StudentDashboard() {
                                 ? t('dashboard.overdue', { default: 'Просрочено' })
                                 : daysLeft === 1
                                   ? t('dashboard.tomorrow', { default: 'Завтра' })
-                                  : t('dashboard.daysLeft', { default: `Осталось ${daysLeft} дн.` }, { count: String(daysLeft) })}
+                                  : t('dashboard.daysLeft', { default: `Осталось ${daysLeft} дн.` })}
                             </div>
                           </div>
                         </div>

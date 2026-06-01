@@ -49,7 +49,7 @@ export default function AlertsPanel() {
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
-  if (!alerts.length) return <EmptyState icon="alert" title={t('analytics.alerts.noAlerts')} />;
+  if (!alerts || !alerts.length) return <EmptyState icon="alert" title={t('analytics.alerts.noAlerts')} />;
 
   const alertTypeLabels: Record<string, string> = {
     at_risk: t('analytics.alerts.atRisk'),
@@ -65,11 +65,11 @@ export default function AlertsPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-amber-600" />
-            {t('analytics.alerts.title')} ({alerts.length})
+            {t('analytics.alerts.title')} ({alerts?.length ?? 0})
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {alerts.map((alert) => (
+          {alerts?.map((alert) => (
             <div
               key={`${alert.user_id}-${alert.alert_type}`}
               className={`p-4 border-l-4 rounded ${severityColors[alert.severity]}`}

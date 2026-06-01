@@ -3041,13 +3041,13 @@ export function createGroup(data: {
   }
 
   if (actorId) {
-    logAudit(db, {
+    logAudit(
       actorId,
-      action: 'group_create',
-      targetType: 'group',
-      targetId: id,
-      details: JSON.stringify({ name: data.name, memberCount: data.memberIds?.length || 0 }),
-    });
+      'group_create',
+      'group',
+      id,
+      JSON.stringify({ name: data.name, memberCount: data.memberIds?.length || 0 })
+    );
   }
 
   return getGroupById(id)!;
@@ -3148,13 +3148,13 @@ export function updateGroup(id: string, data: { name?: string; description?: str
   if (result.changes === 0) return null;
 
   if (actorId) {
-    logAudit(db, {
+    logAudit(
       actorId,
-      action: 'group_update',
-      targetType: 'group',
-      targetId: id,
-      details: JSON.stringify(data),
-    });
+      'group_update',
+      'group',
+      id,
+      JSON.stringify(data)
+    );
   }
 
   return getGroupById(id);
@@ -3166,12 +3166,12 @@ export function deleteGroup(id: string, actorId?: string): boolean {
   if (result.changes === 0) return false;
 
   if (actorId) {
-    logAudit(db, {
+    logAudit(
       actorId,
-      action: 'group_delete',
-      targetType: 'group',
-      targetId: id,
-    });
+      'group_delete',
+      'group',
+      id
+    );
   }
 
   return true;
@@ -3190,13 +3190,13 @@ export function addGroupMembers(groupId: string, userIds: string[], actorId?: st
   }
 
   if (actorId && added > 0) {
-    logAudit(db, {
+    logAudit(
       actorId,
-      action: 'group_add_members',
-      targetType: 'group',
-      targetId: groupId,
-      details: JSON.stringify({ addedCount: added }),
-    });
+      'group_add_members',
+      'group',
+      groupId,
+      JSON.stringify({ addedCount: added })
+    );
   }
 
   return added;
@@ -3209,13 +3209,13 @@ export function removeGroupMember(groupId: string, userId: string, actorId?: str
   ).run(groupId, userId);
 
   if (result.changes > 0 && actorId) {
-    logAudit(db, {
+    logAudit(
       actorId,
-      action: 'group_remove_member',
-      targetType: 'group',
-      targetId: groupId,
-      details: JSON.stringify({ removedUserId: userId }),
-    });
+      'group_remove_member',
+      'group',
+      groupId,
+      JSON.stringify({ removedUserId: userId })
+    );
   }
 
   return result.changes > 0;

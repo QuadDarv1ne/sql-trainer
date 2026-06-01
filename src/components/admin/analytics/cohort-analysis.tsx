@@ -40,7 +40,7 @@ export default function CohortAnalysisTable() {
       </Alert>
     );
   }
-  if (!data.length) return <EmptyState />;
+  if (!data || !data.length) return <EmptyState />;
 
   const getRetentionColor = (value: number, total: number) => {
     if (total === 0) return '';
@@ -69,7 +69,7 @@ export default function CohortAnalysisTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((cohort) => (
+              {data?.map((cohort) => (
                 <TableRow key={cohort.cohort_month}>
                   <TableCell className="font-medium">{cohort.cohort_month}</TableCell>
                   <TableCell>{cohort.total_students}</TableCell>
