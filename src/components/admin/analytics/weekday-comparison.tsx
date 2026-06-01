@@ -4,13 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Calendar } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import { useDateRange } from '../analytics-dashboard';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   LineChart, Line,
 } from 'recharts';
 import EmptyState from './empty-state';
-import { useAnalyticsQuery } from '@/lib/hooks';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 interface WeekdayData {
   total_completions: number;
@@ -28,8 +27,6 @@ interface ComparisonData {
 }
 
 export default function WeekdayComparison() {
-  const { startDate, endDate } = useDateRange();
-
   const { data, loading, error } = useAnalyticsQuery<ComparisonData>({
     endpoint: '/api/admin/analytics/weekday-comparison',
     transform: (json) => ({
@@ -39,8 +36,6 @@ export default function WeekdayComparison() {
       hourly_weekday: (json.hourly_weekday || []) as ComparisonData['hourly_weekday'],
       hourly_weekend: (json.hourly_weekend || []) as ComparisonData['hourly_weekend'],
     }),
-    startDate,
-    endDate,
   });
 
   const weekday = data?.weekday || null;

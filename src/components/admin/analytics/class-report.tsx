@@ -7,9 +7,8 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle, Users, TrendingUp, Award, Clock, Download } from 'lucide-react';
 import { generateClassReportPDF } from '@/lib/pdf-report';
 import { t, getLocale } from '@/lib/i18n';
-import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
-import { useAnalyticsQuery } from '@/lib/hooks';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 interface ClassReportData {
   total_students: number;
@@ -24,13 +23,9 @@ interface ClassReportData {
 }
 
 export default function ClassReport() {
-  const { startDate, endDate } = useDateRange();
-
   const { data: report, loading, error } = useAnalyticsQuery<ClassReportData>({
     endpoint: '/api/admin/analytics/class-report',
     transform: (json) => (json.report || {}) as ClassReportData,
-    startDate,
-    endDate,
   });
 
   const handleGeneratePDF = () => {

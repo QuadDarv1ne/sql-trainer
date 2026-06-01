@@ -9,7 +9,7 @@ import { t } from '@/lib/i18n';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
-import { useAnalyticsQuery } from '@/lib/hooks';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 interface ABTestData {
   test_name: string;
@@ -22,9 +22,8 @@ export default function ABTest() {
   const [testType, setTestType] = useState('learning_path');
   const { data, loading, error } = useAnalyticsQuery<ABTestData>({
     endpoint: '/api/admin/analytics/ab-test',
-    dataKey: '',
     transform: (json) => json as unknown as ABTestData,
-    dependencies: [testType],
+    params: { testType },
   });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;

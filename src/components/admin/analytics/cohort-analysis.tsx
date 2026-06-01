@@ -13,9 +13,8 @@ import {
 } from '@/components/ui/table';
 import { AlertCircle } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
-import { useAnalyticsQuery } from '@/lib/hooks';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 interface CohortEntry {
   cohort_month: string;
@@ -27,12 +26,9 @@ interface CohortEntry {
 }
 
 export default function CohortAnalysisTable() {
-  const { startDate, endDate } = useDateRange();
   const { data, loading, error } = useAnalyticsQuery<CohortEntry[]>({
     endpoint: '/api/admin/analytics/cohort',
     dataKey: 'cohorts',
-    startDate,
-    endDate,
   });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;

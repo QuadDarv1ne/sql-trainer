@@ -5,12 +5,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, FileText, Users, Clock } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import { useDateRange } from '../analytics-dashboard';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import EmptyState from './empty-state';
-import { useAnalyticsQuery } from '@/lib/hooks';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 interface AuditData {
   entries: Array<{ action_type: string; actor_name: string | null; target_type: string; target_id: string; details: string; created_at: number }>;
@@ -18,16 +17,12 @@ interface AuditData {
 }
 
 export default function AuditLog() {
-  const { startDate, endDate } = useDateRange();
-
   const { data, loading, error } = useAnalyticsQuery<AuditData>({
     endpoint: '/api/admin/analytics/audit',
     transform: (json) => ({
       entries: (json.entries || []) as AuditData['entries'],
       summary: json.summary as AuditData['summary'],
     }),
-    startDate,
-    endDate,
   });
 
   const entries = data?.entries || [];

@@ -14,8 +14,7 @@ import {
   Legend,
 } from 'recharts';
 import { t, getLocale } from '@/lib/i18n';
-import { useDateRange } from '../analytics-dashboard';
-import { useAnalyticsQuery } from '@/lib/hooks';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 interface ActivityEntry {
   date: string;
@@ -24,12 +23,9 @@ interface ActivityEntry {
 }
 
 export default function ActivityChart() {
-  const { startDate, endDate } = useDateRange();
   const { data, loading, error } = useAnalyticsQuery<ActivityEntry[]>({
     endpoint: '/api/admin/analytics/activity',
     dataKey: 'activity',
-    startDate,
-    endDate,
   });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;

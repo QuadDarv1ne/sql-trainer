@@ -5,12 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, TrendingUp, Users } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import { useDateRange } from '../analytics-dashboard';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import EmptyState from './empty-state';
-import { useAnalyticsQuery } from '@/lib/hooks';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 interface CohortData {
   cohorts: Array<{ cohort_week: string; total: number; week_1_retained: number; week_1_rate: number; week_2_retained: number; week_2_rate: number; week_4_retained: number; week_4_rate: number; week_8_retained: number; week_8_rate: number }>;
@@ -18,15 +17,12 @@ interface CohortData {
 }
 
 export default function RetentionCohorts() {
-  const { startDate, endDate } = useDateRange();
   const { data, loading, error } = useAnalyticsQuery<CohortData>({
     endpoint: '/api/admin/analytics/retention-cohorts',
     transform: (json) => ({
       cohorts: (json.cohorts || []) as CohortData['cohorts'],
       summary: json.summary as CohortData['summary'],
     }),
-    startDate,
-    endDate,
   });
 
   const cohorts = data?.cohorts || [];

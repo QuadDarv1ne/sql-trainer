@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Users, RotateCcw, GraduationCap, TrendingUp, AlertCircle } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import { useDateRange } from '../analytics-dashboard';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import EmptyState from './empty-state';
 
 interface PerformanceData {
@@ -16,25 +15,9 @@ interface PerformanceData {
 }
 
 export default function PerformanceMetrics() {
-  const [data, setData] = useState<PerformanceData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const { startDate, endDate } = useDateRange();
-
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (startDate) params.set('startDate', String(startDate));
-    if (endDate) params.set('endDate', String(endDate));
-
-    fetch(`/api/admin/analytics/performance?${params}`)
-      .then((r) => {
-        if (!r.ok) throw new Error('Failed to load');
-        return r.json();
-      })
-      .then((data) => setData(data))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
-  }, [startDate, endDate]);
+  const { data, loading, error } = useAnalyticsQuery<PerformanceData>({
+    endpoint: '/api/admin/analytics/performance',
+  });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
   if (error) {

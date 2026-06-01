@@ -8,9 +8,8 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle, AlertTriangle, TrendingUp, Award, Eye } from 'lucide-react';
 import StudentDetailDialog from './student-detail-dialog';
 import { t } from '@/lib/i18n';
-import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
-import { useAnalyticsQuery } from '@/lib/hooks';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 interface StudentAlert {
   user_id: string;
@@ -42,13 +41,10 @@ const severityColors = {
 export default function AlertsPanel() {
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { startDate, endDate } = useDateRange();
 
   const { data: alerts, loading, error } = useAnalyticsQuery<StudentAlert[]>({
     endpoint: '/api/admin/analytics/alerts',
     dataKey: 'alerts',
-    startDate,
-    endDate,
   });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;

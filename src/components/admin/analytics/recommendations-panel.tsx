@@ -5,9 +5,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, Lightbulb, ListChecks } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
-import { useAnalyticsQuery } from '@/lib/hooks';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 interface Recommendation {
   user_id: string;
@@ -33,13 +32,9 @@ const typeLabels: Record<string, string> = {
 };
 
 export default function RecommendationsPanel() {
-  const { startDate, endDate } = useDateRange();
-
   const { data, loading, error } = useAnalyticsQuery<Recommendation[]>({
     endpoint: '/api/admin/analytics/recommendations',
     dataKey: 'recommendations',
-    startDate,
-    endDate,
   });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;

@@ -4,12 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Users, Activity, TrendingUp } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import { useDateRange } from '../analytics-dashboard';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import EmptyState from './empty-state';
-import { useAnalyticsQuery } from '@/lib/hooks';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 interface ActivityData {
   daily: Array<{ date: string; dau: number; wau: number; mau: number }>;
@@ -17,15 +16,12 @@ interface ActivityData {
 }
 
 export default function ActivitySummary() {
-  const { startDate, endDate } = useDateRange();
   const { data, loading, error } = useAnalyticsQuery<ActivityData>({
     endpoint: '/api/admin/analytics/activity-summary',
     transform: (json) => ({
       daily: (json.daily || []) as ActivityData['daily'],
       summary: json.summary as ActivityData['summary'],
     }),
-    startDate,
-    endDate,
   });
 
   const daily = data?.daily || [];
