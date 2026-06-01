@@ -51,14 +51,21 @@ const TYPE_MAP: Record<string, string> = {
  */
 export function detectDroppedFunctions(originalSql: string, adaptedSql: string): string[] {
   const dropped: string[] = [];
-  const mysqlFunctions = [
+
+  // Functions that ARE successfully adapted (should NOT be reported as dropped)
+  const adaptedFunctions = [
     'DATE_FORMAT', 'STR_TO_DATE', 'DATE_ADD', 'DATE_SUB',
     'TIMESTAMPDIFF', 'TIMESTAMPADD', 'PERIOD_DIFF',
     'GROUP_CONCAT', 'CONCAT_WS', 'FIELD', 'FIND_IN_SET',
+    'IF',
+    'REGEXP', 'RLIKE',
+  ];
+
+  // Functions that are NOT adapted (should be reported as dropped if present in original)
+  const unadaptedFunctions = [
     'LOAD_FILE', 'INET_ATON', 'INET_NTOA', 'INET6_ATON', 'INET6_NTOA',
     'CAST', 'CONVERT', 'BINARY',
-    'REGEXP', 'RLIKE',
-    'IF', 'CASE', 'NULLIF',
+    'CASE', 'NULLIF',
     'GET_LOCK', 'RELEASE_LOCK', 'IS_FREE_LOCK', 'IS_USED_LOCK',
     'BENCHMARK', 'SLEEP',
     'MD5', 'SHA1', 'SHA2', 'PASSWORD', 'ENCRYPT', 'DECODE', 'ENCODE',
@@ -66,9 +73,9 @@ export function detectDroppedFunctions(originalSql: string, adaptedSql: string):
     'COMPRESS', 'UNCOMPRESS', 'UNCOMPRESSED_LENGTH',
   ];
 
-  for (const func of mysqlFunctions) {
+  for (const func of unadaptedFunctions) {
     const regex = new RegExp(`\\b${func}\\s*\\(`, 'i');
-    if (regex.test(originalSql) && !regex.test(adaptedSql)) {
+    if (regex.test(originalSql)) {
       dropped.push(func);
     }
   }
@@ -218,9 +225,21 @@ function adaptDataTypes(sql: string): string {
   let result = sql;
 
   // Replace MySQL data types with SQLite equivalents
+  // Use negative lookahead to avoid matching DATE in DATE_FORMAT, DATE_ADD, etc.
+  // Note: We only exclude letters/underscore, not parentheses, so TINYINT(1) still matches
   for (const [mysqlType, sqliteType] of Object.entries(TYPE_MAP)) {
-    const regex = new RegExp(`\\b${mysqlType}(?:\\s*\\([^)]*\\))?`, 'gi');
-    result = result.replace(regex, () => sqliteType);
+    // Skip SET type when it appears in comment form (-- SET NAMES removed)
+    if (mysqlType === 'SET') {
+      // Only convert SET when followed by parenthesis (ENUM-like usage)
+      result = result.replace(/\bSET\s*\(/gi, 'TEXT(');
+    } else if (['DATE', 'TIME', 'TIMESTAMP', 'DATETIME'].includes(mysqlType)) {
+      // Don't convert these types when they're part of date(), time(), datetime() functions
+      const regex = new RegExp(`\\b${mysqlType}(?![_a-zA-Z(])(?:\\s*\\([^)]*\\))?`, 'gi');
+      result = result.replace(regex, () => sqliteType);
+    } else {
+      const regex = new RegExp(`\\b${mysqlType}(?![_a-zA-Z])(?:\\s*\\([^)]*\\))?`, 'gi');
+      result = result.replace(regex, () => sqliteType);
+    }
   }
 
   // Handle VARCHAR(n) -> TEXT
@@ -310,11 +329,11 @@ export function adaptMySQLToSQLite(sql: string): string {
   // Adapt clauses first
   result = adaptClauses(result);
 
-  // Adapt data types
-  result = adaptDataTypes(result);
-
-  // Adapt functions
+  // Adapt functions BEFORE data types (so DATE_FORMAT etc. are converted before DATE→TEXT)
   result = adaptFunction(result);
+
+  // Adapt data types last
+  result = adaptDataTypes(result);
 
   return result;
 }
