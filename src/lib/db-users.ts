@@ -214,6 +214,30 @@ function initDatabase(): void {
     `);
   }
 
+  // Migration: add groups tables for class/group management
+  const hasGroups = tables.some(t => t.name === 'groups');
+  if (!hasGroups) {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS "groups" (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        teacher_id TEXT NOT NULL REFERENCES users(id),
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_groups_teacher ON "groups"(teacher_id);
+
+      CREATE TABLE IF NOT EXISTS group_members (
+        group_id TEXT NOT NULL REFERENCES "groups"(id) ON DELETE CASCADE,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        joined_at INTEGER NOT NULL,
+        PRIMARY KEY (group_id, user_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_group_members_user ON group_members(user_id);
+    `);
+  }
+
   // Migration: add streak columns to users table
   const userColumns = db.pragma("table_info(users)") as { name: string }[];
   if (!userColumns.some(c => c.name === 'streak_current')) {
@@ -2965,6 +2989,279 @@ export interface Deadline {
   due_at: number;
   created_at: number;
   updated_at: number;
+}
+
+export interface Group {
+  id: string;
+  name: string;
+  description: string | null;
+  teacher_id: string;
+  teacher_name: string | null;
+  member_count: number;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface GroupMember {
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  joined_at: number;
+}
+
+export interface GroupWithMembers extends Group {
+  members: GroupMember[];
+}
+
+export function createGroup(data: {
+  name: string;
+  description?: string;
+  teacherId: string;
+  memberIds?: string[];
+}, actorId?: string): Group {
+  const db = getDb();
+  const id = crypto.randomUUID();
+  const now = Date.now();
+  db.prepare(`
+    INSERT INTO "groups" (id, name, description, teacher_id, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(id, data.name, data.description || null, data.teacherId, now, now);
+
+  // Add members if provided
+  if (data.memberIds && data.memberIds.length > 0) {
+    const insertMember = db.prepare(
+      'INSERT INTO group_members (group_id, user_id, joined_at) VALUES (?, ?, ?)'
+    );
+    const insertMany = db.transaction((groupId: string, userIds: string[]) => {
+      for (const userId of userIds) {
+        insertMember.run(groupId, userId, now);
+      }
+    });
+    insertMany(id, data.memberIds);
+  }
+
+  if (actorId) {
+    logAudit(db, {
+      actorId,
+      action: 'group_create',
+      targetType: 'group',
+      targetId: id,
+      details: JSON.stringify({ name: data.name, memberCount: data.memberIds?.length || 0 }),
+    });
+  }
+
+  return getGroupById(id)!;
+}
+
+export function getGroupById(id: string): Group | null {
+  const db = getDb();
+  const row = db.prepare(`
+    SELECT g.id, g.name, g.description, g.teacher_id, u.name as teacher_name,
+           (SELECT COUNT(*) FROM group_members gm WHERE gm.group_id = g.id) as member_count,
+           g.created_at, g.updated_at
+    FROM "groups" g
+    LEFT JOIN users u ON g.teacher_id = u.id
+    WHERE g.id = ?
+  `).get(id) as (Group & { member_count: number }) | undefined;
+
+  if (!row) return null;
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    teacher_id: row.teacher_id,
+    teacher_name: row.teacher_name,
+    member_count: row.member_count,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
+export function getGroupsByTeacherId(teacherId: string): Group[] {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT g.id, g.name, g.description, g.teacher_id, u.name as teacher_name,
+           (SELECT COUNT(*) FROM group_members gm WHERE gm.group_id = g.id) as member_count,
+           g.created_at, g.updated_at
+    FROM "groups" g
+    LEFT JOIN users u ON g.teacher_id = u.id
+    WHERE g.teacher_id = ?
+    ORDER BY g.created_at DESC
+  `).all(teacherId) as (Group & { member_count: number })[];
+
+  return rows.map(row => ({
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    teacher_id: row.teacher_id,
+    teacher_name: row.teacher_name,
+    member_count: row.member_count,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  }));
+}
+
+export function getAllGroupsForAdmin(): Group[] {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT g.id, g.name, g.description, g.teacher_id, u.name as teacher_name,
+           (SELECT COUNT(*) FROM group_members gm WHERE gm.group_id = g.id) as member_count,
+           g.created_at, g.updated_at
+    FROM "groups" g
+    LEFT JOIN users u ON g.teacher_id = u.id
+    ORDER BY g.created_at DESC
+  `).all() as (Group & { member_count: number })[];
+
+  return rows.map(row => ({
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    teacher_id: row.teacher_id,
+    teacher_name: row.teacher_name,
+    member_count: row.member_count,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  }));
+}
+
+export function updateGroup(id: string, data: { name?: string; description?: string }, actorId?: string): Group | null {
+  const db = getDb();
+  const now = Date.now();
+  const parts: string[] = [];
+  const values: unknown[] = [];
+
+  if (data.name !== undefined) {
+    parts.push('name = ?');
+    values.push(data.name);
+  }
+  if (data.description !== undefined) {
+    parts.push('description = ?');
+    values.push(data.description);
+  }
+  if (parts.length === 0) return getGroupById(id);
+
+  parts.push('updated_at = ?');
+  values.push(now);
+  values.push(id);
+
+  const result = db.prepare(`UPDATE "groups" SET ${parts.join(', ')} WHERE id = ?`).run(...values);
+  if (result.changes === 0) return null;
+
+  if (actorId) {
+    logAudit(db, {
+      actorId,
+      action: 'group_update',
+      targetType: 'group',
+      targetId: id,
+      details: JSON.stringify(data),
+    });
+  }
+
+  return getGroupById(id);
+}
+
+export function deleteGroup(id: string, actorId?: string): boolean {
+  const db = getDb();
+  const result = db.prepare('DELETE FROM "groups" WHERE id = ?').run(id);
+  if (result.changes === 0) return false;
+
+  if (actorId) {
+    logAudit(db, {
+      actorId,
+      action: 'group_delete',
+      targetType: 'group',
+      targetId: id,
+    });
+  }
+
+  return true;
+}
+
+export function addGroupMembers(groupId: string, userIds: string[], actorId?: string): number {
+  const db = getDb();
+  const now = Date.now();
+  const insertMember = db.prepare(
+    'INSERT OR IGNORE INTO group_members (group_id, user_id, joined_at) VALUES (?, ?, ?)'
+  );
+  let added = 0;
+  for (const userId of userIds) {
+    const result = insertMember.run(groupId, userId, now);
+    added += result.changes;
+  }
+
+  if (actorId && added > 0) {
+    logAudit(db, {
+      actorId,
+      action: 'group_add_members',
+      targetType: 'group',
+      targetId: groupId,
+      details: JSON.stringify({ addedCount: added }),
+    });
+  }
+
+  return added;
+}
+
+export function removeGroupMember(groupId: string, userId: string, actorId?: string): boolean {
+  const db = getDb();
+  const result = db.prepare(
+    'DELETE FROM group_members WHERE group_id = ? AND user_id = ?'
+  ).run(groupId, userId);
+
+  if (result.changes > 0 && actorId) {
+    logAudit(db, {
+      actorId,
+      action: 'group_remove_member',
+      targetType: 'group',
+      targetId: groupId,
+      details: JSON.stringify({ removedUserId: userId }),
+    });
+  }
+
+  return result.changes > 0;
+}
+
+export function getGroupMembers(groupId: string): GroupMember[] {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT u.id as user_id, u.name as user_name, u.email as user_email, gm.joined_at
+    FROM group_members gm
+    JOIN users u ON gm.user_id = u.id
+    WHERE gm.group_id = ?
+    ORDER BY u.name
+  `).all(groupId) as GroupMember[];
+
+  return rows;
+}
+
+export function getUserGroups(userId: string): Group[] {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT g.id, g.name, g.description, g.teacher_id, u.name as teacher_name,
+           (SELECT COUNT(*) FROM group_members gm2 WHERE gm2.group_id = g.id) as member_count,
+           g.created_at, g.updated_at
+    FROM group_members gm
+    JOIN "groups" g ON gm.group_id = g.id
+    LEFT JOIN users u ON g.teacher_id = u.id
+    WHERE gm.user_id = ?
+    ORDER BY g.created_at DESC
+  `).all(userId) as (Group & { member_count: number })[];
+
+  return rows.map(row => ({
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    teacher_id: row.teacher_id,
+    teacher_name: row.teacher_name,
+    member_count: row.member_count,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  }));
+}
+
+export function getUserGroup(userId: string): Group | null {
+  const groups = getUserGroups(userId);
+  return groups.length > 0 ? groups[0] : null;
 }
 
 export interface PendingReminder {
