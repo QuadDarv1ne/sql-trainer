@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useAnalyticsQuery } from '../hooks/use-analytics-query';
 
 // Mock useDateRange context
-const mockDateRange = { startDate: null, endDate: null };
+const mockDateRange: { startDate: number | null; endDate: number | null } = { startDate: null, endDate: null };
 vi.mock('@/components/admin/analytics-dashboard', () => ({
   useDateRange: () => mockDateRange,
 }));

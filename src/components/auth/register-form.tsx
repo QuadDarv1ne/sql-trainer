@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
-import { Loader2, Mail, Lock, User, Phone, AlertCircle, CheckCircle2, Shield, Users, GraduationCap } from 'lucide-react';
+import { Loader2, Mail, Lock, User, Phone, AlertCircle, CheckCircle2, Shield, Users, GraduationCap, Eye, EyeOff } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { ROLE_LABELS } from '@/lib/rbac';
 import type { Role } from '@/lib/rbac';
@@ -22,6 +22,8 @@ export default function RegisterForm() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [role, setRole] = useState<Role>('student');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -102,7 +104,7 @@ export default function RegisterForm() {
     <Card className="w-full max-w-md shadow-lg border-border/80">
       <CardHeader className="space-y-2 pb-6">
         <div className="flex flex-col items-center gap-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-md">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
             <User className="h-6 w-6 text-white" />
           </div>
           <CardTitle className="text-2xl font-bold text-center">{t('auth.register')}</CardTitle>
@@ -177,13 +179,13 @@ export default function RegisterForm() {
                   onClick={() => setRole('student')}
                   className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
                     role === 'student'
-                      ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20'
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
                       : 'border-border bg-muted/30 hover:bg-muted/50'
                   }`}
                 >
-                  <Users className={`h-5 w-5 flex-shrink-0 ${role === 'student' ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+                  <Users className={`h-5 w-5 flex-shrink-0 ${role === 'student' ? 'text-blue-600' : 'text-muted-foreground'}`} />
                   <div className="text-left">
-                    <div className={`text-sm font-medium ${role === 'student' ? 'text-emerald-700 dark:text-emerald-400' : ''}`}>
+                    <div className={`text-sm font-medium ${role === 'student' ? 'text-blue-700 dark:text-blue-400' : ''}`}>
                       {ROLE_LABELS.student}
                     </div>
                     <div className="text-xs text-muted-foreground">{t('auth.role.studentDesc', { default: 'Практика SQL-запросов' })}</div>
@@ -217,14 +219,23 @@ export default function RegisterForm() {
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     placeholder={t('auth.passwordPlaceholder')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 h-11"
+                    className="pl-10 pr-10 h-11"
                     required
                     minLength={8}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
               </div>
               <div className="space-y-2">
@@ -233,27 +244,36 @@ export default function RegisterForm() {
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="confirmPassword"
-                    type="password"
+                    type={showConfirmPassword ? 'text' : 'password'}
                     placeholder={t('auth.confirmPasswordPlaceholder')}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pl-10 h-11"
+                    className="pl-10 pr-10 h-11"
                     required
                     minLength={8}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    tabIndex={-1}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4 pt-2 pb-6">
-          <Button type="submit" className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 font-medium" disabled={loading}>
+          <Button type="submit" className="w-full h-11 bg-blue-600 hover:bg-blue-700 font-medium" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             {t('auth.registerBtn')}
           </Button>
           <p className="text-sm text-center text-muted-foreground">
             {t('auth.hasAccount')}{' '}
-            <Link href="/login" className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
+            <Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
               {t('auth.loginLink')}
             </Link>
           </p>

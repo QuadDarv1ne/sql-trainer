@@ -583,7 +583,7 @@ export default function HomePage() {
   if (!mounted) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
       </div>
     );
   }
@@ -624,24 +624,24 @@ export default function HomePage() {
 
           {/* Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 shadow-sm">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 shadow-sm">
               <TableIcon className="h-5 w-5 text-white" />
             </div>
             <h1 className="text-base font-semibold tracking-tight hidden sm:block">
-              SQL <span className="text-emerald-600">Trainer</span>
+              SQL <span className="text-blue-600">Trainer</span>
             </h1>
           </div>
 
           {/* Level badge */}
           <div className="hidden sm:flex items-center gap-2.5 rounded-lg bg-muted/50 px-3 py-1.5 border border-border/50">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white shadow-sm">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-sm">
               {userStats.level}
             </div>
             <div className="flex flex-col leading-tight">
               <span className="text-xs font-medium text-muted-foreground">Ур. {userStats.level}</span>
               <div className="h-1.5 w-20 rounded-full bg-muted-foreground/20 overflow-hidden mt-0.5">
                 <div
-                  className="h-full rounded-full bg-emerald-500 transition-all duration-300"
+                  className="h-full rounded-full bg-blue-500 transition-all duration-300"
                   style={{ width: `${userStats.levelProgress}%` }}
                 />
               </div>
@@ -829,7 +829,7 @@ export default function HomePage() {
                     onClick={() => setReferenceTab('reference')}
                     className={`flex-1 px-3 py-1.5 text-[11px] font-medium transition-colors ${
                       referenceTab === 'reference'
-                        ? 'bg-muted text-foreground border-b-2 border-emerald-500'
+                        ? 'bg-muted text-foreground border-b-2 border-blue-500'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
@@ -839,7 +839,7 @@ export default function HomePage() {
                     onClick={() => setReferenceTab('glossary')}
                     className={`flex-1 px-3 py-1.5 text-[11px] font-medium transition-colors ${
                       referenceTab === 'glossary'
-                        ? 'bg-muted text-foreground border-b-2 border-emerald-500'
+                        ? 'bg-muted text-foreground border-b-2 border-blue-500'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >

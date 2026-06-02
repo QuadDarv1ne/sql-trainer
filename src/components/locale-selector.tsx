@@ -14,6 +14,7 @@ import { getLocale, setLocale, type Locale } from '@/lib/i18n';
 const LOCALES: { code: Locale; label: string; flag: string }[] = [
   { code: 'ru', label: 'Русский', flag: '🇷🇺' },
   { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'zh', label: '中文', flag: '🇨🇳' },
 ];
 
 export default function LocaleSelector() {

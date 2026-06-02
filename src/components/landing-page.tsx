@@ -1,10 +1,17 @@
 'use client';
 
 import Link from 'next/link';
+import { useTheme } from 'next-themes';
 import { t } from '@/lib/i18n';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import {
   Table,
   BookOpen,
@@ -16,10 +23,59 @@ import {
   LogIn,
   Database,
   Moon,
+  Sun,
   LayoutPanelTop,
   History,
   Search,
+  Globe as GlobeIcon,
+  Check,
+  UserPlus,
+  ListChecks,
+  Code,
+  Users,
+  Quote,
+  ChevronDown,
+  Server,
+  Zap,
+  RefreshCw,
+  Globe2,
+  TrendingUp,
 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import LocaleSelector from '@/components/locale-selector';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Button variant="ghost" size="sm" className="h-8 w-8" aria-label="Toggle theme">
+        <Sun className="h-4 w-4" />
+      </Button>
+    );
+  }
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  return (
+    <Button variant="ghost" size="sm" className="h-8 w-8" onClick={toggleTheme} aria-label="Toggle theme">
+      {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+    </Button>
+  );
+}
 
 const modules = [
   {
@@ -33,8 +89,8 @@ const modules = [
     icon: BookOpen,
     titleKey: 'landing.modules.tasks.title',
     descKey: 'landing.modules.tasks.desc',
-    color: 'text-emerald-600 dark:text-emerald-400',
-    bg: 'bg-emerald-50 dark:bg-emerald-950/30',
+    color: 'text-blue-600 dark:text-blue-400',
+    bg: 'bg-blue-50 dark:bg-blue-950/30',
   },
   {
     icon: Target,
@@ -74,12 +130,192 @@ const features = [
   { icon: Search, labelKey: 'landing.features.explain' },
 ];
 
+const databases = [
+  {
+    icon: Server,
+    nameKey: 'landing.databases.sqlite.name',
+    descKey: 'landing.databases.sqlite.desc',
+    color: 'text-blue-600 dark:text-blue-400',
+    bg: 'bg-blue-50 dark:bg-blue-950/30',
+    borderColor: 'border-blue-200 dark:border-blue-800',
+  },
+  {
+    icon: Database,
+    nameKey: 'landing.databases.postgresql.name',
+    descKey: 'landing.databases.postgresql.desc',
+    color: 'text-indigo-600 dark:text-indigo-400',
+    bg: 'bg-indigo-50 dark:bg-indigo-950/30',
+    borderColor: 'border-indigo-200 dark:border-indigo-800',
+  },
+  {
+    icon: Zap,
+    nameKey: 'landing.databases.clickhouse.name',
+    descKey: 'landing.databases.clickhouse.desc',
+    color: 'text-orange-600 dark:text-orange-400',
+    bg: 'bg-orange-50 dark:bg-orange-950/30',
+    borderColor: 'border-orange-200 dark:border-orange-800',
+  },
+];
+
+const whyItems = [
+  {
+    icon: RefreshCw,
+    titleKey: 'landing.why.interactive.title',
+    descKey: 'landing.why.interactive.desc',
+    color: 'text-blue-600 dark:text-blue-400',
+    bg: 'bg-blue-50 dark:bg-blue-950/30',
+  },
+  {
+    icon: TrendingUp,
+    titleKey: 'landing.why.progressive.title',
+    descKey: 'landing.why.progressive.desc',
+    color: 'text-purple-600 dark:text-purple-400',
+    bg: 'bg-purple-50 dark:bg-purple-950/30',
+  },
+  {
+    icon: Check,
+    titleKey: 'landing.why.feedback.title',
+    descKey: 'landing.why.feedback.desc',
+    color: 'text-amber-600 dark:text-amber-400',
+    bg: 'bg-amber-50 dark:bg-amber-950/30',
+  },
+  {
+    icon: Globe2,
+    titleKey: 'landing.why.community.title',
+    descKey: 'landing.why.community.desc',
+    color: 'text-cyan-600 dark:text-cyan-400',
+    bg: 'bg-cyan-50 dark:bg-cyan-950/30',
+  },
+];
+
+const howItWorks = [
+  {
+    icon: UserPlus,
+    titleKey: 'landing.howItWorks.step1.title',
+    descKey: 'landing.howItWorks.step1.desc',
+    step: 1,
+  },
+  {
+    icon: ListChecks,
+    titleKey: 'landing.howItWorks.step2.title',
+    descKey: 'landing.howItWorks.step2.desc',
+    step: 2,
+  },
+  {
+    icon: Code,
+    titleKey: 'landing.howItWorks.step3.title',
+    descKey: 'landing.howItWorks.step3.desc',
+    step: 3,
+  },
+];
+
+const stats = [
+  { value: '1,200+', labelKey: 'landing.stats.users', icon: Users },
+  { value: '56', labelKey: 'landing.stats.exercises', icon: BookOpen },
+  { value: '30+', labelKey: 'landing.stats.countries', icon: GlobeIcon },
+];
+
+const testimonials = [
+  {
+    nameKey: 'landing.testimonials.student1.name',
+    roleKey: 'landing.testimonials.student1.role',
+    quoteKey: 'landing.testimonials.student1.quote',
+  },
+  {
+    nameKey: 'landing.testimonials.student2.name',
+    roleKey: 'landing.testimonials.student2.role',
+    quoteKey: 'landing.testimonials.student2.quote',
+  },
+  {
+    nameKey: 'landing.testimonials.student3.name',
+    roleKey: 'landing.testimonials.student3.role',
+    quoteKey: 'landing.testimonials.student3.quote',
+  },
+];
+
+const faqItems = [
+  { titleKey: 'landing.faq.free.title', contentKey: 'landing.faq.free.answer' },
+  { titleKey: 'landing.faq.beginner.title', contentKey: 'landing.faq.beginner.answer' },
+  { titleKey: 'landing.faq.database.title', contentKey: 'landing.faq.database.answer' },
+  { titleKey: 'landing.faq.certificate.title', contentKey: 'landing.faq.certificate.answer' },
+];
+
+function useFadeIn() {
+  const [ref, setRef] = useState<HTMLElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (!ref) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(ref);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(ref);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  return { setRef, isVisible };
+}
+
+/**
+ * Consolidated fade-in hook — uses a single IntersectionObserver for multiple sections.
+ * Returns an array of { ref, isVisible } objects.
+ */
+function useFadeInSections(count: number) {
+  const refs = useState<(HTMLElement | null)[]>(new Array(count).fill(null));
+  const [visibleSections, setVisibleSections] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const index = Number(entry.target.getAttribute('data-section-index'));
+          if (entry.isIntersecting && !isNaN(index)) {
+            setVisibleSections((prev) => {
+              if (prev.has(index)) return prev;
+              const next = new Set(prev);
+              next.add(index);
+              return next;
+            });
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    for (const ref of refs[0]) {
+      if (ref) {
+        observer.observe(ref);
+      }
+    }
+
+    return () => observer.disconnect();
+  }, [refs[0]]);
+
+  return Array.from({ length: count }, (_, i) => ({
+    setRef: (el: HTMLElement | null) => {
+      refs[1]((prev) => {
+        const next = [...prev];
+        next[i] = el;
+        return next;
+      });
+    },
+    isVisible: visibleSections.has(i),
+  }));
+}
+
 const curriculumLevels = [
   {
     level: 'landing.curriculum.beginner.title',
-    color: 'text-emerald-600 dark:text-emerald-400',
-    bgColor: 'bg-emerald-50 dark:bg-emerald-950/30',
-    borderColor: 'border-emerald-200 dark:border-emerald-800',
+    color: 'text-blue-600 dark:text-blue-400',
+    bgColor: 'bg-blue-50 dark:bg-blue-950/30',
+    borderColor: 'border-blue-200 dark:border-blue-800',
     topics: [
       'landing.curriculum.beginner.topics.select',
       'landing.curriculum.beginner.topics.where',
@@ -119,27 +355,61 @@ const curriculumLevels = [
   },
 ];
 
+const NAV_LINKS = [
+  { href: '#databases', labelKey: 'landing.nav.databases' },
+  { href: '#why', labelKey: 'landing.nav.why' },
+  { href: '#curriculum', labelKey: 'landing.nav.curriculum' },
+  { href: '#faq', labelKey: 'landing.nav.faq' },
+];
+
+function scrollToSection(href: string) {
+  const id = href.replace('#', '');
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
 export default function LandingPage() {
+  const fadeSections = useFadeInSections(10);
+  // hero=0, stats=1, modules=2, databases=3, why=4, howItWorks=5, curriculum=6, tasks=7, testimonials=8, faq=9
+
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-background via-background to-muted/30">
       {/* Decorative background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-emerald-500/5 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-emerald-500/5 blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-emerald-500/[0.02] blur-3xl" />
+        <div className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-blue-500/5 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-blue-500/5 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-blue-500/[0.02] blur-3xl" />
       </div>
 
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-sm">
             <GraduationCap className="h-5 w-5 text-white" />
           </div>
           <span className="text-lg font-bold tracking-tight">
-            SQL <span className="text-emerald-600">Trainer</span>
+            SQL <span className="text-blue-600">Trainer</span>
           </span>
         </div>
+
+        {/* Nav links — desktop only */}
+        <nav className="hidden lg:flex items-center gap-1">
+          {NAV_LINKS.map((link) => (
+            <button
+              key={link.href}
+              onClick={() => scrollToSection(link.href)}
+              className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/50"
+            >
+              {t(link.labelKey)}
+            </button>
+          ))}
+        </nav>
+
         <div className="flex items-center gap-2">
+          <LocaleSelector />
+          <ThemeToggle />
           <Link href="/login">
             <Button variant="ghost" size="sm" className="gap-1.5">
               <LogIn className="h-4 w-4" />
@@ -147,7 +417,7 @@ export default function LandingPage() {
             </Button>
           </Link>
           <Link href="/register">
-            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
               {t('landing.hero.startTraining')}
             </Button>
           </Link>
@@ -155,8 +425,14 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="relative z-10 flex flex-col items-center justify-center px-6 py-16 sm:py-24 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-lg mb-6">
+      <section
+        ref={fadeSections[0].setRef}
+        data-section-index="0"
+        className={`relative z-10 flex flex-col items-center justify-center px-6 py-16 sm:py-24 text-center transition-all duration-700 ${
+          fadeSections[0].isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+      >
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg mb-6">
           <GraduationCap className="h-8 w-8 text-white" />
         </div>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
@@ -165,9 +441,9 @@ export default function LandingPage() {
         <p className="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-8">
           {t('landing.hero.subtitle')}
         </p>
-        <div className="flex flex-col sm:flex-row items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center gap-3 mb-12">
           <Link href="/register">
-            <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 h-11 px-6 text-base">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 h-11 px-6 text-base">
               <GraduationCap className="h-5 w-5 mr-2" />
               {t('landing.hero.startTraining')}
             </Button>
@@ -179,13 +455,72 @@ export default function LandingPage() {
             </Button>
           </Link>
         </div>
+
+        {/* SQL Code Example */}
+        <div className="w-full max-w-2xl rounded-xl overflow-hidden border bg-card shadow-lg">
+          <div className="flex items-center gap-2 px-4 py-2 border-b bg-muted/50">
+            <div className="flex gap-1.5">
+              <div className="h-3 w-3 rounded-full bg-red-500" />
+              <div className="h-3 w-3 rounded-full bg-yellow-500" />
+              <div className="h-3 w-3 rounded-full bg-green-500" />
+            </div>
+            <span className="text-xs text-muted-foreground ml-2">SQL Query</span>
+          </div>
+          <pre className="p-4 text-sm font-mono text-left">
+            <code>
+              <span className="text-muted-foreground">{t('landing.hero.codeComment')}</span>
+              {'\n'}
+              <span className="text-purple-600 dark:text-purple-400">SELECT</span>{' '}
+              <span className="text-foreground">name, department, salary</span>
+              {'\n'}
+              <span className="text-purple-600 dark:text-purple-400">FROM</span>{' '}
+              <span className="text-foreground">employees</span>
+              {'\n'}
+              <span className="text-purple-600 dark:text-purple-400">ORDER BY</span>{' '}
+              <span className="text-foreground">salary</span>{' '}
+              <span className="text-purple-600 dark:text-purple-400">DESC</span>
+              {'\n'}
+              <span className="text-purple-600 dark:text-purple-400">LIMIT</span>{' '}
+              <span className="text-amber-600 dark:text-amber-400">5</span>;
+            </code>
+          </pre>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section
+        ref={fadeSections[1].setRef}
+        data-section-index="1"
+        className={`relative z-10 px-6 sm:px-8 lg:px-12 pb-12 transition-all duration-700 ${
+          fadeSections[1].isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+      >
+        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-6 sm:gap-8">
+          {stats.map((stat) => (
+            <div key={stat.labelKey} className="text-center">
+              <div className="flex justify-center mb-2">
+                <stat.icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">
+                {stat.value}
+              </div>
+              <div className="text-sm text-muted-foreground mt-1">{t(stat.labelKey)}</div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Modules */}
-      <section className="relative z-10 px-6 sm:px-8 lg:px-12 pb-16">
+      <section
+        ref={fadeSections[2].setRef}
+        data-section-index="2"
+        className={`relative z-10 px-6 sm:px-8 lg:px-12 pb-16 transition-all duration-700 ${
+          fadeSections[2].isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+      >
         <div className="max-w-6xl mx-auto grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {modules.map((mod) => (
-            <Card key={mod.titleKey} className="hover:shadow-md transition-shadow">
+            <Card key={mod.titleKey} className="hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
               <CardContent className="p-5 flex items-start gap-4">
                 <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${mod.bg}`}>
                   <mod.icon className={`h-5 w-5 ${mod.color}`} />
@@ -200,8 +535,99 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Databases */}
+      <section
+        id="databases"
+        ref={fadeSections[3].setRef}
+        data-section-index="3"
+        className={`relative z-10 px-6 sm:px-8 lg:px-12 pb-16 transition-all duration-700 ${
+          fadeSections[3].isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+      >
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2">{t('landing.databases.title')}</h2>
+          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">{t('landing.databases.subtitle')}</p>
+          <div className="grid gap-6 md:grid-cols-3">
+            {databases.map((db) => (
+              <Card key={db.nameKey} className={`border ${db.borderColor} hover:shadow-lg hover:-translate-y-1 transition-all duration-200`}>
+                <CardContent className="p-6 flex flex-col items-center text-center">
+                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${db.bg} mb-4`}>
+                    <db.icon className={`h-7 w-7 ${db.color}`} />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">{t(db.nameKey)}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{t(db.descKey)}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why SQL Trainer */}
+      <section
+        id="why"
+        ref={fadeSections[4].setRef}
+        data-section-index="4"
+        className={`relative z-10 px-6 sm:px-8 lg:px-12 pb-16 transition-all duration-700 ${
+          fadeSections[4].isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+      >
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2">{t('landing.why.title')}</h2>
+          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">{t('landing.why.subtitle')}</p>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {whyItems.map((item) => (
+              <div key={item.titleKey} className="flex flex-col items-start text-center sm:text-left">
+                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${item.bg} mb-3`}>
+                  <item.icon className={`h-5 w-5 ${item.color}`} />
+                </div>
+                <h3 className="font-semibold mb-1">{t(item.titleKey)}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t(item.descKey)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section
+        ref={fadeSections[5].setRef}
+        data-section-index="5"
+        className={`relative z-10 px-6 sm:px-8 lg:px-12 pb-16 transition-all duration-700 ${
+          fadeSections[5].isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+      >
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2">{t('landing.howItWorks.title')}</h2>
+          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">{t('landing.howItWorks.subtitle')}</p>
+          <div className="grid gap-6 sm:grid-cols-3">
+            {howItWorks.map((step) => (
+              <div key={step.step} className="flex flex-col items-center text-center">
+                <div className="relative mb-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-950/50">
+                    <step.icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                    {step.step}
+                  </div>
+                </div>
+                <h3 className="font-semibold mb-2">{t(step.titleKey)}</h3>
+                <p className="text-sm text-muted-foreground">{t(step.descKey)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Curriculum */}
-      <section className="relative z-10 px-6 sm:px-8 lg:px-12 pb-16">
+      <section
+        id="curriculum"
+        ref={fadeSections[6].setRef}
+        data-section-index="6"
+        className={`relative z-10 px-6 sm:px-8 lg:px-12 pb-16 transition-all duration-700 ${
+          fadeSections[6].isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+      >
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2">{t('landing.curriculum.title')}</h2>
           <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">{t('landing.curriculum.subtitle')}</p>
@@ -215,7 +641,7 @@ export default function LandingPage() {
                   <ul className="space-y-2">
                     {lvl.topics.map((topic) => (
                       <li key={topic} className="flex items-start gap-2 text-sm">
-                        <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                        <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
                         <span className="text-muted-foreground">{t(topic)}</span>
                       </li>
                     ))}
@@ -228,36 +654,99 @@ export default function LandingPage() {
       </section>
 
       {/* Task categories preview */}
-      <section className="relative z-10 px-6 sm:px-8 lg:px-12 pb-16">
+      <section
+        ref={fadeSections[7].setRef}
+        data-section-index="7"
+        className={`relative z-10 px-6 sm:px-8 lg:px-12 pb-16 transition-all duration-700 ${
+          fadeSections[7].isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+      >
         <div className="max-w-4xl mx-auto">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <BookOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 <h3 className="font-semibold">{t('landing.modules.tasks.title')}</h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary" className="text-xs">Компания</Badge>
-                <Badge variant="secondary" className="text-xs">Магазин</Badge>
-                <Badge variant="secondary" className="text-xs">Аналитика</Badge>
-                <Badge variant="secondary" className="text-xs">Экзамены</Badge>
+                <Badge variant="secondary" className="text-xs">{t('landing.taskCategories.company')}</Badge>
+                <Badge variant="secondary" className="text-xs">{t('landing.taskCategories.store')}</Badge>
+                <Badge variant="secondary" className="text-xs">{t('landing.taskCategories.analytics')}</Badge>
+                <Badge variant="secondary" className="text-xs">{t('landing.taskCategories.exams')}</Badge>
                 <span className="text-xs text-muted-foreground self-center ml-2">
-                  56 заданий
+                  {t('landing.taskCategories.taskCount')}
                 </span>
               </div>
               <div className="flex flex-wrap gap-2 mt-3">
-                <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400 text-xs">
-                  Начальный
+                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-400 text-xs">
+                  {t('landing.difficultyLevels.beginner')}
                 </Badge>
                 <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-400 text-xs">
-                  Средний
+                  {t('landing.difficultyLevels.intermediate')}
                 </Badge>
                 <Badge className="bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-400 text-xs">
-                  Продвинутый
+                  {t('landing.difficultyLevels.advanced')}
                 </Badge>
               </div>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section
+        ref={fadeSections[8].setRef}
+        data-section-index="8"
+        className={`relative z-10 px-6 sm:px-8 lg:px-12 pb-16 transition-all duration-700 ${
+          fadeSections[8].isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+      >
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2">{t('landing.testimonials.title')}</h2>
+          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">{t('landing.testimonials.subtitle')}</p>
+          <div className="grid gap-6 md:grid-cols-3">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6 flex flex-col h-full">
+                  <Quote className="h-8 w-8 text-blue-200 dark:text-blue-800 mb-4" />
+                  <p className="text-sm text-muted-foreground flex-1 mb-4 italic">
+                    {t(testimonial.quoteKey)}
+                  </p>
+                  <div className="border-t pt-4">
+                    <div className="font-semibold">{t(testimonial.nameKey)}</div>
+                    <div className="text-xs text-muted-foreground">{t(testimonial.roleKey)}</div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section
+        id="faq"
+        ref={fadeSections[9].setRef}
+        data-section-index="9"
+        className={`relative z-10 px-6 sm:px-8 lg:px-12 pb-16 transition-all duration-700 ${
+          fadeSections[9].isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
+      >
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2">{t('landing.faq.title')}</h2>
+          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">{t('landing.faq.subtitle')}</p>
+          <Accordion type="single" collapsible className="w-full">
+            {faqItems.map((item, index) => (
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger className="text-left font-semibold">
+                  {t(item.titleKey)}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  {t(item.contentKey)}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </section>
 
@@ -266,7 +755,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-4 sm:gap-6">
           {features.map((f) => (
             <div key={f.labelKey} className="flex items-center gap-2 text-sm text-muted-foreground">
-              <f.icon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <f.icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               <span>{t(f.labelKey)}</span>
             </div>
           ))}
@@ -278,13 +767,92 @@ export default function LandingPage() {
         <div className="max-w-2xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold mb-4">{t('landing.cta.title')}</h2>
           <Link href="/register">
-            <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 h-11 px-8 text-base">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 h-11 px-8 text-base">
               <GraduationCap className="h-5 w-5 mr-2" />
               {t('landing.cta.button')}
             </Button>
           </Link>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t bg-card">
+        <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-700">
+                  <GraduationCap className="h-4 w-4 text-white" />
+                </div>
+                <span className="text-base font-bold">
+                  SQL <span className="text-blue-600">Trainer</span>
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {t('landing.hero.subtitle')}
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-3">{t('landing.footer.features')}</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link href="/register" className="hover:text-foreground transition-colors">
+                    {t('landing.modules.tasks.title')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/register" className="hover:text-foreground transition-colors">
+                    {t('landing.modules.editor.title')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/register" className="hover:text-foreground transition-colors">
+                    {t('landing.modules.progress.title')}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-3">{t('landing.footer.about')}</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link href="#" className="hover:text-foreground transition-colors">
+                    {t('landing.footer.documentation')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-foreground transition-colors">
+                    {t('landing.footer.sourceCode')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-foreground transition-colors">
+                    {t('landing.footer.community')}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-3">{t('landing.footer.terms')}</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link href="#" className="hover:text-foreground transition-colors">
+                    {t('landing.footer.privacy')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-foreground transition-colors">
+                    {t('landing.footer.terms')}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
+            {t('landing.footer.copyright')}
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -10,9 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Download } from 'lucide-react';
+import { Download, X } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { logger } from '@/lib/logger';
+
+const DISMISSED_STORAGE_KEY = 'sql-trainer-pwa-dismissed';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -20,20 +22,26 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 /**
- * PWA Install Prompt — shows a dialog when the app is installable.
- * Uses the browser's beforeinstallprompt event.
+ * PWA Install Prompt — shows a dialog once when the app is installable.
+ * After dismissal, shows a floating button on the right side.
  */
 export default function PwaInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showPrompt, setShowPrompt] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const [showFloating, setShowFloating] = useState(false);
 
   useEffect(() => {
+    const wasDismissed = localStorage.getItem(DISMISSED_STORAGE_KEY) === 'true';
+
     const handleBeforeInstallPrompt = (e: Event) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      // Show our custom install prompt
-      setShowPrompt(true);
+
+      if (!wasDismissed) {
+        setShowDialog(true);
+      } else {
+        setShowFloating(true);
+      }
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -46,53 +54,86 @@ export default function PwaInstallPrompt() {
   const handleInstall = async () => {
     if (!deferredPrompt) return;
 
-    // Show the browser's install prompt
     deferredPrompt.prompt();
 
-    // Wait for the user to respond to the prompt
     const { outcome } = await deferredPrompt.userChoice;
     if (process.env.NODE_ENV === 'development') {
       logger.info(`[PWA] User response: ${outcome}`);
     }
 
-    // We no longer need the deferred prompt
     setDeferredPrompt(null);
-    setShowPrompt(false);
+    setShowDialog(false);
+    setShowFloating(false);
   };
 
   const handleDismiss = () => {
-    setShowPrompt(false);
-    // Don't store the deferred prompt — user dismissed
-    setDeferredPrompt(null);
+    setShowDialog(false);
+    localStorage.setItem(DISMISSED_STORAGE_KEY, 'true');
+    // Show floating button after dismissal
+    setShowFloating(true);
   };
 
-  if (!showPrompt || !deferredPrompt) return null;
+  const handleFloatingClick = () => {
+    setShowDialog(true);
+    setShowFloating(false);
+  };
+
+  const handleFloatingDismiss = () => {
+    setShowFloating(false);
+  };
+
+  if (!deferredPrompt) return null;
 
   return (
-    <Dialog open={showPrompt} onOpenChange={handleDismiss}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5 text-emerald-600" />
-            {t('pwa.install.title', { default: 'Установить SQL Trainer' })}
-          </DialogTitle>
-          <DialogDescription>
-            {t(
-              'pwa.install.description',
-              { default: 'Установите приложение на устройство для быстрого доступа и офлайн-работы' }
-            )}
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={handleDismiss}>
-            {t('action.close')}
+    <>
+      {/* Install dialog */}
+      <Dialog open={showDialog} onOpenChange={(open) => {
+        if (!open) {
+          handleDismiss();
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Download className="h-5 w-5 text-blue-600" />
+              {t('pwa.install.title')}
+            </DialogTitle>
+            <DialogDescription>
+              {t('pwa.install.description')}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={handleDismiss}>
+              {t('action.close')}
+            </Button>
+            <Button onClick={handleInstall} className="bg-blue-600 hover:bg-blue-700">
+              <Download className="mr-2 h-4 w-4" />
+              {t('pwa.install.button')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Floating button — shown after first dismissal */}
+      {showFloating && !showDialog && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <Button
+            onClick={handleFloatingClick}
+            size="sm"
+            className="h-10 w-10 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700 text-white p-0"
+          >
+            <Download className="h-5 w-5" />
           </Button>
-          <Button onClick={handleInstall} className="bg-emerald-600 hover:bg-emerald-700">
-            <Download className="mr-2 h-4 w-4" />
-            {t('pwa.install.button', { default: 'Установить' })}
+          <Button
+            onClick={handleFloatingDismiss}
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 rounded-full p-0 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-3 w-3" />
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      )}
+    </>
   );
 }

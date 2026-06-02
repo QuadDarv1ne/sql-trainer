@@ -120,8 +120,8 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
     <div className="flex h-full flex-col gap-4 p-4">
       {/* Welcome header */}
       <div className="text-center">
-        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-          <BookOpen className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900/30">
+          <BookOpen className="h-7 w-7 text-blue-600 dark:text-blue-400" />
         </div>
         <h2 className="text-lg font-bold">
           {t('app.title')}
@@ -136,10 +136,10 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
         <CardContent className="p-4">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Target className="h-4 w-4 text-emerald-500" />
+              <Target className="h-4 w-4 text-blue-500" />
               <span className="text-sm font-medium">{t('welcome.progressLabel')}</span>
             </div>
-            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
               {completedCount}/{totalCount}
             </span>
           </div>
@@ -163,7 +163,7 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
               <p className="text-base font-bold">{stat.completed}/{stat.total}</p>
               <div className="mt-1.5 h-1.5 w-full rounded-full bg-muted">
                 <div
-                  className="h-full rounded-full bg-emerald-500 transition-all"
+                  className="h-full rounded-full bg-blue-500 transition-all"
                   style={{
                     width: stat.total > 0 ? `${(stat.completed / stat.total) * 100}%` : '0%',
                   }}
@@ -209,11 +209,11 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
 
       {/* Recommended task card */}
       {recommendedTask && (
-        <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 dark:border-emerald-800 dark:from-emerald-950/30 dark:to-teal-950/20">
+        <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-teal-50 dark:border-blue-800 dark:from-blue-950/30 dark:to-teal-950/20">
           <CardContent className="p-4">
             <div className="mb-3 flex items-center gap-2 flex-wrap">
-              <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+              <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-xs font-semibold text-blue-700 dark:text-blue-400">
                 {t('welcome.recommend')}
               </span>
               {missingConceptLabel && (
@@ -226,10 +226,10 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
               onClick={() => setCurrentTaskId(recommendedTask.id)}
               className="w-full text-left"
             >
-              <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+              <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
                 {recommendedTask.title}
               </p>
-              <p className="mt-1 text-xs text-emerald-700/70 dark:text-emerald-400/70 line-clamp-2">
+              <p className="mt-1 text-xs text-blue-700/70 dark:text-blue-400/70 line-clamp-2">
                 {recommendedTask.description}
               </p>
             </button>

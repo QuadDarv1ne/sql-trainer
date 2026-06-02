@@ -36,12 +36,16 @@ import { ReminderBell } from '@/components/reminders/reminder-bell';
 import { Input } from '@/components/ui/input';
 
 const CATEGORY_LABELS: Record<TaskCategory | 'base', string> = {
-  base: 'Базовые',
-  company: 'Компания',
-  shop: 'Магазин',
-  analytics: 'Аналитика',
-  exam: 'Экзамены',
+  base: 'category.base',
+  company: 'category.company',
+  shop: 'category.shop',
+  analytics: 'category.analytics',
+  exam: 'category.exam',
 };
+
+function categoryLabel(cat: TaskCategory | 'base'): string {
+  return t(CATEGORY_LABELS[cat]);
+}
 
 const CATEGORY_COLORS: Record<TaskCategory | 'base', string> = {
   base: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
@@ -78,7 +82,7 @@ function TaskRow({
         aria-label={`${isDone ? '✓ ' : ''}${task.title}`}
         className={`flex flex-1 items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm transition-colors hover:bg-muted/50 ${
           isActive
-            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400'
+            ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400'
             : 'text-foreground/80'
         }`}
       >
@@ -200,7 +204,7 @@ export default function Sidebar() {
       <div className="border-b border-border p-3 space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium flex items-center gap-1.5">
-            <Target className="h-4 w-4 text-emerald-500" />
+            <Target className="h-4 w-4 text-blue-500" />
             {t('progress.label')}
           </span>
           <div className="flex items-center gap-1">
@@ -262,7 +266,7 @@ export default function Sidebar() {
             onClick={() => setActiveCategoryFilter('all')}
             className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
               activeCategoryFilter === 'all'
-                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 font-medium'
+                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 font-medium'
                 : 'text-muted-foreground hover:bg-muted/50'
             }`}
           >
@@ -281,7 +285,7 @@ export default function Sidebar() {
                 }`}
               >
                 {IconCat && <IconCat className="h-3.5 w-3.5" />}
-                {CATEGORY_LABELS[cat]}
+                {categoryLabel(cat)}
               </button>
             );
           })}
@@ -365,7 +369,7 @@ export default function Sidebar() {
                                   const IconComponent = cat !== 'base' ? CATEGORY_ICONS[cat as TaskCategory] : null;
                                   return IconComponent ? <IconComponent className="h-3 w-3" /> : null;
                                 })()}
-                                {CATEGORY_LABELS[cat]}
+                                {categoryLabel(cat)}
                               </Badge>
                               <span className="text-xs text-muted-foreground">
                                 {completedInCat}/{tasks.length}

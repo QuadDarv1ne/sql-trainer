@@ -178,12 +178,12 @@ export default function ResetPasswordForm() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
-            <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={loading}>
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               {t('auth.sendCode')}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
-              <Link href="/login" className="text-emerald-600 dark:text-emerald-400 hover:underline">
+              <Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
                 {t('auth.backToLogin')}
               </Link>
             </p>
@@ -319,7 +319,7 @@ export default function ResetPasswordForm() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
-            <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={loading || newPassword !== confirmPassword}>
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading || newPassword !== confirmPassword}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               {t('auth.changePasswordBtn')}
             </Button>
@@ -334,7 +334,7 @@ export default function ResetPasswordForm() {
           <p className="text-sm text-muted-foreground text-center mb-4">
             {t('auth.loginDesc')}
           </p>
-          <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={() => router.push('/login')}>
+          <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => router.push('/login')}>
             {t('auth.loginLink')}
           </Button>
         </CardContent>

@@ -21,6 +21,11 @@ describe('i18n', () => {
       expect(t('app.title')).toBe('SQL Trainer');
     });
 
+    it('returns Chinese translation when locale is zh', () => {
+      setLocale('zh');
+      expect(t('app.title')).toBe('SQL 训练器');
+    });
+
     it('falls back to Russian key if English missing', () => {
       setLocale('en');
       // All keys should have both RU and EN translations
@@ -54,14 +59,16 @@ describe('i18n', () => {
   });
 
   describe('translations completeness', () => {
-    it('has same keys in ru and en', () => {
+    it('has same keys in ru, en, and zh', () => {
       const ruKeys = Object.keys(translations.ru);
       const enKeys = Object.keys(translations.en);
+      const zhKeys = Object.keys(translations.zh);
       expect(ruKeys.sort()).toEqual(enKeys.sort());
+      expect(ruKeys.sort()).toEqual(zhKeys.sort());
     });
 
     it('has no empty translation values', () => {
-      for (const locale of ['ru', 'en'] as Locale[]) {
+      for (const locale of ['ru', 'en', 'zh'] as Locale[]) {
         for (const value of Object.values(translations[locale])) {
           expect(value).not.toBe('');
         }

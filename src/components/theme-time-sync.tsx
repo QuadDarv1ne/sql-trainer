@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
+import { getLocale, tWithLocale } from '@/lib/i18n';
 
 /**
  * Компонент для автоматического переключения темы по времени суток.
@@ -31,22 +32,29 @@ export function ThemeTimeSync() {
 
   useEffect(() => {
     const updateTheme = () => {
-      // Only auto-switch when user hasn't explicitly chosen a theme
-      if (themeRef.current !== 'system' && themeRef.current !== undefined) return;
+      // Only auto-switch when theme is 'system' or undefined (user hasn't manually set)
+      const current = themeRef.current;
+      if (current !== 'system' && current !== undefined && current !== null) return;
 
       const hour = new Date().getHours();
       const shouldDark = hour < 7 || hour >= 20;
-      const currentTheme = resolvedThemeRef.current === 'dark' ? 'dark' : 'light';
+      const currentResolved = resolvedThemeRef.current === 'dark' ? 'dark' : 'light';
       const targetTheme = shouldDark ? 'dark' : 'light';
-      const timeKey = `${hour}-${shouldDark ? 'dark' : 'light'}`;
+      const timeKey = `${new Date().toDateString()}-${targetTheme}`;
 
-      if (currentTheme !== targetTheme && lastThemeChangeRef.current !== timeKey) {
+      if (currentResolved !== targetTheme && lastThemeChangeRef.current !== timeKey) {
         setTheme(targetTheme);
         setLastThemeChange(timeKey);
 
-        const themeName = targetTheme === 'dark' ? 'тёмную' : 'светлую';
-        toast.info(`Автоматически переключено на ${themeName} тему`, {
-          description: `Сейчас ${hour}:00 — ${shouldDark ? 'вечер/ночь' : 'день'}`,
+        const locale = getLocale();
+        const themeName = targetTheme === 'dark'
+          ? tWithLocale(locale, 'header.theme.dark')
+          : tWithLocale(locale, 'header.theme.light');
+        const timeDesc = shouldDark
+          ? tWithLocale(locale, 'theme.time.evening')
+          : tWithLocale(locale, 'theme.time.daytime');
+        toast.info(tWithLocale(locale, 'theme.autoSwitch', { theme: themeName }), {
+          description: `${hour}:00 — ${timeDesc}`,
         });
       }
     };

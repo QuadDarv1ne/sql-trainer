@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
-import { Loader2, Mail, Lock, AlertCircle } from 'lucide-react';
+import { Loader2, Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { t } from '@/lib/i18n';
 
 export default function LoginForm() {
@@ -18,6 +18,7 @@ export default function LoginForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -51,7 +52,7 @@ export default function LoginForm() {
     <Card className="w-full max-w-md shadow-lg border-border/80">
       <CardHeader className="space-y-2 pb-6">
         <div className="flex flex-col items-center gap-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-md">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
             <Mail className="h-6 w-6 text-white" />
           </div>
           <CardTitle className="text-2xl font-bold text-center">{t('login.title')}</CardTitle>
@@ -85,7 +86,7 @@ export default function LoginForm() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-sm font-medium">{t('login.password')}</Label>
-                <Link href="/reset-password" className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
+                <Link href="/reset-password" className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium">
                   {t('login.forgotPassword')}
                 </Link>
               </div>
@@ -93,25 +94,34 @@ export default function LoginForm() {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 h-11"
+                  className="pl-10 pr-10 h-11"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4 pt-2 pb-6">
-          <Button type="submit" className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 font-medium" disabled={loading}>
+          <Button type="submit" className="w-full h-11 bg-blue-600 hover:bg-blue-700 font-medium" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             {t('login.submit')}
           </Button>
           <p className="text-sm text-center text-muted-foreground">
             {t('login.noAccount')}{' '}
-            <Link href="/register" className="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
+            <Link href="/register" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
               {t('login.register')}
             </Link>
           </p>

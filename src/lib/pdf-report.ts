@@ -4,12 +4,13 @@
  */
 import { escapeHtml } from './html-utils';
 import { toast } from 'sonner';
+import type { Locale } from '@/lib/i18n';
 
 export interface PDFReportOptions {
   title: string;
   subtitle?: string;
   generatedAt?: Date;
-  locale?: 'ru' | 'en';
+  locale?: Locale;
 }
 
 const pdfTranslations = {
@@ -59,6 +60,29 @@ const pdfTranslations = {
     tasksCol: 'Tasks',
     avgAttemptsCol: 'Avg Attempts',
   },
+  zh: {
+    name: '姓名',
+    email: '邮箱',
+    lastActive: '最后活跃',
+    noActivity: '无活跃记录',
+    performanceStats: '表现统计',
+    tasksCompleted: '已完成任务',
+    avgAttempts: '平均尝试次数',
+    achievements: '成就',
+    levelProgress: '等级进度',
+    beginner: '初级',
+    intermediate: '中级',
+    advanced: '高级',
+    generated: '生成于',
+    topPerformers: '优秀表现者',
+    struggling: '挣扎中',
+    totalStudents: '学生总数',
+    active: '活跃',
+    avgCompletion: '平均完成率',
+    nameCol: '姓名',
+    tasksCol: '任务',
+    avgAttemptsCol: '平均尝试',
+  },
 };
 
 export function generateStudentReportPDF(
@@ -77,7 +101,7 @@ export function generateStudentReportPDF(
 ): void {
   const locale = options.locale || 'ru';
   const tr = pdfTranslations[locale];
-  const localeCode = locale === 'ru' ? 'ru-RU' : 'en-US';
+  const localeCode = locale === 'ru' ? 'ru-RU' : locale === 'zh' ? 'zh-CN' : 'en-US';
 
   const content = `
     <!DOCTYPE html>
@@ -148,7 +172,7 @@ export function generateClassReportPDF(
 ): void {
   const locale = options.locale || 'ru';
   const tr = pdfTranslations[locale];
-  const localeCode = locale === 'ru' ? 'ru-RU' : 'en-US';
+  const localeCode = locale === 'ru' ? 'ru-RU' : locale === 'zh' ? 'zh-CN' : 'en-US';
 
   const topPerformersRows = report.top_performers.map(s => 
     `<tr><td>${escapeHtml(s.name)}</td><td>${s.tasks_completed}</td><td>${s.avg_attempts}</td></tr>`
@@ -313,7 +337,7 @@ export function generateAnalyticsPDF(
 ): void {
   const locale = options.locale || 'ru';
   const tr = { ...pdfTranslations[locale], ...pdfAnalyticsTranslations[locale] };
-  const localeCode = locale === 'ru' ? 'ru-RU' : 'en-US';
+  const localeCode = locale === 'ru' ? 'ru-RU' : locale === 'zh' ? 'zh-CN' : 'en-US';
 
   let sectionsHTML = '';
 
@@ -828,6 +852,105 @@ const pdfAnalyticsTranslations = {
     significance: 'Significance',
     significant: 'Significant',
     notSignificant: 'Not Significant',
+  },
+  zh: {
+    overview: '概览',
+    deadlineCompliance: '截止日期合规',
+    notifications: '通知',
+    streaks: '连续记录',
+    onboarding: '入门',
+    reEngagement: '重新参与',
+    difficultyCalibration: '难度校准',
+    registrations: '注册',
+    activitySummary: '活动概览',
+    hintUsage: '提示使用',
+    auditLog: '审计日志',
+    weekdayComparison: '工作日与周末',
+    learningPlan: '学习计划',
+    abTestComparison: 'A/B 对比',
+    overallCompliance: '总体合规',
+    totalDeadlines: '总截止日期',
+    avgDaysLate: '平均逾期天数',
+    taskTitle: '标题',
+    dueDate: '截止日期',
+    targeted: '定向',
+    onTime: '按时',
+    late: '迟到',
+    missed: '错过',
+    complianceRate: '合规率',
+    totalSent: '总发送',
+    successRate: '成功率',
+    pendingQueue: '队列中',
+    channel: '渠道',
+    sent: '已发送',
+    delivered: '已送达',
+    failed: '失败',
+    avgStreak: '平均连续',
+    longestStreak: '最长连续',
+    streakDistribution: '连续分布',
+    topStreaks: '最佳连续',
+    streakLength: '连续长度',
+    studentCount: '学生数',
+    streakDays: '天',
+    avgTimeFirstCompletion: '首次完成平均时间',
+    dropOffRate: '流失率',
+    stage: '阶段',
+    users: '学生',
+    avgHours: '平均小时',
+    totalReEngaged: '重新参与',
+    avgGapDays: '平均间隔天数',
+    reEngagementRate: '重新参与率',
+    days: '天',
+    gapDuration: '间隔时长',
+    returnTask: '带回任务',
+    misclassifiedTasks: '错分类',
+    misclassifiedPct: '错分类 %',
+    intendedDifficulty: '预期难度',
+    actualAttempts: '实际尝试',
+    recommendedDifficulty: '建议难度',
+    newThisWeek: '本周',
+    newThisMonth: '本月',
+    growthRate: '增长率',
+    dailyRegistrations: '每日注册',
+    date: '日期',
+    count: '数量',
+    dau: '日活',
+    wau: '周活',
+    mau: '月活',
+    totalHintsUsed: '总提示使用',
+    avgHintsPerTask: '每任务平均提示',
+    hintCompletionCorrelation: '提示关联',
+    hintsUsed: '提示使用',
+    completionRate: '完成率',
+    totalActions: '总操作',
+    timestamp: '时间戳',
+    action: '操作',
+    user: '用户',
+    target: '目标',
+    weekdayAvgAttempts: '工作日（尝试）',
+    weekendAvgAttempts: '周末（尝试）',
+    weekdayCompletionRate: '工作日（完成）',
+    weekendCompletionRate: '周末（完成）',
+    weekdayActiveUsers: '工作日（活跃）',
+    weekendActiveUsers: '周末（活跃）',
+    student: '学生',
+    currentLevel: '当前等级',
+    completedTasks: '已完成',
+    remainingTasks: '剩余',
+    nextTasks: '下一个任务',
+    task: '任务',
+    difficulty: '难度',
+    estimatedHours: '预估小时',
+    milestones: '里程碑',
+    milestone: '里程碑',
+    targetDate: '目标日期',
+    testName: '测试',
+    groupA: 'A 组',
+    groupB: 'B 组',
+    metric: '指标',
+    significance: '显著性',
+    significant: '显著',
+    notSignificant: '不显著',
   },
 };
 
