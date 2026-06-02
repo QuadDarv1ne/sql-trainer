@@ -1783,6 +1783,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.features.history': 'История запросов',
     'landing.features.explain': 'EXPLAIN анализ',
     'landing.cta.title': 'Готовы начать?',
+    'landing.cta.subtitle': 'Присоединяйтесь к тысячам студентов, которые уже освоили SQL с нашей платформой.',
     'landing.cta.button': 'Создать аккаунт бесплатно',
 
     // Landing curriculum
@@ -1858,7 +1859,12 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.footer.terms': 'Условия',
     'landing.footer.copyright': '© 2025 SQL Trainer. Все права защищены.',
     'landing.hero.codeComment': '-- Извлеките данные о топ-5 сотрудниках по зарплате',
+    'landing.hero.description': 'Практикуйтесь в написании SQL-запросов с мгновенной проверкой, подробными объяснениями и пошаговым прогрессом от основ до продвинутых тем.',
     'landing.hero.codeQuery': 'Выберите имя, отдел и зарплату из таблицы сотрудников, отсортируйте по зарплате и ограничьте 5 результатами',
+
+    // Modules section headers
+    'landing.modules.title': 'Возможности платформы',
+    'landing.modules.subtitle': 'Всё необходимое для эффективного изучения SQL в одном месте',
 
     // Databases section
     'landing.databases.title': 'Поддерживаемые базы данных',
@@ -3771,6 +3777,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.features.history': 'Query history',
     'landing.features.explain': 'EXPLAIN analysis',
     'landing.cta.title': 'Ready to start?',
+    'landing.cta.subtitle': 'Join thousands of students who have already mastered SQL with our platform.',
     'landing.cta.button': 'Create a free account',
 
     // Landing curriculum
@@ -3846,7 +3853,12 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.footer.terms': 'Terms',
     'landing.footer.copyright': '© 2025 SQL Trainer. All rights reserved.',
     'landing.hero.codeComment': '-- Extract data about top 5 employees by salary',
+    'landing.hero.description': 'Practice writing SQL queries with instant feedback, detailed explanations, and step-by-step progress from basics to advanced topics.',
     'landing.hero.codeQuery': 'Select name, department, and salary from employees table, sort by salary descending, and limit to 5 results',
+
+    // Modules section headers
+    'landing.modules.title': 'Platform Features',
+    'landing.modules.subtitle': 'Everything you need for effective SQL learning in one place',
 
     // Databases section
     'landing.databases.title': 'Supported Databases',
@@ -5757,6 +5769,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.features.history': '查询历史',
     'landing.features.explain': 'EXPLAIN 分析',
     'landing.cta.title': '准备开始了吗？',
+    'landing.cta.subtitle': '加入数千名已经通过我们平台掌握 SQL 的学生行列。',
     'landing.cta.button': '创建免费账户',
 
     // Landing curriculum
@@ -5832,7 +5845,12 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.footer.terms': '使用条款',
     'landing.footer.copyright': '© 2025 SQL Trainer。保留所有权利。',
     'landing.hero.codeComment': '-- 提取薪资前 5 名员工的数据',
+    'landing.hero.description': '通过即时反馈、详细解释和从基础到高级的逐步学习，练习编写 SQL 查询。',
     'landing.hero.codeQuery': '从员工表中选择姓名、部门和薪资，按薪资降序排序，限制 5 条结果',
+
+    // Modules section headers
+    'landing.modules.title': '平台功能',
+    'landing.modules.subtitle': '在一个地方提供有效 SQL 学习所需的一切',
 
     // Databases section
     'landing.databases.title': '支持的数据库',
