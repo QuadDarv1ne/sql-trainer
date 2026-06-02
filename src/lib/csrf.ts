@@ -24,15 +24,17 @@ async function signToken(rawToken: string): Promise<string> {
     throw new Error('AUTH_SECRET is required for CSRF protection');
   }
 
+  const timestamp = Date.now();
+
   // Use Node.js crypto for HMAC signing — works reliably in all environments
   const { createHmac } = await import('crypto');
   const hmac = createHmac('sha256', secret);
   hmac.update(rawToken);
-  hmac.update(Date.now().toString());
+  hmac.update(timestamp.toString());
   const signature = hmac.digest('base64url');
 
   // Encode as a simple JSON string for verification
-  const payload = Buffer.from(JSON.stringify({ csrf: rawToken, iat: Date.now() })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ csrf: rawToken, iat: timestamp })).toString('base64url');
   return `${payload}.${signature}`;
 }
 
@@ -43,21 +45,25 @@ async function verifyToken(token: string): Promise<{ csrf: string } | null> {
   const [payloadB64, signature] = token.split('.');
   if (!payloadB64 || !signature) return null;
 
+  let payload: { csrf: string; iat: number };
+  try {
+    payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
+  } catch {
+    return null;
+  }
+
+  // Compute HMAC over the same input as signToken: rawToken + timestamp
   const { createHmac } = await import('crypto');
   const hmac = createHmac('sha256', secret);
-  hmac.update(payloadB64);
+  hmac.update(payload.csrf);
+  hmac.update(payload.iat.toString());
   const expectedSignature = hmac.digest('base64url');
 
   if (signature !== expectedSignature) return null;
 
-  try {
-    const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
-    // Check expiration (1 hour)
-    if (Date.now() - payload.iat > 60 * 60 * 1000) return null;
-    return { csrf: payload.csrf };
-  } catch {
-    return null;
-  }
+  // Check expiration (1 hour)
+  if (Date.now() - payload.iat > 60 * 60 * 1000) return null;
+  return { csrf: payload.csrf };
 }
 
 /**

@@ -149,4 +149,26 @@ describe('CSRF Utilities', () => {
       expect(validateCsrfTokenEdge(request)).toBe(false);
     });
   });
+
+  describe('HMAC token structure', () => {
+    it('should produce a token with valid base64url payload and HMAC signature', async () => {
+      const { setCookieHeaders } = await generateCsrfTokenEdge();
+
+      // Extract signed token from the HttpOnly cookie
+      const signedCookie = setCookieHeaders[0].split(';')[0];
+      const signedToken = signedCookie.split('=')[1];
+
+      const parts = signedToken.split('.');
+      expect(parts).toHaveLength(2); // payload.signature
+
+      const [payloadB64] = parts;
+      const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
+
+      expect(payload.csrf).toBeDefined();
+      expect(payload.csrf.length).toBe(36); // UUID
+      expect(payload.iat).toBeDefined();
+      expect(typeof payload.iat).toBe('number');
+      expect(payload.iat).toBeGreaterThan(Date.now() - 5000); // issued within last 5s
+    });
+  });
 });
