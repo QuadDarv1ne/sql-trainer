@@ -67,11 +67,18 @@ const nextAuthConfig = {
     },
     async session({ session, token }: { session: DefaultSession; token: JWT }) {
       if (token) {
-        (session as AuthSession).user.id = token.id;
-        (session as AuthSession).user.name = token.name as string;
-        (session as AuthSession).user.email = token.email as string;
-        (session as AuthSession).user.phone = token.phone as string | null;
-        (session as AuthSession).user.role = token.role as UserRole;
+        // Note: Edge runtime cannot access the database, so role_changed_at validation
+        // happens in auth-internal.ts (Node.js runtime). The middleware uses this config
+        // for route protection, and stale roles are validated on next API request.
+        const currentRole = token.role as UserRole | undefined;
+        
+        if (currentRole) {
+          (session as AuthSession).user.id = token.id;
+          (session as AuthSession).user.name = token.name as string;
+          (session as AuthSession).user.email = token.email as string;
+          (session as AuthSession).user.phone = token.phone as string | null;
+          (session as AuthSession).user.role = currentRole;
+        }
       }
       return session;
     },

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
-import { findUserByIdWithHash, getDb } from '@/lib/db-users';
+import { findUserByIdWithHash, softDeleteUser } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
@@ -50,9 +50,14 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Delete user (cascade will handle related records)
-    const db = getDb();
-    db.prepare('DELETE FROM users WHERE id = ?').run(user.id);
+    // Soft delete user (preserves data for potential restoration and audit trail)
+    const success = softDeleteUser(user.id, user.id);
+    if (!success) {
+      return NextResponse.json(
+        { success: false, error: 'Не удалось удалить аккаунт' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true, message: 'Аккаунт удалён' });
   } catch (error) {

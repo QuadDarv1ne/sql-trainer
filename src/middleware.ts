@@ -16,7 +16,7 @@ const roleProtectedRoutes: Record<string, Role[]> = {
 const authRoutes = ['/login', '/register', '/reset-password'];
 
 // API routes that handle state-changing operations and need CSRF validation
-const csrfProtectedApiPrefixes = ['/api/admin', '/api/user', '/api/auth/register', '/api/auth/reset-password', '/api/auth/verify-reset', '/api/push', '/api/deadlines'];
+const csrfProtectedApiPrefixes = ['/api/admin', '/api/user', '/api/teacher', '/api/auth/register', '/api/auth/reset-password', '/api/auth/verify-reset', '/api/push', '/api/deadlines'];
 
 const securityHeaders = {
   'X-DNS-Prefetch-Control': 'on',
