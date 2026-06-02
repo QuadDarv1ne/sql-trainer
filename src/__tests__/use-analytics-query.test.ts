@@ -111,7 +111,7 @@ describe('useAnalyticsQuery', () => {
     await waitFor(() => expect(mockFetch).toHaveBeenCalled());
     const lastCall = mockFetch.mock.lastCall;
     expect(lastCall).toBeDefined();
-    const [url] = lastCall!;
+    const [url] = lastCall as [string];
     expect(url).toContain('startDate=1700000000000');
     expect(url).toContain('endDate=1700086400000');
   });
@@ -129,7 +129,7 @@ describe('useAnalyticsQuery', () => {
     await waitFor(() => expect(mockFetch).toHaveBeenCalled());
     const lastCall = mockFetch.mock.lastCall;
     expect(lastCall).toBeDefined();
-    const [url] = lastCall!;
+    const [url] = lastCall as [string];
     expect(url).toContain('filter=active');
     expect(url).toContain('limit=10');
   });

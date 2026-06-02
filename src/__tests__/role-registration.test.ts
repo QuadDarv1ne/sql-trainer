@@ -25,8 +25,6 @@ vi.mock('../lib/logger', () => ({
   logger: { error: vi.fn() },
 }));
 
-const ALLOWED_SELF_ROLES: UserRole[] = ['student', 'teacher'];
-
 async function register(name: string, email: string, password: string, role?: UserRole) {
   const body = { name, email, password, role };
   const req = new Request('http://localhost/api/auth/register', {
@@ -37,6 +35,7 @@ async function register(name: string, email: string, password: string, role?: Us
 
   // Import the route handler (which will use mocked db-users)
   const { POST } = await import('../app/api/auth/register/route');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- NextRequest mock
   return POST(req as any);
 }
 
