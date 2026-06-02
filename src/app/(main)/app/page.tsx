@@ -334,7 +334,8 @@ export default function HomePage() {
           toast.error(t('task.verificationError', { default: 'Не удалось проверить результат запроса' }));
         }
       }
-    } catch {
+    } catch (e) {
+      logger.error('Query execution failed', e);
       setLastResult({
         success: false,
         columns: [],
@@ -442,7 +443,8 @@ export default function HomePage() {
         setExplainPlan(`${t('results.error')}: ${data.error}`);
         setExplainSuggestions([]);
       }
-    } catch {
+    } catch (e) {
+      logger.error('EXPLAIN request failed', e);
       setExplainPlan(t('results.error'));
       setExplainSuggestions([]);
     } finally {
