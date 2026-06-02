@@ -18,15 +18,21 @@ export interface ProgressiveHintsConfig {
 }
 
 /**
- * Generate progressive hints from existing single-hint tasks.
- * This is a fallback that parses the old hint format and creates level 3 hint.
- * New tasks should define all three levels explicitly.
+ * Generate progressive hints for a task.
+ * If the task has predefined progressiveHints, use them.
+ * Otherwise, generate from the old hint field as a fallback.
  */
 export function generateProgressiveHints(
   taskId: string,
   oldHint: string,
-  taskText: string
+  taskText: string,
+  progressiveHints?: ProgressiveHint[]
 ): ProgressiveHint[] {
+  // If progressive hints are defined for this task, use them
+  if (progressiveHints && progressiveHints.length > 0) {
+    return progressiveHints;
+  }
+
   // For tasks that haven't been migrated yet, create a single level 3 hint
   // from the old hint field, and generate basic level 1 and 2
   return [

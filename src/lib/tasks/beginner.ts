@@ -18,6 +18,23 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     schema: EMPLOYEES_SCHEMA,
     taskText: 'Выведите все данные из таблицы departments (все столбцы, все строки).',
     hint: 'Звёздочка (*) после SELECT означает "все столбцы". Это удобно для быстрого просмотра таблицы, но в реальных проектах лучше перечислять нужные столбцы явно.',
+    progressiveHints: [
+      {
+        level: 1,
+        text: 'Вам нужно выбрать все данные из таблицы departments',
+        xpPenalty: 0,
+      },
+      {
+        level: 2,
+        text: 'Используйте оператор SELECT для выбора данных',
+        xpPenalty: 0,
+      },
+      {
+        level: 3,
+        text: 'Звёздочка (*) после SELECT означает "все столбцы". Это удобно для быстрого просмотра таблицы, но в реальных проектах лучше перечислять нужные столбцы явно.',
+        xpPenalty: 0,
+      },
+    ],
     sampleSolution: 'SELECT * FROM departments;',
     verificationQuery: 'SELECT COUNT(*) as count FROM departments;',
   },
@@ -31,6 +48,23 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     schema: EMPLOYEES_SCHEMA,
     taskText: 'Выведите имена (first_name) и фамилии (last_name) всех сотрудников из таблицы employees.',
     hint: 'Перечислите нужные столбцы через запятую после SELECT.',
+    progressiveHints: [
+      {
+        level: 1,
+        text: 'Вам нужно выбрать конкретные столбцы из таблицы employees',
+        xpPenalty: 0,
+      },
+      {
+        level: 2,
+        text: 'Используйте SELECT с перечислением столбцов через запятую',
+        xpPenalty: 0,
+      },
+      {
+        level: 3,
+        text: 'Перечислите нужные столбцы через запятую после SELECT.',
+        xpPenalty: 0,
+      },
+    ],
     sampleSolution: 'SELECT first_name, last_name FROM employees;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
   },
@@ -44,6 +78,23 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     schema: EMPLOYEES_SCHEMA,
     taskText: 'Найдите всех сотрудников с зарплатой больше 130000. Выведите их first_name, last_name и salary.',
     hint: 'WHERE фильтрует строки ДО вывода результата — в результат попадут только те, где условие истинно. Операторы сравнения: =, !=, <, >, <=, >=.',
+    progressiveHints: [
+      {
+        level: 1,
+        text: 'Вам нужно отфильтровать сотрудников по условию зарплаты',
+        xpPenalty: 0,
+      },
+      {
+        level: 2,
+        text: 'Используйте WHERE с оператором > для фильтрации по зарплате',
+        xpPenalty: 0,
+      },
+      {
+        level: 3,
+        text: 'WHERE фильтрует строки ДО вывода результата — в результат попадут только те, где условие истинно. Операторы сравнения: =, !=, <, >, <=, >=.',
+        xpPenalty: 0,
+      },
+    ],
     sampleSolution: 'SELECT first_name, last_name, salary FROM employees WHERE salary > 130000;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees WHERE salary > 130000;',
   },
@@ -57,6 +108,23 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     schema: EMPLOYEES_SCHEMA,
     taskText: 'Выведите список сотрудников (first_name, last_name, salary), отсортированный по зарплате по убыванию.',
     hint: 'Используйте ORDER BY с DESC для сортировки по убыванию.',
+    progressiveHints: [
+      {
+        level: 1,
+        text: 'Вам нужно отсортировать результаты запроса по определённому столбцу',
+        xpPenalty: 0,
+      },
+      {
+        level: 2,
+        text: 'Используйте ORDER BY для сортировки и DESC для убывания',
+        xpPenalty: 0,
+      },
+      {
+        level: 3,
+        text: 'Используйте ORDER BY с DESC для сортировки по убыванию.',
+        xpPenalty: 0,
+      },
+    ],
     sampleSolution: 'SELECT first_name, last_name, salary FROM employees ORDER BY salary DESC;',
     verificationQuery: 'SELECT MAX(salary) as max_salary FROM employees;',
   },
@@ -70,6 +138,23 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     schema: EMPLOYEES_SCHEMA,
     taskText: 'Выведите 5 самых высокооплачиваемых сотрудников (first_name, last_name, salary).',
     hint: 'Комбинируйте ORDER BY для сортировки и LIMIT для ограничения.',
+    progressiveHints: [
+      {
+        level: 1,
+        text: 'Вам нужно найти топ сотрудников по зарплате и ограничить количество строк',
+        xpPenalty: 0,
+      },
+      {
+        level: 2,
+        text: 'Отсортируйте по зарплате по убыванию и используйте LIMIT 5',
+        xpPenalty: 0,
+      },
+      {
+        level: 3,
+        text: 'Комбинируйте ORDER BY для сортировки и LIMIT для ограничения.',
+        xpPenalty: 0,
+      },
+    ],
     sampleSolution: 'SELECT first_name, last_name, salary FROM employees ORDER BY salary DESC LIMIT 5;',
     verificationQuery: 'SELECT salary FROM employees ORDER BY salary DESC LIMIT 1;',
   },
@@ -83,6 +168,23 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     schema: EMPLOYEES_SCHEMA,
     taskText: 'Получите список всех уникальных городов (location) из таблицы departments.',
     hint: 'Используйте DISTINCT перед именем столбца.',
+    progressiveHints: [
+      {
+        level: 1,
+        text: 'Вам нужно получить только уникальные значения из столбца',
+        xpPenalty: 0,
+      },
+      {
+        level: 2,
+        text: 'Используйте ключевое слово DISTINCT для удаления дубликатов',
+        xpPenalty: 0,
+      },
+      {
+        level: 3,
+        text: 'Используйте DISTINCT перед именем столбца.',
+        xpPenalty: 0,
+      },
+    ],
     sampleSolution: 'SELECT DISTINCT location FROM departments;',
     verificationQuery: 'SELECT COUNT(DISTINCT location) as count FROM departments;',
   },
@@ -96,6 +198,23 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     schema: EMPLOYEES_SCHEMA,
     taskText: 'Посчитайте общее количество сотрудников и сумму всех зарплат в компании.',
     hint: 'Используйте COUNT(*) для подсчёта строк и SUM(column) для суммы.',
+    progressiveHints: [
+      {
+        level: 1,
+        text: 'Вам нужно вычислить итоговые значения для всей таблицы сотрудников',
+        xpPenalty: 0,
+      },
+      {
+        level: 2,
+        text: 'Используйте агрегатные функции для подсчёта и суммирования',
+        xpPenalty: 0,
+      },
+      {
+        level: 3,
+        text: 'Используйте COUNT(*) для подсчёта строк и SUM(column) для суммы.',
+        xpPenalty: 0,
+      },
+    ],
     sampleSolution: 'SELECT COUNT(*) as total_employees, SUM(salary) as total_salary FROM employees;',
     verificationQuery: 'SELECT COUNT(*) as total_employees FROM employees;',
   },
@@ -109,6 +228,23 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     schema: EMPLOYEES_SCHEMA,
     taskText: 'Вычислите среднюю зарплату сотрудников для каждого отдела. Выведите department_id и среднюю зарплату.',
     hint: 'GROUP BY "схлопывает" строки с одинаковым значением столбца в одну группу. Агрегатные функции (AVG, COUNT, SUM) вычисляют результат внутри каждой группы. Если есть GROUP BY, то в SELECT можно использовать только столбцы из GROUP BY и агрегатные функции.',
+    progressiveHints: [
+      {
+        level: 1,
+        text: 'Вам нужно сгруппировать сотрудников по отделам и вычислить среднее для каждой группы',
+        xpPenalty: 0,
+      },
+      {
+        level: 2,
+        text: 'Используйте GROUP BY по department_id и AVG(salary) для расчёта',
+        xpPenalty: 0,
+      },
+      {
+        level: 3,
+        text: 'GROUP BY "схлопывает" строки с одинаковым значением столбца в одну группу. Агрегатные функции (AVG, COUNT, SUM) вычисляют результат внутри каждой группы. Если есть GROUP BY, то в SELECT можно использовать только столбцы из GROUP BY и агрегатные функции.',
+        xpPenalty: 0,
+      },
+    ],
     sampleSolution: 'SELECT department_id, AVG(salary) as avg_salary FROM employees GROUP BY department_id;',
     verificationQuery: 'SELECT COUNT(DISTINCT department_id) as dept_count FROM employees WHERE department_id IS NOT NULL;',
   },

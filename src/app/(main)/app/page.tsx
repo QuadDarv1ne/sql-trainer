@@ -381,7 +381,7 @@ export default function HomePage() {
         const nextLevel = getNextHintLevel(hintLevel);
         if (nextLevel !== null && currentTask) {
           setHintLevel(nextLevel);
-          const hints = generateProgressiveHints(currentTask.id, currentTask.hint, currentTask.taskText);
+          const hints = generateProgressiveHints(currentTask.id, currentTask.hint, currentTask.taskText, currentTask.progressiveHints);
           setTotalHintPenalty(calculateHintPenalty(hints, nextLevel));
         }
       }
@@ -793,7 +793,7 @@ export default function HomePage() {
                         const nextLevel = getNextHintLevel(hintLevel);
                         if (nextLevel !== null && currentTask) {
                           setHintLevel(nextLevel);
-                          const hints = generateProgressiveHints(currentTask.id, currentTask.hint, currentTask.taskText);
+                          const hints = generateProgressiveHints(currentTask.id, currentTask.hint, currentTask.taskText, currentTask.progressiveHints);
                           setTotalHintPenalty(calculateHintPenalty(hints, nextLevel));
                         }
                       }}

@@ -173,7 +173,7 @@ export default function TaskPanel({
       {/* Progressive Hints */}
       {(() => {
         if (!task) return null;
-        const hints = generateProgressiveHints(task.id, task.hint, task.taskText);
+        const hints = generateProgressiveHints(task.id, task.hint, task.taskText, task.progressiveHints);
         const nextLevel = getNextHintLevel(hintLevel);
         const hintLevelLabels = [
           '',
