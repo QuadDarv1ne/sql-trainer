@@ -198,6 +198,12 @@ function initDatabase(): void {
     db.exec("ALTER TABLE users ADD COLUMN last_active INTEGER");
   }
 
+  // Migration: add role_changed_at column for session invalidation
+  const hasRoleChangedAt = columns.some(c => c.name === 'role_changed_at');
+  if (!hasRoleChangedAt) {
+    db.exec("ALTER TABLE users ADD COLUMN role_changed_at INTEGER DEFAULT NULL");
+  }
+
   // Migration: add hint_usage table for tracking hint reveals
   const tables = db.pragma("table_list") as { name: string }[];
   const hasHintUsage = tables.some(t => t.name === 'hint_usage');
@@ -315,20 +321,20 @@ export async function createUser(email: string, name: string, password: string, 
   return { id, email, name, phone: phone || null, role };
 }
 
-export async function findUserByEmail(email: string): Promise<{ id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole } | null> {
+export async function findUserByEmail(email: string): Promise<{ id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole; role_changed_at: number | null } | null> {
   const db = getDb();
-  const user = db.prepare('SELECT id, email, name, phone, password_hash, role FROM users WHERE email = ?').get(email) as
-    | { id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole }
+  const user = db.prepare('SELECT id, email, name, phone, password_hash, role, role_changed_at FROM users WHERE email = ?').get(email) as
+    | { id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole; role_changed_at: number | null }
     | undefined;
   return user || null;
 }
 
-export async function verifyPassword(email: string, password: string): Promise<{ id: string; email: string; name: string; phone: string | null; role: UserRole } | null> {
+export async function verifyPassword(email: string, password: string): Promise<{ id: string; email: string; name: string; phone: string | null; role: UserRole; role_changed_at: number | null } | null> {
   const user = await findUserByEmail(email);
   if (!user) return null;
   const valid = await bcrypt.compare(password, user.password_hash);
   if (!valid) return null;
-  return { id: user.id, email: user.email, name: user.name, phone: user.phone, role: user.role };
+  return { id: user.id, email: user.email, name: user.name, phone: user.phone, role: user.role, role_changed_at: user.role_changed_at };
 }
 
 export async function getUserById(userId: string): Promise<{ id: string; email: string; name: string; phone: string | null; avatar_url: string | null; role: UserRole; created_at: number } | null> {
@@ -605,7 +611,8 @@ export function updateUserRole(userId: string, role: UserRole, actorId?: string)
     throw new Error(`Invalid role: ${role}`);
   }
   const db = getDb();
-  const result = db.prepare('UPDATE users SET role = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL').run(role, Date.now(), userId);
+  const now = Date.now();
+  const result = db.prepare('UPDATE users SET role = ?, role_changed_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL').run(role, now, now, userId);
   if (result.changes > 0 && actorId) {
     logAudit(actorId, 'role_changed', 'user', userId, JSON.stringify({ role }));
   }

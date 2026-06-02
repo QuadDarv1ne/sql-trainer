@@ -18,6 +18,7 @@ interface AuthUser {
   email: string;
   phone?: string | null;
   role: UserRole;
+  role_changed_at?: number | null;
 }
 
 interface AuthSession {
@@ -56,6 +57,7 @@ const nextAuthConfig = {
         token.email = user.email;
         token.phone = user.phone;
         token.role = (user as AuthUser).role;
+        token.role_changed_at = (user as AuthUser).role_changed_at;
       }
       if (trigger === 'update' && session) {
         token.name = session.name ?? token.name;
