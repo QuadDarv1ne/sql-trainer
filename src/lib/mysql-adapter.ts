@@ -49,7 +49,7 @@ const TYPE_MAP: Record<string, string> = {
 /**
  * Detect which MySQL functions were dropped during adaptation.
  */
-export function detectDroppedFunctions(originalSql: string, _adaptedSql: string): string[] {
+export function detectDroppedFunctions(originalSql: string): string[] {
   const dropped: string[] = [];
 
   // Functions that are NOT adapted (should be reported as dropped if present in original)
@@ -334,7 +334,7 @@ export function adaptMySQLToSQLite(sql: string): string {
  */
 export function adaptMySQLWithWarnings(sql: string): { sql: string; warnings: string[] } {
   const adaptedSql = adaptMySQLToSQLite(sql);
-  const droppedFunctions = detectDroppedFunctions(sql, adaptedSql);
+  const droppedFunctions = detectDroppedFunctions(sql);
 
   const warnings: string[] = [];
   if (droppedFunctions.length > 0) {

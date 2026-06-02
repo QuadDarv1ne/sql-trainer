@@ -8,7 +8,7 @@ import PwaInstallPrompt from "@/components/pwa-install-prompt";
 import { ThemeTimeSync } from "@/components/theme-time-sync";
 import { CsrfTokenMeta } from "./csrf-token-meta";
 import { HtmlLangSync } from "./html-lang-sync";
-import { getLocaleFromCookies, tWithLocale, type Locale } from "@/lib/i18n";
+import { getLocaleFromCookies, tWithLocale } from "@/lib/i18n";
 import "@/lib/server-env"; // Validate environment variables at startup
 
 export const viewport: Viewport = {

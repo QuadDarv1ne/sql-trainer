@@ -208,29 +208,25 @@ describe('mysql-adapter', () => {
     it('should not report DATE_FORMAT as dropped when it was adapted', () => {
       // DATE_FORMAT → strftime, so it's no longer in adapted SQL as DATE_FORMAT
       const original = "SELECT DATE_FORMAT(created, '%Y-%m-%d')";
-      const adapted = adaptMySQLToSQLite(original);
-      const dropped = detectDroppedFunctions(original, adapted);
+      const dropped = detectDroppedFunctions(original);
       expect(dropped).not.toContain('DATE_FORMAT');
     });
 
     it('should detect truly dropped functions not adapted', () => {
       const original = "SELECT PASSWORD('secret')";
-      const adapted = "SELECT 'secret'";
-      const dropped = detectDroppedFunctions(original, adapted);
+      const dropped = detectDroppedFunctions(original);
       expect(dropped).toContain('PASSWORD');
     });
 
     it('should return empty array when no functions dropped', () => {
       const original = "SELECT * FROM t";
-      const adapted = "SELECT * FROM t";
-      const dropped = detectDroppedFunctions(original, adapted);
+      const dropped = detectDroppedFunctions(original);
       expect(dropped).toEqual([]);
     });
 
-    it('should detect MD5 as dropped when removed', () => {
+    it('should detect MD5 as dropped when present', () => {
       const original = "SELECT MD5(password)";
-      const adapted = "SELECT 'removed'";
-      const dropped = detectDroppedFunctions(original, adapted);
+      const dropped = detectDroppedFunctions(original);
       expect(dropped).toContain('MD5');
     });
   });
@@ -248,9 +244,8 @@ describe('mysql-adapter', () => {
     });
 
     it('should warn about SLEEP function being dropped', () => {
-      const result = adaptMySQLWithWarnings("SELECT SLEEP(5)");
       // SLEEP is not adapted, so it should be detected as dropped
-      const dropped = detectDroppedFunctions("SELECT SLEEP(5)", result.sql);
+      const dropped = detectDroppedFunctions("SELECT SLEEP(5)");
       expect(dropped).toContain('SLEEP');
     });
   });

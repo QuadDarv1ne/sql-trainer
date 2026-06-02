@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
-import { Loader2, Mail, Lock, User, Phone, AlertCircle, CheckCircle2, Shield, Users, GraduationCap, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Mail, Lock, User, Phone, AlertCircle, CheckCircle2, Users, GraduationCap, Eye, EyeOff } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { ROLE_LABELS } from '@/lib/rbac';
 import type { Role } from '@/lib/rbac';

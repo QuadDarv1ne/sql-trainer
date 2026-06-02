@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/refs -- callback refs are standard React pattern for dynamic ref assignment */
 'use client';
 
 import Link from 'next/link';
@@ -42,7 +43,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import LocaleSelector from '@/components/locale-selector';
 
 function ThemeToggle() {
@@ -240,8 +241,15 @@ const faqItems = [
  * Returns an array of { ref, isVisible } objects.
  */
 function useFadeInSections(count: number) {
-  const refs = useState<(HTMLElement | null)[]>(new Array(count).fill(null));
+  const elementRefs = useRef<Array<HTMLElement | null>>(new Array(count).fill(null));
   const [visibleSections, setVisibleSections] = useState<Set<number>>(new Set());
+
+  const setRef = useCallback(
+    (index: number) => (el: HTMLElement | null) => {
+      elementRefs.current[index] = el;
+    },
+    []
+  );
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -262,29 +270,22 @@ function useFadeInSections(count: number) {
       { threshold: 0.1 }
     );
 
-    for (const ref of refs[0]) {
+    for (const ref of elementRefs.current) {
       if (ref) {
         observer.observe(ref);
       }
     }
 
     return () => observer.disconnect();
-  }, [refs[0]]);
+  }, []);
 
   return useMemo(
     () =>
       Array.from({ length: count }, (_, i) => ({
-        setRef: (el: HTMLElement | null) => {
-          refs[1]((prev) => {
-            const next = [...prev];
-            next[i] = el;
-            return next;
-          });
-        },
+        setRef: setRef(i),
         isVisible: visibleSections.has(i),
       })),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [count, visibleSections]
+    [count, visibleSections, setRef]
   );
 }
 
