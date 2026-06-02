@@ -448,21 +448,21 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
         key: 'Mod-z',
         run: () => {
           onUndoRef.current?.();
-          return false; // Let CodeMirror history handle it too
+          return true; // Prevent CodeMirror from executing undo again
         },
       },
       {
         key: 'Mod-y',
         run: () => {
           onRedoRef.current?.();
-          return false;
+          return true; // Prevent CodeMirror from executing redo again
         },
       },
       {
         key: 'Mod-Shift-z',
         run: () => {
           onRedoRef.current?.();
-          return false;
+          return true; // Prevent CodeMirror from executing redo again
         },
       },
     ]);

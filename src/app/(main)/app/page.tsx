@@ -768,6 +768,7 @@ export default function HomePage() {
                     message={lastResult.message}
                     verification={verification || undefined}
                     suggestion={lastResult.suggestion}
+                    isExecuting={isExecuting}
                   />
                 ) : (
                   <EmptyResults />

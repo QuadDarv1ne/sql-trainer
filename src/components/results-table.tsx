@@ -21,6 +21,7 @@ interface ResultsTableProps {
   message?: string;
   verification?: VerificationResult;
   suggestion?: string;
+  isExecuting?: boolean;
 }
 
 type SortDirection = 'asc' | 'desc' | null;
@@ -34,6 +35,7 @@ export default function ResultsTable({
   message,
   verification,
   suggestion,
+  isExecuting = false,
 }: ResultsTableProps) {
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -173,6 +175,16 @@ export default function ResultsTable({
 
   return (
     <div className="flex h-full flex-col">
+      {/* Loading state */}
+      {isExecuting && (
+        <div className="flex flex-1 items-center justify-center border-b border-border px-4 py-8">
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <Clock className="h-4 w-4 animate-spin" />
+            <span>{t('results.executing')}</span>
+          </div>
+        </div>
+      )}
+
       {/* Verification banner */}
       {verification && (
         <div
@@ -325,7 +337,8 @@ export default function ResultsTable({
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="rounded px-2 py-1 text-xs disabled:opacity-50 hover:bg-muted disabled:hover:bg-transparent"
+              aria-label={t('results.prev')}
+              className="rounded px-2 py-1 text-xs transition-colors disabled:opacity-50 hover:bg-muted disabled:hover:bg-transparent"
             >
               {t('results.prev')}
             </button>
@@ -335,7 +348,8 @@ export default function ResultsTable({
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="rounded px-2 py-1 text-xs disabled:opacity-50 hover:bg-muted disabled:hover:bg-transparent"
+              aria-label={t('results.next')}
+              className="rounded px-2 py-1 text-xs transition-colors disabled:opacity-50 hover:bg-muted disabled:hover:bg-transparent"
             >
               {t('results.next')}
             </button>
