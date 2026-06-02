@@ -1,6 +1,8 @@
 import { auth } from '@/lib/auth';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import LandingPage from '@/components/landing-page';
+import { getLocaleFromCookies } from '@/lib/i18n';
 
 export default async function PublicHomePage() {
   const session = await auth();
@@ -10,5 +12,8 @@ export default async function PublicHomePage() {
     redirect('/app');
   }
 
-  return <LandingPage />;
+  const cookieStore = await cookies();
+  const locale = getLocaleFromCookies(cookieStore.toString());
+
+  return <LandingPage locale={locale} />;
 }

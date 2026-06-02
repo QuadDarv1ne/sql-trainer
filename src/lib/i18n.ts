@@ -25,6 +25,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.nav.why': 'Почему мы',
     'landing.nav.curriculum': 'Программа',
     'landing.nav.faq': 'FAQ',
+    'landing.nav.auth': 'Войти',
 
     // Metadata (SEO, OG, Twitter)
     'metadata.title': 'SQL Тренажёр — Интерактивное обучение SQL',
@@ -2019,6 +2020,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.nav.why': 'Why Us',
     'landing.nav.curriculum': 'Curriculum',
     'landing.nav.faq': 'FAQ',
+    'landing.nav.auth': 'Sign In',
 
     // Metadata (SEO, OG, Twitter)
     'metadata.title': 'SQL Trainer — Interactive SQL Learning',
@@ -4013,6 +4015,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.nav.why': '为什么选择我们',
     'landing.nav.curriculum': '课程',
     'landing.nav.faq': '常见问题',
+    'landing.nav.auth': '登录',
 
     // Metadata (SEO, OG, Twitter)
     'metadata.title': 'SQL 训练器 — 交互式 SQL 学习',

@@ -2,8 +2,9 @@
 'use client';
 
 import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
-import { t } from '@/lib/i18n';
+import { tWithLocale, type Locale } from '@/lib/i18n';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -40,10 +41,8 @@ import {
   RefreshCw,
   Globe2,
   TrendingUp,
-  Menu,
   X,
 } from 'lucide-react';
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import LocaleSelector from '@/components/locale-selector';
 
 function ThemeToggle() {
@@ -341,6 +340,72 @@ const NAV_LINKS = [
   { href: '#faq', labelKey: 'landing.nav.faq' },
 ];
 
+function AuthSidebar({ t }: { t: (key: string) => string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      {/* Mobile toggle button */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="md:hidden gap-1.5"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {isOpen ? <X className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+        {t('landing.nav.auth')}
+      </Button>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex fixed right-0 top-0 h-full w-72 bg-background/95 backdrop-blur-xl border-l border-border/50 z-50 flex-col items-center justify-center gap-4 p-6">
+        <Link href="/login" className="w-full">
+          <Button variant="outline" className="w-full gap-2">
+            <LogIn className="h-4 w-4" />
+            {t('landing.hero.login')}
+          </Button>
+        </Link>
+        <Link href="/register" className="w-full">
+          <Button className="w-full bg-blue-600 hover:bg-blue-700 gap-2">
+            <GraduationCap className="h-4 w-4" />
+            {t('landing.hero.startTraining')}
+          </Button>
+        </Link>
+        <LocaleSelector />
+      </aside>
+
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsOpen(false)}>
+          <div
+            className="absolute right-0 top-0 h-full w-72 bg-background p-6 flex flex-col items-center justify-center gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground"
+              onClick={() => setIsOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <Link href="/login" className="w-full" onClick={() => setIsOpen(false)}>
+              <Button variant="outline" className="w-full gap-2">
+                <LogIn className="h-4 w-4" />
+                {t('landing.hero.login')}
+              </Button>
+            </Link>
+            <Link href="/register" className="w-full" onClick={() => setIsOpen(false)}>
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 gap-2">
+                <GraduationCap className="h-4 w-4" />
+                {t('landing.hero.startTraining')}
+              </Button>
+            </Link>
+            <LocaleSelector />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function scrollToSection(href: string) {
   const id = href.replace('#', '');
   const el = document.getElementById(id);
@@ -349,11 +414,12 @@ function scrollToSection(href: string) {
   }
 }
 
-export default function LandingPage() {
+export default function LandingPage({ locale }: { locale?: Locale }) {
   const fadeSections = useFadeInSections(10);
-  // hero=0, stats=1, modules=2, databases=3, why=4, howItWorks=5, curriculum=6, tasks=7, testimonials=8, faq=9
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const currentYear = useMemo(() => new Date().getFullYear(), []);
+
+  const resolvedLocale = locale ?? 'ru';
+  const t = useCallback((key: string) => tWithLocale(resolvedLocale, key), [resolvedLocale]);
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-background via-background to-muted/30">
@@ -364,8 +430,11 @@ export default function LandingPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-blue-500/[0.02] blur-3xl" />
       </div>
 
+      {/* Main content wrapper with sidebar offset */}
+      <div className="flex flex-col md:pr-72">
+
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="flex items-center justify-between px-4 py-3 sm:px-6 lg:px-12">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-sm">
@@ -376,8 +445,8 @@ export default function LandingPage() {
             </span>
           </div>
 
-          {/* Nav links — desktop */}
-          <nav className="hidden lg:flex items-center gap-1">
+          {/* Nav links */}
+          <nav className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((link) => (
               <button
                 key={link.href}
@@ -389,70 +458,12 @@ export default function LandingPage() {
             ))}
           </nav>
 
-          {/* Desktop actions */}
-          <div className="hidden lg:flex items-center gap-2">
-            <LocaleSelector />
+          {/* Actions */}
+          <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="gap-1.5">
-                <LogIn className="h-4 w-4" />
-                {t('landing.hero.login')}
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                {t('landing.hero.startTraining')}
-              </Button>
-            </Link>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="flex lg:hidden items-center gap-2">
-            <LocaleSelector />
-            <ThemeToggle />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 w-9 p-0"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+            <AuthSidebar t={t} />
           </div>
         </div>
-
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl px-4 py-4 sm:px-6">
-            <nav className="flex flex-col gap-1 mb-4">
-              {NAV_LINKS.map((link) => (
-                <button
-                  key={link.href}
-                  onClick={() => {
-                    scrollToSection(link.href);
-                    setMobileMenuOpen(false);
-                  }}
-                  className="px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/50 text-left"
-                >
-                  {t(link.labelKey)}
-                </button>
-              ))}
-            </nav>
-            <div className="flex gap-2 pt-3 border-t border-border/50">
-              <Link href="/login" className="flex-1">
-                <Button variant="outline" size="sm" className="w-full gap-1.5">
-                  <LogIn className="h-4 w-4" />
-                  {t('landing.hero.login')}
-                </Button>
-              </Link>
-              <Link href="/register" className="flex-1">
-                <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700">
-                  {t('landing.hero.startTraining')}
-                </Button>
-              </Link>
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Hero */}
@@ -475,20 +486,6 @@ export default function LandingPage() {
         <p className="max-w-2xl text-lg sm:text-xl text-muted-foreground mb-10 leading-relaxed">
           {t('landing.hero.description')}
         </p>
-        <div className="flex flex-col sm:flex-row items-center gap-4 mb-16">
-          <Link href="/register">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 h-12 px-8 text-base shadow-lg shadow-blue-600/25">
-              <GraduationCap className="h-5 w-5 mr-2" />
-              {t('landing.hero.startTraining')}
-            </Button>
-          </Link>
-          <Link href="/login">
-            <Button variant="outline" size="lg" className="h-12 px-8 text-base">
-              <LogIn className="h-5 w-5 mr-2" />
-              {t('landing.hero.login')}
-            </Button>
-          </Link>
-        </div>
 
         {/* SQL Code Example */}
         <div className="w-full max-w-2xl rounded-2xl overflow-hidden border border-border/50 bg-card shadow-2xl shadow-muted/20">
@@ -844,7 +841,8 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-border/50 bg-card">
+      </div>
+      <footer className="relative z-10 border-t border-border/50 bg-card md:pr-72">
         <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div>
