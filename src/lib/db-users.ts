@@ -3084,6 +3084,22 @@ export function getGroupById(id: string): Group | null {
   };
 }
 
+/**
+ * Check if a student belongs to any of the teacher's groups.
+ * Returns true if the student is a member of at least one group owned by the teacher.
+ */
+export function isStudentInTeacherGroup(studentId: string, teacherId: string): boolean {
+  const db = getDb();
+  const result = db.prepare(`
+    SELECT COUNT(*) as count
+    FROM group_members gm
+    INNER JOIN "groups" g ON gm.group_id = g.id
+    WHERE gm.user_id = ? AND g.teacher_id = ?
+  `).get(studentId, teacherId) as { count: number };
+  
+  return result.count > 0;
+}
+
 export function getGroupsByTeacherId(teacherId: string): Group[] {
   const db = getDb();
   const rows = db.prepare(`
