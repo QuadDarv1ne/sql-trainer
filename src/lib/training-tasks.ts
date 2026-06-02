@@ -33,7 +33,7 @@ export {
   MYSQL_TASKS,
 } from './tasks/mysql';
 
-// Combined array of all tasks (clickhouse tasks are already in difficulty files)
+// Combined array of all tasks
 import { BEGINNER_TASKS } from './tasks/beginner';
 import { INTERMEDIATE_TASKS } from './tasks/intermediate';
 import { ADVANCED_TASKS } from './tasks/advanced';
