@@ -6,6 +6,7 @@ import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
+import { validateCsrfTokenEdge, csrfErrorResponse } from '@/lib/csrf';
 
 const changeEmailSchema = z.object({
   newEmail: z.string().email('Неверный формат email'),
@@ -17,6 +18,11 @@ export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ success: false, error: 'Не авторизован' }, { status: 401 });
+    }
+
+    // CSRF protection
+    if (!validateCsrfTokenEdge(request)) {
+      return csrfErrorResponse();
     }
 
     // Rate limit: 5 attempts per 15 minutes per user

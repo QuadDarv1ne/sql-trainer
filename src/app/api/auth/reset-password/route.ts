@@ -5,6 +5,7 @@ import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { escapeHtml, getUserEmail } from '@/lib/email';
 import { validateBody } from '@/lib/validation';
+import { validateCsrfTokenEdge, csrfErrorResponse } from '@/lib/csrf';
 
 const resetRequestSchema = z.object({
   email: z.string().email('Некорректный email'),
@@ -21,6 +22,11 @@ const resetConfirmSchema = z.object({
 // Request password reset code
 export async function POST(request: NextRequest) {
   try {
+    // CSRF protection
+    if (!validateCsrfTokenEdge(request)) {
+      return csrfErrorResponse();
+    }
+
     const body = await request.json();
     const result = validateBody(body, resetRequestSchema);
     if ('response' in result) return result.response;
@@ -88,6 +94,11 @@ export async function POST(request: NextRequest) {
 // Reset password with code
 export async function PUT(request: NextRequest) {
   try {
+    // CSRF protection
+    if (!validateCsrfTokenEdge(request)) {
+      return csrfErrorResponse();
+    }
+
     const body = await request.json();
     const result = validateBody(body, resetConfirmSchema);
     if ('response' in result) return result.response;

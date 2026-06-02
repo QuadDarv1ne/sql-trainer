@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { validateBody } from '@/lib/validation';
+import { validateCsrfTokenEdge, csrfErrorResponse } from '@/lib/csrf';
 
 const deleteAccountSchema = z.object({
   confirmPassword: z.string().min(1, 'Подтверждение пароля обязательно'),
@@ -16,6 +17,11 @@ export async function DELETE(request: NextRequest) {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ success: false, error: 'Не авторизован' }, { status: 401 });
+    }
+
+    // CSRF protection
+    if (!validateCsrfTokenEdge(request)) {
+      return csrfErrorResponse();
     }
 
     // Rate limit: 3 attempts per 15 minutes per user

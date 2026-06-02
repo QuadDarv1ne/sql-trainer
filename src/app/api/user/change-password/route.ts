@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { validateBody } from '@/lib/validation';
+import { validateCsrfTokenEdge, csrfErrorResponse } from '@/lib/csrf';
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Текущий пароль обязателен'),
@@ -20,6 +21,11 @@ export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ success: false, error: 'Не авторизован' }, { status: 401 });
+    }
+
+    // CSRF protection
+    if (!validateCsrfTokenEdge(request)) {
+      return csrfErrorResponse();
     }
 
     // Rate limit: 5 attempts per 15 minutes per user
