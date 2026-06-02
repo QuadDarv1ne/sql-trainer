@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     # Only run for the original repository, not forks
-    if: github.repository == 'dupleymi/sql-trainer'
+    if: github.repository == 'dupleymi-aup/sql-trainer'
 
     runs-on: ubuntu-latest
 
