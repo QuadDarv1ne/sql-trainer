@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
@@ -83,9 +84,10 @@ describe('StudentDashboard', () => {
     mockPush.mockClear();
     mockFetch.mockClear();
 
-    (useSession as vi.MockedFunction<typeof useSession>).mockReturnValue(mockStudentSession);
+    (useSession as Mock).mockReturnValue(mockStudentSession);
 
-    (useSQLTrainerStore as vi.MockedFunction<typeof useSQLTrainerStore>).mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (useSQLTrainerStore as any).mockReturnValue({
       setCurrentTaskId: vi.fn(),
     });
 
@@ -109,7 +111,7 @@ describe('StudentDashboard', () => {
   });
 
   it('redirects non-student users to /app', () => {
-    (useSession as vi.MockedFunction<typeof useSession>).mockReturnValue({
+    (useSession as Mock).mockReturnValue({
       ...mockStudentSession,
       data: {
         ...mockStudentSession.data,
