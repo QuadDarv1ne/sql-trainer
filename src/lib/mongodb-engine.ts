@@ -58,6 +58,18 @@ function parseMongoQuery(queryStr: string): { type: 'find' | 'aggregate'; collec
 }
 
 /**
+ * Compare two values for sorting — numeric when both are numbers,
+ * string otherwise. Null/undefined sort after other values.
+ */
+function compareValues(a: unknown, b: unknown): number {
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  if (typeof a === 'number' && typeof b === 'number') return a - b;
+  return String(a).localeCompare(String(b));
+}
+
+/**
  * Execute a find() query on in-memory data.
  */
 function executeFind(
@@ -85,11 +97,11 @@ function executeFind(
     const sortEntries = Object.entries(sort);
     results.sort((a, b) => {
       for (const [field, direction] of sortEntries) {
-        const aVal = String(getNestedValue(a, field) ?? '');
-        const bVal = String(getNestedValue(b, field) ?? '');
+        const aVal = getNestedValue(a, field);
+        const bVal = getNestedValue(b, field);
         const dir = (direction as number) >= 0 ? 1 : -1;
-        if (aVal < bVal) return -1 * dir;
-        if (aVal > bVal) return 1 * dir;
+        const cmp = compareValues(aVal, bVal);
+        if (cmp !== 0) return cmp * dir;
       }
       return 0;
     });
@@ -127,11 +139,11 @@ function executeAggregate(
       const sortEntries = Object.entries(stage.$sort);
       results.sort((a, b) => {
         for (const [field, direction] of sortEntries) {
-          const aVal = String(getNestedValue(a, field) ?? '');
-          const bVal = String(getNestedValue(b, field) ?? '');
+          const aVal = getNestedValue(a, field);
+          const bVal = getNestedValue(b, field);
           const dir = (direction as number) >= 0 ? 1 : -1;
-          if (aVal < bVal) return -1 * dir;
-          if (aVal > bVal) return 1 * dir;
+          const cmp = compareValues(aVal, bVal);
+          if (cmp !== 0) return cmp * dir;
         }
         return 0;
       });
