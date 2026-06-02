@@ -19,12 +19,14 @@ import {
   Shuffle,
   Undo2,
   Redo2,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface ActionBarProps {
   isExecuting: boolean;
   executeQuery: () => void;
   executeExplain: () => void;
+  executeVerify?: () => void;
   clearEditor: () => void;
   resetDb: () => void;
   onRestoreQuery: (sql: string) => void;
@@ -42,6 +44,7 @@ export default function ActionBar({
   isExecuting,
   executeQuery,
   executeExplain,
+  executeVerify,
   clearEditor,
   resetDb,
   onRestoreQuery,
@@ -89,6 +92,24 @@ export default function ActionBar({
             Ctrl+↵
           </kbd>
         </Button>
+
+        {currentTask && executeVerify && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                onClick={executeVerify}
+                disabled={isExecuting || !editorContent.trim()}
+              >
+                <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{t('action.verify')}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('action.verifyTooltip')}</TooltipContent>
+          </Tooltip>
+        )}
 
         {currentTask && (
           <Tooltip>

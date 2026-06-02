@@ -115,6 +115,10 @@ export default function HomePage() {
     incrementExplainCount,
     onboardingCompleted,
     setOnboardingCompleted,
+    checkAndUnlockAchievements,
+    queryHistory,
+    streak,
+    addXP,
   } = useSQLTrainerStore();
 
   const editorRef = useRef<SQLEditorRef>(null);
@@ -255,8 +259,8 @@ export default function HomePage() {
         rowCount: data.rows?.length,
       });
 
-      // Verify task if there's a current task and query succeeded with results
-      if (currentTaskId && data.success && data.rows && data.rows.length > 0) {
+      // Verify task if there's a current task and query succeeded (including 0-row results)
+      if (currentTaskId && data.success) {
         try {
           const verifyResponse = await fetch('/api/sql/verify', {
             method: 'POST',
@@ -451,6 +455,65 @@ export default function HomePage() {
       setIsExecuting(false);
     }
   }, [editorContent, isExecuting, dbType, currentTaskId, setIsExecuting, incrementExplainCount]);
+
+  // Verify task solution
+  const executeVerify = useCallback(async () => {
+    if (!editorContent.trim() || isExecuting || !currentTaskId) return;
+
+    setIsExecuting(true);
+
+    try {
+      const verifyResponse = await fetch('/api/sql/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sql: editorContent, taskId: currentTaskId, dbType }),
+      });
+
+      const verifyData = await verifyResponse.json();
+      setVerification({
+        verified: verifyData.verified,
+        userRowCount: verifyData.userRowCount,
+        expectedRowCount: verifyData.expectedRowCount,
+        message: verifyData.message,
+      });
+
+      // Mark task as completed only when verified
+      if (verifyData.verified && !isTaskCompleted(currentTaskId)) {
+        markTaskCompleted(currentTaskId, attemptCountRef.current);
+        updateStreak();
+        toast.success(t('task.completed'), {
+          description: `+${verifyData.xp ?? 0} XP`,
+        });
+
+        const { newAchievements, xpGained } = checkAndUnlockAchievements({
+          completedTasks: [...completedTasks, { taskId: currentTaskId, completedAt: Date.now(), attempts: attemptCountRef.current }],
+          queryHistoryLength: queryHistory.length,
+          currentStreak: streak.currentStreak,
+          taskId: currentTaskId,
+          attempts: attemptCountRef.current,
+        });
+
+        if (xpGained > 0) {
+          addXP(xpGained);
+        }
+
+        if (newAchievements.length > 0) {
+          newAchievements.forEach((a: { icon: string; title: string; description: string }) => {
+            toast.success(`${a.icon} ${a.title}`, { description: a.description });
+          });
+        }
+      } else if (!verifyData.verified) {
+        toast.error(t('task.notVerified'), {
+          description: verifyData.message || t('task.notVerifiedDetail'),
+        });
+      }
+    } catch (e) {
+      logger.error('Verify request failed', e);
+      toast.error(t('task.verifyError'));
+    } finally {
+      setIsExecuting(false);
+    }
+  }, [editorContent, isExecuting, currentTaskId, dbType, completedTasks, queryHistory, streak, setIsExecuting, markTaskCompleted, updateStreak, checkAndUnlockAchievements, addXP]);
 
   // Reset DB (re-init task)
   const resetDb = () => {
@@ -707,6 +770,7 @@ export default function HomePage() {
             isExecuting={isExecuting}
             executeQuery={executeQuery}
             executeExplain={executeExplain}
+            executeVerify={executeVerify}
             clearEditor={clearEditor}
             resetDb={resetDb}
             onRestoreQuery={handleRestoreQuery}

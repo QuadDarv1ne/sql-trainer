@@ -281,6 +281,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.addToBookmark': 'Добавить в избранное',
     'action.explain': 'EXPLAIN',
     'action.explainTooltip': 'Показать план выполнения запроса',
+    'action.verify': 'Проверить',
+    'action.verifyTooltip': 'Проверить правильность решения',
     'action.undo': 'Отменить',
     'action.redo': 'Повторить',
 
@@ -406,6 +408,9 @@ export const translations: Record<Locale, Record<string, string>> = {
     // Task panel
     'task.completed': 'Задание выполнено верно! 🎉',
     'task.completedBadge': 'Выполнено',
+    'task.notVerified': 'Решение не прошло проверку',
+    'task.notVerifiedDetail': 'Попробуйте ещё раз или посмотрите подсказки',
+    'task.verifyError': 'Ошибка при проверке',
     'task.congrats': 'Поздравляем! 🎉',
     'task.congratsDesc': 'Вы выполнили все задания! Вы настоящий SQL-мастер.',
     'task.taskLabel': 'Задание',
@@ -2277,6 +2282,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.addToBookmark': 'Add to bookmarks',
     'action.explain': 'EXPLAIN',
     'action.explainTooltip': 'Show query execution plan',
+    'action.verify': 'Verify',
+    'action.verifyTooltip': 'Check if your solution is correct',
     'action.undo': 'Undo',
     'action.redo': 'Redo',
 
@@ -2402,6 +2409,9 @@ export const translations: Record<Locale, Record<string, string>> = {
     // Task panel
     'task.completed': 'Task completed successfully! 🎉',
     'task.completedBadge': 'Completed',
+    'task.notVerified': 'Solution did not pass verification',
+    'task.notVerifiedDetail': 'Try again or check the hints',
+    'task.verifyError': 'Verification error',
     'task.congrats': 'Congratulations! 🎉',
     'task.congratsDesc': 'You completed all tasks! You are a true SQL master.',
     'task.taskLabel': 'Task',
@@ -4273,6 +4283,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'action.addToBookmark': '添加到收藏',
     'action.explain': 'EXPLAIN',
     'action.explainTooltip': '显示查询执行计划',
+    'action.verify': '验证',
+    'action.verifyTooltip': '检查你的答案是否正确',
     'action.undo': '撤销',
     'action.redo': '重做',
 
@@ -4398,6 +4410,9 @@ export const translations: Record<Locale, Record<string, string>> = {
     // Task panel
     'task.completed': '任务成功完成！🎉',
     'task.completedBadge': '已完成',
+    'task.notVerified': '解决方案未通过验证',
+    'task.notVerifiedDetail': '请再试一次或查看提示',
+    'task.verifyError': '验证错误',
     'task.congrats': '恭喜！🎉',
     'task.congratsDesc': '你完成了所有任务！你是真正的 SQL 大师。',
     'task.taskLabel': '任务',
