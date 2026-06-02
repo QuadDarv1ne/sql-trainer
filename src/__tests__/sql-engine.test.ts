@@ -574,7 +574,7 @@ describeIf('sql-engine', () => {
         CREATE TABLE explain_test (id INTEGER PRIMARY KEY, name TEXT);
         CREATE INDEX idx_name ON explain_test(name);
       `;
-      const query = 'SELECT * FROM explain_test WHERE name = "test"';
+      const query = "SELECT * FROM explain_test WHERE name = 'test'";
       const result = explainQuery(query, schema);
       expect(result.success).toBe(true);
       expect(result.plan).toBeDefined();
@@ -698,7 +698,8 @@ describeIf('sql-engine', () => {
 
     it('should handle block comment only', () => {
       const result = splitStatements('/* block comment */');
-      expect(result).toHaveLength(0);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBe('/* block comment */');
     });
 
     it('should handle string with semicolons inside double quotes', () => {

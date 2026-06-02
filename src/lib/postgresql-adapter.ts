@@ -127,19 +127,27 @@ const FUNCTION_MAP: Record<string, string | null> = {
 };
 
 function applyFunctionReplacements(sql: string): string {
-  let result = sql;
+  // Use splitSqlSegments to avoid replacing function names inside string literals
+  const segments = splitSqlSegments(sql);
 
-  // Replace known function names
-  for (const [pgFunc, sqliteFunc] of Object.entries(FUNCTION_MAP)) {
-    if (sqliteFunc && sqliteFunc !== pgFunc) {
-      result = result.replace(
-        new RegExp(`\\b${pgFunc}\\b`, 'gi'),
-        sqliteFunc
-      );
+  const processed = segments.map((segment, i) => {
+    if (i % 2 === 1) return segment; // skip string literals
+    let result = segment;
+
+    // Replace known function names
+    for (const [pgFunc, sqliteFunc] of Object.entries(FUNCTION_MAP)) {
+      if (sqliteFunc && sqliteFunc !== pgFunc) {
+        result = result.replace(
+          new RegExp(`\\b${pgFunc}\\b`, 'gi'),
+          sqliteFunc
+        );
+      }
     }
-  }
 
-  return result;
+    return result;
+  }).join('');
+
+  return processed;
 }
 
 /**
@@ -185,6 +193,15 @@ export function adaptWithWarnings(sql: string): AdaptResult {
 export function adaptPostgreSQLToSQLite(sql: string): string {
   let result = sql;
 
+  // Replace functions with no-arg SQLite equivalents (must happen before applyFunctionReplacements)
+  // Use negative lookbehind to avoid matching inside other function names like datetime()
+  result = result.replace(/(?<![.\w])NOW\s*\(\)/gi, "datetime('now')");
+  result = result.replace(/(?<![.\w])CURRENT_DATE\s*\(\)/gi, "date('now')");
+  result = result.replace(/(?<![.\w])CURRENT_TIME\s*\(\)/gi, "time('now')");
+  result = result.replace(/(?<![.\w])CURRENT_TIMESTAMP\s*\(\)/gi, "datetime('now')");
+  result = result.replace(/(?<![.\w])LOCALTIMESTAMP\s*\(\)/gi, "datetime('now')");
+  result = result.replace(/(?<![.\w])LOCALTIME\s*\(\)/gi, "time('now')");
+
   // Replace BOOLEAN DEFAULT TRUE/FALSE
   result = result.replace(/\bDEFAULT\s+TRUE\b/gi, 'DEFAULT 1');
   result = result.replace(/\bDEFAULT\s+FALSE\b/gi, 'DEFAULT 0');
@@ -205,11 +222,12 @@ export function adaptPostgreSQLToSQLite(sql: string): string {
   // Replace DISTINCT ON - not supported in SQLite
   result = result.replace(/\bDISTINCT\s+ON\s*\([^)]+\)/gi, 'DISTINCT');
 
-  // Replace ::type casting with CAST — using precise non-greedy pattern
-  result = result.replace(/::([A-Za-z]+(?:\s*\([^)]*\))?)/g, (_, type) => {
+  // Replace ::type casting with CAST(expr AS type)
+  // Match identifiers and string literals before ::
+  result = result.replace(/([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*|'[^']*')\s*::([A-Za-z_]\w*(?:\s*\([^)]*\))?)/g, (_, expr, type) => {
     const trimmed = type.trim().toUpperCase();
     const mapped = TYPE_MAP[trimmed] || trimmed;
-    return ` AS ${mapped}`;
+    return `CAST(${expr} AS ${mapped})`;
   });
 
   // Replace function names from FUNCTION_MAP

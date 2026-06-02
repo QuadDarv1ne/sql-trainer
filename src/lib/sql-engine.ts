@@ -57,15 +57,17 @@ export function splitStatements(sql: string): string[] {
     if (inBlockComment) {
       if (char === '*' && next === '/') {
         inBlockComment = false;
-        i++; // skip both * and /
+        current += char + next; // keep comment ending
+        i++; // skip /
+      } else {
+        current += char; // keep comment content
       }
-      // Don't add comment characters to current
       continue;
     }
 
     if (char === '-' && next === '-' && !inString) {
       inComment = true;
-      // Don't add comment characters to current
+      current += char; // keep the comment characters
       continue;
     }
 
@@ -73,15 +75,16 @@ export function splitStatements(sql: string): string[] {
       if (char === '\n') {
         inComment = false;
         current += char; // preserve newline
+      } else {
+        current += char; // keep comment content
       }
-      // Don't add comment characters to current
       continue;
     }
 
     if (char === '/' && next === '*' && !inString) {
       inBlockComment = true;
-      i++; // skip both / and *
-      // Don't add comment characters to current
+      current += char + next; // keep comment start
+      i++; // skip *
       continue;
     }
 
@@ -193,7 +196,8 @@ function adaptSqlForExecution(
   }
   if (dbType === 'postgresql') {
     const dropped = detectPgDroppedFunctions(sql);
-    return { processedSql: adaptPostgreSQLToSQLite(sql), warnings: dropped.map(UNSUPPORTED_FUNC_WARNING) };
+    const result = adaptPostgreSQLToSQLite(sql);
+    return { processedSql: result, warnings: dropped.map(UNSUPPORTED_FUNC_WARNING) };
   }
   if (dbType === 'clickhouse') {
     return { processedSql: adaptClickHouseToSQLite(sql), warnings: [] };
@@ -384,7 +388,7 @@ function schemaCacheKey(schemaSql: string, dbType: string): string {
  * Uses SQL dump/restore approach for isolation.
  */
 function cloneDatabase(source: Database.Database): Database.Database {
-  const dump = source.prepare("SELECT sql FROM sqlite_master WHERE sql IS NOT NULL AND type IN ('table', 'index')").all() as { sql: string }[];
+  const dump = source.prepare("SELECT sql FROM sqlite_master WHERE sql IS NOT NULL AND type IN ('table', 'index') AND name NOT LIKE 'sqlite_%'").all() as { sql: string }[];
   const tables = source.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[];
   const newDb = new Database(':memory:');
   newDb.pragma('foreign_keys = ON');
