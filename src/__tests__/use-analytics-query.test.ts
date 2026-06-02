@@ -109,7 +109,9 @@ describe('useAnalyticsQuery', () => {
     renderHook(() => useAnalyticsQuery({ endpoint: '/api/test' }));
 
     await waitFor(() => expect(mockFetch).toHaveBeenCalled());
-    const [url] = mockFetch.mock.lastCall;
+    const lastCall = mockFetch.mock.lastCall;
+    expect(lastCall).toBeDefined();
+    const [url] = lastCall!;
     expect(url).toContain('startDate=1700000000000');
     expect(url).toContain('endDate=1700086400000');
   });
@@ -125,7 +127,9 @@ describe('useAnalyticsQuery', () => {
     );
 
     await waitFor(() => expect(mockFetch).toHaveBeenCalled());
-    const [url] = mockFetch.mock.lastCall;
+    const lastCall = mockFetch.mock.lastCall;
+    expect(lastCall).toBeDefined();
+    const [url] = lastCall!;
     expect(url).toContain('filter=active');
     expect(url).toContain('limit=10');
   });

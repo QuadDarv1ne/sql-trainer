@@ -83,9 +83,9 @@ describe('StudentDashboard', () => {
     mockPush.mockClear();
     mockFetch.mockClear();
 
-    (useSession as any).mockReturnValue(mockStudentSession);
+    (useSession as vi.MockedFunction<typeof useSession>).mockReturnValue(mockStudentSession);
 
-    (useSQLTrainerStore as any).mockReturnValue({
+    (useSQLTrainerStore as vi.MockedFunction<typeof useSQLTrainerStore>).mockReturnValue({
       setCurrentTaskId: vi.fn(),
     });
 
@@ -109,7 +109,7 @@ describe('StudentDashboard', () => {
   });
 
   it('redirects non-student users to /app', () => {
-    (useSession as any).mockReturnValue({
+    (useSession as vi.MockedFunction<typeof useSession>).mockReturnValue({
       ...mockStudentSession,
       data: {
         ...mockStudentSession.data,

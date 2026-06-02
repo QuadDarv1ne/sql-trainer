@@ -724,14 +724,17 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section
-        id="faq"
-        ref={fadeSections[9].setRef}
-        data-section-index="9"
-        className={`relative z-10 px-6 sm:px-8 lg:px-12 pb-16 transition-all duration-700 ${
-          fadeSections[9].isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`}
-      >
+      {(() => {
+        const faqSection = fadeSections[9];
+        return (
+        <section
+          id="faq"
+          ref={faqSection.setRef}
+          data-section-index="9"
+          className={`relative z-10 px-6 sm:px-8 lg:px-12 pb-16 transition-all duration-700 ${
+            faqSection.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
         <div className="max-w-3xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2">{t('landing.faq.title')}</h2>
           <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">{t('landing.faq.subtitle')}</p>
@@ -749,6 +752,8 @@ export default function LandingPage() {
           </Accordion>
         </div>
       </section>
+        );
+      })()}
 
       {/* Features strip */}
       <section className="relative z-10 px-6 sm:px-8 lg:px-12 pb-16">

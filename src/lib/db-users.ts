@@ -3057,7 +3057,9 @@ export function createGroup(data: {
     );
   }
 
-  return getGroupById(id)!;
+  const group = getGroupById(id);
+  if (!group) throw new Error(`Group not found: ${id}`);
+  return group;
 }
 
 export function getGroupById(id: string): Group | null {

@@ -49,17 +49,8 @@ const TYPE_MAP: Record<string, string> = {
 /**
  * Detect which MySQL functions were dropped during adaptation.
  */
-export function detectDroppedFunctions(originalSql: string, adaptedSql: string): string[] {
+export function detectDroppedFunctions(originalSql: string, _adaptedSql: string): string[] {
   const dropped: string[] = [];
-
-  // Functions that ARE successfully adapted (should NOT be reported as dropped)
-  const adaptedFunctions = [
-    'DATE_FORMAT', 'STR_TO_DATE', 'DATE_ADD', 'DATE_SUB',
-    'TIMESTAMPDIFF', 'TIMESTAMPADD', 'PERIOD_DIFF',
-    'GROUP_CONCAT', 'CONCAT_WS', 'FIELD', 'FIND_IN_SET',
-    'IF',
-    'REGEXP', 'RLIKE',
-  ];
 
   // Functions that are NOT adapted (should be reported as dropped if present in original)
   const unadaptedFunctions = [

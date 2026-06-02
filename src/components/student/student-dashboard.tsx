@@ -157,7 +157,6 @@ export default function StudentDashboard() {
   const progressPercent = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
   const totalAttempts = stats.completedTasks.reduce((sum, p) => sum + p.attempts, 0);
   const avgAttempts = completedCount > 0 ? (totalAttempts / completedCount).toFixed(1) : '0';
-  const bestResult = completedCount > 0 ? Math.min(...stats.completedTasks.map(p => p.attempts)) : null;
 
   // Find next incomplete task
   const completedIds = new Set(stats.completedTasks.map(p => p.taskId));
@@ -374,7 +373,7 @@ export default function StudentDashboard() {
                             variant="ghost"
                             size="sm"
                             className="shrink-0"
-                            onClick={() => handleStartTask(rec.task_id!)}
+                            onClick={() => { if (rec.task_id) handleStartTask(rec.task_id); }}
                           >
                             <ArrowRight className="h-4 w-4" />
                           </Button>
