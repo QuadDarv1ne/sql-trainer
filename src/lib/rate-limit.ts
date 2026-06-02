@@ -87,12 +87,14 @@ export function clearRateLimitStore(): void {
  */
 export function cleanupExpiredEntries(): number {
   const now = Date.now();
-  let cleaned = 0;
+  const expiredKeys: string[] = [];
   for (const [key, entry] of store) {
     if (now > entry.resetAt) {
-      store.delete(key);
-      cleaned++;
+      expiredKeys.push(key);
     }
   }
-  return cleaned;
+  for (const key of expiredKeys) {
+    store.delete(key);
+  }
+  return expiredKeys.length;
 }

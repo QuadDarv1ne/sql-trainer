@@ -513,7 +513,7 @@ export default function HomePage() {
     } finally {
       setIsExecuting(false);
     }
-  }, [editorContent, isExecuting, currentTaskId, dbType, completedTasks, queryHistory, streak, setIsExecuting, markTaskCompleted, updateStreak, checkAndUnlockAchievements, addXP]);
+  }, [editorContent, isExecuting, currentTaskId, dbType, completedTasks, queryHistory, streak, setIsExecuting, markTaskCompleted, updateStreak, checkAndUnlockAchievements, addXP, isTaskCompleted, setVerification]);
 
   // Reset DB (re-init task)
   const resetDb = () => {

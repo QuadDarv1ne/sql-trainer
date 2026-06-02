@@ -8,7 +8,7 @@ export interface ExportColumn {
 }
 
 export function exportToCSV(data: Record<string, unknown>[], columns: ExportColumn[], filename: string): void {
-  if (!data.length) return;
+  if (!data?.length) return;
 
   const header = columns.map(col => `"${col.label}"`).join(',');
   const rows = data.map(row => {
@@ -35,7 +35,7 @@ export function exportToCSV(data: Record<string, unknown>[], columns: ExportColu
 }
 
 export function exportToExcel(data: Record<string, unknown>[], columns: ExportColumn[], filename: string): void {
-  if (!data.length) return;
+  if (!data?.length) return;
 
   const escapeHtml = (str: string): string =>
     str
@@ -72,7 +72,7 @@ export function exportToExcel(data: Record<string, unknown>[], columns: ExportCo
 }
 
 export function exportToJSON(data: Record<string, unknown>[], filename: string): void {
-  if (!data.length) return;
+  if (!data?.length) return;
 
   const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });

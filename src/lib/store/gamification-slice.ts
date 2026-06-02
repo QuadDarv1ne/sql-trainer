@@ -201,7 +201,7 @@ export const createGamificationSlice: StateCreator<
   addXP: (amount) => {
     const { userStats } = get();
     const newXP = userStats.xp + amount;
-    const { level, progress, xpToNext } = calculateLevel(newXP);
+    const { level, progress } = calculateLevel(newXP);
     set({
       userStats: {
         ...userStats,
@@ -210,7 +210,6 @@ export const createGamificationSlice: StateCreator<
         levelProgress: progress,
       },
     });
-    return { level, progress, xpToNext };
   },
   calculateLevel: calculateLevel,
   incrementExplainCount: () => {
@@ -349,7 +348,7 @@ export const createGamificationSlice: StateCreator<
 
       // Aggregate master: count tasks with GROUP BY
       const aggregateTasks = completedTasks.filter((t) => {
-        const sol = (t as { solution?: string }).solution || TRAINING_TASKS.find((tr) => tr.id === t.taskId)?.sampleSolution || '';
+        const sol = TRAINING_TASKS.find((tr) => tr.id === t.taskId)?.sampleSolution || '';
         return sol.toUpperCase().includes('GROUP BY');
       }).length;
       if (aggregateTasks >= 10 && !achievementSet.has(ACHIEVEMENTS.AGGREGATE_MASTER.id)) {
@@ -380,6 +379,13 @@ export const createGamificationSlice: StateCreator<
     if (hintFreeCount >= 5 && !achievementSet.has(ACHIEVEMENTS.HINT_FREE.id)) {
       newAchievementIds.push(ACHIEVEMENTS.HINT_FREE.id);
       achievementSet.add(ACHIEVEMENTS.HINT_FREE.id);
+    }
+
+    // Explain master
+    const { userStats } = get();
+    if (userStats.explainCount >= 10 && !achievementSet.has(ACHIEVEMENTS.EXPLAIN_MASTER.id)) {
+      newAchievementIds.push(ACHIEVEMENTS.EXPLAIN_MASTER.id);
+      achievementSet.add(ACHIEVEMENTS.EXPLAIN_MASTER.id);
     }
 
     // XP for task completion
