@@ -5411,16 +5411,28 @@ export function getDeadlineCompliance(filters?: TimeRangeFilters): DeadlineCompl
   let overdueCount = 0;
 
   for (const deadline of deadlines) {
-    const targetCondition = deadline.target_type === 'all_students'
-      ? "WHERE u.role = 'student'"
-      : deadline.target_type === 'task' && deadline.task_id
-        ? `INNER JOIN user_progress up2 ON u.id = up2.user_id WHERE up2.task_id = '${deadline.task_id}'`
-        : "WHERE u.role = 'student'";
+    let targetedStudents: Array<{ id: string; name: string; email: string }>;
 
-    const targetedStudents = db.prepare(`
-      SELECT u.id, u.name, u.email
-      FROM users u ${targetCondition}
-    `).all() as Array<{ id: string; name: string; email: string }>;
+    if (deadline.target_type === 'all_students') {
+      targetedStudents = db.prepare(`
+        SELECT u.id, u.name, u.email
+        FROM users u
+        WHERE u.role = 'student'
+      `).all() as Array<{ id: string; name: string; email: string }>;
+    } else if (deadline.target_type === 'task' && deadline.task_id) {
+      targetedStudents = db.prepare(`
+        SELECT u.id, u.name, u.email
+        FROM users u
+        INNER JOIN user_progress up2 ON u.id = up2.user_id
+        WHERE up2.task_id = ?
+      `).all(deadline.task_id) as Array<{ id: string; name: string; email: string }>;
+    } else {
+      targetedStudents = db.prepare(`
+        SELECT u.id, u.name, u.email
+        FROM users u
+        WHERE u.role = 'student'
+      `).all() as Array<{ id: string; name: string; email: string }>;
+    }
 
     let completedOnTime = 0;
     let completedLate = 0;
