@@ -638,7 +638,7 @@ export function executeWithSchema(
     const { processedSql, warnings } = adaptSqlForExecution(sql, dbType);
 
     const statements = splitStatements(processedSql);
-    const result = executeStatements(db, statements, startTime);
+    const result = executeStatements(db, statements, performance.now());
     if (warnings.length > 0) {
       result.warnings = warnings;
     }
@@ -720,7 +720,7 @@ export function executeWithSchemaMulti(
       const { processedSql, warnings } = adaptSqlForExecution(sql, dbType);
 
       const statements = splitStatements(processedSql);
-      const result = executeStatements(db, statements, startTime);
+      const result = executeStatements(db, statements, performance.now());
       if (warnings.length > 0) {
         result.warnings = warnings;
       }

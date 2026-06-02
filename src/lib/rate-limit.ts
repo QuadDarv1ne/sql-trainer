@@ -14,6 +14,21 @@ const store = new Map<string, RateLimitEntry>();
 // Maximum number of entries to keep in memory before evicting oldest
 const MAX_ENTRIES = 10_000;
 
+/**
+ * Clean up expired entries (call periodically in production).
+ */
+export function cleanupExpiredEntries(): number {
+  const now = Date.now();
+  let cleaned = 0;
+  for (const [key, entry] of store) {
+    if (now > entry.resetAt) {
+      store.delete(key);
+      cleaned++;
+    }
+  }
+  return cleaned;
+}
+
 // Automatic cleanup of expired entries every 5 minutes
 // Guard against multiple intervals during HMR in development
 declare global {
@@ -80,21 +95,4 @@ export function rateLimit(key: string, options: RateLimitOptions): RateLimitResu
  */
 export function clearRateLimitStore(): void {
   store.clear();
-}
-
-/**
- * Clean up expired entries (call periodically in production).
- */
-export function cleanupExpiredEntries(): number {
-  const now = Date.now();
-  const expiredKeys: string[] = [];
-  for (const [key, entry] of store) {
-    if (now > entry.resetAt) {
-      expiredKeys.push(key);
-    }
-  }
-  for (const key of expiredKeys) {
-    store.delete(key);
-  }
-  return expiredKeys.length;
 }
