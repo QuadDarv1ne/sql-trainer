@@ -4,6 +4,42 @@ import type * as React from 'react';
 import { useSQLTrainerStore, ACHIEVEMENTS } from '@/lib/store';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+
+const STREAK_MILESTONES = [3, 5, 7, 14, 30] as const;
+
+function StreakProgress() {
+  const streak = useSQLTrainerStore((s) => s.streak);
+  const currentStreak = streak.currentStreak;
+
+  if (currentStreak === 0) return null;
+
+  const nextMilestone = STREAK_MILESTONES.find((m) => m > currentStreak);
+  const progress = nextMilestone ? (currentStreak / nextMilestone) * 100 : 100;
+
+  return (
+    <Card className="border-amber-200 dark:border-amber-900/50">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🔥</span>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">
+                Серия практики: <span className="text-amber-600">{currentStreak} дн.</span>
+              </p>
+              {nextMilestone && (
+                <p className="text-xs text-muted-foreground">
+                  До следующего: {nextMilestone} дн.
+                </p>
+              )}
+            </div>
+            <Progress value={progress} className="mt-2 h-2" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function AchievementsGrid() {
   const { unlockedAchievements } = useSQLTrainerStore();
@@ -14,6 +50,7 @@ export default function AchievementsGrid() {
 
   return (
     <div>
+      <StreakProgress />
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           Разблокировано: <span className="font-medium text-emerald-600">{unlockedCount}</span> из {totalCount}

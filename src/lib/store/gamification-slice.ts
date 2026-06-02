@@ -174,6 +174,7 @@ export interface GamificationSlice {
   checkAndUnlockAchievements: (context: {
     completedTasks: { taskId: string; attempts: number }[];
     queryHistoryLength: number;
+    currentStreak?: number;
     taskId?: string;
     attempts?: number;
     hintFreeCount?: number;
@@ -234,7 +235,7 @@ export const createGamificationSlice: StateCreator<
   achievements: [],
   unlockedAchievements: [],
 
-  checkAndUnlockAchievements: ({ completedTasks, queryHistoryLength, taskId, attempts }) => {
+  checkAndUnlockAchievements: ({ completedTasks, queryHistoryLength, currentStreak, taskId, attempts }) => {
     const { achievements, unlockedAchievements } = get();
     const newAchievementIds: string[] = [];
     const achievementSet = new Set(achievements);
@@ -293,7 +294,15 @@ export const createGamificationSlice: StateCreator<
     }
 
     // Streak milestones
-    const streak = completedTasks.length > 0 ? 3 : 0; // Placeholder — real streak comes from store
+    const streak = currentStreak ?? 0;
+    if (streak >= 3 && !achievementSet.has(ACHIEVEMENTS.STREAK_3.id)) {
+      newAchievementIds.push(ACHIEVEMENTS.STREAK_3.id);
+      achievementSet.add(ACHIEVEMENTS.STREAK_3.id);
+    }
+    if (streak >= 5 && !achievementSet.has(ACHIEVEMENTS.STREAK_5.id)) {
+      newAchievementIds.push(ACHIEVEMENTS.STREAK_5.id);
+      achievementSet.add(ACHIEVEMENTS.STREAK_5.id);
+    }
     if (streak >= 7 && !achievementSet.has(ACHIEVEMENTS.STREAK_7.id)) {
       newAchievementIds.push(ACHIEVEMENTS.STREAK_7.id);
       achievementSet.add(ACHIEVEMENTS.STREAK_7.id);

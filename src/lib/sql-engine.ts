@@ -204,7 +204,7 @@ function adaptSqlForExecution(
   }
   if (dbType === 'mysql') {
     const adapted = adaptMySQLToSQLite(sql);
-    const dropped = detectMysqlDroppedFunctions(sql, adapted);
+    const dropped = detectMysqlDroppedFunctions(sql);
     return { processedSql: adapted, warnings: dropped.map(UNSUPPORTED_FUNC_WARNING) };
   }
   return { processedSql: sql, warnings: [] };

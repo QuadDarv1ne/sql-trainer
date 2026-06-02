@@ -97,6 +97,7 @@ export const useSQLTrainerStore = create<CombinedState>()(
           const { xpGained } = state.checkAndUnlockAchievements({
             completedTasks: updatedCompletedTasks,
             queryHistoryLength: state.queryHistory.length,
+            currentStreak: state.streak.currentStreak,
             taskId,
             attempts,
           });
