@@ -1,22 +1,19 @@
 import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
-import type { Role } from '@/lib/rbac';
 import { generateCsrfTokenEdge, validateCsrfTokenEdge, isCsrfProtectedMethod } from '@/lib/csrf';
-
-// Routes that require authentication
-const protectedRoutes = ['/profile', '/app', '/register', '/dashboard'];
-
-// Routes that require specific roles
-const roleProtectedRoutes: Record<string, Role[]> = {
-  '/admin': ['admin'],
-  '/teacher': ['teacher', 'admin'],
-};
-
-// Routes that should redirect to /app if already authenticated
-const authRoutes = ['/login', '/register', '/reset-password'];
+import { evaluateRouteAccess } from '@/lib/route-protection';
 
 // API routes that handle state-changing operations and need CSRF validation
-const csrfProtectedApiPrefixes = ['/api/admin', '/api/user', '/api/teacher', '/api/auth/register', '/api/auth/reset-password', '/api/auth/verify-reset', '/api/push', '/api/deadlines'];
+const csrfProtectedApiPrefixes = [
+  '/api/admin',
+  '/api/user',
+  '/api/teacher',
+  '/api/auth/register',
+  '/api/auth/reset-password',
+  '/api/auth/verify-reset',
+  '/api/push',
+  '/api/deadlines',
+];
 
 const securityHeaders = {
   'X-DNS-Prefetch-Control': 'on',
@@ -56,50 +53,15 @@ export default auth(async (request) => {
     if (!isValid) {
       return NextResponse.json(
         { success: false, error: 'CSRF validation failed' },
-        { status: 403 }
+        { status: 403 },
       );
     }
   }
 
-  // Redirect authenticated users away from auth pages to workspace
-  if (authRoutes.includes(pathname) && session) {
-    const userRole = (session.user as { role?: Role })?.role;
-    const landingPage = userRole === 'teacher' ? '/teacher' : userRole === 'admin' ? '/admin' : '/dashboard';
-    return NextResponse.redirect(new URL(landingPage, request.url));
-  }
-
-  // Redirect unauthenticated users to login
-  if (protectedRoutes.some((route) => pathname.startsWith(route)) && !session) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Redirect authenticated students from /app to /dashboard
-  if (pathname === '/app' && session) {
-    const userRole = (session.user as { role?: Role })?.role;
-    if (userRole === 'student') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    } else if (userRole === 'teacher') {
-      return NextResponse.redirect(new URL('/teacher', request.url));
-    } else if (userRole === 'admin') {
-      return NextResponse.redirect(new URL('/admin', request.url));
-    }
-  }
-
-  // Role-based route protection
-  for (const [route, allowedRoles] of Object.entries(roleProtectedRoutes)) {
-    if (pathname === route || pathname.startsWith(route + '/')) {
-      if (!session) {
-        const loginUrl = new URL('/login', request.url);
-        loginUrl.searchParams.set('callbackUrl', pathname);
-        return NextResponse.redirect(loginUrl);
-      }
-      const userRole = (session.user as { role?: Role })?.role;
-      if (!userRole || !allowedRoles.includes(userRole)) {
-        return NextResponse.redirect(new URL('/app', request.url));
-      }
-    }
+  // Route access evaluation (single source of truth)
+  const decision = evaluateRouteAccess(session, pathname);
+  if (decision.action === 'redirect') {
+    return NextResponse.redirect(new URL(decision.url, request.url));
   }
 
   const response = NextResponse.next();

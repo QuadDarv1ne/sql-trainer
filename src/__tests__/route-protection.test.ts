@@ -12,10 +12,22 @@ describe('evaluateRouteAccess - auth routes', () => {
     expect(result.action).toBe('allow');
   });
 
-  it('redirects authenticated users away from /login', () => {
+  it('redirects authenticated students from /login to /dashboard', () => {
     const result = evaluateRouteAccess(makeSession('student'), '/login');
     expect(result.action).toBe('redirect');
-    expect(result.url).toBe('/app');
+    expect(result.url).toBe('/dashboard');
+  });
+
+  it('redirects authenticated teachers from /login to /teacher', () => {
+    const result = evaluateRouteAccess(makeSession('teacher'), '/login');
+    expect(result.action).toBe('redirect');
+    expect(result.url).toBe('/teacher');
+  });
+
+  it('redirects authenticated admins from /login to /admin', () => {
+    const result = evaluateRouteAccess(makeSession('admin'), '/login');
+    expect(result.action).toBe('redirect');
+    expect(result.url).toBe('/admin');
   });
 
   it('redirects authenticated users away from /register', () => {
@@ -105,6 +117,30 @@ describe('evaluateRouteAccess - teacher routes', () => {
 
   it('allows teacher to access /teacher sub-routes', () => {
     const result = evaluateRouteAccess(makeSession('teacher'), '/teacher/students');
+    expect(result.action).toBe('allow');
+  });
+});
+
+describe('evaluateRouteAccess - /app route', () => {
+  it('redirects unauthenticated users from /app to login', () => {
+    const result = evaluateRouteAccess(null, '/app');
+    expect(result.action).toBe('redirect');
+    expect(result.url).toContain('/login');
+  });
+
+  it('redirects students from /app to /dashboard', () => {
+    const result = evaluateRouteAccess(makeSession('student'), '/app');
+    expect(result.action).toBe('redirect');
+    expect(result.url).toBe('/dashboard');
+  });
+
+  it('allows teachers to access /app', () => {
+    const result = evaluateRouteAccess(makeSession('teacher'), '/app');
+    expect(result.action).toBe('allow');
+  });
+
+  it('allows admins to access /app', () => {
+    const result = evaluateRouteAccess(makeSession('admin'), '/app');
     expect(result.action).toBe('allow');
   });
 });
