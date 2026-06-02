@@ -1,271 +1,209 @@
-# SQL Trainer - Рекомендуемые улучшения и новый функционал
+# SQL Trainer — Рекомендации по улучшению
+
+> Сформированы на основе анализа кодовой базы v0.3.0 (2026-06-02)
 
 ---
 
-## ТОП-10 лучших улучшений
+## Критические (высокий приоритет)
 
-Список из 10 наиболее эффективных улучшений, отобранных по соотношению влияние/сложность реализации.
+### 1. Повысить тестовое покрытие
+- **Текущее покрытие:** 5.48% statements, 3.06% branches
+- **Цель:** минимум 60% statements, 50% branches
+- **Что покрывать в первую очередь:**
+  - API маршруты (sql-verify, auth, user-progress) — сейчас практически не тестируются
+  - Компоненты аналитики админки (~40+ компонентов без тестов)
+  - Хуки (`useAnalyticsQuery`, `useSqlExecution`, `useTheme`)
+  - Zustand store slices — интеграционные тесты
+  - DB adapters — edge cases (сложные SQL запросы, WINDOW FUNCTIONS, CTE)
+- **Рекомендация:** добавить тесты для критических путей: auth flow, task verification, XP calculation
 
-### 1. Система прогрессивных подсказок
-**Влияние:** +30% completion rate заданий. Три уровня подсказок (общая → направление → конкретный синтаксис) с штрафом к очкам. Студенты реже застревают и бросают задания.
-**Файлы:** `src/lib/training-tasks.ts`, `src/app/(main)/app/page.tsx`, Zustand store
-**Сложность:** средняя
+### 2. Безопасность: Production Rate Limiter
+- **Проблема:** `lib/rate-limit.ts` — in-memory, не работает при масштабировании
+- **Решение:** интеграция с Redis (Upstash / ioredis) для распределённого rate limiting
+- **Дополнительно:** добавить rate limiting на API маршруты auth (login, register, reset-password)
 
-### 2. Валидация всех API через Zod
-**Влияние:** 0 критических уязвимостей типа injection/malformed input. Централизованные схемы валидации для каждого endpoint, middleware для автоматической проверки request body и query params.
-**Файлы:** `src/app/api/**/*.ts`, новый `src/lib/validation/`
-**Сложность:** средняя
+### 3. SQL Adapters — regex-based parsing
+- **Проблема:** PostgreSQL, ClickHouse, MySQL адаптеры используют regex замены, что ненадёжно для сложных запросов
+- **Решение:** использовать полноценные SQL парсеры:
+  - `node-sql-parser` для PostgreSQL/MySQL
+  - AST-based подход вместо regex
+- **Бонус:** добавить валидациюUnsupported функции не удалять молча, а возвращать понятную ошибку пользователю
 
-### 3. OAuth авторизация (Google + GitHub)
-**Влияние:** +40% конверсия регистрации. Пользователи не любят заполнять формы — один клик через OAuth провайдера решает проблему.
-**Файлы:** `src/lib/auth.ts`, `src/app/(auth)/`
-**Сложность:** средняя
-
-### 4. Разделение training-tasks.ts на модули
-**Влияние:** Файл 50k+ строк невозможно поддерживать. Разбиение по категориям и уровням сложности ускорит разработку и уменьшит баги.
-**Файлы:** `src/lib/training-tasks.ts` → `src/lib/tasks/basic/`, `src/lib/tasks/advanced/`, etc.
-**Сложность:** низкая
-
-### 5. Onboarding-тур для новых пользователей
-**Влияние:** +20% активация. Интерактивный тур по интерфейсу с подсветкой ключевых элементов: редактор, проверка, справочник, прогресс.
-**Файлы:** `src/components/onboarding-tour.tsx`, Zustand store
-**Сложность:** низкая
-
-### 6. Undo/redo в SQL редакторе
-**Влияние:** Мгновенное улучшение UX. CodeMirror уже поддерживает history extension — нужно включить и добавить хоткей Ctrl+Z/Ctrl+Y с визуальной индикацией.
-**Файлы:** `src/components/sql-editor.tsx`
-**Сложность:** низкая
-
-### 7. Детальная аналитика для студентов
-**Влияние:** Студенты видят свои слабые места — типичные ошибки, время выполнения, рекомендации. Повышает осознанность обучения.
-**Файлы:** `src/app/(main)/profile/page.tsx`, `src/app/api/user/progress/`
-**Сложность:** средняя
-
-### 8. PWA offline режим для заданий и справочника
-**Влияние:** +25% engagement. Кэширование заданий и справочника через service worker позволяет учиться без интернета, прогресс синхронизируется позже.
-**Файлы:** `src/app/sw.ts`, `next.config.ts`
-**Сложность:** высокая
-
-### 9. Мобильная адаптация интерфейса
-**Влияние:** +15% mobile engagement. Responsive layout для SQL редактора, таблиц результатов и навигации. Touch-friendly кнопки.
-**Файлы:** `src/components/`, `src/app/` layout файлы
-**Сложность:** средняя
-
-### 10. CI/CD pipeline с pre-commit hooks
-**Влияние:** 0 поломок в main. Husky + lint-staged для pre-commit, GitHub Actions для тестов, сборки и security scanning (Snyk) на каждый push.
-**Файлы:** `.husky/`, `.github/workflows/`
-**Сложность:** низкая
+### 4. `.env.example` файл отсутствует
+- **Проблема:** переменные окружения описаны только в `env.ts`, нет шаблона для новых разработчиков
+- **Решение:** создать `.env.example` с комментариями для каждой переменной
+- **Содержимое:** `DATABASE_URL`, `AUTH_SECRET`, `AUTH_URL`, SMTP настройки, DBMS endpoints
 
 ---
 
-## Критичные исправления (P0)
+## Важные (средний приоритет)
 
-### Безопасность
-- [x] ~~Удалить подозрительную зависимость `"2": "^3.0.0"` из package.json~~ — выполнено
-- [ ] Добавить валидацию входных данных с Zod на все API маршруты
-- [ ] Настроить Content Security Policy (CSP) заголовки
-- [ ] Заменить in-memory rate limiter на Redis-based для production
-- [ ] Добавить rate limiting на endpoint сброса пароля
-- [ ] Настроить лимиты размера request body для всех API маршрутов
-- [ ] Реализовать CSRF защиту для state-changing API маршрутов
-- [ ] Добавить механизм полного удаления данных (GDPR compliance)
-- [ ] Аудит SQL validation blocklist на предмет bypasses
+### 5. Рефакторинг `db-users.ts` (301KB)
+- **Проблема:** файл слишком большой, ESLint настроен с relax rules для него
+- **Решение:** разбить на модули:
+  - `db-users/crud.ts` — создание, чтение, обновление, удаление
+  - `db-users/auth.ts` — аутентификация, сессии
+  - `db-users/progress.ts` — прогресс, XP, достижения
+  - `db-users/admin.ts` — админские операции
+  - `db-users/types.ts` — TypeScript интерфейсы
 
-### Производительность
-- [ ] Добавить connection pooling для PostgreSQL
-- [ ] Оптимизировать создание in-memory database (кэшировать схему)
-- [ ] Добавить пагинацию на analytics API endpoints
-- [ ] Настроить code splitting для admin/teacher компонентов
-- [ ] Добавить индикаторы загрузки (skeletons) для тяжелых страниц
+### 6. i18n.ts (314KB) — слишком большой файл локализации
+- **Проблема:** один файл на все языки, сложно поддерживать
+- **Решение:**
+  - Разбить на отдельные JSON файлы: `locales/en.json`, `locales/ru.json`
+  - Рассмотреть `next-intl` или `i18next` для proper i18n
+  - Добавить lazy loading переводов
 
-## Высокий приоритет (P1)
+### 7. E2E тесты — только Chromium, 7 тестов
+- **Проблема:** минимальное покрытие E2E, один браузер
+- **Решение:**
+  - Добавить Firefox и Webkit в Playwright config
+  - Покрыть критические сценарии: регистрация → решение задачи → получение XP → leaderboard
+  - Добавить тесты для teacher/admin панелей
+  - Целевой минимум: 25+ E2E тестов
 
-### Технический долг
-- [ ] Объединить дублирующиеся функции splitStatements в утилиту
-- [ ] Разделить training-tasks.ts на файлы по категориям/сложности
-- [ ] Разделить i18n.ts на файлы по локалям и доменам
-- [ ] Включить ESLint правила (no-unused-vars, exhaustivedeps, etc.)
-- [ ] Централизовать схему БД (миграции вместо inline CREATE TABLE)
-- [ ] Убрать excessive any casting в store
-- [ ] Заменить хардкод русские строки в API на i18n
+### 8. CONTRIBUTING.md и CHANGELOG.md отсутствуют
+- **Решение — CONTRIBUTING.md:**
+  - Как настроить dev environment
+  - Git workflow (branch naming, commit conventions)
+  - Как запустить тесты, линтер
+  - Code style guidelines
+  - Как добавить новую задачу/тему
+- **Решение — CHANGELOG.md:**
+  - Использовать Conventional Commits format
+  - Сгенерировать из истории git коммитов
+  - Автоматизировать через `auto-changelog` или `release-please`
 
-### Тестирование
-- [ ] Расширить E2E тесты (auth flows, teacher/admin dashboards, task verification)
-- [ ] Добавить компонентные тесты (React Testing Library)
-- [ ] Добавить интеграционные тесты для API маршрутов
-- [ ] Настроить coverage reporting в CI/CD
-- [ ] Добавить accessibility (a11y) тесты
+### 9. API документация
+- **Проблема:** 100+ API эндпоинтов без документации
+- **Решение:**
+  - Добавить OpenAPI/Swagger спецификацию
+  - Использовать `next-openapi` или `tRPC` для типизированных API
+  - Сгенерировать документацию через `scalar` или `swagger-ui`
 
-### Аутентификация
-- [ ] Добавить OAuth провайдеры (Google, GitHub)
-- [ ] Реализовать 2FA (TOTP)
-- [ ] Добавить session management (просмотр активных сессий, logout all)
-- [ ] Улучшить восстановление пароля (email с ссылкой вместо кода)
-
-## Средний приоритет (P2)
-
-### Новый функционал - Обучение
-- [ ] **Система подсказок с渐进ной помощью**: Несколько уровней подсказок от общих к конкретным
-- [ ] **Пошаговые задания**: Разбиение сложных заданий на подшаги с проверкой каждого
-- [ ] **Визуальный построитель запросов**: Drag-and-drop UI для начинающих
-- [ ] **Интерактивные примеры**: Выполнение примеров прямо из справочника
-- [ ] **Песочница с готовыми схемами**: Предустановленные БД для экспериментов
-- [ ] **Система пользовательских заданий**: Возможность создавать и делиться заданиями
-- [ ] **Code review система**: Автоматический анализ стиля SQL запросов
-- [ ] **Сравнение производительности**: Показ разницы между решениями
-- [ ] **Дополнительные модули**: 
-  - [ ] оконные функции (ROW_NUMBER, RANK, LAG/LEAD)
-  - [ ] CTE и рекурсивные запросы
-  - [ ] индексация и оптимизация
-  - [ ] транзакции и блокировки
-  - [ ] работа с JSON в SQL
-  - [ ] полнотекстовый поиск
-
-### Новый функционал - Социальное обучение
-- [ ] **Система комментариев к заданиям**: Обсуждение подходов к решению
-- [ ] **Рейтинг решений**: Голосование за элегантные решения
-- [ ] **Группы/классы**: Создание учебных групп учителем
-- [ ] **Соревнования**: Еженедельные SQL челленджи
-- [ ] **Система менторства**: Опытные пользователи помогают новичкам
-- [ ] **Публичные профили**: Делимость достижениями с сообществом
-
-### Новый функционал - UX/UI
-- [ ] **Onboarding для новых пользователей**: Интерактивный тур по интерфейсу
-- [ ] **Undo/redo в SQL редакторе**: Настройка CodeMirror history
-- [ ] **Темы оформления**: 
-  - [ ] Дополнительные цветовые схемы (GitHub, Monokai, Dracula)
-  - [ ] Кастомизация шрифтов редактора
-- [ ] **Мобильная адаптация**: 
-  - [ ] Улучшение responsive layout
-  - [ ] Touch-friendly элементы управления
-- [ ] **Горячие клавиши**: 
-  - [ ] Discoverable shortcuts menu
-  - [ ] Кастомизация хоткеев
-- [ ] **Сохранение позиций в редакторе**: Восстановление cursor position
-- [ ] **Auto-save черновиков**: Автосохранение запросов в редакторе
-- [ ] **Сниппеты SQL**: Быстрая вставка часто используемых конструкций
-- [ ] **Форматирование запросов**: Настройка стиля форматирования
-
-### Новый функционал - Аналитика
-- [ ] **Детальная аналитика для студентов**: 
-  - [ ] Время выполнения заданий
-  - [ ] Типичные ошибки
-  - [ ] Рекомендации по улучшению
-- [ ] **A/B тестирование заданий**: Сравнение эффективности формулировок
-- [ ] **Прогнозирование оттока**: ML-модель для выявления отстающих
-- [ ] **Персональные рекомендации**: AI-предложения заданий
-- [ ] **Экспорт отчетов**: 
-  - [ ] PDF сертификаты о прохождении
-  - [ ] Excel экспорт прогресса
-  - [ ] Интеграция с LMS (SCORM/xAPI)
-
-### Новый функционал - Интеграции
-- [ ] **LMS интеграция**: Moodle, Canvas, Blackboard
-- [ ] **API документация**: OpenAPI/Swagger спецификация
-- [ ] **Webhook уведомления**: Интеграция с внешними системами
-- [ ] **SSO интеграция**: SAML/OIDP для корпоративных клиентов
-- [ ] **CI/CD интеграция**: GitHub Actions для автоматического деплоя
-
-### Новый функционал - PWA и Offline
-- [ ] **Offline режим**: Кэширование заданий и справочника
-- [ ] **Background sync**: Синхронизация прогресса при подключении
-- [ ] **Push уведомления**: 
-  - [ ] Напоминания о занятиях
-  - [ ] Уведомления о достижениях
-  - [ ] Новые задания от преподавателя
-- [ ] **Install prompt optimization**: Улучшение UX установки PWA
-
-## Низкий приоритет (P3)
-
-### Инфраструктура
-- [ ] Миграция с SQLite на PostgreSQL для production
-- [ ] Настройка мониторинга (Prometheus/Grafana)
-- [ ] Логирование в ELK stack
-- [ ] Docker compose для локальной разработки
-- [ ] Kubernetes manifests для production
-- [ ] CDN для статических ресурсов
-
-### Интернационализация
-- [ ] Полный перевод на английский
-- [ ] Поддержка RTL языков
-- [ ] Автоопределение локали пользователя
-- [ ] Перевод ошибок API
-
-### Доступность (a11y)
-- [ ] WCAG 2.1 AA compliance audit
-- [ ] Screen reader testing
-- [ ] Keyboard navigation improvement
-- [ ] High contrast mode
-- [ ] Font size scaling
-
-### Документация
-- [ ] Документация API (Swagger/OpenAPI)
-- [ ] Developer guide для контрибьюторов
-- [ ] User guide для студентов
-- [ ] User guide для преподавателей
-- [ ] Architecture decision records (ADRs)
-
-## Технические улучшения
-
-### Refactoring приоритет
-1. **training-tasks.ts** (50k+ tokens) → разбить на модули
-2. **i18n.ts** (34k+ tokens) → разбить по локалям
-3. **db-users.ts** → разделить на репозитории
-4. **store/index.ts** → улучшить типизацию
-5. **analytics API** (50+ routes) → сгруппировать и оптимизировать
-
-### Зависимости для обновления
-- Проверить актуальность всех зависимостей
-- Удалить неиспользуемые пакеты
-- Настроить Dependabot/Renovate
-
-### CI/CD улучшения
-- [ ] Pre-commit hooks (lint-staged, husky)
-- [ ] Automated security scanning (Snyk)
-- [ ] Performance regression tests
-- [ ] Visual regression tests (Percy/Chromatic)
-
-## Метрики успеха
-
-Для каждого изменения определить KPI:
-
-- **Конверсия регистрации**: Onboarding flow → +20%
-- **Завершение заданий**: Progressive hints → +30% completion rate
-- **Время сессии**: Mobile improvements → +15% mobile engagement
-- **Удержание**: Push notifications → +25% DAU
-- **Качество кода**: Test coverage > 80%
-- **Безопасность**: 0 критических vulnerabilities
-- **Производительность**: LCP < 2.5s, FID < 100ms
+### 10. CI/CD — запуск только для `dupleymi-aup/sql-trainer`
+- **Проблема:** в `ci.yml` жёстко прописан репозиторий, форки не тестируются
+- **Решение:** убрать проверку `github.repository` или сделать опциональной
+- **Бонус:** добавить кэш для Bun зависимостей (`actions/cache`)
 
 ---
 
-## Рекомендации по приоритизации
+## Улучшения функциональности
 
-### Sprint 1-2 (2 недели)
-1. Критичные security fixes (P0)
-2. ESLint rules enable
-3. Split training-tasks.ts
+### 11. Новые темы и задачи
+- **Недостающие темы:**
+  - Recursive CTE (WITH RECURSIVE)
+  - FULL OUTER JOIN эмуляция
+  - LATERAL joins
+  - JSON/JSONB функции для PostgreSQL
+  - Агрегатные функции: `FILTER`, `GROUPING SETS`, `ROLLUP`, `CUBE`
+  - Transaction management (BEGIN, COMMIT, ROLLBACK)
 
-### Sprint 3-4 (2 недели)
-4. OAuth login
-5. E2E test expansion
-6. Onboarding flow
-7. Progressive hints system
+### 12. Режим соревнования/турнира
+- **Идея:**限时 SQL challenge — решить задачу за минимум попыток/времени
+- **Реализация:**
+  - Еженедельные турниры с leaderboard
+  - Таймер на выполнение
+  - Ограничение на подсказки
+  - XP bonus за первое место
 
-### Sprint 5-6 (2 недели)
-8. Additional training modules
-9. Mobile responsive improvements
-10. Undo/redo editor
-11. API validation with Zod
+### 13. AI-powered подсказки
+- **Идея:** вместо статических подсказок — генерация через LLM
+- **Реализация:** интеграция с Azure OpenAI / другим LLM API
+- **Формат:** 3 уровня — "направление", "структура запроса", "почти готовое решение"
+- **Экономика:** кэшировать подсказки, rate limit на запросы
 
-### Sprint 7-8 (2 недели)
-12. Social features (comments, ratings)
-13. Teacher group management
-14. Detailed student analytics
-15. PWA offline support
+### 14. Визуализация схем БД
+- **Идея:** интерактивный ERD (Entity Relationship Diagram)
+- **Реализация:**
+  - `react-flow` или `mermaid.js` для отрисовки
+  - Автогенерация из schema definitions
+  - Кликабельные таблицы → preview данных
 
-### Долгосрочные (квартал+)
-- LMS integration
-- ML-based recommendations
-- Full i18n
-- Accessibility compliance
+### 15. Экспорт/импорт прогресса
+- **Идея:** пользователи могут переносить прогресс между инстансами
+- **Форматы:** JSON (полный), CSV (таблица результатов)
+- **Сценарий:** преподаватель создаёт курс → экспортирует → студенты импортируют
+
+### 16. Мобильная адаптация
+- **Проблема:** SQL редактор и панели могут плохо работать на мобильных
+- **Решение:**
+  - Адаптивный layout для экранов < 768px
+  - Touch-friendly элементы
+  - Mobile-first breakpoints в Tailwind
+
+### 17. WebSocket для real-time
+- **Идея:** real-time leaderboard, live collaboration
+- **Реализация:** Server-Sent Events (SSE) проще WebSocket, достаточно для leaderboard
+- **Сценарий:** пользователь видит, как другие поднимаются в рейтинге в реальном времени
+
+### 18. Интеграция с реальными БД
+- **Текущее состояние:** все не-SQLite диалекты эмулируются через SQLite
+- **Идея:** подключить реальные PostgreSQL/ClickHouse/MySQL для production
+- **Реализация:**
+  - Docker Compose с PostgreSQL и MySQL сервисами (уже есть заготовка)
+  - Connection pooling
+  - Sandbox для выполнения пользовательских запросов (изоляция)
+
+---
+
+## Инфраструктурные улучшения
+
+### 19. Monitoring & Observability
+- **Добавить:**
+  - Structured logging (JSON format) — частично есть через `logger.ts`
+  - Health check endpoints (`/api/health`)
+  - Metrics: response times, error rates, active users
+  - Sentry или аналог для error tracking
+
+### 20. Database migration система
+- **Проблема:** SQLite users.db без миграций
+- **Решение:** `drizzle-kit` или `kysely` для type-safe миграций
+- **Бонус:** seed скрипт для тестовых данных
+
+### 21. PWA Offline режим
+- **Текущее состояние:** есть service worker и offline.html
+- **Улучшение:**
+  - Кэшировать задачи и schema для offline работы
+  - LocalStorage/IndexedDB для сохранения запросов offline
+  - Sync при восстановлении соединения
+
+### 22. ESLint — ужесточить правила
+- **Проблема:** многие правила отключены (`no-irregular-whitespace`, `no-fallthrough`, `no-unreachable`)
+- **Решение:** постепенно включать правила обратно после рефакторинга
+- **Добавить:** `@typescript-eslint/strict`, `unicorn/recommended`
+
+---
+
+## Мелкие улучшения (low effort, high value)
+
+### 23. Добавить `.dockerignore`
+- Исключить `node_modules`, `.next`, `coverage`, `data/` из Docker build
+
+### 24. Pre-commit hooks
+- `lint-staged` + `husky` — запускать ESLint и typecheck перед коммитом
+
+### 25. Bundle analysis
+- `@next/bundle-analyzer` — выявить тяжёлые зависимости
+- Возможная оптимизация: tree-shaking для `node-sql-parser`, CodeMirror
+
+### 26. Accessibility (a11y)
+- Проверить через `axe-core` / Lighthouse
+- Добавить ARIA labels, keyboard navigation, focus management
+
+### 27. SEO и мета-теги
+- Open Graph для соцсетей
+- Sitemap.xml
+- `robots.txt`
+
+---
+
+## Roadmap приоризация
+
+| Приоритет | Пункты | Ожидаемый эффект |
+|-----------|--------|-----------------|
+| **P0** | 1, 2, 4 | Стабильность, безопасность, onboarding |
+| **P1** | 3, 5, 6, 7, 8 | Качество кода, maintainability |
+| **P2** | 9, 10, 11, 14, 18 | Функциональность, DX |
+| **P3** | 12, 13, 15, 16, 17 | User experience, engagement |
+| **P4** | 19–27 | Infrastructure, polish |
