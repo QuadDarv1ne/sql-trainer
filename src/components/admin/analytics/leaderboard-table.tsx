@@ -44,9 +44,9 @@ interface LeaderboardEntry {
 type SortKey = 'rank' | 'name' | 'tasks_completed' | 'avg_attempts' | 'achievements_count' | 'completion_rate';
 
 function RankIcon({ rank }: { rank: number }) {
-  if (rank === 1) return <Trophy className="h-5 w-5 text-yellow-500" />;
-  if (rank === 2) return <Medal className="h-5 w-5 text-gray-400" />;
-  if (rank === 3) return <Medal className="h-5 w-5 text-amber-700" />;
+  if (rank === 1) return <Trophy className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />;
+  if (rank === 2) return <Medal className="h-5 w-5 text-gray-400 dark:text-gray-300" />;
+  if (rank === 3) return <Medal className="h-5 w-5 text-amber-700 dark:text-amber-500" />;
   return <span className="text-muted-foreground font-medium">{rank}</span>;
 }
 

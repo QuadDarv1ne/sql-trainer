@@ -256,6 +256,28 @@ function initDatabase(): void {
     db.exec("ALTER TABLE users ADD COLUMN last_practice_date INTEGER");
   }
 
+  // Migration: add ban columns for user banning functionality
+  if (!columns.some(c => c.name === 'banned_at')) {
+    db.exec("ALTER TABLE users ADD COLUMN banned_at INTEGER DEFAULT NULL");
+  }
+  if (!columns.some(c => c.name === 'ban_reason')) {
+    db.exec("ALTER TABLE users ADD COLUMN ban_reason TEXT DEFAULT NULL");
+  }
+  if (!columns.some(c => c.name === 'banned_by')) {
+    db.exec("ALTER TABLE users ADD COLUMN banned_by TEXT DEFAULT NULL");
+  }
+
+  // Migration: add group_id to deadlines table for group-scoped deadlines
+  try {
+    const deadlineColumns = db.pragma("table_info(deadlines)") as { name: string }[];
+    if (!deadlineColumns.some(c => c.name === 'group_id')) {
+      db.exec("ALTER TABLE deadlines ADD COLUMN group_id TEXT DEFAULT NULL");
+      db.exec("CREATE INDEX IF NOT EXISTS idx_deadlines_group ON deadlines(group_id)");
+    }
+  } catch {
+    logger.debug('deadlines.group_id migration skipped');
+  }
+
   // Migration: add performance indexes for analytics queries
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_progress_completed_at ON user_progress(completed_at);
@@ -263,6 +285,7 @@ function initDatabase(): void {
     CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
     CREATE INDEX IF NOT EXISTS idx_progress_user ON user_progress(user_id);
     CREATE INDEX IF NOT EXISTS idx_achievements_user ON user_achievements(user_id);
+    CREATE INDEX IF NOT EXISTS idx_users_banned ON users(banned_at);
   `);
 
   seedAchievements(db);
@@ -321,20 +344,21 @@ export async function createUser(email: string, name: string, password: string, 
   return { id, email, name, phone: phone || null, role };
 }
 
-export async function findUserByEmail(email: string): Promise<{ id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole; role_changed_at: number | null } | null> {
+export async function findUserByEmail(email: string): Promise<{ id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole; role_changed_at: number | null; banned_at: number | null } | null> {
   const db = getDb();
-  const user = db.prepare('SELECT id, email, name, phone, password_hash, role, role_changed_at FROM users WHERE email = ?').get(email) as
-    | { id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole; role_changed_at: number | null }
+  const user = db.prepare('SELECT id, email, name, phone, password_hash, role, role_changed_at, banned_at FROM users WHERE email = ?').get(email) as
+    | { id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole; role_changed_at: number | null; banned_at: number | null }
     | undefined;
   return user || null;
 }
 
-export async function verifyPassword(email: string, password: string): Promise<{ id: string; email: string; name: string; phone: string | null; role: UserRole; role_changed_at: number | null } | null> {
+export async function verifyPassword(email: string, password: string): Promise<{ id: string; email: string; name: string; phone: string | null; role: UserRole; role_changed_at: number | null; banned_at: number | null } | null> {
   const user = await findUserByEmail(email);
   if (!user) return null;
+  if (user.banned_at) return null;
   const valid = await bcrypt.compare(password, user.password_hash);
   if (!valid) return null;
-  return { id: user.id, email: user.email, name: user.name, phone: user.phone, role: user.role, role_changed_at: user.role_changed_at };
+  return { id: user.id, email: user.email, name: user.name, phone: user.phone, role: user.role, role_changed_at: user.role_changed_at, banned_at: user.banned_at };
 }
 
 export async function getUserById(userId: string): Promise<{ id: string; email: string; name: string; phone: string | null; avatar_url: string | null; role: UserRole; created_at: number } | null> {
@@ -589,12 +613,15 @@ export interface UserSummary {
   last_active: number | null;
   avg_attempts: number | null;
   achievements_count: number | null;
+  banned_at: number | null;
+  ban_reason: string | null;
 }
 
 export function getAllUsers(): UserSummary[] {
   const db = getDb();
   return db.prepare(`
     SELECT u.id, u.name, u.email, u.phone, u.role, u.created_at, u.last_active,
+           u.banned_at, u.ban_reason,
            COUNT(up.task_id) as tasks_completed,
            COALESCE(ROUND(AVG(up.attempts * 1.0), 2), 0) as avg_attempts,
            (SELECT COUNT(*) FROM user_achievements ua WHERE ua.user_id = u.id) as achievements_count
@@ -669,6 +696,74 @@ export function restoreUser(userId: string, actorId?: string): boolean {
     logAudit(actorId, 'restore_user', 'user', userId);
   }
   return result.changes > 0;
+}
+
+/** Ban a user with an optional reason */
+export function banUser(userId: string, reason: string | null, actorId: string): boolean {
+  const db = getDb();
+  const now = Date.now();
+  const result = db.prepare(
+    'UPDATE users SET banned_at = ?, ban_reason = ?, banned_by = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL'
+  ).run(now, reason, actorId, now, userId);
+  if (result.changes > 0) {
+    logAudit(actorId, 'ban_user', 'user', userId, JSON.stringify({ reason }));
+  }
+  return result.changes > 0;
+}
+
+/** Unban a user */
+export function unbanUser(userId: string, actorId: string): boolean {
+  const db = getDb();
+  const now = Date.now();
+  const result = db.prepare(
+    'UPDATE users SET banned_at = NULL, ban_reason = NULL, banned_by = NULL, updated_at = ? WHERE id = ? AND banned_at IS NOT NULL'
+  ).run(now, userId);
+  if (result.changes > 0) {
+    logAudit(actorId, 'unban_user', 'user', userId);
+  }
+  return result.changes > 0;
+}
+
+/** Check if a user is currently banned */
+export function isUserBanned(userId: string): boolean {
+  const db = getDb();
+  const row = db.prepare(
+    'SELECT banned_at FROM users WHERE id = ? AND banned_at IS NOT NULL AND deleted_at IS NULL'
+  ).get(userId);
+  return row !== undefined;
+}
+
+/** Get banned users for admin panel */
+export function getBannedUsers(): {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  banned_at: number;
+  ban_reason: string | null;
+  banned_by: string | null;
+  banned_by_name: string | null;
+  created_at: number;
+}[] {
+  const db = getDb();
+  return db.prepare(`
+    SELECT u.id, u.name, u.email, u.role, u.banned_at, u.ban_reason, u.banned_by,
+           a.name as banned_by_name, u.created_at
+    FROM users u
+    LEFT JOIN users a ON u.banned_by = a.id
+    WHERE u.banned_at IS NOT NULL AND u.deleted_at IS NULL
+    ORDER BY u.banned_at DESC
+  `).all() as {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+    banned_at: number;
+    ban_reason: string | null;
+    banned_by: string | null;
+    banned_by_name: string | null;
+    created_at: number;
+  }[];
 }
 
 /** Get soft-deleted users for admin panel */
@@ -951,6 +1046,70 @@ export function getStudentRecommendations(userId: string): StudentRecommendation
   }
 
   return recommendations;
+}
+
+export interface SkillGap {
+  category: string;
+  tasks_total: number;
+  tasks_completed: number;
+  completion_pct: number;
+  avg_attempts: number;
+  struggle_tasks: { task_id: string; title: string; attempts: number }[];
+  strength_level: 'weak' | 'developing' | 'proficient' | 'strong' | 'mastered';
+}
+
+export function getStudentSkillGap(userId: string): SkillGap[] {
+  const db = getDb();
+  const completedTasks = db.prepare(
+    'SELECT task_id, attempts FROM user_progress WHERE user_id = ?'
+  ).all(userId) as { task_id: string; attempts: number }[];
+
+  const completedMap = new Map(completedTasks.map(t => [t.task_id, t.attempts]));
+  const categoryMap = new Map<string, { total: number; completed: number; totalAttempts: number; struggleTasks: { task_id: string; title: string; attempts: number }[] }>();
+
+  for (const task of TRAINING_TASKS) {
+    const cat = task.category || 'general';
+    let entry = categoryMap.get(cat);
+    if (!entry) {
+      entry = { total: 0, completed: 0, totalAttempts: 0, struggleTasks: [] };
+      categoryMap.set(cat, entry);
+    }
+    entry.total++;
+
+    const attemptInfo = completedMap.get(task.id);
+    if (attemptInfo !== undefined) {
+      entry.completed++;
+      entry.totalAttempts += attemptInfo;
+      if (attemptInfo > 3) {
+        entry.struggleTasks.push({ task_id: task.id, title: task.title, attempts: attemptInfo });
+      }
+    }
+  }
+
+  const result: SkillGap[] = [];
+  for (const [category, data] of categoryMap) {
+    const completionPct = Math.round((data.completed / data.total) * 100);
+    const avgAttempts = data.completed > 0 ? Math.round((data.totalAttempts / data.completed) * 10) / 10 : 0;
+
+    let strengthLevel: SkillGap['strength_level'];
+    if (completionPct >= 90 && avgAttempts <= 1.5) strengthLevel = 'mastered';
+    else if (completionPct >= 75) strengthLevel = 'strong';
+    else if (completionPct >= 50) strengthLevel = 'proficient';
+    else if (completionPct >= 25) strengthLevel = 'developing';
+    else strengthLevel = 'weak';
+
+    result.push({
+      category,
+      tasks_total: data.total,
+      tasks_completed: data.completed,
+      completion_pct: completionPct,
+      avg_attempts: avgAttempts,
+      struggle_tasks: data.struggleTasks,
+      strength_level: strengthLevel,
+    });
+  }
+
+  return result.sort((a, b) => a.completion_pct - b.completion_pct);
 }
 
 // Database stats for admin
@@ -2993,6 +3152,7 @@ export interface Deadline {
   description: string | null;
   target_type: 'individual' | 'group' | 'all_students';
   target_id: string | null;
+  group_id: string | null;
   task_id: string | null;
   due_at: number;
   created_at: number;
@@ -3260,6 +3420,62 @@ export function getGroupMembers(groupId: string): GroupMember[] {
   return rows;
 }
 
+export interface GroupNotificationResult {
+  total: number;
+  queued: number;
+  failed: number;
+  errors: string[];
+}
+
+export function notifyGroupMembers(
+  groupId: string,
+  subject: string,
+  message: string,
+  channel: 'email' | 'in_app',
+  actorId: string,
+): GroupNotificationResult {
+  const db = getDb();
+  const members = getGroupMembers(groupId);
+  const result: GroupNotificationResult = { total: members.length, queued: 0, failed: 0, errors: [] };
+
+  if (members.length === 0) return result;
+
+  if (channel === 'in_app') {
+    for (const member of members) {
+      try {
+        logReminderDelivery(groupId, member.user_id, 'teacher_notification');
+        result.queued++;
+      } catch (err) {
+        result.failed++;
+        result.errors.push(`Failed for ${member.user_email}: ${err}`);
+      }
+    }
+  } else if (channel === 'email') {
+    for (const member of members) {
+      try {
+        queueEmail(member.user_id, subject, message, Date.now());
+        result.queued++;
+      } catch (err) {
+        result.failed++;
+        result.errors.push(`Failed for ${member.user_email}: ${err}`);
+      }
+    }
+  }
+
+  logAudit(actorId, 'group_notify', 'group', groupId, JSON.stringify({
+    subject, channel, total: result.total, queued: result.queued, failed: result.failed,
+  }));
+
+  return result;
+}
+
+export function getGroupDeadlines(groupId: string): Deadline[] {
+  const db = getDb();
+  return db.prepare(
+    'SELECT * FROM deadlines WHERE group_id = ? ORDER BY due_at ASC'
+  ).all(groupId) as Deadline[];
+}
+
 export function getUserGroups(userId: string): Group[] {
   const db = getDb();
   const rows = db.prepare(`
@@ -3319,6 +3535,7 @@ export function createDeadline(data: {
   description?: string;
   targetType: Deadline['target_type'];
   targetId?: string;
+  groupId?: string;
   taskId?: string;
   dueAt: number;
 }, actorId?: string): Deadline {
@@ -3326,9 +3543,9 @@ export function createDeadline(data: {
   const id = crypto.randomUUID();
   const now = Date.now();
   db.prepare(`
-    INSERT INTO deadlines (id, creator_id, type, title, description, target_type, target_id, task_id, due_at, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, data.creatorId, data.type, data.title, data.description || null, data.targetType, data.targetId || null, data.taskId || null, data.dueAt, now, now);
+    INSERT INTO deadlines (id, creator_id, type, title, description, target_type, target_id, group_id, task_id, due_at, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(id, data.creatorId, data.type, data.title, data.description || null, data.targetType, data.targetId || null, data.groupId || null, data.taskId || null, data.dueAt, now, now);
   if (actorId) {
     logAudit(actorId, 'deadline_created', 'deadline', id, JSON.stringify({ title: data.title, type: data.type, dueAt: data.dueAt }));
   }
@@ -3358,6 +3575,7 @@ export function updateDeadline(id: string, data: {
   type?: Deadline['type'];
   targetType?: Deadline['target_type'];
   targetId?: string;
+  groupId?: string;
   taskId?: string;
   dueAt?: number;
 }, creatorId: string, actorId?: string): boolean {
@@ -3376,6 +3594,7 @@ export function updateDeadline(id: string, data: {
   if (data.type !== undefined) { fields.push('type = ?'); values.push(data.type); }
   if (data.targetType !== undefined) { fields.push('target_type = ?'); values.push(data.targetType); }
   if (data.targetId !== undefined) { fields.push('target_id = ?'); values.push(data.targetId); }
+  if (data.groupId !== undefined) { fields.push('group_id = ?'); values.push(data.groupId); }
   if (data.taskId !== undefined) { fields.push('task_id = ?'); values.push(data.taskId); }
   if (data.dueAt !== undefined) { fields.push('due_at = ?'); values.push(data.dueAt); }
   fields.push('updated_at = ?');
@@ -3578,7 +3797,7 @@ export function resolveDeadlineTargets(deadline: Deadline): string[] {
   const db = getDb();
 
   if (deadline.target_type === 'all_students') {
-    const rows = db.prepare("SELECT id FROM users WHERE role = 'student'").all() as { id: string }[];
+    const rows = db.prepare("SELECT id FROM users WHERE role = 'student' AND banned_at IS NULL AND deleted_at IS NULL").all() as { id: string }[];
     return rows.map(r => r.id);
   }
 
@@ -3586,10 +3805,11 @@ export function resolveDeadlineTargets(deadline: Deadline): string[] {
     return [deadline.target_id];
   }
 
-  if (deadline.target_type === 'group' && deadline.target_id) {
-    // Group targeting: users whose name/email matches the group identifier
-    // For simplicity, treat group as individual for now
-    return [deadline.target_id];
+  if (deadline.target_type === 'group' && deadline.group_id) {
+    const rows = db.prepare(
+      'SELECT user_id FROM group_members WHERE group_id = ?'
+    ).all(deadline.group_id) as { user_id: string }[];
+    return rows.map(r => r.user_id);
   }
 
   return [];

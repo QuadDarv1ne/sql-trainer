@@ -4,6 +4,13 @@ import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import UserTable from '@/components/admin/user-table';
 import DBStats from '@/components/admin/db-stats';
 import SystemHealth from '@/components/admin/system-health';
@@ -14,6 +21,7 @@ import AuditLog from '@/components/admin/audit-log';
 import { t } from '@/lib/i18n';
 import type { Role } from '@/lib/rbac';
 import AdminAnalytics from '@/components/admin/admin-analytics';
+import { Download } from 'lucide-react';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -31,13 +39,35 @@ export default function AdminPage() {
 
   if (!authorized) return null;
 
+  const handleExport = (section: string) => {
+    window.open(`/api/admin/export?section=${section}&format=csv`, '_blank');
+  };
+
   return (
     <div className="h-full overflow-auto bg-gradient-to-b from-background to-muted/20">
       <div className="mx-auto max-w-7xl space-y-6 p-6">
         {/* Page Header */}
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">{t('admin.title')}</h1>
-          <p className="text-sm text-muted-foreground">{t('admin.subtitle', { default: 'Управление пользователями, аналитика и мониторинг системы' })}</p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t('admin.title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('admin.subtitle', { default: 'Управление пользователями, аналитика и мониторинг системы' })}</p>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-1" />
+                Экспорт
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleExport('users')}>Пользователи (CSV)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('leaderboard')}>Рейтинг (CSV)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('banned')}>Заблокированные (CSV)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('deleted')}>Удалённые (CSV)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('deadlines')}>Дедлайны (CSV)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('audit')}>Аудит (CSV)</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">

@@ -90,9 +90,9 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
   };
 
   const trendIcons: Record<string, React.ReactNode> = {
-    improving: <TrendingUp className="h-4 w-4 text-emerald-600" />,
-    stable: <Minus className="h-4 w-4 text-gray-400" />,
-    declining: <TrendingDown className="h-4 w-4 text-red-600" />,
+    improving: <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />,
+    stable: <Minus className="h-4 w-4 text-gray-400 dark:text-gray-300" />,
+    declining: <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />,
   };
 
   return (

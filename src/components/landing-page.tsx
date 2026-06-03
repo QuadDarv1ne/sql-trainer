@@ -3,7 +3,6 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTheme } from 'next-themes';
 import { tWithLocale, type Locale } from '@/lib/i18n';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +24,6 @@ import {
   LogIn,
   Database,
   Moon,
-  Sun,
   LayoutPanelTop,
   History,
   Search,
@@ -44,33 +42,7 @@ import {
   X,
 } from 'lucide-react';
 import LocaleSelector from '@/components/locale-selector';
-
-function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <Button variant="ghost" size="sm" className="h-8 w-8" aria-label="Toggle theme">
-        <Sun className="h-4 w-4" />
-      </Button>
-    );
-  }
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
-  return (
-    <Button variant="ghost" size="sm" className="h-8 w-8" onClick={toggleTheme} aria-label="Toggle theme">
-      {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-    </Button>
-  );
-}
+import { ThemeToggle } from '@/components/theme-toggle';
 
 const modules = [
   {
@@ -460,7 +432,7 @@ export default function LandingPage({ locale }: { locale?: Locale }) {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            <ThemeToggle />
+            <ThemeToggle size="sm" />
             <AuthSidebar t={t} />
           </div>
         </div>
@@ -831,7 +803,7 @@ export default function LandingPage({ locale }: { locale?: Locale }) {
             <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-white">{t('landing.cta.title')}</h2>
             <p className="text-blue-100 dark:text-blue-200 mb-8 max-w-xl mx-auto">{t('landing.cta.subtitle')}</p>
             <Link href="/register">
-              <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 h-12 px-10 text-base font-semibold shadow-lg">
+              <Button size="lg" className="bg-white dark:bg-blue-800 dark:text-blue-100 dark:hover:bg-blue-700 text-blue-700 hover:bg-blue-50 h-12 px-10 text-base font-semibold shadow-lg">
                 <GraduationCap className="h-5 w-5 mr-2" />
                 {t('landing.cta.button')}
               </Button>

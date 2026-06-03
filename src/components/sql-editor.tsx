@@ -287,7 +287,7 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
   onRedo,
   onHistoryChange,
 }: SQLEditorProps, ref) {
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
   const placeholder = t('sqlEditor.placeholder');
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -304,8 +304,8 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
   const canRedoRef = useRef(false);
   const historyCountRef = useRef(0);
 
-  // Compute isDark directly from theme
-  const isDark = theme !== 'light';
+  // Compute isDark from resolvedTheme for consistent detection (handles 'system' correctly)
+  const isDark = resolvedTheme !== 'light';
 
   const emitHistoryChange = useCallback((docChanged?: boolean) => {
     if (docChanged) {
@@ -376,8 +376,8 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Choose theme based on system theme
-    const isDark = themeRef.current !== 'light';
+    // Choose theme based on resolved (actual visual) theme
+    const isDark = resolvedTheme !== 'light';
 
     // Custom theme extension
     const customTheme = isDark ? EditorView.theme({
@@ -531,6 +531,7 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
       view.destroy();
       viewRef.current = null;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- one-time editor init; theme updated via compartment reconfigure
   }, [emitHistoryChange]);
 
   // Update theme when it changes using compartment reconfigure (preserves undo history)
@@ -538,7 +539,7 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
     const view = viewRef.current;
     if (!view) return;
 
-    const isDark = theme !== 'light';
+    const isDark = resolvedTheme !== 'light';
     const newCustomTheme = isDark ? EditorView.theme({
       '&': { height: '100%', fontSize: '14px' },
       '.cm-scroller': { overflow: 'auto', fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace" },
@@ -557,7 +558,7 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
     view.dispatch({
       effects: themeCompartmentRef.current.reconfigure(newCustomTheme),
     });
-  }, [theme]);
+  }, [resolvedTheme]);
 
   // Update content from outside
   useEffect(() => {

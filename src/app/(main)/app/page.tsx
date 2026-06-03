@@ -24,6 +24,7 @@ import SchemaViewer from '@/components/schema-viewer';
 import ShortcutsHelp from '@/components/shortcuts-help';
 import LocaleSelector from '@/components/locale-selector';
 import UserMenu from '@/components/auth/user-menu';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -40,8 +41,6 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import {
-  Sun,
-  Moon,
   PanelLeftClose,
   PanelLeftOpen,
   Table as TableIcon,
@@ -139,7 +138,7 @@ export default function HomePage() {
     }
   }, [unlockedAchievements]);
 
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const { data: session } = useSession();
   const [schemaInfo, setSchemaInfo] = useState<DatabaseInfo | null>(null);
   const attemptCountRef = useRef(0);
@@ -731,17 +730,10 @@ export default function HomePage() {
           {/* Theme toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9"
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              >
-                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
+              <ThemeToggle />
             </TooltipTrigger>
             <TooltipContent side="bottom" className="text-xs">
-              {theme === 'dark' ? t('header.theme.light') : t('header.theme.dark')}
+              {mounted && theme === 'dark' ? t('header.theme.system') : mounted && theme === 'system' ? t('header.theme.light') : t('header.theme.dark')}
             </TooltipContent>
           </Tooltip>
 

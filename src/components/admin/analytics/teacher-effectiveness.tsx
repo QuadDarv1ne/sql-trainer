@@ -103,7 +103,7 @@ export default function TeacherEffectiveness() {
             <TableBody>
               {teachers.map((teacher, i) => (
                 <TableRow key={teacher.id}>
-                  <TableCell><Badge className={i === 0 ? 'bg-amber-500' : i === 1 ? 'bg-gray-400' : i === 2 ? 'bg-orange-600' : 'bg-secondary'}>#{i + 1}</Badge></TableCell>
+                  <TableCell><Badge className={i === 0 ? 'bg-amber-500 dark:bg-amber-600' : i === 1 ? 'bg-gray-400 dark:bg-gray-600' : i === 2 ? 'bg-orange-600 dark:bg-orange-700' : 'bg-secondary'}>#{i + 1}</Badge></TableCell>
                   <TableCell className="font-medium">{teacher.name}</TableCell>
                   <TableCell>{teacher.student_count}</TableCell>
                   <TableCell>{teacher.avg_completion_rate}%</TableCell>

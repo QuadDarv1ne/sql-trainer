@@ -84,13 +84,23 @@ const nextAuth = NextAuth({
         // Validate role hasn't changed since token was issued
         const tokenRoleChangedAt = token.role_changed_at as number | null | undefined;
         const currentRole = token.role as UserRole | undefined;
-        
+
         if (currentRole) {
-          // Fetch current role_changed_at from database to validate
+          // Fetch current role_changed_at and ban status from database to validate
           const db = (await import('@/lib/db-users')).getDb();
-          const dbUser = db.prepare('SELECT role, role_changed_at FROM users WHERE id = ?').get(token.id) as 
-            { role: UserRole; role_changed_at: number | null } | undefined;
-          
+          const dbUser = db.prepare('SELECT role, role_changed_at, banned_at FROM users WHERE id = ?').get(token.id) as
+            { role: UserRole; role_changed_at: number | null; banned_at: number | null } | undefined;
+
+          // If user is banned, invalidate session
+          if (dbUser && dbUser.banned_at) {
+            (session as AuthSession).user.id = '';
+            (session as AuthSession).user.name = '';
+            (session as AuthSession).user.email = '';
+            (session as AuthSession).user.phone = null;
+            (session as AuthSession).user.role = 'student';
+            return session;
+          }
+
           // If role_changed_at in DB is newer than in token, session is stale - invalidate it
           if (dbUser && dbUser.role_changed_at && tokenRoleChangedAt && dbUser.role_changed_at > tokenRoleChangedAt) {
             // Force re-authentication by clearing the session
@@ -101,7 +111,7 @@ const nextAuth = NextAuth({
             (session as AuthSession).user.role = 'student';
             return session;
           }
-          
+
           // If no stale session, use the token data
           (session as AuthSession).user.id = token.id;
           (session as AuthSession).user.name = token.name as string;

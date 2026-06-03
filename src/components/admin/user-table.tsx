@@ -25,7 +25,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StudentAcademicProfile from '@/components/admin/analytics/student-academic-profile';
 import type { UserRole } from '@/lib/db-users';
-import { Users, Trash2, AlertCircle, CheckCircle2, ChevronUp, ChevronDown, Search, Plus, UserPlus, Undo2, Pencil, BookOpen } from 'lucide-react';
+import { Users, Trash2, AlertCircle, CheckCircle2, ChevronUp, ChevronDown, Search, Plus, UserPlus, Undo2, Pencil, BookOpen, Ban, CheckCircle } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { logger } from '@/lib/logger';
 
@@ -37,6 +37,20 @@ interface User {
   role: UserRole;
   created_at: number;
   tasks_completed: number;
+  banned_at: number | null;
+  ban_reason: string | null;
+}
+
+interface BannedUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  banned_at: number;
+  ban_reason: string | null;
+  banned_by: string | null;
+  banned_by_name: string | null;
+  created_at: number;
 }
 
 interface DeletedUser {
@@ -53,6 +67,7 @@ type SortKey = keyof User;
 export default function UserTable() {
   const [users, setUsers] = useState<User[]>([]);
   const [deletedUsers, setDeletedUsers] = useState<DeletedUser[]>([]);
+  const [bannedUsers, setBannedUsers] = useState<BannedUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -80,9 +95,10 @@ export default function UserTable() {
     const controller = new AbortController();
     controllerRef.current = controller;
     try {
-      const [usersRes, deletedRes] = await Promise.all([
+      const [usersRes, deletedRes, bannedRes] = await Promise.all([
         fetch('/api/admin/users', { signal: controller.signal }),
         fetch('/api/admin/users/deleted', { signal: controller.signal }),
+        fetch('/api/admin/users/banned', { signal: controller.signal }),
       ]);
       if (!usersRes.ok) throw new Error('Failed to load users');
       const usersData = await usersRes.json();
@@ -90,6 +106,10 @@ export default function UserTable() {
       if (deletedRes.ok && !controller.signal.aborted) {
         const deletedData = await deletedRes.json();
         setDeletedUsers(deletedData.users);
+      }
+      if (bannedRes.ok && !controller.signal.aborted) {
+        const bannedData = await bannedRes.json();
+        setBannedUsers(bannedData.users);
       }
     } catch (e) {
       if (!controller.signal.aborted) {
@@ -272,6 +292,47 @@ export default function UserTable() {
     }
   };
 
+  const handleBan = async (userId: string, userName: string) => {
+    const reason = prompt(`Введите причину бана для ${userName} (опционально):`);
+    if (reason === null) return;
+    setError('');
+    setSuccess('');
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/ban`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: reason || null }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to ban user');
+      }
+      setSuccess(`Пользователь ${userName} заблокирован`);
+      fetchUsers();
+    } catch (e) {
+      logger.error('Failed to ban user:', e);
+      setError(e instanceof Error ? e.message : 'Ошибка при блокировке пользователя');
+    }
+  };
+
+  const handleUnban = async (userId: string, userName: string) => {
+    if (!confirm(`Разблокировать пользователя ${userName}?`)) return;
+    setError('');
+    setSuccess('');
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/unban`, { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to unban user');
+      }
+      setSuccess(`Пользователь ${userName} разблокирован`);
+      fetchUsers();
+    } catch (e) {
+      logger.error('Failed to unban user:', e);
+      setError(e instanceof Error ? e.message : 'Ошибка при разблокировке пользователя');
+    }
+  };
+
   const openEdit = (user: User) => {
     setEditUser({ id: user.id, name: user.name, email: user.email, phone: user.phone });
     setEditForm({ name: user.name, email: user.email, phone: user.phone || '' });
@@ -352,6 +413,7 @@ export default function UserTable() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
           <TabsList>
             <TabsTrigger value="active">{t('admin.users.tabs.active')} ({users.length})</TabsTrigger>
+            <TabsTrigger value="banned">{t('admin.users.tabs.banned', { default: 'Заблокированные' })} ({bannedUsers.length})</TabsTrigger>
             <TabsTrigger value="deleted">{t('admin.users.tabs.deleted')} ({deletedUsers.length})</TabsTrigger>
           </TabsList>
         </Tabs>
@@ -416,10 +478,11 @@ export default function UserTable() {
                     type="checkbox"
                     checked={selectedIds.size === paged.length && paged.length > 0}
                     onChange={toggleSelectAll}
-                    className="h-4 w-4 rounded border-gray-300"
-                  />
-                </TableHead>
-                {([
+className="h-4 w-4 rounded border-gray-300 dark:border-gray-600"
+                    />
+                  </TableHead>
+                  {([
+
                   { key: 'name' as SortKey, label: t('admin.users.name') },
                   { key: 'email' as SortKey, label: t('admin.users.email') },
                   { key: 'role' as SortKey, label: t('admin.users.role') },
@@ -450,7 +513,7 @@ export default function UserTable() {
                       type="checkbox"
                       checked={selectedIds.has(user.id)}
                       onChange={() => toggleSelect(user.id)}
-                      className="h-4 w-4 rounded border-gray-300"
+                      className="h-4 w-4 rounded border-gray-300 dark:border-gray-600"
                     />
                   </TableCell>
                   <TableCell className="font-medium">{user.name}</TableCell>
@@ -501,6 +564,28 @@ export default function UserTable() {
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
+                      {user.banned_at ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleUnban(user.id, user.name)}
+                          className="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950"
+                          aria-label="Разблокировать"
+                          title={`Заблокирован: ${user.ban_reason || 'без причины'}`}
+                        >
+                          <Ban className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleBan(user.id, user.name)}
+                          className="text-slate-600 dark:text-slate-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950"
+                          aria-label="Заблокировать"
+                        >
+                          <Ban className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -533,6 +618,51 @@ export default function UserTable() {
             </Button>
           </div>
         </div>
+          </>
+        )}
+
+        {activeTab === 'banned' && (
+          <>
+            {bannedUsers.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">Нет заблокированных пользователей</p>
+            ) : (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t('admin.users.name')}</TableHead>
+                      <TableHead>{t('admin.users.email')}</TableHead>
+                      <TableHead>Причина бана</TableHead>
+                      <TableHead>Кем заблокирован</TableHead>
+                      <TableHead>Дата блокировки</TableHead>
+                      <TableHead>{t('admin.users.actions')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {bannedUsers.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">{user.name}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{user.ban_reason || '—'}</TableCell>
+                        <TableCell>{user.banned_by_name || '—'}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{new Date(user.banned_at).toLocaleString()}</TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleUnban(user.id, user.name)}
+                            className="text-emerald-600"
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Разблокировать
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </>
         )}
 

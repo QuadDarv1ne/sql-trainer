@@ -72,7 +72,7 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
   if (!studentId) return null;
 
   const TrendIcon = data?.performance_trend === 'improving' ? TrendingUp : data?.performance_trend === 'declining' ? TrendingDown : Minus;
-  const trendColor = data?.performance_trend === 'improving' ? 'text-emerald-600' : data?.performance_trend === 'declining' ? 'text-red-600' : 'text-gray-400';
+  const trendColor = data?.performance_trend === 'improving' ? 'text-emerald-600 dark:text-emerald-400' : data?.performance_trend === 'declining' ? 'text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-300';
 
   const getSkillColor = (rate: number) =>
     rate >= 75 ? 'text-emerald-600' : rate >= 50 ? 'text-amber-600' : 'text-red-600';

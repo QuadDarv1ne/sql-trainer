@@ -40,9 +40,9 @@ interface StudentPerformanceCard {
 }
 
 function TrendIcon({ trend }: { trend: string }) {
-  if (trend === 'improving') return <TrendingUp className="h-4 w-4 text-emerald-600" />;
-  if (trend === 'declining') return <TrendingDown className="h-4 w-4 text-red-600" />;
-  return <Minus className="h-4 w-4 text-gray-400" />;
+  if (trend === 'improving') return <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />;
+  if (trend === 'declining') return <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />;
+  return <Minus className="h-4 w-4 text-gray-400 dark:text-gray-300" />;
 }
 
 export default function StudentPerformanceCards() {

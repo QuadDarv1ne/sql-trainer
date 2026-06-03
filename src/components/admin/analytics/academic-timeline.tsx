@@ -103,7 +103,7 @@ export default function AcademicTimeline() {
             <div className="relative border-l-2 border-muted ml-4 space-y-6">
               {timeline.map((event) => {
                 const Icon = eventIcons[event.event_type] || Calendar;
-                const color = eventColors[event.event_type] || 'bg-gray-500';
+                const color = eventColors[event.event_type] || 'bg-gray-500 dark:bg-gray-600';
                 return (
                   <div key={`${event.event_type}-${event.timestamp}`} className="relative pl-8">
                     <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full ${color} border-2 border-background`} />

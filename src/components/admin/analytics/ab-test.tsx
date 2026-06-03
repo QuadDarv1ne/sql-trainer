@@ -144,9 +144,9 @@ export default function ABTest() {
               <div key={m.metric} className="flex items-center justify-between py-2 border-b last:border-0">
                 <div className="flex items-center gap-2">
                   {m.significant ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />
                   ) : (
-                    <XCircle className="h-5 w-5 text-gray-400" />
+                    <XCircle className="h-5 w-5 text-gray-400 dark:text-gray-300" />
                   )}
                   <span>{m.metric}</span>
                 </div>

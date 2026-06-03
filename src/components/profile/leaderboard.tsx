@@ -62,7 +62,7 @@ export default function LeaderboardTable() {
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1: return <Trophy className="h-4 w-4 text-yellow-500 dark:text-yellow-400" />;
-      case 2: return <Medal className="h-4 w-4 text-gray-400" />;
+      case 2: return <Medal className="h-4 w-4 text-gray-400 dark:text-gray-300" />;
       case 3: return <Medal className="h-4 w-4 text-amber-600 dark:text-amber-400" />;
       default: return <span className="text-xs font-mono text-muted-foreground w-4 text-center">{rank}</span>;
     }

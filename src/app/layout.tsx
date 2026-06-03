@@ -6,6 +6,7 @@ import { ThemeProvider } from "next-themes";
 import ServiceWorkerRegister from "@/components/service-worker-register";
 import PwaInstallPrompt from "@/components/pwa-install-prompt";
 import { ThemeTimeSync } from "@/components/theme-time-sync";
+import { ThemeColorMeta } from "@/components/theme-color-meta";
 import { CsrfTokenMeta } from "./csrf-token-meta";
 import { HtmlLangSync } from "./html-lang-sync";
 import { getLocaleFromCookies, tWithLocale } from "@/lib/i18n";
@@ -75,6 +76,7 @@ export default function RootLayout({
           {children}
           <Toaster />
           <ThemeTimeSync />
+          <ThemeColorMeta />
           <ServiceWorkerRegister />
           <PwaInstallPrompt />
         </ThemeProvider>

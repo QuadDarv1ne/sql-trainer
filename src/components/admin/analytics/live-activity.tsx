@@ -39,7 +39,7 @@ export default function LiveActivity() {
         <div className="flex items-center gap-2">
           <h2 className="text-2xl font-bold">{t('analytics.live.title')}</h2>
           <Badge variant={data.active_now > 0 ? 'default' : 'secondary'} className="flex items-center gap-1">
-            <span className={`h-2 w-2 rounded-full ${data.active_now > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} aria-hidden="true" />
+            <span className={`h-2 w-2 rounded-full ${data.active_now > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-400 dark:bg-gray-500'}`} aria-hidden="true" />
             <span className="sr-only">{data.active_now > 0 ? 'Active' : 'Inactive'}</span>
             {isPaused ? t('analytics.live.paused') : t('analytics.live')}
           </Badge>
