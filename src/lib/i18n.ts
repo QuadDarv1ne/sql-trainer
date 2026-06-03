@@ -357,6 +357,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'export.warning': 'Внимание: Импорт заменит ваш текущий прогресс данными из файла',
     'export.error.invalidFormat': 'Неверный формат данных',
     'export.error.incompatibleVersion': 'Несовместимая версия файла',
+    'validation.invalidRequest': 'Неверный формат запроса',
 
     // Chart
     'chart.noData': 'Нет числовых данных для визуализации',
@@ -2358,6 +2359,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'export.warning': 'Warning: Import will replace your current progress with data from the file',
     'export.error.invalidFormat': 'Invalid data format',
     'export.error.incompatibleVersion': 'Incompatible file version',
+    'validation.invalidRequest': 'Invalid request format',
 
     // Chart
     'chart.noData': 'No numeric data for visualization',
@@ -4359,6 +4361,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'export.warning': '警告：导入将用文件中的数据替换当前进度',
     'export.error.invalidFormat': '无效的数据格式',
     'export.error.incompatibleVersion': '不兼容的文件版本',
+    'validation.invalidRequest': '无效的请求格式',
 
     // Chart
     'chart.noData': '无可视化的数值数据',
@@ -6030,10 +6033,11 @@ export function getLocale(): Locale {
   return currentLocale;
 }
 
-export function t(key: string, params?: Record<string, string>): string {
-  let value = translations[currentLocale]?.[key] || translations.ru[key] || key;
-  if (params) {
-    Object.entries(params).forEach(([k, v]) => {
+export function t(key: string, params?: Record<string, string> & { default?: string }): string {
+  const { default: defaultVal, ...restParams } = params || {};
+  let value = translations[currentLocale]?.[key] || translations.ru[key] || defaultVal || key;
+  if (restParams) {
+    Object.entries(restParams).forEach(([k, v]) => {
       value = value.replace(`{${k}}`, v);
     });
   }
@@ -6044,10 +6048,11 @@ export function t(key: string, params?: Record<string, string>): string {
  * Translate with explicit locale without mutating global state.
  * Safe for server-side concurrent usage.
  */
-export function tWithLocale(locale: Locale, key: string, params?: Record<string, string>): string {
-  let value = translations[locale]?.[key] || translations.ru[key] || key;
-  if (params) {
-    Object.entries(params).forEach(([k, v]) => {
+export function tWithLocale(locale: Locale, key: string, params?: Record<string, string> & { default?: string }): string {
+  const { default: defaultVal, ...restParams } = params || {};
+  let value = translations[locale]?.[key] || translations.ru[key] || defaultVal || key;
+  if (restParams) {
+    Object.entries(restParams).forEach(([k, v]) => {
       value = value.replace(`{${k}}`, v);
     });
   }

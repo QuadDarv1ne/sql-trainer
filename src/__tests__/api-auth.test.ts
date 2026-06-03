@@ -51,17 +51,17 @@ describe('parseDateParams', () => {
 
   it('returns null for NaN values', () => {
     const params = new URLSearchParams({ startDate: 'abc', endDate: '1700000000000' });
-    expect(parseDateParams(params)).toEqual({ startDate: null, endDate: null });
+    expect(parseDateParams(params)).toEqual({ startDate: null, endDate: null, error: 'Invalid startDate parameter' });
   });
 
   it('returns null for negative timestamps', () => {
     const params = new URLSearchParams({ startDate: '-1000', endDate: '1700000000000' });
-    expect(parseDateParams(params)).toEqual({ startDate: null, endDate: null });
+    expect(parseDateParams(params)).toEqual({ startDate: null, endDate: null, error: 'Invalid startDate parameter' });
   });
 
   it('returns null for impossibly large timestamps', () => {
     const params = new URLSearchParams({ startDate: '99999999999999', endDate: '99999999999999' });
-    expect(parseDateParams(params)).toEqual({ startDate: null, endDate: null });
+    expect(parseDateParams(params)).toEqual({ startDate: null, endDate: null, error: 'Invalid startDate parameter' });
   });
 
   it('returns null when startDate > endDate', () => {
@@ -69,7 +69,7 @@ describe('parseDateParams', () => {
       startDate: '1700086400000',
       endDate: '1700000000000',
     });
-    expect(parseDateParams(params)).toEqual({ startDate: null, endDate: null });
+    expect(parseDateParams(params)).toEqual({ startDate: null, endDate: null, error: 'startDate must be before endDate' });
   });
 });
 

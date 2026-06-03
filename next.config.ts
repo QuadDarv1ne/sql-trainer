@@ -28,9 +28,10 @@ const nextConfig: NextConfig = {
     'style-mod',
     'w3c-keyname',
   ],
-  // Force webpack/turbopack to resolve these packages to a single instance
+  // Force webpack to resolve these packages to a single instance
   webpack: (config, { isServer }) => {
-    if (!isServer) {
+    if (!isServer && !process.env.TURBOPACK) {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- webpack config
       config.resolve = config.resolve || {};
       config.resolve.alias = {
         ...config.resolve.alias,

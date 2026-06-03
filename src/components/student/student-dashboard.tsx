@@ -20,6 +20,8 @@ import RoleBadge from '@/components/auth/role-badge';
 import type { Role } from '@/lib/rbac';
 import Link from 'next/link';
 import { useSQLTrainerStore } from '@/lib/store';
+import LearningPath from './learning-path';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface StudentStats {
   completedTasks: Array<{ taskId: string; attempts: number; completedAt: number }>;
@@ -192,6 +194,14 @@ export default function StudentDashboard() {
           <RoleBadge role={(session?.user as { role?: Role })?.role || 'student'} />
         </div>
 
+        {/* Tabs for Dashboard and Learning Path */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="overview">{t('dashboard.overview', { default: 'Обзор' })}</TabsTrigger>
+            <TabsTrigger value="path">{t('dashboard.learningPath', { default: 'Учебный план' })}</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
         {/* Quick Actions */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {/* Continue Learning Card */}
@@ -468,6 +478,16 @@ export default function StudentDashboard() {
             </Card>
           </Link>
         </div>
+          </TabsContent>
+
+          <TabsContent value="path" className="space-y-6">
+            <LearningPath
+              completedTasks={stats.completedTasks}
+              userLevel={stats.userStats.level}
+              onTaskSelect={handleStartTask}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

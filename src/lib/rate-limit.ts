@@ -70,9 +70,16 @@ export function rateLimit(key: string, options: RateLimitOptions): RateLimitResu
 
   if (!entry || now > entry.resetAt) {
     // First request or window expired — start fresh
-    // Evict oldest entries if at capacity
+    // Evict the entry with the earliest resetAt if at capacity
     if (!entry && store.size >= MAX_ENTRIES) {
-      const oldestKey = store.keys().next().value;
+      let oldestKey: string | null = null;
+      let oldestResetAt = Infinity;
+      for (const [k, v] of store) {
+        if (v.resetAt < oldestResetAt) {
+          oldestResetAt = v.resetAt;
+          oldestKey = k;
+        }
+      }
       if (oldestKey) store.delete(oldestKey);
     }
 

@@ -18,6 +18,15 @@ const CSRF_COOKIE_NAME = 'csrf-token';
 const CSRF_HEADER_NAME = 'x-csrf-token';
 const CSRF_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
+function base64urlEncode(data: string | Uint8Array): string {
+  const str = typeof data === 'string' ? data : String.fromCharCode(...new Uint8Array(data));
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function base64urlDecode(str: string): string {
+  return atob(str.replace(/-/g, '+').replace(/_/g, '/'));
+}
+
 async function signToken(rawToken: string): Promise<string> {
   const secret = process.env.AUTH_SECRET;
   if (!secret) {
@@ -26,43 +35,62 @@ async function signToken(rawToken: string): Promise<string> {
 
   const timestamp = Date.now();
 
-  // Use Node.js crypto for HMAC signing — works reliably in all environments
-  const { createHmac } = await import('crypto');
-  const hmac = createHmac('sha256', secret);
-  hmac.update(rawToken);
-  hmac.update(timestamp.toString());
-  const signature = hmac.digest('base64url');
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
 
-  // Encode as a simple JSON string for verification
-  const payload = Buffer.from(JSON.stringify({ csrf: rawToken, iat: timestamp })).toString('base64url');
-  return `${payload}.${signature}`;
+  const signature = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    encoder.encode(rawToken + timestamp.toString())
+  );
+  const signatureB64 = base64urlEncode(new Uint8Array(signature));
+
+  const payload = base64urlEncode(JSON.stringify({ csrf: rawToken, iat: timestamp }));
+  return `${payload}.${signatureB64}`;
 }
 
 async function verifyToken(token: string): Promise<{ csrf: string } | null> {
   const secret = process.env.AUTH_SECRET;
   if (!secret) return null;
 
-  const [payloadB64, signature] = token.split('.');
-  if (!payloadB64 || !signature) return null;
+  const [payloadB64, signatureB64] = token.split('.');
+  if (!payloadB64 || !signatureB64) return null;
 
   let payload: { csrf: string; iat: number };
   try {
-    payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
+    payload = JSON.parse(base64urlDecode(payloadB64));
   } catch {
     return null;
   }
 
-  // Compute HMAC over the same input as signToken: rawToken + timestamp
-  const { createHmac } = await import('crypto');
-  const hmac = createHmac('sha256', secret);
-  hmac.update(payload.csrf);
-  hmac.update(payload.iat.toString());
-  const expectedSignature = hmac.digest('base64url');
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['verify']
+  );
 
-  if (signature !== expectedSignature) return null;
+  const sigBytes = new Uint8Array(
+    base64urlDecode(signatureB64).split('').map(c => c.charCodeAt(0))
+  );
 
-  // Check expiration (1 hour)
-  if (Date.now() - payload.iat > 60 * 60 * 1000) return null;
+  const isValid = await crypto.subtle.verify(
+    'HMAC',
+    key,
+    sigBytes,
+    encoder.encode(payload.csrf + payload.iat.toString())
+  );
+  if (!isValid) return null;
+
+  if (Date.now() - payload.iat > CSRF_TOKEN_TTL_MS) return null;
   return { csrf: payload.csrf };
 }
 

@@ -51,22 +51,25 @@ export async function requireTeacher() {
  */
 const MAX_VALID_TIMESTAMP = 32503680000000; // 3000-01-01T00:00:00Z
 
-export function parseDateParams(searchParams: URLSearchParams) {
+export function parseDateParams(searchParams: URLSearchParams): { startDate: number | null; endDate: number | null; error?: string } {
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
+
+  if (!startDate && !endDate) {
+    return { startDate: null, endDate: null };
+  }
+
   const start = startDate ? parseInt(startDate, 10) : NaN;
   const end = endDate ? parseInt(endDate, 10) : NaN;
 
-  // Reject NaN, negative, or impossibly large timestamps
-  if (isNaN(start) || start <= 0 || start > MAX_VALID_TIMESTAMP) {
-    return { startDate: null, endDate: null };
+  if (startDate && (isNaN(start) || start <= 0 || start > MAX_VALID_TIMESTAMP)) {
+    return { startDate: null, endDate: null, error: 'Invalid startDate parameter' };
   }
-  if (isNaN(end) || end <= 0 || end > MAX_VALID_TIMESTAMP) {
-    return { startDate: null, endDate: null };
+  if (endDate && (isNaN(end) || end <= 0 || end > MAX_VALID_TIMESTAMP)) {
+    return { startDate: null, endDate: null, error: 'Invalid endDate parameter' };
   }
-  // Ensure startDate <= endDate
-  if (start > end) {
-    return { startDate: null, endDate: null };
+  if (!isNaN(start) && !isNaN(end) && start > end) {
+    return { startDate: null, endDate: null, error: 'startDate must be before endDate' };
   }
 
   return { startDate: start, endDate: end };
@@ -179,7 +182,11 @@ export function withAnalyticsAuth(
 
     const url = new URL(request.url);
     const searchParams = url.searchParams;
-    const { startDate, endDate } = parseDateParams(searchParams);
+    const { startDate, endDate, error } = parseDateParams(searchParams);
+
+    if (error) {
+      return NextResponse.json({ error }, { status: 400 });
+    }
 
     try {
       return await handler({

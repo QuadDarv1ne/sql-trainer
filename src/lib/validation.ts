@@ -3,6 +3,7 @@
  */
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
+import { t } from '@/lib/i18n';
 
 /**
  * Validate request body against a Zod schema.
@@ -15,7 +16,7 @@ export function validateBody<T extends z.ZodType>(
   const result = schema.safeParse(body);
 
   if (!result.success) {
-    const firstError = result.error.issues[0]?.message ?? 'Неверный формат данных';
+    const firstError = result.error.issues[0]?.message ?? t('export.error.invalidFormat');
     return {
       response: NextResponse.json(
         { success: false, error: firstError },
@@ -46,7 +47,7 @@ export async function parseAndValidate<T extends z.ZodType>(
   } catch {
     return {
       response: NextResponse.json(
-        { success: false, error: 'Неверный формат запроса' },
+        { success: false, error: t('validation.invalidRequest') },
         { status: 400 },
       ),
     };

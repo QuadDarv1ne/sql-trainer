@@ -13,6 +13,7 @@ import { DeadlineManager } from '@/components/admin/deadline-manager';
 import AuditLog from '@/components/admin/audit-log';
 import { t } from '@/lib/i18n';
 import type { Role } from '@/lib/rbac';
+import AdminAnalytics from '@/components/admin/admin-analytics';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -40,13 +41,14 @@ export default function AdminPage() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 max-w-3xl">
+          <TabsList className="grid w-full grid-cols-7 max-w-4xl">
             <TabsTrigger value="overview">{t('admin.tabs.overview')}</TabsTrigger>
             <TabsTrigger value="analytics">{t('admin.tabs.analytics')}</TabsTrigger>
             <TabsTrigger value="deadlines">{t('admin.tabs.deadlines')}</TabsTrigger>
             <TabsTrigger value="leaderboard">{t('admin.tabs.leaderboard')}</TabsTrigger>
             <TabsTrigger value="health">{t('admin.tabs.health')}</TabsTrigger>
             <TabsTrigger value="audit">{t('admin.tabs.audit')}</TabsTrigger>
+            <TabsTrigger value="metrics">{t('admin.tabs.metrics', { default: 'Метрики' })}</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-6">
             <DBStats />
@@ -54,6 +56,9 @@ export default function AdminPage() {
           </TabsContent>
           <TabsContent value="analytics" className="space-y-4">
             <AnalyticsDashboard />
+          </TabsContent>
+          <TabsContent value="metrics" className="space-y-6">
+            <AdminAnalytics />
           </TabsContent>
           <TabsContent value="deadlines" className="space-y-4">
             <DeadlineManager />

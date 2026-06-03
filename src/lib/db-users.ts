@@ -21,7 +21,7 @@ export interface TimeRangeFilters {
   end_date?: number;
 }
 
-const DB_PATH = path.join(process.cwd(), 'data', 'users.db');
+const DB_PATH = process.env.DATABASE_PATH || path.join(/* turbopackIgnore: true */ process.cwd(), 'data', 'users.db');
 
 // Singleton connection — reused across all calls to avoid SQLITE_BUSY
 let _db: Database.Database | null = null;
@@ -1423,9 +1423,10 @@ export function getWeeklyProgress(weeks = 12): WeeklyProgressEntry[] {
     const d = new Date(cutoff + i * 7 * 24 * 60 * 60 * 1000);
     const weekStart = d.toISOString().slice(0, 10);
     const existing = rows.find(r => r.week_start === weekStart);
+    const newStudentsEntry = studentSets.find(r => r.week_start === weekStart);
     
-    if (existing) {
-      cumulative += existing.students_active;
+    if (newStudentsEntry) {
+      cumulative += newStudentsEntry.new_students;
     }
 
     result.push({

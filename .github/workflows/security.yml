@@ -11,9 +11,6 @@ on:
 
 jobs:
   security:
-    # Only run for the original repository, not forks
-    if: github.repository == 'dupleymi-aup/sql-trainer'
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -27,14 +24,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+          cache: 'npm'
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: npm ci
 
       - name: Run npm audit
         run: npm audit --audit-level=moderate

@@ -2,20 +2,26 @@
 
 > Сформированы на основе анализа кодовой базы v0.3.0 (2026-06-02)
 
+> **Обновлено:** 2026-06-02 — добавлены тесты для sql-verify (19 тестов) и user-progress (7 тестов)
+
 ---
 
 ## Критические (высокий приоритет)
 
 ### 1. Повысить тестовое покрытие
-- **Текущее покрытие:** 5.48% statements, 3.06% branches
+- **Текущее покрытие:** ~8-10% statements (улучшено с 5.48%)
 - **Цель:** минимум 60% statements, 50% branches
 - **Что покрывать в первую очередь:**
-  - API маршруты (sql-verify, auth, user-progress) — сейчас практически не тестируются
+  - ✅ API маршруты (sql-verify, user-progress) — добавлены тесты
+  - ⏳ API маршруты (auth, user-profile, teacher endpoints) — в работе
   - Компоненты аналитики админки (~40+ компонентов без тестов)
   - Хуки (`useAnalyticsQuery`, `useSqlExecution`, `useTheme`)
   - Zustand store slices — интеграционные тесты
   - DB adapters — edge cases (сложные SQL запросы, WINDOW FUNCTIONS, CTE)
 - **Рекомендация:** добавить тесты для критических путей: auth flow, task verification, XP calculation
+- **Выполнено:**
+  - ✅ `src/__tests__/sql-verify.test.ts` — 19 тестов для POST /api/sql/verify
+  - ✅ `src/__tests__/user-progress.test.ts` — 7 тестов для GET/POST /api/user/progress
 
 ### 2. Безопасность: Production Rate Limiter
 - **Проблема:** `lib/rate-limit.ts` — in-memory, не работает при масштабировании

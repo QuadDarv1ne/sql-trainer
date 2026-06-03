@@ -1,0 +1,218 @@
+/**
+ * Distributed rate limiter using Redis.
+ * Suitable for multi-server production deployments.
+ * Falls back to in-memory store if Redis is unavailable.
+ */
+
+import { logger } from './logger';
+
+export interface RateLimitOptions {
+  /** Maximum number of requests allowed in the window */
+  max: number;
+  /** Window duration in milliseconds (default: 60 seconds) */
+  windowMs?: number;
+}
+
+export interface RateLimitResult {
+  success: boolean;
+  remaining: number;
+  resetAt: number;
+  limit: number;
+  retryAfter?: number; // Seconds until retry is allowed
+}
+
+export interface RateLimiter {
+  check(key: string, options: RateLimitOptions): Promise<RateLimitResult>;
+  reset(key: string): Promise<void>;
+  getStatus(key: string): Promise<RateLimitResult | null>;
+}
+
+/**
+ * Redis-based rate limiter using sliding window counter.
+ * Implements the algorithm described in:
+ * https://cloud.google.com/architecture/rate-limiting-strategies-techniques
+ */
+export class RedisRateLimiter implements RateLimiter {
+  private redis: ReturnType<typeof createRedisClient> | null = null;
+  private isConnected = false;
+  private connectPromise: Promise<void> | null = null;
+
+  constructor(redisUrl?: string) {
+    this.initRedis(redisUrl);
+  }
+
+  private async initRedis(redisUrl?: string): Promise<void> {
+    if (this.connectPromise) return this.connectPromise;
+
+    this.connectPromise = (async () => {
+      try {
+        const redisClient = createRedisClient(redisUrl);
+        await redisClient.connect();
+        this.redis = redisClient;
+        this.isConnected = true;
+        logger.info('Redis rate limiter connected');
+      } catch (error) {
+        this.isConnected = false;
+        logger.warn('Redis connection failed, falling back to in-memory rate limiter', error);
+      }
+    })();
+
+    return this.connectPromise;
+  }
+
+  async check(key: string, options: RateLimitOptions): Promise<RateLimitResult> {
+    // Try Redis first if available
+    if (this.isConnected && this.redis) {
+      try {
+        return await this.checkWithRedis(key, options);
+      } catch (error) {
+        logger.error('Redis rate limit check failed, falling back to memory', error);
+        this.isConnected = false;
+      }
+    }
+
+    // Fall back to in-memory
+    return checkInMemory(key, options);
+  }
+
+  private async checkWithRedis(
+    key: string,
+    { max, windowMs = 60_000 }: RateLimitOptions
+  ): Promise<RateLimitResult> {
+    if (!this.redis) {
+      return checkInMemory(key, { max, windowMs });
+    }
+
+    const now = Date.now();
+    const windowKey = `ratelimit:${key}:${Math.floor(now / windowMs)}`;
+    const resetAt = (Math.floor(now / windowMs) + 1) * windowMs;
+
+    // Use Redis MULTI/EXEC for atomic operations
+    const multi = this.redis.multi();
+    multi.incr(windowKey);
+    multi.expire(windowKey, Math.ceil(windowMs / 1000));
+    const results = await multi.exec();
+
+    const currentCount = (results?.[0] as [error: unknown, result: number])?.[1] ?? 1;
+    const remaining = Math.max(0, max - currentCount);
+    const success = currentCount <= max;
+
+    return {
+      success,
+      remaining,
+      resetAt,
+      limit: max,
+      retryAfter: success ? undefined : Math.ceil((resetAt - now) / 1000),
+    };
+  }
+
+  async reset(key: string): Promise<void> {
+    if (this.isConnected && this.redis) {
+      try {
+        const pattern = `ratelimit:${key}:*`;
+        const keys = await this.redis.keys(pattern);
+        if (keys.length > 0) {
+          await this.redis.del(...keys);
+        }
+      } catch (error) {
+        logger.error('Redis rate limit reset failed', error);
+      }
+    }
+    // Also clear from in-memory as fallback
+    clearInMemoryKey(key);
+  }
+
+  async getStatus(key: string): Promise<RateLimitResult | null> {
+    if (this.isConnected && this.redis) {
+      try {
+        const pattern = `ratelimit:${key}:*`;
+        const keys = await this.redis.keys(pattern);
+        if (keys.length > 0) {
+          const counts = await Promise.all(keys.map((k: string) => this.redis!.get(k)));
+          const totalCount = counts.reduce((sum, val) => sum + (parseInt(val || '0') || 0), 0);
+          return {
+            success: totalCount < 100, // Default threshold
+            remaining: Math.max(0, 100 - totalCount),
+            resetAt: Date.now() + 60_000,
+            limit: 100,
+          };
+        }
+      } catch (error) {
+        logger.error('Redis rate limit status check failed', error);
+      }
+    }
+    return null;
+  }
+
+  async disconnect(): Promise<void> {
+    if (this.redis) {
+      try {
+        await this.redis.disconnect();
+        this.isConnected = false;
+        this.redis = null;
+        logger.info('Redis rate limiter disconnected');
+      } catch (error) {
+        logger.error('Redis disconnect error', error);
+      }
+    }
+  }
+}
+
+// In-memory fallback implementation
+const memoryStore = new Map<string, { count: number; resetAt: number }>();
+
+function checkInMemory(key: string, { max, windowMs = 60_000 }: RateLimitOptions): RateLimitResult {
+  const now = Date.now();
+  const entry = memoryStore.get(key);
+
+  if (!entry || now > entry.resetAt) {
+    memoryStore.set(key, { count: 1, resetAt: now + windowMs });
+    return {
+      success: true,
+      remaining: max - 1,
+      resetAt: now + windowMs,
+      limit: max,
+    };
+  }
+
+  entry.count += 1;
+  const success = entry.count <= max;
+
+  return {
+    success,
+    remaining: Math.max(0, max - entry.count),
+    resetAt: entry.resetAt,
+    limit: max,
+    retryAfter: success ? undefined : Math.ceil((entry.resetAt - now) / 1000),
+  };
+}
+
+function clearInMemoryKey(key: string): void {
+  memoryStore.delete(key);
+}
+
+// Singleton instance
+let globalRateLimiter: RedisRateLimiter | null = null;
+
+export function getRateLimiter(): RateLimiter {
+  if (!globalRateLimiter) {
+    globalRateLimiter = new RedisRateLimiter(process.env.REDIS_URL);
+  }
+  return globalRateLimiter;
+}
+
+export function resetGlobalRateLimiter(): void {
+  globalRateLimiter = null;
+  memoryStore.clear();
+}
+
+// Helper function to create Redis client (lazy-loaded)
+function createRedisClient(redisUrl?: string) {
+  // Dynamically import ioredis to avoid bundling issues
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const Redis = require('ioredis');
+  return new Redis(redisUrl || process.env.REDIS_URL || 'redis://localhost:6379');
+}
+
+// Re-export the original in-memory function for backward compatibility
+export { rateLimit as rateLimitInMemory, clearRateLimitStore } from './rate-limit';

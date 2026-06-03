@@ -19,6 +19,7 @@ import MasteryProgressionChart from '../admin/analytics/mastery-progression-char
 import GradeDistributionChart from '../admin/analytics/grade-distribution-chart';
 import StudentGrowthTrends from '../admin/analytics/student-growth-trends';
 import { TeacherDeadlineManager } from './deadline-manager';
+import GroupManagement from './group-management';
 import { t } from '@/lib/i18n';
 
 export default function TeacherDashboard() {
@@ -51,6 +52,7 @@ export default function TeacherDashboard() {
           <TabsTrigger value="grade">{t('teacher.tabs.grade')}</TabsTrigger>
           <TabsTrigger value="growth">{t('teacher.tabs.growth')}</TabsTrigger>
           <TabsTrigger value="deadlines">{t('teacher.tabs.deadlines')}</TabsTrigger>
+          <TabsTrigger value="groups">{t('teacher.tabs.groups', { default: 'Группы' })}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="progress" className="space-y-6">
@@ -103,6 +105,10 @@ export default function TeacherDashboard() {
 
         <TabsContent value="deadlines" className="space-y-6">
           <TeacherDeadlineManager />
+        </TabsContent>
+
+        <TabsContent value="groups" className="space-y-6">
+          <GroupManagement />
         </TabsContent>
       </Tabs>
 

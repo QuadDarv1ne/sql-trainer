@@ -33,7 +33,7 @@ const validations: EnvValidation[] = [
     },
   },
   {
-    name: 'DATABASE_URL',
+    name: 'DATABASE_PATH',
     required: false,
   },
   {

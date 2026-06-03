@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
-import { generateCsrfTokenEdge, validateCsrfTokenEdge, isCsrfProtectedMethod } from '@/lib/csrf';
+import { generateCsrfTokenEdge, validateCsrfTokenEdge, isCsrfProtectedMethod, getCookieFromHeader } from '@/lib/csrf';
 import { evaluateRouteAccess } from '@/lib/route-protection';
 
 // API routes that handle state-changing operations and need CSRF validation
@@ -45,7 +45,10 @@ function isCsrfProtectedRoute(pathname: string): boolean {
 
 export default auth(async (request) => {
   const pathname = request.nextUrl.pathname;
-  const session = await auth();
+
+  // request.auth is already populated by the auth() middleware wrapper
+  // — no need for a redundant auth() call
+  const session = request.auth;
 
   // CSRF validation for state-changing API requests
   if (isCsrfProtectedRoute(pathname) && isCsrfProtectedMethod(request.method)) {
@@ -66,12 +69,16 @@ export default auth(async (request) => {
 
   const response = NextResponse.next();
 
-  // Generate CSRF token for authenticated requests
+  // Generate CSRF token for authenticated requests only when missing
+  // Avoids regenerating on every request which breaks multi-tab usage
   if (session) {
-    const { rawToken, setCookieHeaders } = await generateCsrfTokenEdge();
-    response.headers.set('X-CSRF-Token', rawToken);
-    for (const cookieHeader of setCookieHeaders) {
-      response.headers.append('Set-Cookie', cookieHeader);
+    const existingCsrfCookie = getCookieFromHeader(request, 'csrf-token-raw');
+    if (!existingCsrfCookie) {
+      const { rawToken, setCookieHeaders } = await generateCsrfTokenEdge();
+      response.headers.set('X-CSRF-Token', rawToken);
+      for (const cookieHeader of setCookieHeaders) {
+        response.headers.append('Set-Cookie', cookieHeader);
+      }
     }
   }
 
