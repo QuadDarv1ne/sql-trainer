@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limit: 10 subscriptions per hour per user
-    const limit = rateLimit(`push-subscribe:${session.user.id}`, { max: 10, windowMs: 60 * 60 * 1000 });
+    const limit = await rateLimit(`push-subscribe:${session.user.id}`, { max: 10, windowMs: 60 * 60 * 1000 });
     if (!limit.success) {
       return NextResponse.json({ error: 'Too many requests. Try again later' }, { status: 429 });
     }

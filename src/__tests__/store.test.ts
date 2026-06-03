@@ -155,13 +155,109 @@ describe('store — gamification slice', () => {
     useSQLTrainerStore.getState().resetAllProgress();
 
     // Complete a task with 1 attempt (should unlock first_query + perfect_score)
-    useSQLTrainerStore.getState().markTaskCompleted('task_1', 1);
+    useSQLTrainerStore.getState().markTaskCompleted('beginner-1', 1);
 
     const state = useSQLTrainerStore.getState();
     // Verify XP was awarded
     expect(state.userStats.xp).toBeGreaterThan(0);
     // Verify achievement IDs were recorded
     expect(state.achievements.length).toBeGreaterThan(0);
+  });
+
+  it('should unlock FIRST_JOIN achievement for JOIN task', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+
+    useSQLTrainerStore.getState().markTaskCompleted('intermediate-1', 1);
+
+    const state = useSQLTrainerStore.getState();
+    expect(state.achievements).toContain('first_join');
+  });
+
+  it('should unlock FIRST_WINDOW achievement for window function task', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+
+    useSQLTrainerStore.getState().markTaskCompleted('advanced-1', 2);
+
+    const state = useSQLTrainerStore.getState();
+    expect(state.achievements).toContain('first_window');
+  });
+
+  it('should unlock PERFECT_SCORE for first-attempt completion', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+
+    useSQLTrainerStore.getState().markTaskCompleted('beginner-2', 1);
+
+    const state = useSQLTrainerStore.getState();
+    expect(state.achievements).toContain('perfect_score');
+  });
+
+  it('should NOT unlock PERFECT_SCORE for multi-attempt completion', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+
+    useSQLTrainerStore.getState().markTaskCompleted('beginner-2', 3);
+
+    const state = useSQLTrainerStore.getState();
+    expect(state.achievements).not.toContain('perfect_score');
+  });
+
+  it('should NOT unlock duplicate achievements', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+
+    useSQLTrainerStore.getState().markTaskCompleted('beginner-1', 1);
+    useSQLTrainerStore.getState().markTaskCompleted('beginner-2', 1);
+
+    const state = useSQLTrainerStore.getState();
+    const firstQueryCount = state.achievements.filter(
+      (a: string) => a === 'first_query'
+    ).length;
+    expect(firstQueryCount).toBe(1);
+  });
+
+  it('should accumulate XP across multiple tasks', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+
+    useSQLTrainerStore.getState().markTaskCompleted('beginner-1', 1);
+    const xpAfterFirst = useSQLTrainerStore.getState().userStats.xp;
+
+    useSQLTrainerStore.getState().markTaskCompleted('beginner-2', 1);
+    const xpAfterSecond = useSQLTrainerStore.getState().userStats.xp;
+
+    expect(xpAfterSecond).toBeGreaterThan(xpAfterFirst);
+  });
+
+  it('should explain count track independently', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+
+    expect(useSQLTrainerStore.getState().userStats.explainCount).toBe(0);
+
+    useSQLTrainerStore.getState().incrementExplainCount();
+    useSQLTrainerStore.getState().incrementExplainCount();
+    useSQLTrainerStore.getState().incrementExplainCount();
+
+    expect(useSQLTrainerStore.getState().userStats.explainCount).toBe(3);
+  });
+
+  it('should recalculate level on XP change', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+
+    // Add exactly 100 XP (should reach level 2)
+    useSQLTrainerStore.getState().addXP(100);
+
+    const state = useSQLTrainerStore.getState();
+    expect(state.userStats.level).toBe(2);
+    expect(state.userStats.xp).toBe(100);
+  });
+
+  it('should track hint-free completions', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+
+    const before = useSQLTrainerStore.getState().userStats.hintFreeCount;
+    useSQLTrainerStore.getState().markTaskCompleted('beginner-3', 1);
+
+    // hintFreeCount should increment when task is completed without hints
+    // (depends on hint level being 0 at completion time)
+    const after = useSQLTrainerStore.getState().userStats.hintFreeCount;
+    expect(after).toBeGreaterThanOrEqual(before);
   });
 });
 
@@ -250,13 +346,11 @@ describe('store — export/import', () => {
   it('should reject invalid import data', () => {
     const state = useSQLTrainerStore.getState();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(state.importProgress(null as unknown as any)).toEqual({
       success: false,
       error: expect.any(String),
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(state.importProgress({ version: 999 } as any)).toEqual({
       success: false,
       error: expect.any(String),

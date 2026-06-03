@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     // Rate limit: max 5 attempts per 15 minutes per code prefix
     const rateLimitKey = `reset-verify:${code.substring(0, 3)}`;
-    const limitResult = rateLimit(rateLimitKey, { max: 5, windowMs: 15 * 60 * 1000 });
+    const limitResult = await rateLimit(rateLimitKey, { max: 5, windowMs: 15 * 60 * 1000 });
     if (!limitResult.success) {
       return NextResponse.json(
         { success: false, error: 'Слишком много попыток. Попробуйте позже' },

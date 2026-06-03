@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -63,8 +63,6 @@ export default function LearningPath({
   userLevel = 1,
   onTaskSelect,
 }: LearningPathProps) {
-  const [selectedTask, setSelectedTask] = useState<string | null>(null);
-
   const completedIds = useMemo(() => new Set(completedTasks.map(t => t.taskId)), [completedTasks]);
 
   // Build task dependency graph
@@ -126,7 +124,6 @@ export default function LearningPath({
     if (!task.locked && onTaskSelect) {
       onTaskSelect(task.id);
     }
-    setSelectedTask(task.id);
   };
 
   return (

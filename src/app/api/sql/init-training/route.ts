@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: 20 init requests per minute per IP
     const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
-    const limitResult = rateLimit(`init-training:${ip}`, { max: 20, windowMs: 60_000 });
+    const limitResult = await rateLimit(`init-training:${ip}`, { max: 20, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json(
         { success: false, error: 'Слишком много запросов. Подождите немного' },
@@ -84,7 +84,7 @@ export async function GET(request: Request) {
   try {
     // Rate limit: 10 task list requests per minute per IP
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
-    const limitResult = rateLimit(`init-training-list:${ip}`, { max: 10, windowMs: 60_000 });
+    const limitResult = await rateLimit(`init-training-list:${ip}`, { max: 10, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json(
         { success: false, error: 'Слишком много запросов. Подождите немного' },

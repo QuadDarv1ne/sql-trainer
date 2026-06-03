@@ -15,8 +15,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 
 const typeIcons: Record<PendingReminder['type'], string> = {
-  course: '\U0001F4DA',
-  exam: '\U0001F4DD',
+  course: '\u{1F4DA}',
+  exam: '\u{1F4DD}',
   task: '\u270F\uFE0F',
   inactivity: '\u26A0\uFE0F',
 };

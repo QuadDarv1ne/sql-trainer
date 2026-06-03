@@ -86,7 +86,6 @@ describe('StudentDashboard', () => {
 
     (useSession as Mock).mockReturnValue(mockStudentSession);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (useSQLTrainerStore as any).mockReturnValue({
       setCurrentTaskId: vi.fn(),
     });

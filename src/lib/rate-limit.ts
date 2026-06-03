@@ -1,22 +1,22 @@
 /**
- * Lightweight in-memory rate limiter for API routes.
- * Uses a sliding window counter per key (e.g., IP address, user ID).
- * Not suitable for multi-server deployments — use Redis for production.
+ * Rate limiter — auto-detects Redis for distributed mode.
+ * Uses Redis-based sliding window when REDIS_URL is configured,
+ * falls back to in-memory for single-server deployments.
  */
 
+import { getRateLimiter, type RateLimitOptions, type RateLimitResult } from './rate-limiter-distributed';
+
+export type { RateLimitOptions, RateLimitResult };
+
+// In-memory store (kept for direct use in tests and as ultimate fallback)
 interface RateLimitEntry {
   count: number;
   resetAt: number;
 }
 
 const store = new Map<string, RateLimitEntry>();
-
-// Maximum number of entries to keep in memory before evicting oldest
 const MAX_ENTRIES = 10_000;
 
-/**
- * Clean up expired entries (call periodically in production).
- */
 export function cleanupExpiredEntries(): number {
   const now = Date.now();
   let cleaned = 0;
@@ -29,48 +29,25 @@ export function cleanupExpiredEntries(): number {
   return cleaned;
 }
 
-// Automatic cleanup of expired entries every 5 minutes
-// Guard against multiple intervals during HMR in development
 declare global {
   var __sqlTrainerCleanupInterval: ReturnType<typeof setInterval> | undefined;
 }
 
 const cleanupInterval = globalThis.__sqlTrainerCleanupInterval || setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
 globalThis.__sqlTrainerCleanupInterval = cleanupInterval;
-// Prevent interval from keeping the process alive
 if (typeof cleanupInterval.unref === 'function') {
   cleanupInterval.unref();
 }
 
-export interface RateLimitOptions {
-  /** Maximum number of requests allowed in the window */
-  max: number;
-  /** Window duration in milliseconds (default: 60 seconds) */
-  windowMs?: number;
-}
-
-export interface RateLimitResult {
-  success: boolean;
-  remaining: number;
-  resetAt: number;
-  limit: number;
-}
-
 /**
- * Check if a request should be rate-limited.
- * @param key - Unique identifier (IP, user ID, etc.)
- * @param options - Rate limit configuration
- * @returns Result indicating whether the request is allowed
+ * Synchronous in-memory rate limit (for tests and direct usage).
  */
-export function rateLimit(key: string, options: RateLimitOptions): RateLimitResult {
+export function rateLimitInMemory(key: string, options: RateLimitOptions): RateLimitResult {
   const { max, windowMs = 60_000 } = options;
   const now = Date.now();
-
   const entry = store.get(key);
 
   if (!entry || now > entry.resetAt) {
-    // First request or window expired — start fresh
-    // Evict the entry with the earliest resetAt if at capacity
     if (!entry && store.size >= MAX_ENTRIES) {
       let oldestKey: string | null = null;
       let oldestResetAt = Infinity;
@@ -98,8 +75,14 @@ export function rateLimit(key: string, options: RateLimitOptions): RateLimitResu
 }
 
 /**
- * Clear all rate limit entries (useful for tests).
+ * Distributed rate limit — auto-uses Redis when REDIS_URL is set.
+ * Call with `await` in API route handlers.
  */
+export async function rateLimit(key: string, options: RateLimitOptions): Promise<RateLimitResult> {
+  const limiter = getRateLimiter();
+  return limiter.check(key, options);
+}
+
 export function clearRateLimitStore(): void {
   store.clear();
 }

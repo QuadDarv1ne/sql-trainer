@@ -112,10 +112,10 @@ function replaceClickHouseTypes(sql: string): string {
   result = result.replace(/\bInt256\b/gi, 'INTEGER');
   result = result.replace(/\bFloat32\b/gi, 'REAL');
   result = result.replace(/\bFloat64\b/gi, 'REAL');
-  result = result.replace(/\bString\b(?=\s*[,\)\s])/gi, 'TEXT');
+  result = result.replace(/\bString\b(?=\s*[,)\s])/gi, 'TEXT');
   result = result.replace(/\bFixedString\s*\(\s*\d+\s*\)/gi, 'TEXT');
-  result = result.replace(/\bDate\b(?=\s*[,\)\s])/gi, 'TEXT');
-  result = result.replace(/\bDateTime\b(?=\s*[,\)\s])/gi, 'TEXT');
+  result = result.replace(/\bDate\b(?=\s*[,)\s])/gi, 'TEXT');
+  result = result.replace(/\bDateTime\b(?=\s*[,)\s])/gi, 'TEXT');
   result = result.replace(/\bDateTime64\b(?:\(\s*\d+\s*(?:,\s*['"][^'"]+['"])?\s*\))?/gi, 'TEXT');
   result = result.replace(/\bUUID\b/gi, 'TEXT');
   result = result.replace(/\bEnum8\s*\([^)]+\)/gi, 'TEXT');

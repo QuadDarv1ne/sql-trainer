@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
       : `sql:ip:${getIpFromRequest(request)}`;
 
     const maxQueries = isAuthenticated ? 60 : 30;
-    const limitResult = rateLimit(rateKey, { max: maxQueries, windowMs: 60_000 });
+    const limitResult = await rateLimit(rateKey, { max: maxQueries, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json(
         { success: false, error: 'Слишком много запросов. Подождите немного', columns: [], rows: [], executionTime: 0 },

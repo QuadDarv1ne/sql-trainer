@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limit: 5 attempts per 15 minutes per user
-    const limit = rateLimit(`change-email:${session.user.id}`, { max: 5, windowMs: 15 * 60 * 1000 });
+    const limit = await rateLimit(`change-email:${session.user.id}`, { max: 5, windowMs: 15 * 60 * 1000 });
     if (!limit.success) {
       return NextResponse.json(
         { success: false, error: 'Слишком много попыток. Попробуйте позже' },

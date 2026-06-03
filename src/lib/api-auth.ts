@@ -122,7 +122,7 @@ function withRoleAuth(
       }
 
       const userId = authResult.session.user.id;
-      const limitResult = rateLimit(`${rateLimitPrefix}:${userId}`, { max: rateLimitMax, windowMs: 60_000 });
+      const limitResult = await rateLimit(`${rateLimitPrefix}:${userId}`, { max: rateLimitMax, windowMs: 60_000 });
       if (!limitResult.success) {
         return NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 });
       }
@@ -175,7 +175,7 @@ export function withAnalyticsAuth(
 
     // Rate limit analytics requests: 30 per minute per user
     const userId = authResult.session.user.id;
-    const limitResult = rateLimit(`analytics:${userId}`, { max: 30, windowMs: 60_000 });
+    const limitResult = await rateLimit(`analytics:${userId}`, { max: 30, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 });
     }

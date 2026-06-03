@@ -21,7 +21,7 @@ export const GET = withUserAuth(async ({ session }) => {
 
 export const PUT = withUserAuth(async ({ request, session }) => {
   // Stricter rate limit for profile updates: 10 per 15 minutes
-  const limit = rateLimit(`profile-update:${session.user.id}`, { max: 10, windowMs: 15 * 60 * 1000 });
+  const limit = await rateLimit(`profile-update:${session.user.id}`, { max: 10, windowMs: 15 * 60 * 1000 });
   if (!limit.success) {
     return NextResponse.json({ success: false, error: 'Слишком много попыток. Попробуйте позже' }, { status: 429 });
   }

@@ -128,7 +128,8 @@ export class RedisRateLimiter implements RateLimiter {
         const pattern = `ratelimit:${key}:*`;
         const keys = await this.redis.keys(pattern);
         if (keys.length > 0) {
-          const counts = await Promise.all(keys.map((k: string) => this.redis!.get(k)));
+          const redis = this.redis;
+          const counts = await Promise.all(keys.map((k: string) => redis.get(k)));
           const totalCount = counts.reduce((sum, val) => sum + (parseInt(val || '0') || 0), 0);
           return {
             success: totalCount < 100, // Default threshold
@@ -213,6 +214,3 @@ function createRedisClient(redisUrl?: string) {
   const Redis = require('ioredis');
   return new Redis(redisUrl || process.env.REDIS_URL || 'redis://localhost:6379');
 }
-
-// Re-export the original in-memory function for backward compatibility
-export { rateLimit as rateLimitInMemory, clearRateLimitStore } from './rate-limit';

@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: 20 verification attempts per minute per IP
     const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
-    const limitResult = rateLimit(`verify:${ip}`, { max: 20, windowMs: 60_000 });
+    const limitResult = await rateLimit(`verify:${ip}`, { max: 20, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json(
         { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Слишком много попыток. Попробуйте позже' },

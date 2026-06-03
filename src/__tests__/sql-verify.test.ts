@@ -447,7 +447,6 @@ describeIf('POST /api/sql/verify', () => {
       });
 
       const response = await POST(mockRequest);
-      const data = await response.json();
 
       // This test depends on the task's sampleSolution
       // Adjust expectations based on actual task configuration

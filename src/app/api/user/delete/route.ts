@@ -25,7 +25,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Rate limit: 3 attempts per 15 minutes per user
-    const limit = rateLimit(`delete-account:${session.user.id}`, { max: 3, windowMs: 15 * 60 * 1000 });
+    const limit = await rateLimit(`delete-account:${session.user.id}`, { max: 3, windowMs: 15 * 60 * 1000 });
     if (!limit.success) {
       return NextResponse.json(
         { success: false, error: 'Слишком много попыток. Попробуйте позже' },

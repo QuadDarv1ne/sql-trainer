@@ -35,7 +35,6 @@ async function register(name: string, email: string, password: string, role?: Us
 
   // Import the route handler (which will use mocked db-users)
   const { POST } = await import('../app/api/auth/register/route');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- NextRequest mock
   return POST(req as any);
 }
 
