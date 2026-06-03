@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { useDateRange } from '../analytics-dashboard';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 import EmptyState from './empty-state';
 import { TrendingUp, TrendingDown, Minus, AlertTriangle } from 'lucide-react';
 
@@ -26,7 +27,7 @@ interface TaskPerformanceEntry {
 export default function TaskPerformanceChart() {
   const [data, setData] = useState<TaskPerformanceEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [filterDifficulty, setFilterDifficulty] = useState<string>('all');
   const { startDate, endDate } = useDateRange();
 
@@ -41,7 +42,8 @@ export default function TaskPerformanceChart() {
         const json = await res.json();
         setData(json.tasks || []);
       } catch (err) {
-        setError(err as Error);
+        logger.error('Task performance fetch failed', err);
+        setError(t('analytics.error'));
       } finally {
         setLoading(false);
       }
@@ -50,7 +52,7 @@ export default function TaskPerformanceChart() {
   }, [startDate, endDate]);
 
   if (loading) return <div className="flex justify-center py-8">{t('analytics.loading')}</div>;
-  if (error) return <div className="text-red-500 py-8">{error.message}</div>;
+  if (error) return <div className="text-red-500 py-8">{error}</div>;
   if (data.length === 0) return <EmptyState />;
 
   const filtered = filterDifficulty === 'all' ? data : data.filter(d => d.difficulty === filterDifficulty);

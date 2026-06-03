@@ -1,5 +1,6 @@
 import { requireAdmin } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import {
   getDBStats,
   getAllUsers,
@@ -132,6 +133,7 @@ export async function GET(request: Request): Promise<Response> {
         return NextResponse.json({ error: 'Invalid section' }, { status: 400 });
     }
   } catch (error) {
-    return NextResponse.json({ error: 'Export failed', details: String(error) }, { status: 500 });
+    logger.error('Admin export failed', error);
+    return NextResponse.json({ error: 'Export failed' }, { status: 500 });
   }
 }

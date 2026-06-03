@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 import EmptyState from './empty-state';
 
 interface StudentGroupEntry {
@@ -20,7 +21,7 @@ interface StudentGroupEntry {
 export default function StudentGroupsChart() {
   const [data, setData] = useState<StudentGroupEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -30,7 +31,8 @@ export default function StudentGroupsChart() {
         const json = await res.json();
         setData(json.groups || []);
       } catch (err) {
-        setError(err as Error);
+        logger.error('Student groups fetch failed', err);
+        setError(t('analytics.error'));
       } finally {
         setLoading(false);
       }
@@ -39,7 +41,7 @@ export default function StudentGroupsChart() {
   }, []);
 
   if (loading) return <div className="flex justify-center py-8">{t('analytics.loading')}</div>;
-  if (error) return <div className="text-red-500 py-8">{error.message}</div>;
+  if (error) return <div className="text-red-500 py-8">{error}</div>;
   
   const totalStudents = data.reduce((sum, g) => sum + g.student_count, 0);
   if (totalStudents === 0) return <EmptyState />;

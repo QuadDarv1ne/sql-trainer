@@ -13,6 +13,7 @@ const csrfProtectedApiPrefixes = [
   '/api/auth/verify-reset',
   '/api/push',
   '/api/deadlines',
+  '/api/sql',
 ];
 
 const securityHeaders = {

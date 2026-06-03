@@ -17,6 +17,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useDateRange } from '@/components/admin/analytics-dashboard';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 
 interface UseAnalyticsQueryOptions<T> {
   /** API endpoint path (e.g. '/api/admin/analytics/activity') */
@@ -92,6 +93,7 @@ export function useAnalyticsQuery<T = unknown>({
       .catch((err: unknown) => {
         if (err instanceof DOMException && err.name === 'AbortError') return;
         if (!controller.signal.aborted) {
+          logger.error('Analytics fetch failed', err);
           setError(t('analytics.error'));
         }
       })

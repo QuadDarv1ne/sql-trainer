@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, ArrowUp, ArrowDown, Minus, Loader2 } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
 
@@ -49,7 +50,8 @@ export default function WeekOverWeekComparison() {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message);
+        logger.error('Week comparison fetch failed', err);
+        setError(t('analytics.error'));
         setLoading(false);
       });
   }, [startDate, endDate]);

@@ -3829,8 +3829,18 @@ export function buildReminderSchedule(deadlineId: string): void {
 
   // Get default intervals and channels (use creator's preferences as default)
   const creatorPrefs = getNotificationPreferences(deadline.creator_id);
-  const intervals: number[] = JSON.parse(creatorPrefs.reminder_intervals);
-  const channels: string[] = JSON.parse(creatorPrefs.channels_enabled);
+  let intervals: number[];
+  let channels: string[];
+  try {
+    intervals = JSON.parse(creatorPrefs.reminder_intervals);
+  } catch {
+    intervals = [];
+  }
+  try {
+    channels = JSON.parse(creatorPrefs.channels_enabled);
+  } catch {
+    channels = [];
+  }
 
   const now = Date.now();
 
@@ -3854,8 +3864,18 @@ export function buildReminderSchedule(deadlineId: string): void {
   for (const userId of targets) {
     // Also get this user's preferences to filter channels
     const userPrefs = getNotificationPreferences(userId);
-    const userChannels: string[] = JSON.parse(userPrefs.channels_enabled);
-    const userIntervals: number[] = JSON.parse(userPrefs.reminder_intervals);
+    let userChannels: string[];
+    let userIntervals: number[];
+    try {
+      userChannels = JSON.parse(userPrefs.channels_enabled);
+    } catch {
+      userChannels = [];
+    }
+    try {
+      userIntervals = JSON.parse(userPrefs.reminder_intervals);
+    } catch {
+      userIntervals = [];
+    }
 
     // Use the intersection of creator channels and user channels
     const effectiveChannels = channels.filter(c => userChannels.includes(c));

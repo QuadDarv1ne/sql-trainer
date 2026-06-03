@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
 import {
@@ -53,7 +54,8 @@ export default function TimeToCompleteChart() {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message);
+        logger.error('Time to complete fetch failed', err);
+        setError(t('analytics.error'));
         setLoading(false);
       });
   }, [startDate, endDate]);

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useDateRange } from '../analytics-dashboard';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 import EmptyState from './empty-state';
 
 interface HourlyData {
@@ -29,7 +30,7 @@ export default function TimePatternsChart() {
   const [peakHour, setPeakHour] = useState(0);
   const [peakDay, setPeakDay] = useState('0');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
@@ -46,7 +47,8 @@ export default function TimePatternsChart() {
         setPeakHour(json.peak_hour || 0);
         setPeakDay(json.peak_day || '0');
       } catch (err) {
-        setError(err as Error);
+        logger.error('Time patterns fetch failed', err);
+        setError(t('analytics.error'));
       } finally {
         setLoading(false);
       }
@@ -55,7 +57,7 @@ export default function TimePatternsChart() {
   }, [startDate, endDate]);
 
   if (loading) return <div className="flex justify-center py-8">{t('analytics.loading')}</div>;
-  if (error) return <div className="text-red-500 py-8">{error.message}</div>;
+  if (error) return <div className="text-red-500 py-8">{error}</div>;
   
   const totalCompletions = hourly.reduce((sum, h) => sum + h.completions, 0);
   if (totalCompletions === 0) return <EmptyState />;

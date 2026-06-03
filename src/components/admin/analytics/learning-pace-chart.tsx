@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { useDateRange } from '../analytics-dashboard';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 import EmptyState from './empty-state';
 import { TrendingUp, TrendingDown, Minus, Clock } from 'lucide-react';
 
@@ -23,7 +24,7 @@ interface LearningPaceEntry {
 export default function LearningPaceChart() {
   const [data, setData] = useState<LearningPaceEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
@@ -37,7 +38,8 @@ export default function LearningPaceChart() {
         const json = await res.json();
         setData(json.pace || []);
       } catch (err) {
-        setError(err as Error);
+        logger.error('Learning pace fetch failed', err);
+        setError(t('analytics.error'));
       } finally {
         setLoading(false);
       }
@@ -46,7 +48,7 @@ export default function LearningPaceChart() {
   }, [startDate, endDate]);
 
   if (loading) return <div className="flex justify-center py-8">{t('analytics.loading')}</div>;
-  if (error) return <div className="text-red-500 py-8">{error.message}</div>;
+  if (error) return <div className="text-red-500 py-8">{error}</div>;
   if (data.length === 0) return <EmptyState />;
 
   const avgVelocity = data.length > 0

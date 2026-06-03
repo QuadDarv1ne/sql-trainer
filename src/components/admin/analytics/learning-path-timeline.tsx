@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 
 interface TimelineEntry {
   task_id: string;
@@ -21,7 +22,7 @@ interface LearningPathTimelineProps {
 export default function LearningPathTimeline({ userId }: LearningPathTimelineProps) {
   const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -31,7 +32,8 @@ export default function LearningPathTimeline({ userId }: LearningPathTimelinePro
         const json = await res.json();
         setTimeline(json.timeline || []);
       } catch (err) {
-        setError(err as Error);
+        logger.error('Learning path timeline fetch failed', err);
+        setError(t('analytics.error'));
       } finally {
         setLoading(false);
       }
@@ -40,7 +42,7 @@ export default function LearningPathTimeline({ userId }: LearningPathTimelinePro
   }, [userId]);
 
   if (loading) return <div className="flex justify-center py-4">{t('analytics.loading')}</div>;
-  if (error) return <div className="text-red-500 py-4">{error.message}</div>;
+  if (error) return <div className="text-red-500 py-4">{error}</div>;
   if (timeline.length === 0) return <div className="text-center py-4 text-muted-foreground">{t('analytics.noData')}</div>;
 
   const diffColors: Record<string, string> = { beginner: '#22c55e', intermediate: '#f59e0b', advanced: '#ef4444', other: '#6b7280' };

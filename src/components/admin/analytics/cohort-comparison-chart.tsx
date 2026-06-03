@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 import EmptyState from './empty-state';
 
 interface CohortComparisonEntry {
@@ -18,7 +19,7 @@ interface CohortComparisonEntry {
 export default function CohortComparisonChart() {
   const [data, setData] = useState<CohortComparisonEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -28,7 +29,8 @@ export default function CohortComparisonChart() {
         const json = await res.json();
         setData(json.cohorts || []);
       } catch (err) {
-        setError(err as Error);
+        logger.error('Cohort comparison fetch failed', err);
+        setError(t('analytics.error'));
       } finally {
         setLoading(false);
       }
@@ -37,7 +39,7 @@ export default function CohortComparisonChart() {
   }, []);
 
   if (loading) return <div className="flex justify-center py-8">{t('analytics.loading')}</div>;
-  if (error) return <div className="text-red-500 py-8">{error.message}</div>;
+  if (error) return <div className="text-red-500 py-8">{error}</div>;
   if (data.length === 0) return <EmptyState icon="chart" />;
 
   return (
