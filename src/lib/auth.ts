@@ -50,7 +50,17 @@ const nextAuthConfig = {
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }: { token: JWT; user?: User; trigger?: 'signIn' | 'signUp' | 'update'; session?: { name?: string; phone?: string | null } }) {
+    async jwt({
+      token,
+      user,
+      trigger,
+      session,
+    }: {
+      token: JWT;
+      user?: User;
+      trigger?: 'signIn' | 'signUp' | 'update';
+      session?: { name?: string; phone?: string | null };
+    }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
@@ -71,7 +81,7 @@ const nextAuthConfig = {
         // happens in auth-internal.ts (Node.js runtime). The middleware uses this config
         // for route protection, and stale roles are validated on next API request.
         const currentRole = token.role as UserRole | undefined;
-        
+
         if (currentRole) {
           (session as AuthSession).user.id = token.id;
           (session as AuthSession).user.name = token.name as string;

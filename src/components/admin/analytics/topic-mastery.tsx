@@ -7,26 +7,50 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, BookOpen, Target, AlertTriangle } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from 'recharts';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import EmptyState from './empty-state';
 
 export default function TopicMastery() {
-  const [byCategory, setByCategory] = useState<Array<{ category: string; task_count: number; total_completions: number; unique_students: number; avg_attempts: number; completion_rate: number }>>([]);
-  const [byDifficulty, setByDifficulty] = useState<Array<{ difficulty: string; task_count: number; total_completions: number; unique_students: number; avg_attempts: number; first_attempt_rate: number }>>([]);
-  const [hardestTasks, setHardestTasks] = useState<Array<{ task_id: string; task_title: string; difficulty: string; category: string; completions: number; avg_attempts: number; failure_rate: number }>>([]);
+  const [byCategory, setByCategory] = useState<
+    Array<{
+      category: string;
+      task_count: number;
+      total_completions: number;
+      unique_students: number;
+      avg_attempts: number;
+      completion_rate: number;
+    }>
+  >([]);
+  const [byDifficulty, setByDifficulty] = useState<
+    Array<{
+      difficulty: string;
+      task_count: number;
+      total_completions: number;
+      unique_students: number;
+      avg_attempts: number;
+      first_attempt_rate: number;
+    }>
+  >([]);
+  const [hardestTasks, setHardestTasks] = useState<
+    Array<{
+      task_id: string;
+      task_title: string;
+      difficulty: string;
+      category: string;
+      completions: number;
+      avg_attempts: number;
+      failure_rate: number;
+    }>
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
     fetch('/api/admin/analytics/topic-mastery')
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch topic mastery')))
-      .then(data => {
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch topic mastery'))))
+      .then((data) => {
         setByCategory(data.by_category || []);
         setByDifficulty(data.by_difficulty || []);
         setHardestTasks(data.hardest_tasks || []);
@@ -36,10 +60,16 @@ export default function TopicMastery() {
   }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (byCategory.length === 0) return <EmptyState />;
 
-  const categoryChartData = byCategory.map(c => ({
+  const categoryChartData = byCategory.map((c) => ({
     category: c.category,
     completion_rate: c.completion_rate,
     avg_attempts: c.avg_attempts,
@@ -99,9 +129,11 @@ export default function TopicMastery() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {byDifficulty.map(d => (
+                {byDifficulty.map((d) => (
                   <TableRow key={d.difficulty}>
-                    <TableCell><Badge className={difficultyColor(d.difficulty)}>{d.difficulty}</Badge></TableCell>
+                    <TableCell>
+                      <Badge className={difficultyColor(d.difficulty)}>{d.difficulty}</Badge>
+                    </TableCell>
                     <TableCell>{d.task_count}</TableCell>
                     <TableCell>{d.total_completions}</TableCell>
                     <TableCell>{d.avg_attempts}</TableCell>
@@ -132,12 +164,16 @@ export default function TopicMastery() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {hardestTasks.slice(0, 10).map(task => (
+                {hardestTasks.slice(0, 10).map((task) => (
                   <TableRow key={task.task_id}>
                     <TableCell className="font-medium">{task.task_title}</TableCell>
-                    <TableCell><Badge className={difficultyColor(task.difficulty)}>{task.difficulty}</Badge></TableCell>
+                    <TableCell>
+                      <Badge className={difficultyColor(task.difficulty)}>{task.difficulty}</Badge>
+                    </TableCell>
                     <TableCell>{task.avg_attempts}</TableCell>
-                    <TableCell><Badge variant={task.failure_rate > 50 ? 'destructive' : 'secondary'}>{task.failure_rate}%</Badge></TableCell>
+                    <TableCell>
+                      <Badge variant={task.failure_rate > 50 ? 'destructive' : 'secondary'}>{task.failure_rate}%</Badge>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -148,7 +184,9 @@ export default function TopicMastery() {
 
       {/* Category Details */}
       <Card>
-        <CardHeader><CardTitle>{t('analytics.topicMastery.categoryDetails')}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>{t('analytics.topicMastery.categoryDetails')}</CardTitle>
+        </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
@@ -162,7 +200,7 @@ export default function TopicMastery() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {byCategory.map(c => (
+              {byCategory.map((c) => (
                 <TableRow key={c.category}>
                   <TableCell className="font-medium">{c.category}</TableCell>
                   <TableCell>{c.task_count}</TableCell>

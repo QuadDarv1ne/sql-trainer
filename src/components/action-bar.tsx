@@ -82,11 +82,7 @@ export default function ActionBar({
           onClick={executeQuery}
           disabled={isExecuting || !editorContent.trim()}
         >
-          {isExecuting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Play className="h-4 w-4" />
-          )}
+          {isExecuting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
           <span className="hidden sm:inline">{t('action.executeShort')}</span>
           <kbd className="ml-1 hidden sm:inline-flex h-4 items-center rounded border border-current/20 bg-current/10 px-1.5 text-[10px] font-mono">
             Ctrl+↵
@@ -137,13 +133,7 @@ export default function ActionBar({
       <div className="flex items-center gap-1.5">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 text-xs sm:h-8"
-              onClick={onUndo}
-              disabled={!canUndo}
-            >
+            <Button variant="ghost" size="sm" className="h-9 text-xs sm:h-8" onClick={onUndo} disabled={!canUndo}>
               <Undo2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
               <kbd className="ml-1.5 h-4 items-center rounded border border-current/20 bg-current/10 px-1 text-[9px] font-mono hidden sm:inline-flex">
                 Ctrl+Z
@@ -155,13 +145,7 @@ export default function ActionBar({
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 text-xs sm:h-8"
-              onClick={onRedo}
-              disabled={!canRedo}
-            >
+            <Button variant="ghost" size="sm" className="h-9 text-xs sm:h-8" onClick={onRedo} disabled={!canRedo}>
               <Redo2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
               <kbd className="ml-1.5 h-4 items-center rounded border border-current/20 bg-current/10 px-1 text-[9px] font-mono hidden sm:inline-flex">
                 Ctrl+Y

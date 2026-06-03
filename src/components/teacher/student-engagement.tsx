@@ -4,14 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import DataCard from '@/components/ui/data-card';
 import { TrendingUp, Activity, AlertCircle } from 'lucide-react';
@@ -46,9 +39,15 @@ export default function StudentEngagement() {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((res) => { if (!controller.signal.aborted) setData(res.metrics); })
-      .catch(() => { if (!controller.signal.aborted) setError(t('teacher.error')); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+      .then((res) => {
+        if (!controller.signal.aborted) setData(res.metrics);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setError(t('teacher.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -60,7 +59,7 @@ export default function StudentEngagement() {
     return (
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-3">
-          {[1, 2, 3].map(i => (
+          {[1, 2, 3].map((i) => (
             <Card key={i}>
               <CardContent className="p-4 flex items-center gap-3">
                 <Skeleton className="h-8 w-8 rounded-full" />
@@ -73,10 +72,12 @@ export default function StudentEngagement() {
           ))}
         </div>
         <Card>
-          <CardHeader><Skeleton className="h-6 w-48" /></CardHeader>
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+          </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[1, 2, 3, 4, 5].map(i => (
+              {[1, 2, 3, 4, 5].map((i) => (
                 <Skeleton key={i} className="h-10 w-full" />
               ))}
             </div>
@@ -106,8 +107,8 @@ export default function StudentEngagement() {
     at_risk: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   };
 
-  const highEngagement = data.filter(d => d.engagement_level === 'high').length;
-  const atRisk = data.filter(d => d.engagement_level === 'at_risk').length;
+  const highEngagement = data.filter((d) => d.engagement_level === 'high').length;
+  const atRisk = data.filter((d) => d.engagement_level === 'at_risk').length;
   const avgEngagement = Math.round(data.reduce((s, d) => s + d.engagement_score, 0) / data.length);
 
   return (
@@ -180,9 +181,13 @@ export default function StudentEngagement() {
                         <span className="text-sm w-10 text-right">{metric.engagement_score}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-right">{metric.velocity} {t('teacher.engagement.perWeek')}</TableCell>
                     <TableCell className="text-right">
-                      {metric.last_active_days >= 999 ? '—' : `${metric.last_active_days} ${t('teacher.engagement.daysAbbr')}`}
+                      {metric.velocity} {t('teacher.engagement.perWeek')}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {metric.last_active_days >= 999
+                        ? '—'
+                        : `${metric.last_active_days} ${t('teacher.engagement.daysAbbr')}`}
                     </TableCell>
                   </TableRow>
                 ))}

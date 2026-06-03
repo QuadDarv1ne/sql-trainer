@@ -7,25 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import {
-  Award,
-  Clock,
-  Mail,
-  Target,
-  RotateCcw,
-  TrendingUp,
-  AlertCircle,
-  Download,
-} from 'lucide-react';
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from 'recharts';
+import { Award, Clock, Mail, Target, RotateCcw, TrendingUp, AlertCircle, Download } from 'lucide-react';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { t, getLocale } from '@/lib/i18n';
 import { generateStudentReportPDF } from '@/lib/pdf-report';
 
@@ -71,11 +54,7 @@ interface TeacherStudentDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export default function TeacherStudentDialog({
-  studentId,
-  open,
-  onOpenChange,
-}: TeacherStudentDialogProps) {
+export default function TeacherStudentDialog({ studentId, open, onOpenChange }: TeacherStudentDialogProps) {
   const [data, setData] = useState<StudentDetailData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -89,10 +68,14 @@ export default function TeacherStudentDialog({
     setData(null);
 
     Promise.all([
-      fetch(`/api/teacher/student/${studentId}`, { signal: controller.signal })
-        .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
-      fetch(`/api/teacher/student/${studentId}/activity`, { signal: controller.signal })
-        .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
+      fetch(`/api/teacher/student/${studentId}`, { signal: controller.signal }).then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      }),
+      fetch(`/api/teacher/student/${studentId}/activity`, { signal: controller.signal }).then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      }),
     ])
       .then(([detailRes, activityRes]) => {
         if (detailRes.error) throw new Error(detailRes.error);
@@ -109,7 +92,9 @@ export default function TeacherStudentDialog({
       })
       .finally(() => setLoading(false));
 
-    return () => { controller.abort(); };
+    return () => {
+      controller.abort();
+    };
   }, [studentId, open]);
 
   const handleExportPDF = () => {
@@ -132,7 +117,7 @@ export default function TeacherStudentDialog({
         subtitle: `${student.name} — ${student.email}`,
         generatedAt: new Date(),
         locale: getLocale(),
-      }
+      },
     );
   };
 
@@ -144,9 +129,7 @@ export default function TeacherStudentDialog({
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>
-              {data
-                ? t('teacher.student.detailTitle', { name: data.student.name })
-                : t('teacher.loading')}
+              {data ? t('teacher.student.detailTitle', { name: data.student.name }) : t('teacher.loading')}
             </DialogTitle>
             {data && (
               <Button variant="outline" size="sm" onClick={handleExportPDF}>
@@ -255,14 +238,9 @@ export default function TeacherStudentDialog({
                       <Badge variant="outline" className="border-emerald-500 text-emerald-600">
                         {t('difficulty.beginner')}
                       </Badge>
-                      <span className="text-lg font-bold">
-                        {data.student.beginner_completed}
-                      </span>
+                      <span className="text-lg font-bold">{data.student.beginner_completed}</span>
                     </div>
-                    <Progress
-                      value={(data.student.beginner_completed / 8) * 100}
-                      className="h-2"
-                    />
+                    <Progress value={(data.student.beginner_completed / 8) * 100} className="h-2" />
                   </CardContent>
                 </Card>
                 <Card>
@@ -271,14 +249,9 @@ export default function TeacherStudentDialog({
                       <Badge variant="outline" className="border-amber-500 text-amber-600">
                         {t('difficulty.intermediate')}
                       </Badge>
-                      <span className="text-lg font-bold">
-                        {data.student.intermediate_completed}
-                      </span>
+                      <span className="text-lg font-bold">{data.student.intermediate_completed}</span>
                     </div>
-                    <Progress
-                      value={(data.student.intermediate_completed / 23) * 100}
-                      className="h-2"
-                    />
+                    <Progress value={(data.student.intermediate_completed / 23) * 100} className="h-2" />
                   </CardContent>
                 </Card>
                 <Card>
@@ -287,14 +260,9 @@ export default function TeacherStudentDialog({
                       <Badge variant="outline" className="border-red-500 text-red-600">
                         {t('difficulty.advanced')}
                       </Badge>
-                      <span className="text-lg font-bold">
-                        {data.student.advanced_completed}
-                      </span>
+                      <span className="text-lg font-bold">{data.student.advanced_completed}</span>
                     </div>
-                    <Progress
-                      value={(data.student.advanced_completed / 25) * 100}
-                      className="h-2"
-                    />
+                    <Progress value={(data.student.advanced_completed / 25) * 100} className="h-2" />
                   </CardContent>
                 </Card>
               </div>
@@ -306,16 +274,11 @@ export default function TeacherStudentDialog({
                 {t('analytics.student.achievements')} ({data.achievements.length})
               </h3>
               {data.achievements.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {t('analytics.student.noAchievements')}
-                </p>
+                <p className="text-sm text-muted-foreground">{t('analytics.student.noAchievements')}</p>
               ) : (
                 <div className="grid gap-2 sm:grid-cols-2">
                   {data.achievements.map((achievement) => (
-                    <div
-                      key={achievement.id}
-                      className="flex items-start gap-2 p-2 rounded border"
-                    >
+                    <div key={achievement.id} className="flex items-start gap-2 p-2 rounded border">
                       <Award className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{achievement.title}</p>

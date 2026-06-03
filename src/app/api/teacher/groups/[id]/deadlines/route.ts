@@ -69,16 +69,19 @@ export const POST = withTeacherAuth(async ({ session, request }) => {
 
   const { type, title, description, taskId, dueAt } = validation.data;
 
-  const deadline = createDeadline({
-    creatorId: session.user.id,
-    type,
-    title,
-    description,
-    targetType: 'group',
-    groupId,
-    taskId: taskId || undefined,
-    dueAt,
-  }, session.user.id);
+  const deadline = createDeadline(
+    {
+      creatorId: session.user.id,
+      type,
+      title,
+      description,
+      targetType: 'group',
+      groupId,
+      taskId: taskId || undefined,
+      dueAt,
+    },
+    session.user.id,
+  );
 
   buildReminderSchedule(deadline.id);
 
@@ -109,13 +112,18 @@ export const PATCH = withTeacherAuth(async ({ session, request }) => {
   const validation = validateBody(body, createDeadlineSchema.partial());
   if ('response' in validation) return validation.response;
 
-  const updated = updateDeadline(deadlineId, {
-    type: validation.data.type,
-    title: validation.data.title,
-    description: validation.data.description,
-    taskId: validation.data.taskId || undefined,
-    dueAt: validation.data.dueAt,
-  }, session.user.id, session.user.id);
+  const updated = updateDeadline(
+    deadlineId,
+    {
+      type: validation.data.type,
+      title: validation.data.title,
+      description: validation.data.description,
+      taskId: validation.data.taskId || undefined,
+      dueAt: validation.data.dueAt,
+    },
+    session.user.id,
+    session.user.id,
+  );
 
   if (!updated) {
     return NextResponse.json({ success: false, error: 'Deadline not found' }, { status: 404 });

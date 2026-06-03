@@ -80,10 +80,7 @@ export const createPracticeModeSlice: StateCreator<PracticeModeSlice, [], [], Pr
       practiceMode: {
         ...practiceMode,
         currentIndex: nextIndex,
-        completedInSession: [
-          ...practiceMode.completedInSession,
-          practiceMode.taskOrder[practiceMode.currentIndex],
-        ],
+        completedInSession: [...practiceMode.completedInSession, practiceMode.taskOrder[practiceMode.currentIndex]],
       },
     });
   },

@@ -32,10 +32,7 @@ async function generatePngIcons() {
       continue;
     }
 
-    await sharp(inputPath)
-      .resize(size, size)
-      .png()
-      .toFile(outputPath);
+    await sharp(inputPath).resize(size, size).png().toFile(outputPath);
 
     console.log(`  ✓ ${output} (${size}x${size})`);
   }
@@ -80,10 +77,7 @@ async function generateScreenshots() {
   `;
 
   const desktopPath = path.join(SCREENSHOTS_DIR, 'desktop.png');
-  await sharp(Buffer.from(desktopSvg))
-    .resize(1280, 720)
-    .png()
-    .toFile(desktopPath);
+  await sharp(Buffer.from(desktopSvg)).resize(1280, 720).png().toFile(desktopPath);
   console.log('  ✓ desktop.png (1280x720)');
 
   // Mobile screenshot: 750x1334
@@ -112,10 +106,7 @@ async function generateScreenshots() {
   `;
 
   const mobilePath = path.join(SCREENSHOTS_DIR, 'mobile.png');
-  await sharp(Buffer.from(mobileSvg))
-    .resize(750, 1334)
-    .png()
-    .toFile(mobilePath);
+  await sharp(Buffer.from(mobileSvg)).resize(750, 1334).png().toFile(mobilePath);
   console.log('  ✓ mobile.png (750x1334)');
 }
 

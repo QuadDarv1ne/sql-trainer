@@ -185,9 +185,7 @@ describe('Validation Utilities', () => {
 
   describe('withValidation', () => {
     it('should call handler with valid data', async () => {
-      const mockHandler = vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ success: true }), { status: 200 })
-      );
+      const mockHandler = vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
 
       const wrappedHandler = withValidation(testSchema, mockHandler);
 
@@ -198,10 +196,7 @@ describe('Validation Utilities', () => {
       await wrappedHandler(mockRequest);
 
       expect(mockHandler).toHaveBeenCalledTimes(1);
-      expect(mockHandler).toHaveBeenCalledWith(
-        mockRequest,
-        { name: 'Bob', age: 35 }
-      );
+      expect(mockHandler).toHaveBeenCalledWith(mockRequest, { name: 'Bob', age: 35 });
     });
 
     it('should return error response for invalid data', async () => {

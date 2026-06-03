@@ -87,20 +87,21 @@ export default function PwaInstallPrompt() {
   return (
     <>
       {/* Install dialog */}
-      <Dialog open={showDialog} onOpenChange={(open) => {
-        if (!open) {
-          handleDismiss();
-        }
-      }}>
+      <Dialog
+        open={showDialog}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleDismiss();
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Download className="h-5 w-5 text-blue-600" />
               {t('pwa.install.title')}
             </DialogTitle>
-            <DialogDescription>
-              {t('pwa.install.description')}
-            </DialogDescription>
+            <DialogDescription>{t('pwa.install.description')}</DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={handleDismiss}>

@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  TRAINING_TASKS,
-  getTaskById,
-  getTasksByDifficulty,
-} from '@/lib/training-tasks';
+import { TRAINING_TASKS, getTaskById, getTasksByDifficulty } from '@/lib/training-tasks';
 
 describe('training-tasks', () => {
   describe('TRAINING_TASKS', () => {

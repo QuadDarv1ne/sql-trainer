@@ -19,133 +19,132 @@ import { splitSqlSegments } from './sql-utils';
 
 // Map of PostgreSQL data types to SQLite equivalents
 const TYPE_MAP: Record<string, string> = {
-  'SERIAL': 'INTEGER',
-  'BIGSERIAL': 'INTEGER',
-  'SMALLSERIAL': 'INTEGER',
-  'BOOLEAN': 'INTEGER',
-  'BOOL': 'INTEGER',
-  'VARCHAR': 'TEXT',
-  'CHAR': 'TEXT',
-  'CHARACTER': 'TEXT',
-  'NUMERIC': 'REAL',
-  'DECIMAL': 'REAL',
-  'MONEY': 'REAL',
-  'FLOAT4': 'REAL',
-  'FLOAT8': 'REAL',
+  SERIAL: 'INTEGER',
+  BIGSERIAL: 'INTEGER',
+  SMALLSERIAL: 'INTEGER',
+  BOOLEAN: 'INTEGER',
+  BOOL: 'INTEGER',
+  VARCHAR: 'TEXT',
+  CHAR: 'TEXT',
+  CHARACTER: 'TEXT',
+  NUMERIC: 'REAL',
+  DECIMAL: 'REAL',
+  MONEY: 'REAL',
+  FLOAT4: 'REAL',
+  FLOAT8: 'REAL',
   'DOUBLE PRECISION': 'REAL',
-  'TIMESTAMP': 'TEXT',
-  'TIMESTAMPTZ': 'TEXT',
-  'TIME': 'TEXT',
-  'TIMETZ': 'TEXT',
-  'DATE': 'TEXT',
-  'BYTEA': 'BLOB',
-  'JSON': 'TEXT',
-  'JSONB': 'TEXT',
-  'UUID': 'TEXT',
-  'CIDR': 'TEXT',
-  'INET': 'TEXT',
-  'MACADDR': 'TEXT',
-  'BIT': 'INTEGER',
-  'VARBIT': 'INTEGER',
-  'INTERVAL': 'TEXT',
-  'TSQUERY': 'TEXT',
-  'TSVECTOR': 'TEXT',
+  TIMESTAMP: 'TEXT',
+  TIMESTAMPTZ: 'TEXT',
+  TIME: 'TEXT',
+  TIMETZ: 'TEXT',
+  DATE: 'TEXT',
+  BYTEA: 'BLOB',
+  JSON: 'TEXT',
+  JSONB: 'TEXT',
+  UUID: 'TEXT',
+  CIDR: 'TEXT',
+  INET: 'TEXT',
+  MACADDR: 'TEXT',
+  BIT: 'INTEGER',
+  VARBIT: 'INTEGER',
+  INTERVAL: 'TEXT',
+  TSQUERY: 'TEXT',
+  TSVECTOR: 'TEXT',
 };
 
 // PostgreSQL functions to SQLite equivalents
 const FUNCTION_MAP: Record<string, string | null> = {
-  'STRING_AGG': 'GROUP_CONCAT',
-  'CONCAT_WS': 'GROUP_CONCAT', // not perfect but close
-  'GENERATE_SERIES': null, // will use recursive CTE
-  'ARRAY_AGG': 'GROUP_CONCAT',
-  'BOOL_AND': 'MIN', // 0/1 mapping
-  'BOOL_OR': 'MAX', // 0/1 mapping
-  'DATE_TRUNC': null, // complex, skip
-  'EXTRACT': null, // complex, skip
-  'CURRENT_DATE': "date('now')",
-  'CURRENT_TIME': "time('now')",
-  'CURRENT_TIMESTAMP': "datetime('now')",
-  'LOCALTIMESTAMP': "datetime('now')",
-  'LOCALTIME': "time('now')",
-  'NOW': "datetime('now')",
-  'PG_SLEEP': null, // not supported
+  STRING_AGG: 'GROUP_CONCAT',
+  CONCAT_WS: 'GROUP_CONCAT', // not perfect but close
+  GENERATE_SERIES: null, // will use recursive CTE
+  ARRAY_AGG: 'GROUP_CONCAT',
+  BOOL_AND: 'MIN', // 0/1 mapping
+  BOOL_OR: 'MAX', // 0/1 mapping
+  DATE_TRUNC: null, // complex, skip
+  EXTRACT: null, // complex, skip
+  CURRENT_DATE: "date('now')",
+  CURRENT_TIME: "time('now')",
+  CURRENT_TIMESTAMP: "datetime('now')",
+  LOCALTIMESTAMP: "datetime('now')",
+  LOCALTIME: "time('now')",
+  NOW: "datetime('now')",
+  PG_SLEEP: null, // not supported
   // String functions
-  'SUBSTRING': 'SUBSTR',
-  'SUBSTR': 'SUBSTR',
-  'LEFT': null, // use SUBSTR
-  'RIGHT': null, // use SUBSTR
-  'LPAD': null, // complex, skip
-  'RPAD': null, // complex, skip
-  'REPEAT': null, // not in SQLite
+  SUBSTRING: 'SUBSTR',
+  SUBSTR: 'SUBSTR',
+  LEFT: null, // use SUBSTR
+  RIGHT: null, // use SUBSTR
+  LPAD: null, // complex, skip
+  RPAD: null, // complex, skip
+  REPEAT: null, // not in SQLite
   // Date/time functions
-  'AGE': null, // complex, skip
-  'DATE_PART': null, // complex, skip
-  'MAKE_DATE': null, // not in SQLite
-  'MAKE_TIME': null, // not in SQLite
-  'MAKE_TIMESTAMP': null, // not in SQLite
+  AGE: null, // complex, skip
+  DATE_PART: null, // complex, skip
+  MAKE_DATE: null, // not in SQLite
+  MAKE_TIME: null, // not in SQLite
+  MAKE_TIMESTAMP: null, // not in SQLite
   // Math functions
-  'POWER': 'POWER',
-  'SQRT': 'SQRT',
-  'CBRT': null, // not in SQLite
-  'ABS': 'ABS',
-  'CEIL': 'CEIL',
-  'CEILING': 'CEIL',
-  'FLOOR': 'FLOOR',
-  'ROUND': 'ROUND',
-  'TRUNC': null, // not in SQLite
-  'RANDOM': 'RANDOM',
-  'PI': null, // not in SQLite < 3.35
-  'LN': null, // not in SQLite < 3.35
-  'LOG': null, // not in SQLite < 3.35
-  'LOG10': null, // not in SQLite < 3.35
-  'EXP': null, // not in SQLite < 3.35
+  POWER: 'POWER',
+  SQRT: 'SQRT',
+  CBRT: null, // not in SQLite
+  ABS: 'ABS',
+  CEIL: 'CEIL',
+  CEILING: 'CEIL',
+  FLOOR: 'FLOOR',
+  ROUND: 'ROUND',
+  TRUNC: null, // not in SQLite
+  RANDOM: 'RANDOM',
+  PI: null, // not in SQLite < 3.35
+  LN: null, // not in SQLite < 3.35
+  LOG: null, // not in SQLite < 3.35
+  LOG10: null, // not in SQLite < 3.35
+  EXP: null, // not in SQLite < 3.35
   // Conditional
-  'COALESCE': 'COALESCE',
-  'NULLIF': 'NULLIF',
-  'GREATEST': null, // not in SQLite
-  'LEAST': null, // not in SQLite
+  COALESCE: 'COALESCE',
+  NULLIF: 'NULLIF',
+  GREATEST: null, // not in SQLite
+  LEAST: null, // not in SQLite
   // JSON
-  'ROW_TO_JSON': null, // complex, skip
-  'ARRAY_TO_JSON': null, // complex, skip
-  'JSON_BUILD_OBJECT': null, // complex, skip
-  'JSON_AGG': null, // complex, skip
+  ROW_TO_JSON: null, // complex, skip
+  ARRAY_TO_JSON: null, // complex, skip
+  JSON_BUILD_OBJECT: null, // complex, skip
+  JSON_AGG: null, // complex, skip
   // Window functions (SQLite supports these since 3.25)
-  'ROW_NUMBER': 'ROW_NUMBER',
-  'RANK': 'RANK',
-  'DENSE_RANK': 'DENSE_RANK',
-  'NTILE': 'NTILE',
-  'LAG': 'LAG',
-  'LEAD': 'LEAD',
-  'FIRST_VALUE': 'FIRST_VALUE',
-  'LAST_VALUE': 'LAST_VALUE',
-  'NTH_VALUE': 'NTH_VALUE',
-  'SUM': 'SUM',
-  'AVG': 'AVG',
-  'COUNT': 'COUNT',
-  'MIN': 'MIN',
-  'MAX': 'MAX',
+  ROW_NUMBER: 'ROW_NUMBER',
+  RANK: 'RANK',
+  DENSE_RANK: 'DENSE_RANK',
+  NTILE: 'NTILE',
+  LAG: 'LAG',
+  LEAD: 'LEAD',
+  FIRST_VALUE: 'FIRST_VALUE',
+  LAST_VALUE: 'LAST_VALUE',
+  NTH_VALUE: 'NTH_VALUE',
+  SUM: 'SUM',
+  AVG: 'AVG',
+  COUNT: 'COUNT',
+  MIN: 'MIN',
+  MAX: 'MAX',
 };
 
 function applyFunctionReplacements(sql: string): string {
   // Use splitSqlSegments to avoid replacing function names inside string literals
   const segments = splitSqlSegments(sql);
 
-  const processed = segments.map((segment, i) => {
-    if (i % 2 === 1) return segment; // skip string literals
-    let result = segment;
+  const processed = segments
+    .map((segment, i) => {
+      if (i % 2 === 1) return segment; // skip string literals
+      let result = segment;
 
-    // Replace known function names
-    for (const [pgFunc, sqliteFunc] of Object.entries(FUNCTION_MAP)) {
-      if (sqliteFunc && sqliteFunc !== pgFunc) {
-        result = result.replace(
-          new RegExp(`\\b${pgFunc}\\b`, 'gi'),
-          sqliteFunc
-        );
+      // Replace known function names
+      for (const [pgFunc, sqliteFunc] of Object.entries(FUNCTION_MAP)) {
+        if (sqliteFunc && sqliteFunc !== pgFunc) {
+          result = result.replace(new RegExp(`\\b${pgFunc}\\b`, 'gi'), sqliteFunc);
+        }
       }
-    }
 
-    return result;
-  }).join('');
+      return result;
+    })
+    .join('');
 
   return processed;
 }
@@ -182,7 +181,7 @@ export interface AdaptResult {
 export function adaptWithWarnings(sql: string): AdaptResult {
   const dropped = detectDroppedFunctions(sql);
   const warnings = dropped.map(
-    (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`
+    (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`,
   );
   return {
     sql: adaptPostgreSQLToSQLite(sql),
@@ -208,10 +207,12 @@ export function adaptPostgreSQLToSQLite(sql: string): string {
 
   // Replace TRUE/FALSE only in non-string segments to preserve string literals like 'TRUE'
   const segments = splitSqlSegments(result);
-  result = segments.map((segment, i) => {
-    if (i % 2 === 1) return segment; // skip string literals
-    return segment.replace(/\bTRUE\b/g, '1').replace(/\bFALSE\b/g, '0');
-  }).join('');
+  result = segments
+    .map((segment, i) => {
+      if (i % 2 === 1) return segment; // skip string literals
+      return segment.replace(/\bTRUE\b/g, '1').replace(/\bFALSE\b/g, '0');
+    })
+    .join('');
 
   // Replace ILIKE with LIKE (SQLite LIKE is case-insensitive by default for ASCII)
   result = result.replace(/\bILIKE\b/g, 'LIKE');
@@ -224,11 +225,14 @@ export function adaptPostgreSQLToSQLite(sql: string): string {
 
   // Replace ::type casting with CAST(expr AS type)
   // Match identifiers and string literals before ::
-  result = result.replace(/([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*|'[^']*')\s*::([A-Za-z_]\w*(?:\s*\([^)]*\))?)/g, (_, expr, type) => {
-    const trimmed = type.trim().toUpperCase();
-    const mapped = TYPE_MAP[trimmed] || trimmed;
-    return `CAST(${expr} AS ${mapped})`;
-  });
+  result = result.replace(
+    /([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*|'[^']*')\s*::([A-Za-z_]\w*(?:\s*\([^)]*\))?)/g,
+    (_, expr, type) => {
+      const trimmed = type.trim().toUpperCase();
+      const mapped = TYPE_MAP[trimmed] || trimmed;
+      return `CAST(${expr} AS ${mapped})`;
+    },
+  );
 
   // Replace function names from FUNCTION_MAP
   result = applyFunctionReplacements(result);
@@ -236,14 +240,11 @@ export function adaptPostgreSQLToSQLite(sql: string): string {
   // Replace STRING_AGG(expr, delimiter) with GROUP_CONCAT(expr, delimiter)
   result = result.replace(
     /\bSTRING_AGG\s*\(([^,]+),\s*([^)]+)\)/gi,
-    (_, expr, delim) => `GROUP_CONCAT(${expr.trim()}, ${delim.trim()})`
+    (_, expr, delim) => `GROUP_CONCAT(${expr.trim()}, ${delim.trim()})`,
   );
 
   // Replace ARRAY_AGG with GROUP_CONCAT
-  result = result.replace(
-    /\bARRAY_AGG\s*\(([^)]+)\)/gi,
-    'GROUP_CONCAT($1)'
-  );
+  result = result.replace(/\bARRAY_AGG\s*\(([^)]+)\)/gi, 'GROUP_CONCAT($1)');
 
   // Replace IS TRUE / IS FALSE
   result = result.replace(/\bIS\s+TRUE\b/gi, '= 1');

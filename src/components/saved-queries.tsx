@@ -52,19 +52,25 @@ export default function SavedQueries({ onLoadQuery }: SavedQueriesProps) {
 
   return (
     <>
-      <Dialog open={saveDialogOpen} onOpenChange={(open) => {
-        setSaveDialogOpen(open);
-        if (open) {
-          setQueryName('');
-        }
-      }}>
+      <Dialog
+        open={saveDialogOpen}
+        onOpenChange={(open) => {
+          setSaveDialogOpen(open);
+          if (open) {
+            setQueryName('');
+          }
+        }}
+      >
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-7 text-xs gap-1.5">
               <Bookmark className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{t('savedQueries.title')}</span>
               {savedQueries.length > 0 && (
-                <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 h-4 min-w-4 flex items-center justify-center">
+                <Badge
+                  variant="secondary"
+                  className="ml-1 text-[10px] px-1.5 h-4 min-w-4 flex items-center justify-center"
+                >
                   {savedQueries.length}
                 </Badge>
               )}
@@ -98,7 +104,8 @@ export default function SavedQueries({ onLoadQuery }: SavedQueriesProps) {
                           {new Date(query.createdAt).toLocaleDateString('ru-RU')}
                         </span>
                         <code className="text-[10px] text-muted-foreground/60 truncate ml-1">
-                          {query.sql.slice(0, 40)}{query.sql.length > 40 ? '...' : ''}
+                          {query.sql.slice(0, 40)}
+                          {query.sql.length > 40 ? '...' : ''}
                         </code>
                       </div>
                     </div>

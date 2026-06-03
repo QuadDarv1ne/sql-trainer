@@ -16,9 +16,10 @@ export const ROLE_PERMISSIONS: Record<string, Role[]> = {
 };
 
 // Pre-compiled route prefix -> minimum required role level for O(1) lookup
-const ROUTE_MIN_ROLES: [string, number][] = Object.entries(ROLE_PERMISSIONS).map(
-  ([route, roles]) => [route, Math.min(...roles.map((r) => ROLE_HIERARCHY[r]))]
-);
+const ROUTE_MIN_ROLES: [string, number][] = Object.entries(ROLE_PERMISSIONS).map(([route, roles]) => [
+  route,
+  Math.min(...roles.map((r) => ROLE_HIERARCHY[r])),
+]);
 
 export const ROLE_LABELS: Record<Role, string> = {
   student: 'Студент',

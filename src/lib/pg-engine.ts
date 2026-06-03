@@ -22,7 +22,7 @@ export interface PgResult {
 export async function executePgWithFallback(
   sql: string,
   schemaSql: string,
-  connectionString?: string
+  connectionString?: string,
 ): Promise<PgResult> {
   // If no real PostgreSQL connection available, fall back to adapter
   if (!connectionString) {
@@ -43,8 +43,8 @@ export async function executePgWithFallback(
     if (schemaSql) {
       const statements = schemaSql
         .split(';')
-        .map(s => s.trim())
-        .filter(s => s.length > 0);
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
       for (const stmt of statements) {
         try {
           await client.query(stmt);
@@ -85,10 +85,7 @@ export async function executePgWithFallback(
 /**
  * Execute SQL without schema (for arbitrary queries).
  */
-export async function executePgQuery(
-  sql: string,
-  connectionString?: string
-): Promise<PgResult> {
+export async function executePgQuery(sql: string, connectionString?: string): Promise<PgResult> {
   if (!connectionString) {
     const adaptedSql = adaptPostgreSQLToSQLite(sql);
     return executeQuery(adaptedSql, 'sqlite') as PgResult;
@@ -136,7 +133,7 @@ export async function executePgQuery(
 export async function explainPgQuery(
   sql: string,
   schemaSql: string,
-  connectionString?: string
+  connectionString?: string,
 ): Promise<PgResult & { plan?: string }> {
   if (!connectionString) {
     // Fallback: use SQLite EXPLAIN
@@ -145,7 +142,7 @@ export async function explainPgQuery(
     const result = executeSQLite(explainSql, schemaSql, 'sqlite') as PgResult;
 
     if (result.success && result.rows.length > 0) {
-      const plan = result.rows.map(r => Object.values(r).join(' ')).join('\n');
+      const plan = result.rows.map((r) => Object.values(r).join(' ')).join('\n');
       return { ...result, plan };
     }
     return result;
@@ -157,9 +154,16 @@ export async function explainPgQuery(
     await client.connect();
 
     if (schemaSql) {
-      const statements = schemaSql.split(';').map(s => s.trim()).filter(s => s.length > 0);
+      const statements = schemaSql
+        .split(';')
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
       for (const stmt of statements) {
-        try { await client.query(stmt); } catch (e) { logger.error('Failed to execute schema statement:', e); }
+        try {
+          await client.query(stmt);
+        } catch (e) {
+          logger.error('Failed to execute schema statement:', e);
+        }
       }
     }
 
@@ -174,7 +178,11 @@ export async function explainPgQuery(
       };
     }
     // Reject queries with destructive statements
-    if (/\b(drop|delete|truncate|alter|create|insert|update|grant|revoke)\b/i.test(trimmed.replace(/^(explain|select|with)\s*/i, ''))) {
+    if (
+      /\b(drop|delete|truncate|alter|create|insert|update|grant|revoke)\b/i.test(
+        trimmed.replace(/^(explain|select|with)\s*/i, ''),
+      )
+    ) {
       return {
         success: false,
         columns: [],
@@ -183,7 +191,7 @@ export async function explainPgQuery(
       };
     }
     const explainResult = await client.query('EXPLAIN (FORMAT TEXT) ' + sql);
-    const plan = explainResult.rows.map(r => Object.values(r).join('')).join('\n');
+    const plan = explainResult.rows.map((r) => Object.values(r).join('')).join('\n');
 
     await client.end();
 

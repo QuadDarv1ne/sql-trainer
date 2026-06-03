@@ -19,13 +19,18 @@ export default function LiveActivity() {
 
   const fetchData = useCallback(() => {
     fetch('/api/admin/analytics/live')
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch')))
-      .then(d => { setData(d); setError(''); })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch'))))
+      .then((d) => {
+        setData(d);
+        setError('');
+      })
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const { refresh, isPaused } = usePolling(fetchData, { intervalMs: 30000 });
 
@@ -39,12 +44,18 @@ export default function LiveActivity() {
         <div className="flex items-center gap-2">
           <h2 className="text-2xl font-bold">{t('analytics.live.title')}</h2>
           <Badge variant={data.active_now > 0 ? 'default' : 'secondary'} className="flex items-center gap-1">
-            <span className={`h-2 w-2 rounded-full ${data.active_now > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-400 dark:bg-gray-500'}`} aria-hidden="true" />
+            <span
+              className={`h-2 w-2 rounded-full ${data.active_now > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-400 dark:bg-gray-500'}`}
+              aria-hidden="true"
+            />
             <span className="sr-only">{data.active_now > 0 ? 'Active' : 'Inactive'}</span>
             {isPaused ? t('analytics.live.paused') : t('analytics.live')}
           </Badge>
         </div>
-        <button onClick={refresh} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <button
+          onClick={refresh}
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
           <RefreshCw className="h-4 w-4" /> {t('analytics.live.refresh')}
         </button>
       </div>
@@ -103,7 +114,7 @@ export default function LiveActivity() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {data.active_last_5min.map(student => (
+              {data.active_last_5min.map((student) => (
                 <div key={student.id} className="flex items-center justify-between py-2 border-b last:border-0">
                   <div>
                     <span className="font-medium">{student.name}</span>

@@ -5,14 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertCircle, Users, TrendingUp, Activity } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
@@ -50,15 +43,24 @@ export default function EngagementMetrics() {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((data) => { if (!controller.signal.aborted) setData(data.metrics); })
-      .catch(() => { if (!controller.signal.aborted) setError(t('analytics.error')); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+      .then((data) => {
+        if (!controller.signal.aborted) setData(data.metrics);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setError(t('analytics.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
     return () => controller.abort();
   }, [startDate, endDate]);
 
-  const highEngagement = useMemo(() => data.filter(d => d.engagement_level === 'high').length, [data]);
-  const atRisk = useMemo(() => data.filter(d => d.engagement_level === 'at_risk').length, [data]);
-  const avgEngagement = useMemo(() => data.length > 0 ? Math.round(data.reduce((s, d) => s + d.engagement_score, 0) / data.length) : 0, [data]);
+  const highEngagement = useMemo(() => data.filter((d) => d.engagement_level === 'high').length, [data]);
+  const atRisk = useMemo(() => data.filter((d) => d.engagement_level === 'at_risk').length, [data]);
+  const avgEngagement = useMemo(
+    () => (data.length > 0 ? Math.round(data.reduce((s, d) => s + d.engagement_score, 0) / data.length) : 0),
+    [data],
+  );
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
 

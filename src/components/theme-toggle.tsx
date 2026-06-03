@@ -18,7 +18,9 @@ export function ThemeToggle({ size = 'default', className }: ThemeToggleProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleToggle = () => {
     const current = (theme as ThemeValue) || 'system';

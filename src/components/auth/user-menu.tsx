@@ -40,9 +40,7 @@ export default function UserMenu() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-emerald-600 text-white text-xs">
-              {initials}
-            </AvatarFallback>
+            <AvatarFallback className="bg-emerald-600 text-white text-xs">{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -91,7 +89,10 @@ export default function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={userRole === 'student' ? '/dashboard' : '/app'} className="cursor-pointer flex items-center gap-2">
+          <Link
+            href={userRole === 'student' ? '/dashboard' : '/app'}
+            className="cursor-pointer flex items-center gap-2"
+          >
             <LayoutDashboard className="h-4 w-4" />
             {userRole === 'student' ? t('userMenu.dashboard') : t('userMenu.trainer')}
           </Link>

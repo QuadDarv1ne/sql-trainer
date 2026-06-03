@@ -8,14 +8,7 @@ import { Deadline } from '@/lib/db-users';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -83,7 +76,9 @@ export function DeadlineManager() {
     }
   }, []);
 
-  useEffect(() => { fetchDeadlines(); }, [fetchDeadlines]);
+  useEffect(() => {
+    fetchDeadlines();
+  }, [fetchDeadlines]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -102,7 +97,12 @@ export function DeadlineManager() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center" role="status">{t('admin.stats.loading')}</div>;
+  if (loading)
+    return (
+      <div className="p-8 text-center" role="status">
+        {t('admin.stats.loading')}
+      </div>
+    );
 
   if (error) {
     return (
@@ -140,15 +140,13 @@ export function DeadlineManager() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {deadlines.map(d => {
+              {deadlines.map((d) => {
                 const status = getTimeStatus(d.due_at);
                 return (
                   <TableRow key={d.id}>
                     <TableCell className="font-medium">
                       <div>{d.title}</div>
-                      {d.description && (
-                        <div className="text-sm text-muted-foreground">{d.description}</div>
-                      )}
+                      {d.description && <div className="text-sm text-muted-foreground">{d.description}</div>}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{t(typeLabels[d.type])}</Badge>
@@ -163,7 +161,10 @@ export function DeadlineManager() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => { setEditDeadline(d); setDialogOpen(true); }}
+                          onClick={() => {
+                            setEditDeadline(d);
+                            setDialogOpen(true);
+                          }}
                         >
                           {t('deadline.edit')}
                         </Button>
@@ -187,7 +188,10 @@ export function DeadlineManager() {
 
       <CreateDeadlineDialog
         open={dialogOpen}
-        onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditDeadline(null); }}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) setEditDeadline(null);
+        }}
         deadline={editDeadline}
         onSuccess={fetchDeadlines}
       />

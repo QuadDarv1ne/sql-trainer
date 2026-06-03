@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     if (!limitResult.success) {
       return NextResponse.json(
         { success: false, error: 'Слишком много попыток регистрации. Попробуйте позже' },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
@@ -40,31 +40,20 @@ export async function POST(request: NextRequest) {
 
     const sanitizedName = sanitizeName(name);
     if (sanitizedName.error) {
-      return NextResponse.json(
-        { success: false, error: sanitizedName.error },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: sanitizedName.error }, { status: 400 });
     }
 
     const sanitizedPhone = phone ? sanitizePhone(phone) : { value: '' };
     if (sanitizedPhone.error) {
-      return NextResponse.json(
-        { success: false, error: sanitizedPhone.error },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: sanitizedPhone.error }, { status: 400 });
     }
 
     // Use requested role or default to 'student'; only allow self-registration roles
-    const userRole: UserRole = (role && ALLOWED_SELF_ROLES.includes(role as UserRole))
-      ? (role as UserRole)
-      : 'student';
+    const userRole: UserRole = role && ALLOWED_SELF_ROLES.includes(role as UserRole) ? (role as UserRole) : 'student';
 
     const user = await createUser(email, sanitizedName.value, password, sanitizedPhone.value || undefined, userRole);
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Пользователь с таким email уже существует' },
-        { status: 409 }
-      );
+      return NextResponse.json({ success: false, error: 'Пользователь с таким email уже существует' }, { status: 409 });
     }
 
     return NextResponse.json({
@@ -73,9 +62,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (err: unknown) {
     logger.error('Registration error:', err);
-    return NextResponse.json(
-      { success: false, error: 'Внутренняя ошибка сервера' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }

@@ -31,7 +31,7 @@ describe('adaptPostgreSQLToSQLite', () => {
     });
 
     it('replaces ::text with AS TEXT', () => {
-      const result = adaptPostgreSQLToSQLite("SELECT name::text FROM t");
+      const result = adaptPostgreSQLToSQLite('SELECT name::text FROM t');
       expect(result).toContain('AS TEXT');
     });
   });
@@ -99,7 +99,7 @@ describe('adaptPostgreSQLToSQLite', () => {
 
   describe('string aggregation', () => {
     it('replaces STRING_AGG with GROUP_CONCAT', () => {
-      const result = adaptPostgreSQLToSQLite('SELECT STRING_AGG(name, \',\') FROM t');
+      const result = adaptPostgreSQLToSQLite("SELECT STRING_AGG(name, ',') FROM t");
       expect(result).toContain('GROUP_CONCAT');
       expect(result).not.toContain('STRING_AGG');
     });

@@ -5,24 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertCircle, Award, Trophy, Medal, Search, ChevronUp, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import StudentDetailDialog from './student-detail-dialog';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
@@ -80,7 +67,7 @@ export default function LeaderboardTable() {
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
-      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortKey(key);
       setSortDir(key === 'rank' ? 'asc' : 'desc');
@@ -92,7 +79,7 @@ export default function LeaderboardTable() {
     let result = [...data];
     if (search) {
       const s = search.toLowerCase();
-      result = result.filter(e => e.name.toLowerCase().includes(s) || e.email.toLowerCase().includes(s));
+      result = result.filter((e) => e.name.toLowerCase().includes(s) || e.email.toLowerCase().includes(s));
     }
     result.sort((a, b) => {
       const aVal = a[sortKey];
@@ -148,7 +135,10 @@ export default function LeaderboardTable() {
               <Input
                 placeholder={t('analytics.leaderboard.search')}
                 value={search}
-                onChange={e => { setSearch(e.target.value); setPage(1); }}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
                 className="h-8"
               />
             </div>
@@ -174,9 +164,8 @@ export default function LeaderboardTable() {
                     >
                       <div className="flex items-center gap-1">
                         {label}
-                        {sortKey === key && (
-                          sortDir === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
-                        )}
+                        {sortKey === key &&
+                          (sortDir === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />)}
                       </div>
                     </TableHead>
                   ))}
@@ -201,11 +190,11 @@ export default function LeaderboardTable() {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Badge variant="secondary">{entry.tasks_completed}/{TRAINING_TASKS.length}</Badge>
+                      <Badge variant="secondary">
+                        {entry.tasks_completed}/{TRAINING_TASKS.length}
+                      </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      {Math.round(entry.avg_attempts * 10) / 10}
-                    </TableCell>
+                    <TableCell className="text-right">{Math.round(entry.avg_attempts * 10) / 10}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Award className="h-4 w-4 text-purple-600" />
@@ -215,9 +204,7 @@ export default function LeaderboardTable() {
                     <TableCell>
                       <div className="space-y-1">
                         <Progress value={entry.completion_rate} className="h-2" />
-                        <p className="text-xs text-muted-foreground text-right">
-                          {entry.completion_rate}%
-                        </p>
+                        <p className="text-xs text-muted-foreground text-right">{entry.completion_rate}%</p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -234,18 +221,31 @@ export default function LeaderboardTable() {
                 : `${(safePage - 1) * pageSize + 1}–${Math.min(safePage * pageSize, filteredAndSorted.length)} ${t('teacher.progress.of')} ${filteredAndSorted.length}`}
             </span>
             <div className="flex items-center gap-2">
-              <Select value={String(pageSize)} onValueChange={v => { setPageSize(Number(v)); setPage(1); }}>
-                <SelectTrigger className="w-16 h-8"><SelectValue /></SelectTrigger>
+              <Select
+                value={String(pageSize)}
+                onValueChange={(v) => {
+                  setPageSize(Number(v));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-16 h-8">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="10">10</SelectItem>
                   <SelectItem value="20">20</SelectItem>
                   <SelectItem value="50">50</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" size="sm" disabled={safePage <= 1} onClick={() => setPage(p => p - 1)}>
+              <Button variant="outline" size="sm" disabled={safePage <= 1} onClick={() => setPage((p) => p - 1)}>
                 {t('analytics.leaderboard.prev')}
               </Button>
-              <Button variant="outline" size="sm" disabled={safePage >= totalPages} onClick={() => setPage(p => p + 1)}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={safePage >= totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
                 {t('analytics.leaderboard.next')}
               </Button>
             </div>
@@ -253,11 +253,7 @@ export default function LeaderboardTable() {
         </CardContent>
       </Card>
 
-      <StudentDetailDialog
-        studentId={selectedStudentId}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
+      <StudentDetailDialog studentId={selectedStudentId} open={dialogOpen} onOpenChange={setDialogOpen} />
     </>
   );
 }

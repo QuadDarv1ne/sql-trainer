@@ -38,7 +38,7 @@ describe('User Progress API', () => {
       ]);
 
       const { GET } = await import('@/app/api/user/progress/route');
-      
+
       const mockSession = {
         user: { id: 'user-123', email: 'test@example.com' },
       };
@@ -63,7 +63,7 @@ describe('User Progress API', () => {
       vi.mocked(getUserProgress).mockResolvedValue([]);
 
       const { GET } = await import('@/app/api/user/progress/route');
-      
+
       const mockSession = {
         user: { id: 'new-user', email: 'new@example.com' },
       };
@@ -84,14 +84,14 @@ describe('User Progress API', () => {
     it('should save user progress with valid data', async () => {
       const { parseAndValidate } = await import('@/lib/validation');
       const { saveUserProgress } = await import('@/lib/db-users');
-      
+
       vi.mocked(parseAndValidate).mockResolvedValue({
         data: { taskId: 'task-001', attempts: 3 },
       });
       vi.mocked(saveUserProgress).mockResolvedValue(undefined);
 
       const { POST } = await import('@/app/api/user/progress/route');
-      
+
       const mockSession = {
         user: { id: 'user-123', email: 'test@example.com' },
       };
@@ -116,13 +116,13 @@ describe('User Progress API', () => {
 
     it('should reject invalid taskId', async () => {
       const { parseAndValidate } = await import('@/lib/validation');
-      
+
       vi.mocked(parseAndValidate).mockResolvedValue({
         response: NextResponse.json(JSON.stringify({ error: 'taskId обязателен' }), { status: 400 }),
       });
 
       const { POST } = await import('@/app/api/user/progress/route');
-      
+
       const mockSession = {
         user: { id: 'user-123', email: 'test@example.com' },
       };
@@ -143,13 +143,13 @@ describe('User Progress API', () => {
 
     it('should reject negative attempts', async () => {
       const { parseAndValidate } = await import('@/lib/validation');
-      
+
       vi.mocked(parseAndValidate).mockResolvedValue({
         response: NextResponse.json(JSON.stringify({ error: 'attempts должен быть неотрицательным' }), { status: 400 }),
       });
 
       const { POST } = await import('@/app/api/user/progress/route');
-      
+
       const mockSession = {
         user: { id: 'user-123', email: 'test@example.com' },
       };
@@ -170,13 +170,13 @@ describe('User Progress API', () => {
 
     it('should reject non-integer attempts', async () => {
       const { parseAndValidate } = await import('@/lib/validation');
-      
+
       vi.mocked(parseAndValidate).mockResolvedValue({
         response: NextResponse.json(JSON.stringify({ error: 'attempts должен быть целым числом' }), { status: 400 }),
       });
 
       const { POST } = await import('@/app/api/user/progress/route');
-      
+
       const mockSession = {
         user: { id: 'user-123', email: 'test@example.com' },
       };
@@ -198,14 +198,14 @@ describe('User Progress API', () => {
     it('should handle database errors gracefully', async () => {
       const { parseAndValidate } = await import('@/lib/validation');
       const { saveUserProgress } = await import('@/lib/db-users');
-      
+
       vi.mocked(parseAndValidate).mockResolvedValue({
         data: { taskId: 'task-001', attempts: 3 },
       });
       vi.mocked(saveUserProgress).mockRejectedValue(new Error('Database error'));
 
       const { POST } = await import('@/app/api/user/progress/route');
-      
+
       const mockSession = {
         user: { id: 'user-123', email: 'test@example.com' },
       };
@@ -216,10 +216,12 @@ describe('User Progress API', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      await expect(POST({
-        session: mockSession,
-        request: mockRequest,
-      } as any)).rejects.toThrow('Database error');
+      await expect(
+        POST({
+          session: mockSession,
+          request: mockRequest,
+        } as any),
+      ).rejects.toThrow('Database error');
     });
   });
 });

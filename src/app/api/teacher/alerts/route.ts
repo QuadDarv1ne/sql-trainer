@@ -4,7 +4,7 @@ import { getTeacherStudentProgress } from '@/lib/db-users';
 import { TRAINING_TASKS } from '@/lib/training-tasks';
 import { tWithLocale } from '@/lib/i18n';
 
-const TOTAL_TASKS = TRAINING_TASKS.filter(t => t.dbType === 'sqlite').length;
+const TOTAL_TASKS = TRAINING_TASKS.filter((t) => t.dbType === 'sqlite').length;
 
 export const GET = withTeacherAuth(async ({ request }) => {
   const acceptLang = request.headers.get('accept-language') || '';
@@ -50,9 +50,10 @@ export const GET = withTeacherAuth(async ({ request }) => {
         type: 'inactive',
         studentId: student.user_id,
         studentName: student.name,
-        message: typeof daysInactive === 'number'
-          ? t('teacher.alerts.inactive', { days: daysInactive })
-          : t('teacher.alerts.neverLoggedIn'),
+        message:
+          typeof daysInactive === 'number'
+            ? t('teacher.alerts.inactive', { days: daysInactive })
+            : t('teacher.alerts.neverLoggedIn'),
         severity: typeof daysInactive === 'number' && daysInactive > 14 ? 'high' : 'medium',
       });
     }

@@ -10,13 +10,7 @@ import { t } from '@/lib/i18n';
 import { plural } from '@/lib/utils';
 
 export default function ProgressStats() {
-  const {
-    completedTasks,
-    streak,
-    userStats,
-    unlockedAchievements,
-    queryHistory,
-  } = useSQLTrainerStore();
+  const { completedTasks, streak, userStats, unlockedAchievements, queryHistory } = useSQLTrainerStore();
 
   const totalTasks = TRAINING_TASKS.length;
   const completedCount = completedTasks.length;
@@ -25,9 +19,7 @@ export default function ProgressStats() {
   const avgAttempts = completedCount > 0 ? (totalAttempts / completedCount).toFixed(1) : '0';
 
   // Best result (fewest attempts)
-  const bestResult = completedCount > 0
-    ? Math.min(...completedTasks.map((p) => p.attempts))
-    : null;
+  const bestResult = completedCount > 0 ? Math.min(...completedTasks.map((p) => p.attempts)) : null;
 
   // Stats by difficulty
   const difficulties: Difficulty[] = ['beginner', 'intermediate', 'advanced'];
@@ -52,13 +44,14 @@ export default function ProgressStats() {
             <div className="flex-1">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">{t('progress.level', { level: String(userStats.level) })}</h3>
-                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
-                  {userStats.xp} XP
-                </span>
+                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">{userStats.xp} XP</span>
               </div>
               <Progress value={userStats.levelProgress} className="mt-2 h-2" />
               <p className="mt-1 text-xs text-muted-foreground">
-                {t('progress.toLevel', { progress: String(userStats.levelProgress), level: String(userStats.level + 1) })}
+                {t('progress.toLevel', {
+                  progress: String(userStats.levelProgress),
+                  level: String(userStats.level + 1),
+                })}
               </p>
             </div>
           </div>
@@ -71,7 +64,9 @@ export default function ProgressStats() {
           <CardContent className="p-4 flex items-center gap-3">
             <Target className="h-8 w-8 text-emerald-500" />
             <div>
-              <p className="text-2xl font-bold">{completedCount}/{totalTasks}</p>
+              <p className="text-2xl font-bold">
+                {completedCount}/{totalTasks}
+              </p>
               <p className="text-xs text-muted-foreground">{t('progress.tasksCompleted')}</p>
             </div>
           </CardContent>
@@ -113,7 +108,13 @@ export default function ProgressStats() {
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-lg font-bold">
-                  {streak.currentStreak} {plural(streak.currentStreak, t('welcome.streak.day'), t('welcome.streak.days'), t('welcome.streak.daysMany'))}
+                  {streak.currentStreak}{' '}
+                  {plural(
+                    streak.currentStreak,
+                    t('welcome.streak.day'),
+                    t('welcome.streak.days'),
+                    t('welcome.streak.daysMany'),
+                  )}
                 </span>
                 <span className="text-xs text-amber-600/70">{t('welcome.streak.label')}</span>
               </div>
@@ -167,7 +168,9 @@ export default function ProgressStats() {
               </CardHeader>
               <CardContent>
                 <Progress value={pct} className="h-1.5" />
-                <p className="mt-1 text-xs text-muted-foreground">{completed}/{total} {t('classReport.task')}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {completed}/{total} {t('classReport.task')}
+                </p>
               </CardContent>
             </Card>
           );

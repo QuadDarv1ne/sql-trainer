@@ -27,11 +27,7 @@ function StreakProgress() {
               <p className="text-sm font-medium">
                 Серия практики: <span className="text-amber-600">{currentStreak} дн.</span>
               </p>
-              {nextMilestone && (
-                <p className="text-xs text-muted-foreground">
-                  До следующего: {nextMilestone} дн.
-                </p>
-              )}
+              {nextMilestone && <p className="text-xs text-muted-foreground">До следующего: {nextMilestone} дн.</p>}
             </div>
             <Progress value={progress} className="mt-2 h-2" />
           </div>
@@ -70,18 +66,12 @@ export default function AchievementsGrid() {
           return (
             <Card
               key={a.id}
-              className={
-                unlocked
-                  ? 'border-emerald-200 dark:border-emerald-900/50'
-                  : 'border-border opacity-50'
-              }
+              className={unlocked ? 'border-emerald-200 dark:border-emerald-900/50' : 'border-border opacity-50'}
             >
               <CardContent className="p-4 flex items-start gap-3">
                 <div
                   className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
-                    unlocked
-                      ? 'bg-emerald-100 dark:bg-emerald-900/30'
-                      : 'bg-muted'
+                    unlocked ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-muted'
                   }`}
                 >
                   <span className="text-lg">{a.icon}</span>
@@ -101,11 +91,7 @@ export default function AchievementsGrid() {
                     )}
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">{a.description}</p>
-                  {!unlocked && (
-                    <p className="mt-1 text-[10px] text-muted-foreground/60">
-                      🔒 Заблокировано
-                    </p>
-                  )}
+                  {!unlocked && <p className="mt-1 text-[10px] text-muted-foreground/60">🔒 Заблокировано</p>}
                 </div>
               </CardContent>
             </Card>

@@ -15,7 +15,17 @@ interface PlatformHealth {
   active_today: number;
 }
 
-function StatCard({ icon: Icon, label, value, color = 'text-muted-foreground' }: { icon: typeof Database; label: string; value: string | number; color?: string }) {
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  color = 'text-muted-foreground',
+}: {
+  icon: typeof Database;
+  label: string;
+  value: string | number;
+  color?: string;
+}) {
   return (
     <Card>
       <CardContent className="pt-6">
@@ -37,7 +47,13 @@ export default function PlatformHealthReport() {
 
   if (loading || error || !data) {
     return (
-      <AnalyticsCard loading={loading} error={error} empty={!data} onRefresh={refetch} title={t('analytics.platformHealth.title')} />
+      <AnalyticsCard
+        loading={loading}
+        error={error}
+        empty={!data}
+        onRefresh={refetch}
+        title={t('analytics.platformHealth.title')}
+      />
     );
   }
 
@@ -45,11 +61,30 @@ export default function PlatformHealthReport() {
     <div className="space-y-6">
       {/* Quick stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Activity} label={t('analytics.platformHealth.activeToday')} value={data.active_today} color="text-emerald-600" />
-        <StatCard icon={Mail} label={t('analytics.platformHealth.pendingEmails')} value={data.email_queue.pending} color={data.email_queue.pending > 0 ? 'text-amber-600' : 'text-muted-foreground'} />
-        <StatCard icon={AlertCircle} label={t('analytics.platformHealth.failedEmails')} value={data.email_queue.failed} color={data.email_queue.failed > 0 ? 'text-red-600' : 'text-muted-foreground'} />
+        <StatCard
+          icon={Activity}
+          label={t('analytics.platformHealth.activeToday')}
+          value={data.active_today}
+          color="text-emerald-600"
+        />
+        <StatCard
+          icon={Mail}
+          label={t('analytics.platformHealth.pendingEmails')}
+          value={data.email_queue.pending}
+          color={data.email_queue.pending > 0 ? 'text-amber-600' : 'text-muted-foreground'}
+        />
+        <StatCard
+          icon={AlertCircle}
+          label={t('analytics.platformHealth.failedEmails')}
+          value={data.email_queue.failed}
+          color={data.email_queue.failed > 0 ? 'text-red-600' : 'text-muted-foreground'}
+        />
         <StatCard icon={Bell} label={t('analytics.platformHealth.pendingReminders')} value={data.reminders.pending} />
-        <StatCard icon={Users} label={t('analytics.platformHealth.pushSubscriptions')} value={data.push_subscriptions} />
+        <StatCard
+          icon={Users}
+          label={t('analytics.platformHealth.pushSubscriptions')}
+          value={data.push_subscriptions}
+        />
       </div>
 
       {/* Table stats */}

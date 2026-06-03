@@ -111,18 +111,14 @@ export default function ExportImportDialog() {
             <Download className="h-5 w-5 text-emerald-500" />
             {t('exportImport.title')}
           </DialogTitle>
-          <DialogDescription>
-            {t('exportImport.desc')}
-          </DialogDescription>
+          <DialogDescription>{t('exportImport.desc')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
           {/* Export */}
           <div className="rounded-lg border border-border p-4">
             <h4 className="mb-2 text-sm font-medium">{t('exportImport.exportTitle')}</h4>
-            <p className="mb-3 text-xs text-muted-foreground">
-              {t('exportImport.exportDesc')}
-            </p>
+            <p className="mb-3 text-xs text-muted-foreground">{t('exportImport.exportDesc')}</p>
             <Button onClick={handleExport} className="w-full" size="sm">
               <Download className="mr-2 h-4 w-4" />
               {t('exportImport.exportBtn')}
@@ -132,9 +128,7 @@ export default function ExportImportDialog() {
           {/* Import */}
           <div className="rounded-lg border border-border p-4">
             <h4 className="mb-2 text-sm font-medium">{t('exportImport.importTitle')}</h4>
-            <p className="mb-3 text-xs text-muted-foreground">
-              {t('exportImport.importDesc')}
-            </p>
+            <p className="mb-3 text-xs text-muted-foreground">{t('exportImport.importDesc')}</p>
 
             <div
               onDragOver={(e) => e.preventDefault()}

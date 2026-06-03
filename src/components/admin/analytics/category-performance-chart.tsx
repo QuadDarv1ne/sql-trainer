@@ -6,16 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle } from 'lucide-react';
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
@@ -62,7 +53,7 @@ export default function CategoryPerformanceChart() {
   }
   if (!data.length) return <EmptyState />;
 
-  const chartData = data.map(d => ({
+  const chartData = data.map((d) => ({
     name: d.label,
     completion_rate: d.completion_rate,
     avg_attempts: d.avg_attempts,

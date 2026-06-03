@@ -4,26 +4,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertCircle } from 'lucide-react';
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  Cell,
-} from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from 'recharts';
 import { TRAINING_TASKS, DIFFICULTY_LABELS, type Difficulty } from '@/lib/training-tasks';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
@@ -77,15 +60,11 @@ export default function TaskAnalyticsChart() {
   }, [data]);
 
   const top15ByAttempts = useMemo(() => {
-    return [...enrichedData]
-      .sort((a, b) => b.avg_attempts - a.avg_attempts)
-      .slice(0, 15);
+    return [...enrichedData].sort((a, b) => b.avg_attempts - a.avg_attempts).slice(0, 15);
   }, [enrichedData]);
 
   const hardest10 = useMemo(() => {
-    return [...enrichedData]
-      .sort((a, b) => b.avg_attempts - a.avg_attempts)
-      .slice(0, 10);
+    return [...enrichedData].sort((a, b) => b.avg_attempts - a.avg_attempts).slice(0, 10);
   }, [enrichedData]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
@@ -153,8 +132,8 @@ export default function TaskAnalyticsChart() {
                           task.difficulty === 'beginner'
                             ? 'border-emerald-500 text-emerald-600'
                             : task.difficulty === 'intermediate'
-                            ? 'border-amber-500 text-amber-600'
-                            : 'border-red-500 text-red-600'
+                              ? 'border-amber-500 text-amber-600'
+                              : 'border-red-500 text-red-600'
                         }
                       >
                         {DIFFICULTY_LABELS[task.difficulty as Difficulty]}

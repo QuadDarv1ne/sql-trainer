@@ -69,7 +69,11 @@ describe('parseDateParams', () => {
       startDate: '1700086400000',
       endDate: '1700000000000',
     });
-    expect(parseDateParams(params)).toEqual({ startDate: null, endDate: null, error: 'startDate must be before endDate' });
+    expect(parseDateParams(params)).toEqual({
+      startDate: null,
+      endDate: null,
+      error: 'startDate must be before endDate',
+    });
   });
 });
 
@@ -208,9 +212,7 @@ describe('withRoleAuth factory (via withAdminAuth / withTeacherAuth / withUserAu
     const handler = withAdminAuth(handlerFn);
     const request = new Request('http://localhost/api/test');
     await handler(request, { params: Promise.resolve({ id: '123' }) });
-    expect(handlerFn).toHaveBeenCalledWith(
-      expect.objectContaining({ params: { id: '123' } })
-    );
+    expect(handlerFn).toHaveBeenCalledWith(expect.objectContaining({ params: { id: '123' } }));
   });
 
   it('handles sync params', async () => {
@@ -220,8 +222,6 @@ describe('withRoleAuth factory (via withAdminAuth / withTeacherAuth / withUserAu
     const handler = withAdminAuth(handlerFn);
     const request = new Request('http://localhost/api/test');
     await handler(request, { params: { id: '456' } });
-    expect(handlerFn).toHaveBeenCalledWith(
-      expect.objectContaining({ params: { id: '456' } })
-    );
+    expect(handlerFn).toHaveBeenCalledWith(expect.objectContaining({ params: { id: '456' } }));
   });
 });

@@ -109,8 +109,6 @@ describe('getRequiredEnv', () => {
     const { getRequiredEnv } = await import('@/lib/env');
 
     delete process.env.AUTH_SECRET;
-    expect(() => getRequiredEnv('AUTH_SECRET')).toThrow(
-      'Missing required environment variable: AUTH_SECRET'
-    );
+    expect(() => getRequiredEnv('AUTH_SECRET')).toThrow('Missing required environment variable: AUTH_SECRET');
   });
 });

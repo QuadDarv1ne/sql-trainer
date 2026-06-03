@@ -2,13 +2,19 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import {
-  Card, CardContent, CardHeader, CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import {
-  Database, Users, Activity, Clock, HardDrive, CheckCircle2, AlertTriangle, XCircle, RefreshCw,
+  Database,
+  Users,
+  Activity,
+  Clock,
+  HardDrive,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  RefreshCw,
 } from 'lucide-react';
 import { t } from '@/lib/i18n';
 
@@ -29,9 +35,14 @@ interface SystemHealthData {
 function formatBytes(bytes: number): string {
   if (bytes === 0) return t('admin.stats.bytes.zero');
   const k = 1024;
-  const sizes = [t('admin.stats.bytes.B'), t('admin.stats.bytes.KB'), t('admin.stats.bytes.MB'), t('admin.stats.bytes.GB')];
+  const sizes = [
+    t('admin.stats.bytes.B'),
+    t('admin.stats.bytes.KB'),
+    t('admin.stats.bytes.MB'),
+    t('admin.stats.bytes.GB'),
+  ];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 10) / 10 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(k, i)) * 10) / 10 + ' ' + sizes[i];
 }
 
 export default function SystemHealth() {
@@ -78,28 +89,80 @@ export default function SystemHealth() {
   }, []);
 
   if (loading) return <p className="text-center py-4 text-muted-foreground">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!health) return null;
 
   const statusConfig = {
-    healthy: { icon: CheckCircle2, label: t('admin.health.status.healthy'), color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30' },
-    degraded: { icon: AlertTriangle, label: t('admin.health.status.degraded'), color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30' },
-    error: { icon: XCircle, label: t('admin.health.status.error'), color: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30' },
+    healthy: {
+      icon: CheckCircle2,
+      label: t('admin.health.status.healthy'),
+      color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30',
+    },
+    degraded: {
+      icon: AlertTriangle,
+      label: t('admin.health.status.degraded'),
+      color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30',
+    },
+    error: {
+      icon: XCircle,
+      label: t('admin.health.status.error'),
+      color: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30',
+    },
   };
 
   const StatusIcon = statusConfig[health.db_connection_status].icon;
 
   const summaryCards = [
-    { icon: Users, label: t('admin.health.totalUsers'), value: health.total_users, color: 'text-blue-600 dark:text-blue-400' },
-    { icon: Activity, label: t('admin.health.activeToday'), value: health.active_today, color: 'text-emerald-600 dark:text-emerald-400' },
-    { icon: Activity, label: t('admin.health.activeWeek'), value: health.active_this_week, color: 'text-amber-600 dark:text-amber-400' },
-    { icon: Database, label: t('admin.health.progressEntries'), value: health.total_progress_entries, color: 'text-purple-600 dark:text-purple-400' },
-    { icon: Database, label: t('admin.health.achievements'), value: health.total_achievements, color: 'text-pink-600 dark:text-pink-400' },
-    { icon: HardDrive, label: t('admin.health.dbSize'), value: formatBytes(health.db_size_bytes), color: 'text-gray-600 dark:text-gray-400' },
-    { icon: HardDrive, label: t('admin.health.dbWalSize'), value: formatBytes(health.db_wal_size_bytes), color: 'text-gray-500 dark:text-gray-400' },
+    {
+      icon: Users,
+      label: t('admin.health.totalUsers'),
+      value: health.total_users,
+      color: 'text-blue-600 dark:text-blue-400',
+    },
+    {
+      icon: Activity,
+      label: t('admin.health.activeToday'),
+      value: health.active_today,
+      color: 'text-emerald-600 dark:text-emerald-400',
+    },
+    {
+      icon: Activity,
+      label: t('admin.health.activeWeek'),
+      value: health.active_this_week,
+      color: 'text-amber-600 dark:text-amber-400',
+    },
+    {
+      icon: Database,
+      label: t('admin.health.progressEntries'),
+      value: health.total_progress_entries,
+      color: 'text-purple-600 dark:text-purple-400',
+    },
+    {
+      icon: Database,
+      label: t('admin.health.achievements'),
+      value: health.total_achievements,
+      color: 'text-pink-600 dark:text-pink-400',
+    },
+    {
+      icon: HardDrive,
+      label: t('admin.health.dbSize'),
+      value: formatBytes(health.db_size_bytes),
+      color: 'text-gray-600 dark:text-gray-400',
+    },
+    {
+      icon: HardDrive,
+      label: t('admin.health.dbWalSize'),
+      value: formatBytes(health.db_wal_size_bytes),
+      color: 'text-gray-500 dark:text-gray-400',
+    },
   ];
 
-  const chartData = health.last_24h_activity.map(h => ({
+  const chartData = health.last_24h_activity.map((h) => ({
     hour: `${h.hour}:00`,
     completions: h.completions,
     users: h.users,
@@ -114,7 +177,10 @@ export default function SystemHealth() {
             {t('admin.health.title')}
           </CardTitle>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className={`flex items-center gap-1 px-3 py-1 ${statusConfig[health.db_connection_status].color}`}>
+            <Badge
+              variant="outline"
+              className={`flex items-center gap-1 px-3 py-1 ${statusConfig[health.db_connection_status].color}`}
+            >
               <StatusIcon className="h-3.5 w-3.5" />
               {statusConfig[health.db_connection_status].label}
             </Badge>
@@ -132,7 +198,7 @@ export default function SystemHealth() {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {summaryCards.map(card => (
+          {summaryCards.map((card) => (
             <div key={card.label} className="flex flex-col items-center p-3 rounded-lg border bg-card">
               <card.icon className={`h-5 w-5 ${card.color} mb-1`} />
               <div className="text-lg font-bold">{card.value}</div>
@@ -154,7 +220,12 @@ export default function SystemHealth() {
                   <XAxis dataKey="hour" tick={{ fontSize: 9 }} interval={2} />
                   <YAxis tick={{ fontSize: 10 }} />
                   <Tooltip />
-                  <Bar dataKey="completions" name={t('admin.health.completions')} fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} />
+                  <Bar
+                    dataKey="completions"
+                    name={t('admin.health.completions')}
+                    fill="hsl(var(--primary))"
+                    radius={[2, 2, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>

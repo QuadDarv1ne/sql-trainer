@@ -9,17 +9,7 @@ import { t } from '@/lib/i18n';
 import { logger } from '@/lib/logger';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 
 interface TimeEstimate {
   task_id: string;
@@ -125,9 +115,7 @@ export default function TimeToCompleteChart() {
             <Badge variant="secondary">
               {totalTasks} {t('analytics.timeToComplete.tasks')}
             </Badge>
-            <Badge variant="secondary">
-              {t('analytics.timeToComplete.avgMinutes', { min: String(avgTime) })}
-            </Badge>
+            <Badge variant="secondary">{t('analytics.timeToComplete.avgMinutes', { min: String(avgTime) })}</Badge>
           </div>
         </div>
       </CardHeader>
@@ -151,15 +139,15 @@ export default function TimeToCompleteChart() {
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={chartData} layout="vertical" margin={{ left: 20 }}>
             <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-            <XAxis type="number" tick={{ fontSize: 12 }} label={{ value: t('analytics.timeToComplete.axisLabel'), position: 'insideBottom', offset: -5 }} />
+            <XAxis
+              type="number"
+              tick={{ fontSize: 12 }}
+              label={{ value: t('analytics.timeToComplete.axisLabel'), position: 'insideBottom', offset: -5 }}
+            />
             <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11 }} />
             <Tooltip />
             <Legend />
-            <Bar
-              dataKey="time"
-              name={t('analytics.timeToComplete.legendLabel')}
-              radius={[0, 4, 4, 0]}
-            >
+            <Bar dataKey="time" name={t('analytics.timeToComplete.legendLabel')} radius={[0, 4, 4, 0]}>
               {chartData.map((entry) => (
                 <Cell key={entry.name} fill={DIFFICULTY_COLORS[entry.difficulty] || '#10b981'} />
               ))}

@@ -23,9 +23,7 @@ export default function ExplainPanel({ plan, suggestions, onClose }: ExplainPane
         </Button>
       </div>
       <div className="flex-1 overflow-auto p-4">
-        <pre className="whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 text-xs font-mono">
-          {plan}
-        </pre>
+        <pre className="whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 text-xs font-mono">{plan}</pre>
         {suggestions.length > 0 && (
           <div className="mt-4 space-y-2">
             <h4 className="text-sm font-medium flex items-center gap-1.5">

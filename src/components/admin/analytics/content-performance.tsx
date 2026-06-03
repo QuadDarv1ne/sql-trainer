@@ -24,7 +24,13 @@ interface ContentPerformanceData {
   hardest_tasks: TaskMetric[];
   easiest_tasks: TaskMetric[];
   most_hinted_tasks: TaskMetric[];
-  by_category: Array<{ category: string; task_count: number; total_completions: number; avg_attempts: number; total_hints: number }>;
+  by_category: Array<{
+    category: string;
+    task_count: number;
+    total_completions: number;
+    avg_attempts: number;
+    total_hints: number;
+  }>;
 }
 
 function DifficultyBadge({ difficulty }: { difficulty: string }) {
@@ -45,7 +51,19 @@ function DifficultyBadge({ difficulty }: { difficulty: string }) {
   );
 }
 
-function TaskTable({ title, icon: Icon, tasks, metricKey, metricLabel }: { title: string; icon: typeof Brain; tasks: TaskMetric[]; metricKey: keyof TaskMetric; metricLabel: string }) {
+function TaskTable({
+  title,
+  icon: Icon,
+  tasks,
+  metricKey,
+  metricLabel,
+}: {
+  title: string;
+  icon: typeof Brain;
+  tasks: TaskMetric[];
+  metricKey: keyof TaskMetric;
+  metricLabel: string;
+}) {
   return (
     <Card>
       <CardHeader>
@@ -68,9 +86,13 @@ function TaskTable({ title, icon: Icon, tasks, metricKey, metricLabel }: { title
               {tasks.map((task) => (
                 <TableRow key={task.task_id}>
                   <TableCell className="font-medium text-sm">{task.task_title}</TableCell>
-                  <TableCell><DifficultyBadge difficulty={task.difficulty} /></TableCell>
+                  <TableCell>
+                    <DifficultyBadge difficulty={task.difficulty} />
+                  </TableCell>
                   <TableCell className="text-right font-mono text-sm">
-                    {typeof task[metricKey] === 'number' ? (task[metricKey] as number).toFixed(1) : String(task[metricKey])}
+                    {typeof task[metricKey] === 'number'
+                      ? (task[metricKey] as number).toFixed(1)
+                      : String(task[metricKey])}
                   </TableCell>
                 </TableRow>
               ))}
@@ -90,7 +112,13 @@ export default function ContentPerformance() {
 
   if (loading || error || !data) {
     return (
-      <AnalyticsCard loading={loading} error={error} empty={!data} onRefresh={refetch} title={t('analytics.contentPerformance.title')} />
+      <AnalyticsCard
+        loading={loading}
+        error={error}
+        empty={!data}
+        onRefresh={refetch}
+        title={t('analytics.contentPerformance.title')}
+      />
     );
   }
 

@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  detectConcepts,
-  getPracticedConcepts,
-  recommendByConcept,
-  CONCEPT_LABELS,
-} from '@/lib/concept-engine';
+import { detectConcepts, getPracticedConcepts, recommendByConcept, CONCEPT_LABELS } from '@/lib/concept-engine';
 import type { SQLConcept } from '@/lib/concept-engine';
 import type { TrainingTask } from '@/lib/tasks/types';
 
@@ -73,7 +68,9 @@ describe('detectConcepts', () => {
   });
 
   it('should detect CTE concept', () => {
-    const result = detectConcepts('WITH ranked AS (SELECT *, ROW_NUMBER() OVER() AS rn FROM users) SELECT * FROM ranked');
+    const result = detectConcepts(
+      'WITH ranked AS (SELECT *, ROW_NUMBER() OVER() AS rn FROM users) SELECT * FROM ranked',
+    );
     expect(result.has('cte')).toBe(true);
   });
 
@@ -118,7 +115,9 @@ describe('detectConcepts', () => {
   });
 
   it('should detect exists concept', () => {
-    const result = detectConcepts('SELECT * FROM users WHERE EXISTS (SELECT 1 FROM orders WHERE orders.uid = users.id)');
+    const result = detectConcepts(
+      'SELECT * FROM users WHERE EXISTS (SELECT 1 FROM orders WHERE orders.uid = users.id)',
+    );
     expect(result.has('exists')).toBe(true);
   });
 
@@ -180,9 +179,7 @@ describe('getPracticedConcepts', () => {
   });
 
   it('should return concepts from completed tasks', () => {
-    const tasks = [
-      makeTask({ id: 'task-1', sampleSolution: 'SELECT * FROM users WHERE age > 18' }),
-    ];
+    const tasks = [makeTask({ id: 'task-1', sampleSolution: 'SELECT * FROM users WHERE age > 18' })];
     const result = getPracticedConcepts(['task-1'], tasks);
     expect(result.has('select_basic')).toBe(true);
     expect(result.has('where_filter')).toBe(true);
@@ -305,12 +302,32 @@ describe('recommendByConcept', () => {
 describe('CONCEPT_LABELS', () => {
   it('should have labels for all concepts', () => {
     const concepts: SQLConcept[] = [
-      'select_basic', 'where_filter', 'order_by', 'group_by',
-      'aggregate_functions', 'having', 'inner_join', 'left_join',
-      'self_join', 'subquery_where', 'subquery_select', 'cte',
-      'window_function', 'row_number', 'case_when', 'coalesce',
-      'distinct', 'union', 'date_functions', 'string_functions',
-      'limit_top', 'exists', 'insert', 'update', 'delete', 'constraints',
+      'select_basic',
+      'where_filter',
+      'order_by',
+      'group_by',
+      'aggregate_functions',
+      'having',
+      'inner_join',
+      'left_join',
+      'self_join',
+      'subquery_where',
+      'subquery_select',
+      'cte',
+      'window_function',
+      'row_number',
+      'case_when',
+      'coalesce',
+      'distinct',
+      'union',
+      'date_functions',
+      'string_functions',
+      'limit_top',
+      'exists',
+      'insert',
+      'update',
+      'delete',
+      'constraints',
     ];
 
     for (const concept of concepts) {

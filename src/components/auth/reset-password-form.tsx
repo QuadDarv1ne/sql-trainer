@@ -15,7 +15,12 @@ import { t } from '@/lib/i18n';
 
 type Step = 'request' | 'verify' | 'done';
 
-function getPasswordStrength(password: string): { score: number; label: string; color: string; requirements: { met: boolean; text: string }[] } {
+function getPasswordStrength(password: string): {
+  score: number;
+  label: string;
+  color: string;
+  requirements: { met: boolean; text: string }[];
+} {
   const requirements = [
     { met: password.length >= 6, text: t('auth.passwordPlaceholder') },
     { met: /[A-Z]/.test(password), text: t('profile.req.uppercase') },
@@ -24,14 +29,21 @@ function getPasswordStrength(password: string): { score: number; label: string; 
     { met: /[^A-Za-z0-9]/.test(password), text: t('profile.req.special') },
   ];
 
-  const metCount = requirements.filter(r => r.met).length;
+  const metCount = requirements.filter((r) => r.met).length;
   const score = Math.round((metCount / requirements.length) * 100);
 
   let label = t('auth.strength.weak');
   let colorClasses = { light: 'text-red-500', dark: 'dark:text-red-400' };
-  if (score >= 80) { label = t('auth.strength.strong'); colorClasses = { light: 'text-emerald-500', dark: 'dark:text-emerald-400' }; }
-  else if (score >= 60) { label = t('auth.strength.fair'); colorClasses = { light: 'text-yellow-500', dark: 'dark:text-yellow-400' }; }
-  else if (score >= 40) { label = t('auth.strength.weak'); colorClasses = { light: 'text-orange-500', dark: 'dark:text-orange-400' }; }
+  if (score >= 80) {
+    label = t('auth.strength.strong');
+    colorClasses = { light: 'text-emerald-500', dark: 'dark:text-emerald-400' };
+  } else if (score >= 60) {
+    label = t('auth.strength.fair');
+    colorClasses = { light: 'text-yellow-500', dark: 'dark:text-yellow-400' };
+  } else if (score >= 40) {
+    label = t('auth.strength.weak');
+    colorClasses = { light: 'text-orange-500', dark: 'dark:text-orange-400' };
+  }
 
   return { score, label, color: `${colorClasses.light} ${colorClasses.dark}`, requirements };
 }
@@ -61,7 +73,7 @@ export default function ResetPasswordForm() {
   useEffect(() => {
     if (cooldown <= 0) return;
     const timer = setInterval(() => {
-      setCooldown(prev => Math.max(0, prev - 1));
+      setCooldown((prev) => Math.max(0, prev - 1));
     }, 1000);
     return () => clearInterval(timer);
   }, [cooldown]);
@@ -264,14 +276,15 @@ export default function ResetPasswordForm() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">{t('auth.passwordStrength')}</span>
-                    <span className={`font-medium ${passwordStrength.color}`}>
-                      {passwordStrength.label}
-                    </span>
+                    <span className={`font-medium ${passwordStrength.color}`}>{passwordStrength.label}</span>
                   </div>
                   <Progress value={passwordStrength.score} className="h-1.5" />
                   <ul className="grid grid-cols-2 gap-1 text-xs">
                     {passwordStrength.requirements.map((req, i) => (
-                      <li key={i} className={`flex items-center gap-1 ${req.met ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`}>
+                      <li
+                        key={i}
+                        className={`flex items-center gap-1 ${req.met ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`}
+                      >
                         {req.met ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
                         {req.text}
                       </li>
@@ -319,7 +332,11 @@ export default function ResetPasswordForm() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading || newPassword !== confirmPassword}>
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700"
+              disabled={loading || newPassword !== confirmPassword}
+            >
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               {t('auth.changePasswordBtn')}
             </Button>
@@ -331,9 +348,7 @@ export default function ResetPasswordForm() {
         <CardContent className="flex flex-col items-center justify-center py-6">
           <CheckCircle2 className="h-12 w-12 text-emerald-500 mb-4" />
           <h3 className="text-lg font-semibold mb-2">{t('auth.passwordChangeSuccess')}</h3>
-          <p className="text-sm text-muted-foreground text-center mb-4">
-            {t('auth.loginDesc')}
-          </p>
+          <p className="text-sm text-muted-foreground text-center mb-4">{t('auth.loginDesc')}</p>
           <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => router.push('/login')}>
             {t('auth.loginLink')}
           </Button>

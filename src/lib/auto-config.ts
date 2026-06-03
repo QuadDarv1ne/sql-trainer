@@ -85,10 +85,7 @@ async function testMongoDB(): Promise<{ available: boolean; connectionString?: s
  * Detect all available databases and return configuration.
  */
 export async function detectAvailableDatabases(): Promise<DatabaseConfig[]> {
-  const [pg, mongo] = await Promise.all([
-    testPostgreSQL(),
-    testMongoDB(),
-  ]);
+  const [pg, mongo] = await Promise.all([testPostgreSQL(), testMongoDB()]);
 
   const configs: DatabaseConfig[] = [
     {
@@ -124,15 +121,15 @@ export async function detectAvailableDatabases(): Promise<DatabaseConfig[]> {
  */
 export function getOptimalDatabase(configs: DatabaseConfig[]): DatabaseConfig {
   // Prefer real connections first
-  const real = configs.find(c => c.available && c.mode === 'real');
+  const real = configs.find((c) => c.available && c.mode === 'real');
   if (real) return real;
 
   // Then adapters
-  const adapter = configs.find(c => c.available && c.mode === 'adapter');
+  const adapter = configs.find((c) => c.available && c.mode === 'adapter');
   if (adapter) return adapter;
 
   // Fallback to SQLite in-memory
-  const sqliteConfig = configs.find(c => c.type === 'sqlite');
+  const sqliteConfig = configs.find((c) => c.type === 'sqlite');
   if (!sqliteConfig) throw new Error('SQLite configuration not found');
   return sqliteConfig;
 }
@@ -141,10 +138,7 @@ export function getOptimalDatabase(configs: DatabaseConfig[]): DatabaseConfig {
  * Get the complete application configuration.
  */
 export async function getAppConfig(startPort: number = 3000): Promise<AppConfig> {
-  const [port, databases] = await Promise.all([
-    findFreePort(startPort),
-    detectAvailableDatabases(),
-  ]);
+  const [port, databases] = await Promise.all([findFreePort(startPort), detectAvailableDatabases()]);
 
   const primaryDatabase = getOptimalDatabase(databases);
 

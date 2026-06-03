@@ -51,7 +51,11 @@ export async function requireTeacher() {
  */
 const MAX_VALID_TIMESTAMP = 32503680000000; // 3000-01-01T00:00:00Z
 
-export function parseDateParams(searchParams: URLSearchParams): { startDate: number | null; endDate: number | null; error?: string } {
+export function parseDateParams(searchParams: URLSearchParams): {
+  startDate: number | null;
+  endDate: number | null;
+  error?: string;
+} {
   const startDate = searchParams.get('startDate');
   const endDate = searchParams.get('endDate');
 
@@ -92,9 +96,9 @@ type AnalyticsHandlerContext = {
  * Resolve params from context, handling both sync and promise-based params
  * (Next.js 15+ uses promise-based params).
  */
-async function resolveParams(
-  context?: { params?: Promise<Record<string, string>> | Record<string, string> }
-): Promise<Record<string, string> | undefined> {
+async function resolveParams(context?: {
+  params?: Promise<Record<string, string>> | Record<string, string>;
+}): Promise<Record<string, string> | undefined> {
   if (!context?.params) return undefined;
   return 'then' in context.params ? await context.params : context.params;
 }
@@ -107,14 +111,12 @@ function withRoleAuth(
   roleCheck: () => Promise<{ error: NextResponse | null; session: AuthSession | null }>,
   rateLimitPrefix: string,
   rateLimitMax: number,
-  errorLabel: string
+  errorLabel: string,
 ) {
-  return function (
-    handler: (ctx: RouteHandlerContext) => NextResponse | Promise<NextResponse>
-  ) {
+  return function (handler: (ctx: RouteHandlerContext) => NextResponse | Promise<NextResponse>) {
     return async (
       request: Request,
-      context?: { params?: Promise<Record<string, string>> | Record<string, string> }
+      context?: { params?: Promise<Record<string, string>> | Record<string, string> },
     ): Promise<NextResponse> => {
       const authResult = await roleCheck();
       if (!authResult.session) {
@@ -164,9 +166,7 @@ export const withUserAuth = withRoleAuth(requireUser, 'user', 60, 'User');
  * Handles admin auth + date param parsing in one call.
  * Replaces the ~18 lines of boilerplate repeated across 50+ analytics routes.
  */
-export function withAnalyticsAuth(
-  handler: (ctx: AnalyticsHandlerContext) => NextResponse | Promise<NextResponse>
-) {
+export function withAnalyticsAuth(handler: (ctx: AnalyticsHandlerContext) => NextResponse | Promise<NextResponse>) {
   return async (request: Request): Promise<NextResponse> => {
     const authResult = await requireAdmin();
     if (!authResult.session) {

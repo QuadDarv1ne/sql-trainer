@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  generateProgressiveHints,
-  getNextHintLevel,
-  calculateHintPenalty,
-} from '@/lib/progressive-hints';
+import { generateProgressiveHints, getNextHintLevel, calculateHintPenalty } from '@/lib/progressive-hints';
 import type { ProgressiveHint } from '@/lib/progressive-hints';
 
 describe('generateProgressiveHints', () => {

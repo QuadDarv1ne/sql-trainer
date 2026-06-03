@@ -31,9 +31,15 @@ export default function TeacherAlerts() {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((data) => { if (!controller.signal.aborted) setAlerts(data.alerts); })
-      .catch((err) => { if (err.name !== 'AbortError' && !controller.signal.aborted) setError(t('teacher.error')); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+      .then((data) => {
+        if (!controller.signal.aborted) setAlerts(data.alerts);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError' && !controller.signal.aborted) setError(t('teacher.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
     return () => controller.abort();
   }, []);
 
@@ -126,10 +132,7 @@ export default function TeacherAlerts() {
                     <Badge variant="outline" className="text-xs">
                       {typeLabels[alert.type]}
                     </Badge>
-                    <Badge
-                      variant={alert.severity === 'high' ? 'destructive' : 'secondary'}
-                      className="text-xs"
-                    >
+                    <Badge variant={alert.severity === 'high' ? 'destructive' : 'secondary'} className="text-xs">
                       {severityLabels[alert.severity]}
                     </Badge>
                   </div>

@@ -50,7 +50,9 @@ export default function AdminPage() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{t('admin.title')}</h1>
-            <p className="text-sm text-muted-foreground">{t('admin.subtitle', { default: 'Управление пользователями, аналитика и мониторинг системы' })}</p>
+            <p className="text-sm text-muted-foreground">
+              {t('admin.subtitle', { default: 'Управление пользователями, аналитика и мониторинг системы' })}
+            </p>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

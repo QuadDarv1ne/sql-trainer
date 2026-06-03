@@ -59,7 +59,9 @@ export default function WeekOverWeekComparison() {
   if (loading) {
     return (
       <Card>
-        <CardHeader><CardTitle>{t('analytics.weekComparison.title')}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>{t('analytics.weekComparison.title')}</CardTitle>
+        </CardHeader>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </CardContent>
@@ -70,7 +72,9 @@ export default function WeekOverWeekComparison() {
   if (error) {
     return (
       <Card>
-        <CardHeader><CardTitle>{t('analytics.weekComparison.title')}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>{t('analytics.weekComparison.title')}</CardTitle>
+        </CardHeader>
         <CardContent>
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -84,7 +88,9 @@ export default function WeekOverWeekComparison() {
   if (data.length === 0) {
     return (
       <Card>
-        <CardHeader><CardTitle>{t('analytics.weekComparison.title')}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>{t('analytics.weekComparison.title')}</CardTitle>
+        </CardHeader>
         <CardContent>
           <EmptyState />
         </CardContent>
@@ -94,18 +100,17 @@ export default function WeekOverWeekComparison() {
 
   return (
     <Card>
-      <CardHeader><CardTitle>{t('analytics.weekComparison.title')}</CardTitle></CardHeader>
+      <CardHeader>
+        <CardTitle>{t('analytics.weekComparison.title')}</CardTitle>
+      </CardHeader>
       <CardContent>
         <div className="grid gap-4 md:grid-cols-3">
           {data.map((item) => {
             const label = metricLabels[item.metric] || item.metric;
             const isInverted = item.metric === 'avg_attempts'; // lower is better
             const isPositive = isInverted ? item.change_percent < 0 : item.change_percent > 0;
-            const changeColor = item.change_percent === 0
-              ? 'text-muted-foreground'
-              : isPositive
-                ? 'text-emerald-500'
-                : 'text-red-500';
+            const changeColor =
+              item.change_percent === 0 ? 'text-muted-foreground' : isPositive ? 'text-emerald-500' : 'text-red-500';
 
             return (
               <div key={item.metric} className="rounded-lg border p-4">
@@ -113,20 +118,18 @@ export default function WeekOverWeekComparison() {
                 <div className="flex items-end justify-between">
                   <div>
                     <p className="text-2xl font-bold">
-                      {item.metric === 'avg_attempts'
-                        ? item.current.toFixed(1)
-                        : item.current}
+                      {item.metric === 'avg_attempts' ? item.current.toFixed(1) : item.current}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {t('analytics.weekComparison.was')} {item.metric === 'avg_attempts'
-                        ? item.previous.toFixed(1)
-                        : item.previous}
+                      {t('analytics.weekComparison.was')}{' '}
+                      {item.metric === 'avg_attempts' ? item.previous.toFixed(1) : item.previous}
                     </p>
                   </div>
                   <div className={`flex items-center gap-1 ${changeColor}`}>
                     <ChangeIndicator value={item.change_percent} inverted={isInverted} />
                     <span className="text-sm font-medium">
-                      {item.change_percent > 0 ? '+' : ''}{item.change_percent}%
+                      {item.change_percent > 0 ? '+' : ''}
+                      {item.change_percent}%
                     </span>
                   </div>
                 </div>

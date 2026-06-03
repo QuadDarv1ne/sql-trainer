@@ -7,11 +7,7 @@ import { t, getLocale } from '@/lib/i18n';
 import { toast } from 'sonner';
 import { PendingReminder } from '@/lib/db-users';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 
 const typeIcons: Record<PendingReminder['type'], string> = {
@@ -80,17 +76,15 @@ export function ReminderBell() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-auto">
         {reminders.length === 0 ? (
-          <div className="py-6 text-center text-muted-foreground text-sm">
-            {t('reminder.noReminders')}
-          </div>
+          <div className="py-6 text-center text-muted-foreground text-sm">{t('reminder.noReminders')}</div>
         ) : (
           <div className="py-2">
-            {reminders.map(r => (
+            {reminders.map((r) => (
               <div
                 key={r.id}
                 className="px-4 py-3 border-b last:border-b-0 hover:bg-accent cursor-pointer"
                 onClick={() => {
-                  setReminders(prev => prev.filter(x => x.id !== r.id));
+                  setReminders((prev) => prev.filter((x) => x.id !== r.id));
                 }}
               >
                 <div className="flex items-start gap-2">
@@ -100,12 +94,12 @@ export function ReminderBell() {
                     <p className="text-xs text-muted-foreground">
                       {t(typeLabels[r.type])} · {formatDate(r.due_at)}
                     </p>
-                    {r.description && (
-                      <p className="text-xs text-muted-foreground mt-1">{r.description}</p>
-                    )}
+                    {r.description && <p className="text-xs text-muted-foreground mt-1">{r.description}</p>}
                   </div>
                   {r.is_overdue && (
-                    <Badge variant="destructive" className="text-xs">{t('reminder.overdue')}</Badge>
+                    <Badge variant="destructive" className="text-xs">
+                      {t('reminder.overdue')}
+                    </Badge>
                   )}
                 </div>
               </div>

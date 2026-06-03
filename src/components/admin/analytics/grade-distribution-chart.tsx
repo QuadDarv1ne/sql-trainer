@@ -4,16 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
@@ -28,9 +19,22 @@ interface GradeDistributionChartProps {
   apiEndpoint?: string;
 }
 
-const BAR_COLORS = ['#ef4444', '#ef4444', '#f59e0b', '#f59e0b', '#f59e0b', '#10b981', '#10b981', '#10b981', '#10b981', '#10b981'];
+const BAR_COLORS = [
+  '#ef4444',
+  '#ef4444',
+  '#f59e0b',
+  '#f59e0b',
+  '#f59e0b',
+  '#10b981',
+  '#10b981',
+  '#10b981',
+  '#10b981',
+  '#10b981',
+];
 
-export default function GradeDistributionChart({ apiEndpoint = '/api/admin/analytics/grade-distribution' }: GradeDistributionChartProps) {
+export default function GradeDistributionChart({
+  apiEndpoint = '/api/admin/analytics/grade-distribution',
+}: GradeDistributionChartProps) {
   const [data, setData] = useState<GradeDistributionEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -42,14 +46,23 @@ export default function GradeDistributionChart({ apiEndpoint = '/api/admin/analy
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`${apiEndpoint}?${params}`)
-      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
       .then((d) => setData(d.distribution))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
   }, [apiEndpoint, startDate, endDate]);
 
   if (loading) return <p className="text-center py-4 text-muted-foreground">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!data.length) return <EmptyState />;
 
   const totalStudents = data.reduce((s, d) => s + d.student_count, 0);

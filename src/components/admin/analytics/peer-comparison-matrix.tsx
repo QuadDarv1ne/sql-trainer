@@ -5,22 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle } from 'lucide-react';
-import {
-  ResponsiveContainer,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  Legend,
-} from 'recharts';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from 'recharts';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
@@ -83,30 +69,32 @@ export default function PeerComparisonMatrix() {
   }
   if (!data.length) return <EmptyState />;
 
-  const selected = data.find(d => d.user_id === selectedStudent);
+  const selected = data.find((d) => d.user_id === selectedStudent);
 
-  const radarData = selected ? [
-    {
-      dimension: t('analytics.peer.completion'),
-      student: selected.percentiles.completion_rate,
-      cohort: 50,
-    },
-    {
-      dimension: t('analytics.peer.attempts'),
-      student: selected.percentiles.avg_attempts,
-      cohort: 50,
-    },
-    {
-      dimension: t('analytics.peer.velocity'),
-      student: selected.percentiles.velocity,
-      cohort: 50,
-    },
-    {
-      dimension: t('analytics.peer.consistency'),
-      student: selected.percentiles.consistency,
-      cohort: 50,
-    },
-  ] : [];
+  const radarData = selected
+    ? [
+        {
+          dimension: t('analytics.peer.completion'),
+          student: selected.percentiles.completion_rate,
+          cohort: 50,
+        },
+        {
+          dimension: t('analytics.peer.attempts'),
+          student: selected.percentiles.avg_attempts,
+          cohort: 50,
+        },
+        {
+          dimension: t('analytics.peer.velocity'),
+          student: selected.percentiles.velocity,
+          cohort: 50,
+        },
+        {
+          dimension: t('analytics.peer.consistency'),
+          student: selected.percentiles.consistency,
+          cohort: 50,
+        },
+      ]
+    : [];
 
   return (
     <Card>
@@ -118,8 +106,10 @@ export default function PeerComparisonMatrix() {
               <SelectValue placeholder={t('analytics.peer.selectStudent')} />
             </SelectTrigger>
             <SelectContent>
-              {data.map(d => (
-                <SelectItem key={d.user_id} value={d.user_id}>{d.name}</SelectItem>
+              {data.map((d) => (
+                <SelectItem key={d.user_id} value={d.user_id}>
+                  {d.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

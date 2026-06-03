@@ -7,17 +7,25 @@ const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
 // Mock ResizeObserver and IntersectionObserver for recharts
-vi.stubGlobal('ResizeObserver', class {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-});
-vi.stubGlobal('IntersectionObserver', class {
-  constructor() { return { observe: () => {}, unobserve: () => {}, disconnect: () => {} }; }
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-});
+vi.stubGlobal(
+  'ResizeObserver',
+  class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  },
+);
+vi.stubGlobal(
+  'IntersectionObserver',
+  class {
+    constructor() {
+      return { observe: () => {}, unobserve: () => {}, disconnect: () => {} };
+    }
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  },
+);
 
 const mockHealthResponse = {
   health: {

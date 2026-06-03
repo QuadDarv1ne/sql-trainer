@@ -1,12 +1,7 @@
 import { withTeacherAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import {
-  getGroupById,
-  updateGroup,
-  deleteGroup,
-  getGroupMembers,
-} from '@/lib/db-users';
+import { getGroupById, updateGroup, deleteGroup, getGroupMembers } from '@/lib/db-users';
 
 export const GET = withTeacherAuth(async ({ session, request }) => {
   try {
@@ -53,10 +48,14 @@ export const PATCH = withTeacherAuth(async ({ session, request }) => {
     }
 
     const body = await request.json();
-    const group = updateGroup(id, {
-      name: body.name?.trim(),
-      description: body.description?.trim(),
-    }, session.user.id);
+    const group = updateGroup(
+      id,
+      {
+        name: body.name?.trim(),
+        description: body.description?.trim(),
+      },
+      session.user.id,
+    );
 
     return NextResponse.json({ success: true, group });
   } catch (error) {

@@ -2,12 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { BookOpen, Code2, Filter, Table, FunctionSquare, Merge, Layers, BarChart3, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { t } from '@/lib/i18n';
@@ -102,13 +97,13 @@ function getSections() {
       icon: Code2,
       items: [
         { code: 'UPPER(str) / LOWER(str)', desc: t('sqlRef.functions.case') },
-        { code: "LENGTH(str) / SUBSTR(str, 1, 3)", desc: t('sqlRef.functions.length') },
+        { code: 'LENGTH(str) / SUBSTR(str, 1, 3)', desc: t('sqlRef.functions.length') },
         { code: "REPLACE(str, 'a', 'b')", desc: t('sqlRef.functions.replace') },
-        { code: "col1 || col2", desc: t('sqlRef.functions.concat') },
-        { code: "ROUND(col, 2)", desc: t('sqlRef.functions.round') },
+        { code: 'col1 || col2', desc: t('sqlRef.functions.concat') },
+        { code: 'ROUND(col, 2)', desc: t('sqlRef.functions.round') },
         { code: "COALESCE(col, 'default')", desc: t('sqlRef.functions.coalesce') },
-        { code: "NULLIF(col1, col2)", desc: t('sqlRef.functions.nullif') },
-        { code: "CASE WHEN cond THEN a ELSE b END", desc: t('sqlRef.functions.caseExpr') },
+        { code: 'NULLIF(col1, col2)', desc: t('sqlRef.functions.nullif') },
+        { code: 'CASE WHEN cond THEN a ELSE b END', desc: t('sqlRef.functions.caseExpr') },
         { code: "date('now')", desc: t('sqlRef.functions.date') },
       ],
     },
@@ -134,9 +129,9 @@ function getSections() {
       icon: Code2,
       items: [
         { code: "INSERT INTO table (col1, col2) VALUES ('a', 1)", desc: t('sqlRef.dml.insert') },
-        { code: "UPDATE table SET col = 1 WHERE cond", desc: t('sqlRef.dml.update') },
+        { code: 'UPDATE table SET col = 1 WHERE cond', desc: t('sqlRef.dml.update') },
         { code: 'DELETE FROM table WHERE cond', desc: t('sqlRef.dml.delete') },
-        { code: "INSERT INTO t (col) SELECT col FROM t2", desc: t('sqlRef.dml.insertSelect') },
+        { code: 'INSERT INTO t (col) SELECT col FROM t2', desc: t('sqlRef.dml.insertSelect') },
       ],
     },
     {
@@ -246,9 +241,7 @@ export default function SQLReference({ onInsertExample }: SQLReferenceProps) {
                               )}
                             </button>
                           </div>
-                          <p className="mt-0.5 text-[11px] text-muted-foreground">
-                            {item.desc}
-                          </p>
+                          <p className="mt-0.5 text-[11px] text-muted-foreground">{item.desc}</p>
                         </div>
                       );
                     })}

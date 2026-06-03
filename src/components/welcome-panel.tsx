@@ -5,12 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import {
-  TRAINING_TASKS,
-  DIFFICULTY_LABELS,
-  DIFFICULTY_COLORS,
-  type Difficulty,
-} from '@/lib/training-tasks';
+import { TRAINING_TASKS, DIFFICULTY_LABELS, DIFFICULTY_COLORS, type Difficulty } from '@/lib/training-tasks';
 import { useSQLTrainerStore } from '@/lib/store';
 import { t } from '@/lib/i18n';
 import { plural } from '@/lib/utils';
@@ -75,9 +70,7 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
   const { recommendedTask, missingConceptLabel } = useMemo(() => {
     // Find the highest difficulty level the user has completed at least one task
     const completedDifficulties = new Set(
-      completedTasks
-        .map((ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty)
-        .filter(Boolean)
+      completedTasks.map((ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty).filter(Boolean),
     );
 
     let targetDifficulty: Difficulty | null = 'beginner';
@@ -85,13 +78,13 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
       targetDifficulty = 'advanced';
     } else if (completedDifficulties.has('intermediate')) {
       const intermediateCompleted = completedTasks.filter(
-        (ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'intermediate'
+        (ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'intermediate',
       ).length;
       const intermediateTotal = TRAINING_TASKS.filter((t) => t.difficulty === 'intermediate').length;
       targetDifficulty = intermediateCompleted >= intermediateTotal * 0.5 ? 'advanced' : 'intermediate';
     } else if (completedDifficulties.has('beginner')) {
       const beginnerCompleted = completedTasks.filter(
-        (ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'beginner'
+        (ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'beginner',
       ).length;
       const beginnerTotal = TRAINING_TASKS.filter((t) => t.difficulty === 'beginner').length;
       targetDifficulty = beginnerCompleted >= beginnerTotal * 0.5 ? 'intermediate' : 'beginner';
@@ -109,9 +102,10 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
     }
 
     // Fallback: first incomplete task at target difficulty
-    const fallback = TRAINING_TASKS.find(
-      (t) => t.difficulty === targetDifficulty && !completedTasks.some((ct) => ct.taskId === t.id)
-    ) || firstIncompleteTask;
+    const fallback =
+      TRAINING_TASKS.find(
+        (t) => t.difficulty === targetDifficulty && !completedTasks.some((ct) => ct.taskId === t.id),
+      ) || firstIncompleteTask;
 
     return { recommendedTask: fallback, missingConceptLabel: null };
   }, [completedTasks, firstIncompleteTask]);
@@ -123,12 +117,8 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900/30">
           <BookOpen className="h-7 w-7 text-blue-600 dark:text-blue-400" />
         </div>
-        <h2 className="text-lg font-bold">
-          {t('app.title')}
-        </h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {t('app.subtitle')}
-        </p>
+        <h2 className="text-lg font-bold">{t('app.title')}</h2>
+        <p className="mt-1 text-xs text-muted-foreground">{t('app.subtitle')}</p>
       </div>
 
       {/* Progress overview */}
@@ -160,7 +150,9 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
               <Badge className={`${DIFFICULTY_COLORS[stat.difficulty]} mb-2 text-xs`}>
                 {DIFFICULTY_LABELS[stat.difficulty]}
               </Badge>
-              <p className="text-base font-bold">{stat.completed}/{stat.total}</p>
+              <p className="text-base font-bold">
+                {stat.completed}/{stat.total}
+              </p>
               <div className="mt-1.5 h-1.5 w-full rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-blue-500 transition-all"
@@ -185,20 +177,36 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-bold text-amber-700 dark:text-amber-400">
-                    {streak.currentStreak} {plural(streak.currentStreak, t('welcome.streak.day'), t('welcome.streak.days'), t('welcome.streak.daysMany'))}
+                    {streak.currentStreak}{' '}
+                    {plural(
+                      streak.currentStreak,
+                      t('welcome.streak.day'),
+                      t('welcome.streak.days'),
+                      t('welcome.streak.daysMany'),
+                    )}
                   </span>
-                  <span className="text-xs text-amber-600/70 dark:text-amber-500/70">
-                    {t('welcome.streak.label')}
-                  </span>
+                  <span className="text-xs text-amber-600/70 dark:text-amber-500/70">{t('welcome.streak.label')}</span>
                 </div>
                 <div className="flex items-center gap-3 text-[10px] text-amber-600/60 dark:text-amber-500/60">
                   <div className="flex items-center gap-1">
                     <Award className="h-3 w-3" />
-                    {t('welcome.streak.record')}: {streak.longestStreak} {plural(streak.longestStreak, t('welcome.streak.day'), t('welcome.streak.days'), t('welcome.streak.daysMany'))}
+                    {t('welcome.streak.record')}: {streak.longestStreak}{' '}
+                    {plural(
+                      streak.longestStreak,
+                      t('welcome.streak.day'),
+                      t('welcome.streak.days'),
+                      t('welcome.streak.daysMany'),
+                    )}
                   </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    {t('welcome.streak.total')}: {streak.totalPracticeDays} {plural(streak.totalPracticeDays, t('welcome.streak.day'), t('welcome.streak.days'), t('welcome.streak.daysMany'))}
+                    {t('welcome.streak.total')}: {streak.totalPracticeDays}{' '}
+                    {plural(
+                      streak.totalPracticeDays,
+                      t('welcome.streak.day'),
+                      t('welcome.streak.days'),
+                      t('welcome.streak.daysMany'),
+                    )}
                   </div>
                 </div>
               </div>
@@ -213,22 +221,18 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
           <CardContent className="p-4">
             <div className="mb-3 flex items-center gap-2 flex-wrap">
               <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <span className="text-xs font-semibold text-blue-700 dark:text-blue-400">
-                {t('welcome.recommend')}
-              </span>
+              <span className="text-xs font-semibold text-blue-700 dark:text-blue-400">{t('welcome.recommend')}</span>
               {missingConceptLabel && (
-                <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400"
+                >
                   {t('welcome.needPractice', { default: 'Нужно practice' })}: {missingConceptLabel}
                 </Badge>
               )}
             </div>
-            <button
-              onClick={() => setCurrentTaskId(recommendedTask.id)}
-              className="w-full text-left"
-            >
-              <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                {recommendedTask.title}
-              </p>
+            <button onClick={() => setCurrentTaskId(recommendedTask.id)} className="w-full text-left">
+              <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">{recommendedTask.title}</p>
               <p className="mt-1 text-xs text-blue-700/70 dark:text-blue-400/70 line-clamp-2">
                 {recommendedTask.description}
               </p>
@@ -330,16 +334,12 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
               <span className="text-muted-foreground">{t('action.clear')}</span>
             </div>
             <div className="flex items-start gap-2 text-xs">
-              <kbd className="shrink-0 rounded border border-border bg-background px-2 py-1 font-mono text-xs">
-                Tab
-              </kbd>
+              <kbd className="shrink-0 rounded border border-border bg-background px-2 py-1 font-mono text-xs">Tab</kbd>
               <span className="text-muted-foreground">{t('shortcuts.indent')}</span>
             </div>
             <div className="flex items-start gap-2 text-xs">
               <Sparkles className="h-4 w-4 shrink-0 mt-0.5 text-amber-500" />
-              <span className="text-muted-foreground">
-                {t('welcome.tip')}
-              </span>
+              <span className="text-muted-foreground">{t('welcome.tip')}</span>
             </div>
           </CardContent>
         </Card>

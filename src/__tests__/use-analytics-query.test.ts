@@ -44,9 +44,7 @@ describe('useAnalyticsQuery', () => {
   it('fetches data and returns loading → data', async () => {
     mockFetch.mockResolvedValue(createResponse(true, { items: [1, 2, 3] }));
 
-    const { result } = renderHook(() =>
-      useAnalyticsQuery({ endpoint: '/api/test', dataKey: 'items' })
-    );
+    const { result } = renderHook(() => useAnalyticsQuery({ endpoint: '/api/test', dataKey: 'items' }));
 
     expect(result.current.loading).toBe(true);
     expect(result.current.data).toBeNull();
@@ -59,9 +57,7 @@ describe('useAnalyticsQuery', () => {
   it('handles fetch error', async () => {
     mockFetch.mockResolvedValue(createResponse(false, {}, 500));
 
-    const { result } = renderHook(() =>
-      useAnalyticsQuery({ endpoint: '/api/test' })
-    );
+    const { result } = renderHook(() => useAnalyticsQuery({ endpoint: '/api/test' }));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -72,9 +68,7 @@ describe('useAnalyticsQuery', () => {
   it('handles network error', async () => {
     mockFetch.mockRejectedValue(new Error('Network error'));
 
-    const { result } = renderHook(() =>
-      useAnalyticsQuery({ endpoint: '/api/test' })
-    );
+    const { result } = renderHook(() => useAnalyticsQuery({ endpoint: '/api/test' }));
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -83,9 +77,7 @@ describe('useAnalyticsQuery', () => {
   });
 
   it('uses transform function to shape data', async () => {
-    mockFetch.mockResolvedValue(
-      createResponse(true, { summary: { total: 42 }, items: ['a', 'b'] })
-    );
+    mockFetch.mockResolvedValue(createResponse(true, { summary: { total: 42 }, items: ['a', 'b'] }));
 
     const { result } = renderHook(() =>
       useAnalyticsQuery({
@@ -94,7 +86,7 @@ describe('useAnalyticsQuery', () => {
           total: (json.summary as { total: number }).total,
           count: (json.items as string[]).length,
         }),
-      })
+      }),
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -123,7 +115,7 @@ describe('useAnalyticsQuery', () => {
       useAnalyticsQuery({
         endpoint: '/api/test',
         params: { filter: 'active', limit: 10 },
-      })
+      }),
     );
 
     await waitFor(() => expect(mockFetch).toHaveBeenCalled());
@@ -137,9 +129,7 @@ describe('useAnalyticsQuery', () => {
   it('does not fetch when enabled is false', async () => {
     mockFetch.mockResolvedValue(createResponse(true, {}));
 
-    renderHook(() =>
-      useAnalyticsQuery({ endpoint: '/api/test', enabled: false })
-    );
+    renderHook(() => useAnalyticsQuery({ endpoint: '/api/test', enabled: false }));
 
     await waitFor(() => expect(mockFetch).not.toHaveBeenCalled(), { timeout: 100 });
   });
@@ -147,9 +137,7 @@ describe('useAnalyticsQuery', () => {
   it('provides refetch function', async () => {
     mockFetch.mockResolvedValue(createResponse(true, { data: 'first' }));
 
-    const { result } = renderHook(() =>
-      useAnalyticsQuery({ endpoint: '/api/test' })
-    );
+    const { result } = renderHook(() => useAnalyticsQuery({ endpoint: '/api/test' }));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -169,7 +157,10 @@ describe('useAnalyticsQuery', () => {
         // First fetch: wait until aborted or 500ms
         await new Promise<void>((resolve) => {
           const check = () => {
-            if (signal.aborted) { resolve(); return; }
+            if (signal.aborted) {
+              resolve();
+              return;
+            }
             setTimeout(check, 10);
           };
           check();
@@ -187,7 +178,7 @@ describe('useAnalyticsQuery', () => {
           endpoint: '/api/test',
           params: { counter },
         }),
-      { initialProps: { counter: 1 } }
+      { initialProps: { counter: 1 } },
     );
 
     // Trigger re-render with different params immediately

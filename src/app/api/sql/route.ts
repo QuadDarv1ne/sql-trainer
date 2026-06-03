@@ -22,7 +22,10 @@ function getIpFromRequest(request: NextRequest): string {
 }
 
 const sqlExecuteSchema = z.object({
-  sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
+  sql: z
+    .string()
+    .min(1, { message: 'SQL запрос не может быть пустым' })
+    .max(10000, { message: 'Запрос слишком длинный' }),
   dbType: z.enum(['sqlite', 'postgresql', 'clickhouse', 'mongodb']).optional(),
   taskId: z.string().optional(),
 });
@@ -33,24 +36,26 @@ const VALID_DB_TYPES = ['sqlite', 'postgresql', 'clickhouse', 'mongodb'] as cons
  * Allowed SQL statement prefixes for training mode.
  * Only these statement types are permitted.
  */
-const ALLOWED_PREFIXES = [
-  'SELECT',
-  'WITH',
-  'EXPLAIN',
-  'PRAGMA',
-  'SHOW',
-  'DESCRIBE',
-  'DESC',
-] as const;
+const ALLOWED_PREFIXES = ['SELECT', 'WITH', 'EXPLAIN', 'PRAGMA', 'SHOW', 'DESCRIBE', 'DESC'] as const;
 
 /**
  * Blocked SQL statement prefixes - DDL and DML that could be destructive.
  */
 const BLOCKED_PREFIXES = [
-  'DROP', 'ALTER', 'TRUNCATE', 'CREATE', 'RENAME',
-  'ATTACH', 'DETACH', 'LOAD',
-  'INSERT', 'UPDATE', 'DELETE', 'REPLACE',
-  'GRANT', 'REVOKE',
+  'DROP',
+  'ALTER',
+  'TRUNCATE',
+  'CREATE',
+  'RENAME',
+  'ATTACH',
+  'DETACH',
+  'LOAD',
+  'INSERT',
+  'UPDATE',
+  'DELETE',
+  'REPLACE',
+  'GRANT',
+  'REVOKE',
   'PRAGMA writable_schema',
 ] as const;
 
@@ -133,9 +138,7 @@ function validateTrainingSql(sql: string): string | null {
     }
 
     // Check against allowed prefixes
-    const isAllowed = ALLOWED_PREFIXES.some(
-      (allowed) => stmt === allowed || stmt.startsWith(allowed + ' ')
-    );
+    const isAllowed = ALLOWED_PREFIXES.some((allowed) => stmt === allowed || stmt.startsWith(allowed + ' '));
 
     if (!isAllowed && stmt.length > 0) {
       return `Неизвестная команда SQL (${stmt}). В режиме обучения разрешены только SELECT, WITH, EXPLAIN, PRAGMA.`;
@@ -152,16 +155,14 @@ export async function POST(request: NextRequest) {
     const isAuthenticated = !!session?.user?.id;
 
     // Rate limit: 30/min for anonymous, 60/min for authenticated
-    const rateKey = isAuthenticated
-      ? `sql:user:${session.user.id}`
-      : `sql:ip:${getIpFromRequest(request)}`;
+    const rateKey = isAuthenticated ? `sql:user:${session.user.id}` : `sql:ip:${getIpFromRequest(request)}`;
 
     const maxQueries = isAuthenticated ? 60 : 30;
     const limitResult = await rateLimit(rateKey, { max: maxQueries, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json(
         { success: false, error: 'Слишком много запросов. Подождите немного', columns: [], rows: [], executionTime: 0 },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
@@ -176,11 +177,11 @@ export async function POST(request: NextRequest) {
     if (blockReason) {
       return NextResponse.json(
         { success: false, error: blockReason, columns: [], rows: [], executionTime: 0 },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    const effectiveDbType = VALID_DB_TYPES.includes(dbType as typeof VALID_DB_TYPES[number]) ? dbType : 'sqlite';
+    const effectiveDbType = VALID_DB_TYPES.includes(dbType as (typeof VALID_DB_TYPES)[number]) ? dbType : 'sqlite';
 
     // MongoDB uses its own engine — only for MongoDB tasks
     if (effectiveDbType === 'mongodb') {
@@ -188,7 +189,7 @@ export async function POST(request: NextRequest) {
       if (!task || task.dbType !== 'mongodb') {
         return NextResponse.json(
           { success: false, error: 'Задание не поддерживает MongoDB', columns: [], rows: [], executionTime: 0 },
-          { status: 400 }
+          { status: 400 },
         );
       }
       let schema: MongoSchema;
@@ -197,7 +198,7 @@ export async function POST(request: NextRequest) {
       } catch {
         return NextResponse.json(
           { success: false, error: 'Ошибка схемы данных задания', columns: [], rows: [], executionTime: 0 },
-          { status: 500 }
+          { status: 500 },
         );
       }
       const result = executeMongoQuery(sql, schema);
@@ -208,9 +209,7 @@ export async function POST(request: NextRequest) {
 
     if (taskId) {
       const task = getTaskById(taskId);
-      result = task
-        ? executeWithSchema(sql, task.schema, effectiveDbType)
-        : executeQuery(sql, effectiveDbType);
+      result = task ? executeWithSchema(sql, task.schema, effectiveDbType) : executeQuery(sql, effectiveDbType);
     } else {
       result = executeQuery(sql, effectiveDbType);
     }
@@ -220,7 +219,7 @@ export async function POST(request: NextRequest) {
     logger.error('SQL execute error:', err);
     return NextResponse.json(
       { success: false, error: 'Произошла внутренняя ошибка', columns: [], rows: [], executionTime: 0 },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

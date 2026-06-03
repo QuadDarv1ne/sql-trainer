@@ -1,12 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from 'recharts';
-import {
-  Card, CardContent, CardHeader, CardTitle,
-} from '@/components/ui/card';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { t, getLocale } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
@@ -46,9 +42,7 @@ export default function MasteryProgressionChart({ apiEndpoint }: MasteryProgress
   const [data, setData] = useState<MasteryWeek[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([
-    'overall', 'select', 'joins', 'aggregation',
-  ]);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>(['overall', 'select', 'joins', 'aggregation']);
   const { startDate, endDate } = useDateRange();
   const controllerRef = useRef<AbortController | null>(null);
 
@@ -62,26 +56,36 @@ export default function MasteryProgressionChart({ apiEndpoint }: MasteryProgress
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`${apiEndpoint || '/api/admin/analytics/mastery'}?${params}`, { signal: controller.signal })
-      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .then(d => { if (!controller.signal.aborted) setData(d.progression); })
-      .catch(() => { if (!controller.signal.aborted) setError(t('analytics.error')); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then((d) => {
+        if (!controller.signal.aborted) setData(d.progression);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setError(t('analytics.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
     return () => controller.abort();
   }, [apiEndpoint, startDate, endDate]);
 
   const toggleSkill = (skill: string) => {
-    setSelectedSkills(prev =>
-      prev.includes(skill)
-        ? prev.filter(s => s !== skill)
-        : [...prev, skill]
-    );
+    setSelectedSkills((prev) => (prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]));
   };
 
   if (loading) return <p className="text-center py-4 text-muted-foreground">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!data || data.length === 0) return <EmptyState />;
 
-  const chartData = data.map(w => ({
+  const chartData = data.map((w) => ({
     week: new Date(w.week_start).toLocaleDateString(getLocale(), { day: 'numeric', month: 'short' }),
     overall: Math.round(w.overall * 10) / 10,
     select: Math.round(w.skills.select * 10) / 10,
@@ -112,7 +116,7 @@ export default function MasteryProgressionChart({ apiEndpoint }: MasteryProgress
           >
             {t('analytics.mastery.avgMastery')}
           </div>
-          {allSkillKeys.map(skill => (
+          {allSkillKeys.map((skill) => (
             <div
               key={skill}
               className={`px-3 py-1 rounded-full text-xs font-medium cursor-pointer border transition-colors ${
@@ -145,18 +149,20 @@ export default function MasteryProgressionChart({ apiEndpoint }: MasteryProgress
                   dot={{ r: 3 }}
                 />
               )}
-              {allSkillKeys.filter(s => selectedSkills.includes(s)).map(skill => (
-                <Line
-                  key={skill}
-                  type="monotone"
-                  dataKey={skill}
-                  name={t(SKILL_LABELS[skill])}
-                  stroke={SKILL_COLORS[skill]}
-                  strokeWidth={1.5}
-                  strokeDasharray="4 3"
-                  dot={{ r: 2 }}
-                />
-              ))}
+              {allSkillKeys
+                .filter((s) => selectedSkills.includes(s))
+                .map((skill) => (
+                  <Line
+                    key={skill}
+                    type="monotone"
+                    dataKey={skill}
+                    name={t(SKILL_LABELS[skill])}
+                    stroke={SKILL_COLORS[skill]}
+                    strokeWidth={1.5}
+                    strokeDasharray="4 3"
+                    dot={{ r: 2 }}
+                  />
+                ))}
             </LineChart>
           </ResponsiveContainer>
         </div>

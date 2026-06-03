@@ -32,18 +32,17 @@ function getTypeIcon(type: string) {
   if (upper.includes('INT') || upper.includes('SERIAL')) return Hash;
   if (upper.includes('TEXT') || upper.includes('CHAR') || upper.includes('VARCHAR')) return Type;
   if (upper.includes('BOOL')) return ToggleLeft;
-  if (upper.includes('REAL') || upper.includes('FLOAT') || upper.includes('NUMERIC') || upper.includes('DECIMAL')) return AlignLeft;
+  if (upper.includes('REAL') || upper.includes('FLOAT') || upper.includes('NUMERIC') || upper.includes('DECIMAL'))
+    return AlignLeft;
   return Type;
 }
 
 function getTypeColor(type: string) {
   const upper = type.toUpperCase();
-  if (upper.includes('INT') || upper.includes('SERIAL'))
-    return 'text-amber-600 dark:text-amber-400';
+  if (upper.includes('INT') || upper.includes('SERIAL')) return 'text-amber-600 dark:text-amber-400';
   if (upper.includes('TEXT') || upper.includes('CHAR') || upper.includes('VARCHAR'))
     return 'text-sky-600 dark:text-sky-400';
-  if (upper.includes('BOOL'))
-    return 'text-purple-600 dark:text-purple-400';
+  if (upper.includes('BOOL')) return 'text-purple-600 dark:text-purple-400';
   if (upper.includes('REAL') || upper.includes('FLOAT') || upper.includes('NUMERIC') || upper.includes('DECIMAL'))
     return 'text-emerald-600 dark:text-emerald-400';
   return 'text-muted-foreground';
@@ -70,9 +69,7 @@ export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerPro
         <TableIcon className="h-10 w-10 text-muted-foreground/30" />
         <div>
           <p className="text-sm text-muted-foreground">{t('schemaViewer.empty')}</p>
-          <p className="mt-1 text-xs text-muted-foreground/70">
-            {t('schemaViewer.emptyDesc')}
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground/70">{t('schemaViewer.emptyDesc')}</p>
         </div>
       </div>
     );
@@ -145,10 +142,7 @@ function TableCard({ table, onPreview }: { table: TableInfo; onPreview?: (tableN
           {table.columns.map((col) => {
             const Icon = getTypeIcon(col.type);
             return (
-              <div
-                key={col.name}
-                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-muted/50"
-              >
+              <div key={col.name} className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-muted/50">
                 {col.primaryKey ? (
                   <Key className="h-3.5 w-3.5 shrink-0 text-amber-500" />
                 ) : (
@@ -156,11 +150,11 @@ function TableCard({ table, onPreview }: { table: TableInfo; onPreview?: (tableN
                 )}
                 <span className="font-mono text-xs">{col.name}</span>
                 {col.notNull && (
-                  <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">NN</Badge>
+                  <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">
+                    NN
+                  </Badge>
                 )}
-                <span className={`ml-auto font-mono text-[10px] ${getTypeColor(col.type)}`}>
-                  {col.type}
-                </span>
+                <span className={`ml-auto font-mono text-[10px] ${getTypeColor(col.type)}`}>{col.type}</span>
               </div>
             );
           })}

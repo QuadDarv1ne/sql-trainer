@@ -30,7 +30,11 @@ export function getTransporter(): Transporter | null {
   return _transporter;
 }
 
-export async function sendEmail(to: string, subject: string, html: string): Promise<{ success: boolean; error?: string }> {
+export async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+): Promise<{ success: boolean; error?: string }> {
   const transporter = getTransporter();
   if (!transporter) {
     return { success: false, error: 'Email not configured' };
@@ -50,13 +54,16 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
   }
 }
 
-export function renderReminderEmail(reminder: {
-  title: string;
-  type: string;
-  due_at: number;
-  is_overdue: boolean;
-  description?: string;
-}, locale: string = 'ru'): string {
+export function renderReminderEmail(
+  reminder: {
+    title: string;
+    type: string;
+    due_at: number;
+    is_overdue: boolean;
+    description?: string;
+  },
+  locale: string = 'ru',
+): string {
   // Use tWithLocale to avoid mutating global state (race condition in concurrent server environments)
   const safeLocale = (locale === 'en' ? 'en' : 'ru') as Locale;
 

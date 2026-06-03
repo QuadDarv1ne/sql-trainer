@@ -8,8 +8,20 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Users, Loader2 } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import {
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, ResponsiveContainer,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer as RechartsResponsiveContainer,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer as RechartsResponsiveContainer,
 } from 'recharts';
 
 interface ComparisonStudent {
@@ -41,8 +53,12 @@ export default function StudentComparisonDashboard() {
   // Load student list
   useEffect(() => {
     fetch('/api/admin/analytics/students')
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch student comparison')))
-      .then(data => setStudents((data.students || []).map((s: { user_id: string; name: string }) => ({ id: s.user_id, name: s.name }))))
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch student comparison'))))
+      .then((data) =>
+        setStudents(
+          (data.students || []).map((s: { user_id: string; name: string }) => ({ id: s.user_id, name: s.name })),
+        ),
+      )
       .catch(() => setError(t('analytics.error')));
   }, []);
 
@@ -63,33 +79,41 @@ export default function StudentComparisonDashboard() {
   };
 
   const handleSelect = (id: string) => {
-    setSelectedIds(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : prev.length < 4 ? [...prev, id] : prev
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : prev.length < 4 ? [...prev, id] : prev,
     );
   };
 
   // Radar data
-  const radarData = useMemo(() => comparisonData.length > 0
-    ? ['completion_rate', 'consistency_score', 'sessions_per_week'].map(metric => {
-        const entry: Record<string, string | number> = { metric: t(`analytics.studentComparison.${metric}`) };
-        for (const student of comparisonData) {
-          entry[student.name] = (student as unknown as Record<string, unknown>)[metric] as number;
-        }
-        return entry;
-      })
-    : [], [comparisonData]);
+  const radarData = useMemo(
+    () =>
+      comparisonData.length > 0
+        ? ['completion_rate', 'consistency_score', 'sessions_per_week'].map((metric) => {
+            const entry: Record<string, string | number> = { metric: t(`analytics.studentComparison.${metric}`) };
+            for (const student of comparisonData) {
+              entry[student.name] = (student as unknown as Record<string, unknown>)[metric] as number;
+            }
+            return entry;
+          })
+        : [],
+    [comparisonData],
+  );
 
   // Category bar chart data
-  const categoryData = useMemo(() => comparisonData.length > 0
-    ? comparisonData[0].category_completion.map(cat => {
-        const entry: Record<string, string | number> = { category: cat.category };
-        for (const student of comparisonData) {
-          const found = student.category_completion.find(c => c.category === cat.category);
-          entry[student.name] = found?.rate || 0;
-        }
-        return entry;
-      })
-    : [], [comparisonData]);
+  const categoryData = useMemo(
+    () =>
+      comparisonData.length > 0
+        ? comparisonData[0].category_completion.map((cat) => {
+            const entry: Record<string, string | number> = { category: cat.category };
+            for (const student of comparisonData) {
+              const found = student.category_completion.find((c) => c.category === cat.category);
+              entry[student.name] = found?.rate || 0;
+            }
+            return entry;
+          })
+        : [],
+    [comparisonData],
+  );
 
   return (
     <div className="space-y-6">
@@ -104,7 +128,7 @@ export default function StudentComparisonDashboard() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2 mb-4">
-            {students.map(student => (
+            {students.map((student) => (
               <Badge
                 key={student.id}
                 variant={selectedIds.includes(student.id) ? 'default' : 'outline'}
@@ -211,11 +235,7 @@ export default function StudentComparisonDashboard() {
                     <Tooltip />
                     <Legend />
                     {comparisonData.map((student, idx) => (
-                      <Bar
-                        key={student.user_id}
-                        dataKey={student.name}
-                        fill={COLORS[idx % COLORS.length]}
-                      />
+                      <Bar key={student.user_id} dataKey={student.name} fill={COLORS[idx % COLORS.length]} />
                     ))}
                   </BarChart>
                 </RechartsResponsiveContainer>

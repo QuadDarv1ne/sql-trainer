@@ -4,11 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  RedisRateLimiter,
-  getRateLimiter,
-  resetGlobalRateLimiter,
-} from '@/lib/rate-limiter-distributed';
+import { RedisRateLimiter, getRateLimiter, resetGlobalRateLimiter } from '@/lib/rate-limiter-distributed';
 
 describe('Distributed Rate Limiter', () => {
   beforeEach(() => {
@@ -60,7 +56,7 @@ describe('Distributed Rate Limiter', () => {
       expect(result.success).toBe(false);
 
       // Wait for window to expire
-      await new Promise(resolve => setTimeout(resolve, shortWindow + 50));
+      await new Promise((resolve) => setTimeout(resolve, shortWindow + 50));
 
       // Should be allowed again
       result = await limiter.check('short-window-test', { max: 3, windowMs: shortWindow });
@@ -252,13 +248,11 @@ describe('Distributed Rate Limiter', () => {
       const max = 10;
 
       // Make 15 concurrent requests
-      const promises = Array.from({ length: 15 }, () =>
-        limiter.check('concurrent-test', { max, windowMs: 60_000 })
-      );
+      const promises = Array.from({ length: 15 }, () => limiter.check('concurrent-test', { max, windowMs: 60_000 }));
 
       const results = await Promise.all(promises);
-      const successful = results.filter(r => r.success).length;
-      const blocked = results.filter(r => !r.success).length;
+      const successful = results.filter((r) => r.success).length;
+      const blocked = results.filter((r) => !r.success).length;
 
       expect(successful).toBe(max);
       expect(blocked).toBe(5);

@@ -4,14 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
@@ -103,9 +96,7 @@ export default function ErrorPatternsTable() {
                   <TableCell className="text-right">{pattern.avg_attempts}</TableCell>
                   <TableCell className="text-right">{pattern.max_attempts}</TableCell>
                   <TableCell className="text-right">
-                    <Badge
-                      variant={pattern.failure_rate > 30 ? 'destructive' : 'secondary'}
-                    >
+                    <Badge variant={pattern.failure_rate > 30 ? 'destructive' : 'secondary'}>
                       {pattern.failure_rate}%
                     </Badge>
                   </TableCell>

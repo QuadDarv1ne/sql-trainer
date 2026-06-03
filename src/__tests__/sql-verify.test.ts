@@ -38,15 +38,18 @@ vi.mock('@/lib/validation', () => ({
 
 vi.mock('@/lib/training-tasks', () => ({
   getTaskById: vi.fn((taskId: string) => {
-    const tasks: Record<string, {
-      id: string;
-      title: string;
-      description: string;
-      sampleSolution: string;
-      verificationQuery: string;
-      schema: string;
-      dbType: string;
-    }> = {
+    const tasks: Record<
+      string,
+      {
+        id: string;
+        title: string;
+        description: string;
+        sampleSolution: string;
+        verificationQuery: string;
+        schema: string;
+        dbType: string;
+      }
+    > = {
       'task-001': {
         id: 'task-001',
         title: 'Basic SELECT',
@@ -89,7 +92,8 @@ vi.mock('@/lib/training-tasks', () => ({
         id: 'task-003',
         title: 'INSERT statement',
         description: 'Insert a new employee',
-        sampleSolution: "INSERT INTO employees (name, department, salary) VALUES ('David', 'Marketing', 55000); SELECT * FROM employees WHERE name = 'David'",
+        sampleSolution:
+          "INSERT INTO employees (name, department, salary) VALUES ('David', 'Marketing', 55000); SELECT * FROM employees WHERE name = 'David'",
         verificationQuery: "SELECT COUNT(*) as count FROM employees WHERE name = 'David'",
         schema: `
           CREATE TABLE employees (
@@ -136,7 +140,7 @@ describeIf('POST /api/sql/verify', () => {
   describe('Validation', () => {
     it('should reject empty SQL', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({ sql: '', taskId: 'task-001' }),
@@ -152,7 +156,7 @@ describeIf('POST /api/sql/verify', () => {
 
     it('should reject missing taskId', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({ sql: 'SELECT 1' }),
@@ -168,7 +172,7 @@ describeIf('POST /api/sql/verify', () => {
 
     it('should reject SQL that is too long', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({ sql: 'SELECT '.repeat(2000), taskId: 'task-001' }),
@@ -186,7 +190,7 @@ describeIf('POST /api/sql/verify', () => {
   describe('Task not found', () => {
     it('should return 404 for non-existent task', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({ sql: 'SELECT 1', taskId: 'non-existent-task' }),
@@ -205,12 +209,12 @@ describeIf('POST /api/sql/verify', () => {
   describe('Successful verification', () => {
     it('should verify correct SELECT query', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: "SELECT * FROM employees WHERE department = 'Engineering'", 
-          taskId: 'task-002' 
+        body: JSON.stringify({
+          sql: "SELECT * FROM employees WHERE department = 'Engineering'",
+          taskId: 'task-002',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -227,12 +231,12 @@ describeIf('POST /api/sql/verify', () => {
 
     it('should verify SELECT with different column order', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: "SELECT department, name, salary, id FROM employees WHERE department = 'Engineering'", 
-          taskId: 'task-002' 
+        body: JSON.stringify({
+          sql: "SELECT department, name, salary, id FROM employees WHERE department = 'Engineering'",
+          taskId: 'task-002',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -246,12 +250,12 @@ describeIf('POST /api/sql/verify', () => {
 
     it('should verify SELECT with ORDER BY', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: "SELECT * FROM employees WHERE department = 'Engineering' ORDER BY name", 
-          taskId: 'task-002' 
+        body: JSON.stringify({
+          sql: "SELECT * FROM employees WHERE department = 'Engineering' ORDER BY name",
+          taskId: 'task-002',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -267,12 +271,12 @@ describeIf('POST /api/sql/verify', () => {
   describe('Failed verification', () => {
     it('should reject incorrect WHERE clause', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: "SELECT * FROM employees WHERE department = 'Sales'", 
-          taskId: 'task-002' 
+        body: JSON.stringify({
+          sql: "SELECT * FROM employees WHERE department = 'Sales'",
+          taskId: 'task-002',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -288,12 +292,12 @@ describeIf('POST /api/sql/verify', () => {
 
     it('should reject query with wrong columns', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: "SELECT name FROM employees WHERE department = 'Engineering'", 
-          taskId: 'task-002' 
+        body: JSON.stringify({
+          sql: "SELECT name FROM employees WHERE department = 'Engineering'",
+          taskId: 'task-002',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -308,12 +312,12 @@ describeIf('POST /api/sql/verify', () => {
 
     it('should reject query returning 0 rows', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: "SELECT * FROM employees WHERE department = 'NonExistent'", 
-          taskId: 'task-002' 
+        body: JSON.stringify({
+          sql: "SELECT * FROM employees WHERE department = 'NonExistent'",
+          taskId: 'task-002',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -331,12 +335,12 @@ describeIf('POST /api/sql/verify', () => {
   describe('SQL error handling', () => {
     it('should handle SQL syntax errors', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: 'SELEC * FROM employees', 
-          taskId: 'task-001' 
+        body: JSON.stringify({
+          sql: 'SELEC * FROM employees',
+          taskId: 'task-001',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -351,12 +355,12 @@ describeIf('POST /api/sql/verify', () => {
 
     it('should handle invalid table name', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: 'SELECT * FROM nonexistent_table', 
-          taskId: 'task-001' 
+        body: JSON.stringify({
+          sql: 'SELECT * FROM nonexistent_table',
+          taskId: 'task-001',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -373,12 +377,12 @@ describeIf('POST /api/sql/verify', () => {
   describe('DML queries (INSERT/UPDATE/DELETE)', () => {
     it('should verify INSERT statement with SELECT', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: "INSERT INTO employees (name, department, salary) VALUES ('David', 'Marketing', 55000); SELECT * FROM employees WHERE name = 'David'", 
-          taskId: 'task-003' 
+        body: JSON.stringify({
+          sql: "INSERT INTO employees (name, department, salary) VALUES ('David', 'Marketing', 55000); SELECT * FROM employees WHERE name = 'David'",
+          taskId: 'task-003',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -392,15 +396,15 @@ describeIf('POST /api/sql/verify', () => {
 
     it('should handle multi-statement query with DML and SELECT', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           sql: `
             INSERT INTO employees (name, department, salary) VALUES ('David', 'Marketing', 55000);
             SELECT * FROM employees WHERE name = 'David';
-          `, 
-          taskId: 'task-003' 
+          `,
+          taskId: 'task-003',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -416,12 +420,12 @@ describeIf('POST /api/sql/verify', () => {
   describe('MongoDB queries', () => {
     it('should verify MongoDB query', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: 'db.users.find({})', 
-          taskId: 'task-mongo-001' 
+        body: JSON.stringify({
+          sql: 'db.users.find({})',
+          taskId: 'task-mongo-001',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -436,12 +440,12 @@ describeIf('POST /api/sql/verify', () => {
 
     it('should verify MongoDB query with filter', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: 'db.users.find({ age: { $gte: 30 } })', 
-          taskId: 'task-mongo-001' 
+        body: JSON.stringify({
+          sql: 'db.users.find({ age: { $gte: 30 } })',
+          taskId: 'task-mongo-001',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -457,13 +461,13 @@ describeIf('POST /api/sql/verify', () => {
   describe('dbType override', () => {
     it('should use dbType from request body', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: "SELECT * FROM employees WHERE department = 'Engineering'", 
+        body: JSON.stringify({
+          sql: "SELECT * FROM employees WHERE department = 'Engineering'",
           taskId: 'task-002',
-          dbType: 'postgresql'
+          dbType: 'postgresql',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -480,15 +484,15 @@ describeIf('POST /api/sql/verify', () => {
   describe('Edge cases', () => {
     it('should handle query with comments', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           sql: `
             -- Get all engineering employees
             SELECT * FROM employees WHERE department = 'Engineering';
-          `, 
-          taskId: 'task-002' 
+          `,
+          taskId: 'task-002',
         }),
         headers: { 'Content-Type': 'application/json' },
       });
@@ -502,12 +506,12 @@ describeIf('POST /api/sql/verify', () => {
 
     it('should handle query with extra whitespace', async () => {
       const { POST } = await import('@/app/api/sql/verify/route');
-      
+
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
-        body: JSON.stringify({ 
-          sql: '   SELECT    *   FROM   employees   WHERE   department   =   \'Engineering\'   ', 
-          taskId: 'task-002' 
+        body: JSON.stringify({
+          sql: "   SELECT    *   FROM   employees   WHERE   department   =   'Engineering'   ",
+          taskId: 'task-002',
         }),
         headers: { 'Content-Type': 'application/json' },
       });

@@ -3,14 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertCircle, Users } from 'lucide-react';
 import { t } from '@/lib/i18n';
 
@@ -39,9 +32,15 @@ export default function TeacherCohortAnalysis() {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((res) => { if (!controller.signal.aborted) setData(res.data); })
-      .catch(() => { if (!controller.signal.aborted) setError(t('teacher.error')); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+      .then((res) => {
+        if (!controller.signal.aborted) setData(res.data);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setError(t('teacher.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
 
     return () => controller.abort();
   }, []);
@@ -92,16 +91,20 @@ export default function TeacherCohortAnalysis() {
                   <TableCell className="font-medium">{cohort.cohort_month}</TableCell>
                   <TableCell className="text-right">{cohort.total_students}</TableCell>
                   <TableCell className={`text-right ${getRetentionColor(cohort.month_0, cohort.total_students)}`}>
-                    {cohort.month_0} ({cohort.total_students > 0 ? Math.round((cohort.month_0 / cohort.total_students) * 100) : 0}%)
+                    {cohort.month_0} (
+                    {cohort.total_students > 0 ? Math.round((cohort.month_0 / cohort.total_students) * 100) : 0}%)
                   </TableCell>
                   <TableCell className={`text-right ${getRetentionColor(cohort.month_1, cohort.total_students)}`}>
-                    {cohort.month_1} ({cohort.total_students > 0 ? Math.round((cohort.month_1 / cohort.total_students) * 100) : 0}%)
+                    {cohort.month_1} (
+                    {cohort.total_students > 0 ? Math.round((cohort.month_1 / cohort.total_students) * 100) : 0}%)
                   </TableCell>
                   <TableCell className={`text-right ${getRetentionColor(cohort.month_2, cohort.total_students)}`}>
-                    {cohort.month_2} ({cohort.total_students > 0 ? Math.round((cohort.month_2 / cohort.total_students) * 100) : 0}%)
+                    {cohort.month_2} (
+                    {cohort.total_students > 0 ? Math.round((cohort.month_2 / cohort.total_students) * 100) : 0}%)
                   </TableCell>
                   <TableCell className={`text-right ${getRetentionColor(cohort.month_3, cohort.total_students)}`}>
-                    {cohort.month_3} ({cohort.total_students > 0 ? Math.round((cohort.month_3 / cohort.total_students) * 100) : 0}%)
+                    {cohort.month_3} (
+                    {cohort.total_students > 0 ? Math.round((cohort.month_3 / cohort.total_students) * 100) : 0}%)
                   </TableCell>
                 </TableRow>
               ))}

@@ -51,9 +51,8 @@ export default function LearningPaceChart() {
   if (error) return <div className="text-red-500 py-8">{error}</div>;
   if (data.length === 0) return <EmptyState />;
 
-  const avgVelocity = data.length > 0
-    ? (data.reduce((sum, d) => sum + d.recent_velocity, 0) / data.length).toFixed(1)
-    : '0';
+  const avgVelocity =
+    data.length > 0 ? (data.reduce((sum, d) => sum + d.recent_velocity, 0) / data.length).toFixed(1) : '0';
 
   return (
     <Card>
@@ -77,7 +76,7 @@ export default function LearningPaceChart() {
           <Card>
             <CardContent className="pt-4">
               <div className="text-2xl font-bold text-green-600">
-                {data.filter(d => d.pace_trend === 'accelerating').length}
+                {data.filter((d) => d.pace_trend === 'accelerating').length}
               </div>
               <p className="text-xs text-muted-foreground">{t('analytics.learningPace.accelerating')}</p>
             </CardContent>
@@ -85,7 +84,7 @@ export default function LearningPaceChart() {
           <Card>
             <CardContent className="pt-4">
               <div className="text-2xl font-bold text-red-600">
-                {data.filter(d => d.pace_trend === 'decelerating').length}
+                {data.filter((d) => d.pace_trend === 'decelerating').length}
               </div>
               <p className="text-xs text-muted-foreground">{t('analytics.learningPace.decelerating')}</p>
             </CardContent>
@@ -104,7 +103,7 @@ export default function LearningPaceChart() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map(entry => (
+            {data.map((entry) => (
               <TableRow key={entry.user_id}>
                 <TableCell>
                   <div className="font-medium">{entry.name}</div>
@@ -118,7 +117,15 @@ export default function LearningPaceChart() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={entry.pace_trend === 'accelerating' ? 'default' : entry.pace_trend === 'decelerating' ? 'destructive' : 'secondary'}>
+                  <Badge
+                    variant={
+                      entry.pace_trend === 'accelerating'
+                        ? 'default'
+                        : entry.pace_trend === 'decelerating'
+                          ? 'destructive'
+                          : 'secondary'
+                    }
+                  >
                     {entry.pace_trend === 'accelerating' && <TrendingUp className="h-3 w-3 mr-1" />}
                     {entry.pace_trend === 'decelerating' && <TrendingDown className="h-3 w-3 mr-1" />}
                     {entry.pace_trend === 'stable' && <Minus className="h-3 w-3 mr-1" />}
@@ -126,7 +133,11 @@ export default function LearningPaceChart() {
                   </Badge>
                 </TableCell>
                 <TableCell>{entry.recent_velocity}</TableCell>
-                <TableCell>{entry.estimated_hours_to_complete > 0 ? `${entry.estimated_hours_to_complete} ${t('analytics.learningPace.hours')}` : '—'}</TableCell>
+                <TableCell>
+                  {entry.estimated_hours_to_complete > 0
+                    ? `${entry.estimated_hours_to_complete} ${t('analytics.learningPace.hours')}`
+                    : '—'}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

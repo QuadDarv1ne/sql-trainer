@@ -4,16 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
@@ -41,14 +32,23 @@ export default function StudentGrowthTrends({ apiEndpoint = '/api/admin/analytic
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`${apiEndpoint}?${params}`)
-      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
       .then((d) => setData(d.growth))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
   }, [apiEndpoint, startDate, endDate]);
 
   if (loading) return <p className="text-center py-4 text-muted-foreground">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!data.length) return <EmptyState />;
 
   const activeSum = data.reduce((s, d) => s + d.active_users, 0);
@@ -81,9 +81,7 @@ export default function StudentGrowthTrends({ apiEndpoint = '/api/admin/analytic
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="week_label" tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} />
-            <Tooltip
-              labelFormatter={(label) => `${t('analytics.growth.week')}: ${label}`}
-            />
+            <Tooltip labelFormatter={(label) => `${t('analytics.growth.week')}: ${label}`} />
             <Legend />
             <Line
               type="monotone"

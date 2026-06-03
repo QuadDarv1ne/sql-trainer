@@ -6,7 +6,16 @@ import { t } from '@/lib/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { AnalyticsCard } from './analytics-card';
 import {
-  LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from 'recharts';
 
 interface AttemptEfficiencyEntry {
@@ -51,9 +60,12 @@ export default function AttemptEfficiency() {
               <span className="text-sm text-muted-foreground">{t('analytics.attemptEfficiency.currentRate')}</span>
             </div>
             <div className="mt-2 text-3xl font-bold">{latest?.first_attempt_rate ?? 0}%</div>
-            <div className={`flex items-center gap-1 text-xs mt-1 ${rateChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            <div
+              className={`flex items-center gap-1 text-xs mt-1 ${rateChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}
+            >
               {rateChange >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-              {rateChange >= 0 ? '+' : ''}{rateChange.toFixed(1)}pp
+              {rateChange >= 0 ? '+' : ''}
+              {rateChange.toFixed(1)}pp
             </div>
           </CardContent>
         </Card>
@@ -65,9 +77,12 @@ export default function AttemptEfficiency() {
               <span className="text-sm text-muted-foreground">{t('analytics.attemptEfficiency.currentAvg')}</span>
             </div>
             <div className="mt-2 text-3xl font-bold">{latest?.avg_attempts ?? 0}</div>
-            <div className={`flex items-center gap-1 text-xs mt-1 ${attemptsChange <= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            <div
+              className={`flex items-center gap-1 text-xs mt-1 ${attemptsChange <= 0 ? 'text-emerald-600' : 'text-red-600'}`}
+            >
               {attemptsChange <= 0 ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
-              {attemptsChange >= 0 ? '+' : ''}{attemptsChange.toFixed(2)}
+              {attemptsChange >= 0 ? '+' : ''}
+              {attemptsChange.toFixed(2)}
             </div>
           </CardContent>
         </Card>
@@ -78,9 +93,7 @@ export default function AttemptEfficiency() {
               <Target className="h-5 w-5 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">{t('analytics.attemptEfficiency.bestRate')}</span>
             </div>
-            <div className="mt-2 text-3xl font-bold">
-              {Math.max(...data.map(d => d.first_attempt_rate), 0)}%
-            </div>
+            <div className="mt-2 text-3xl font-bold">{Math.max(...data.map((d) => d.first_attempt_rate), 0)}%</div>
           </CardContent>
         </Card>
 
@@ -90,9 +103,7 @@ export default function AttemptEfficiency() {
               <Activity className="h-5 w-5 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">{t('analytics.attemptEfficiency.totalCompletions')}</span>
             </div>
-            <div className="mt-2 text-3xl font-bold">
-              {data.reduce((s, d) => s + d.total_completions, 0)}
-            </div>
+            <div className="mt-2 text-3xl font-bold">{data.reduce((s, d) => s + d.total_completions, 0)}</div>
           </CardContent>
         </Card>
       </div>

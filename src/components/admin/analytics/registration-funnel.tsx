@@ -1,15 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from 'recharts';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { UserPlus, Clock, ChevronDown } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
@@ -29,7 +21,19 @@ interface RegistrationFunnelData {
   daily_registrations: Array<{ date: string; count: number }>;
 }
 
-function FunnelStage({ label, count, percentage, width, isLast }: { label: string; count: number; percentage: number; width: number; isLast?: boolean }) {
+function FunnelStage({
+  label,
+  count,
+  percentage,
+  width,
+  isLast,
+}: {
+  label: string;
+  count: number;
+  percentage: number;
+  width: number;
+  isLast?: boolean;
+}) {
   return (
     <div className="flex flex-col items-center">
       <div
@@ -66,7 +70,13 @@ export default function RegistrationFunnel() {
 
   if (loading || error || !data) {
     return (
-      <AnalyticsCard loading={loading} error={error} empty={!data} onRefresh={refetch} title={t('analytics.registrationFunnel.title')} />
+      <AnalyticsCard
+        loading={loading}
+        error={error}
+        empty={!data}
+        onRefresh={refetch}
+        title={t('analytics.registrationFunnel.title')}
+      />
     );
   }
 
@@ -123,12 +133,8 @@ export default function RegistrationFunnel() {
           <CardContent className="flex items-center gap-3 pt-6">
             <Clock className="h-5 w-5 text-muted-foreground" />
             <div>
-              <span className="text-sm text-muted-foreground">
-                {t('analytics.registrationFunnel.avgTimeToFirst')}:
-              </span>
-              <span className="ml-2 text-xl font-bold">
-                {formatDuration(data.avg_time_to_first_activity_ms)}
-              </span>
+              <span className="text-sm text-muted-foreground">{t('analytics.registrationFunnel.avgTimeToFirst')}:</span>
+              <span className="ml-2 text-xl font-bold">{formatDuration(data.avg_time_to_first_activity_ms)}</span>
             </div>
           </CardContent>
         </Card>

@@ -47,7 +47,9 @@ export default function AuditLog() {
     }
   }, [limit]);
 
-  useEffect(() => { fetchLogs(); }, [fetchLogs]);
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
 
   const getActionLabel = (action: string) => {
     const key = `admin.audit.actions.${action}`;
@@ -66,10 +68,12 @@ export default function AuditLog() {
             {t('admin.audit.title')}
           </CardTitle>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" onClick={() => setLimit(l => l === 50 ? 100 : 50)}>
+            <Button size="sm" variant="outline" onClick={() => setLimit((l) => (l === 50 ? 100 : 50))}>
               {limit} {t('admin.audit.entries')}
             </Button>
-            <Button size="sm" variant="outline" onClick={fetchLogs}>{t('admin.audit.refresh')}</Button>
+            <Button size="sm" variant="outline" onClick={fetchLogs}>
+              {t('admin.audit.refresh')}
+            </Button>
           </div>
         </div>
       </CardHeader>
@@ -98,18 +102,31 @@ export default function AuditLog() {
                 {logs.map((log) => (
                   <React.Fragment key={log.id}>
                     <TableRow>
-                      <TableCell className="text-sm text-muted-foreground">{new Date(log.created_at).toLocaleString()}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {new Date(log.created_at).toLocaleString()}
+                      </TableCell>
                       <TableCell className="font-medium">{log.actor_name}</TableCell>
                       <TableCell>
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                           {getActionLabel(log.action)}
                         </span>
                       </TableCell>
-                      <TableCell className="text-sm">{log.target_type}{log.target_id ? `: ${log.target_id.slice(0, 8)}...` : ''}</TableCell>
+                      <TableCell className="text-sm">
+                        {log.target_type}
+                        {log.target_id ? `: ${log.target_id.slice(0, 8)}...` : ''}
+                      </TableCell>
                       <TableCell>
                         {log.details && (
-                          <Button variant="ghost" size="sm" onClick={() => setExpandedId(expandedId === log.id ? null : log.id)}>
-                            {expandedId === log.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setExpandedId(expandedId === log.id ? null : log.id)}
+                          >
+                            {expandedId === log.id ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
                           </Button>
                         )}
                       </TableCell>
@@ -117,14 +134,16 @@ export default function AuditLog() {
                     {expandedId === log.id && log.details && (
                       <TableRow>
                         <TableCell colSpan={5} className="bg-muted">
-                          <pre className="text-xs p-2 overflow-x-auto">{(() => {
-                            if (!log.details) return '';
-                            try {
-                              return JSON.stringify(JSON.parse(log.details), null, 2);
-                            } catch {
-                              return log.details;
-                            }
-                          })()}</pre>
+                          <pre className="text-xs p-2 overflow-x-auto">
+                            {(() => {
+                              if (!log.details) return '';
+                              try {
+                                return JSON.stringify(JSON.parse(log.details), null, 2);
+                              } catch {
+                                return log.details;
+                              }
+                            })()}
+                          </pre>
                         </TableCell>
                       </TableRow>
                     )}

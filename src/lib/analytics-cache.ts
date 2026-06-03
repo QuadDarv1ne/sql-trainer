@@ -27,7 +27,7 @@ function buildKey(endpoint: string, params: Record<string, string | number | boo
 
 export function getCached<T>(
   endpoint: string,
-  params: Record<string, string | number | boolean | null> = {}
+  params: Record<string, string | number | boolean | null> = {},
 ): T | null {
   const key = buildKey(endpoint, params);
   const entry = cache.get(key);
@@ -44,7 +44,7 @@ export function setCached<T>(
   endpoint: string,
   params: Record<string, string | number | boolean | null>,
   value: T,
-  ttlMs: number = DEFAULT_TTL_MS
+  ttlMs: number = DEFAULT_TTL_MS,
 ): void {
   // Evict least recently used entry if at capacity
   if (cache.size >= MAX_ENTRIES) {

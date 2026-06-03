@@ -42,10 +42,7 @@ const nextAuth = NextAuth({
           return null;
         }
 
-        const user = await verifyPassword(
-          credentials.email as string,
-          credentials.password as string
-        );
+        const user = await verifyPassword(credentials.email as string, credentials.password as string);
 
         if (!user) return null;
 
@@ -64,7 +61,17 @@ const nextAuth = NextAuth({
     signIn: '/login',
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }: { token: JWT; user?: User; trigger?: 'signIn' | 'signUp' | 'update'; session?: { name?: string; phone?: string | null } }) {
+    async jwt({
+      token,
+      user,
+      trigger,
+      session,
+    }: {
+      token: JWT;
+      user?: User;
+      trigger?: 'signIn' | 'signUp' | 'update';
+      session?: { name?: string; phone?: string | null };
+    }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
@@ -89,7 +96,8 @@ const nextAuth = NextAuth({
           // Fetch current role_changed_at and ban status from database to validate
           const db = (await import('@/lib/db-users')).getDb();
           const dbUser = db.prepare('SELECT role, role_changed_at, banned_at FROM users WHERE id = ?').get(token.id) as
-            { role: UserRole; role_changed_at: number | null; banned_at: number | null } | undefined;
+            | { role: UserRole; role_changed_at: number | null; banned_at: number | null }
+            | undefined;
 
           // If user is banned, invalidate session
           if (dbUser && dbUser.banned_at) {

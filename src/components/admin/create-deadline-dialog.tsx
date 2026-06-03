@@ -16,13 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface CreateDeadlineDialogProps {
   open: boolean;
@@ -114,7 +108,7 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess, deadline }
               <Label>{t('deadline.titleLabel')}</Label>
               <Input
                 value={title}
-                onChange={e => setTitle(e.target.value)}
+                onChange={(e) => setTitle(e.target.value)}
                 placeholder={t('deadline.titlePlaceholder')}
               />
             </div>
@@ -123,7 +117,7 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess, deadline }
               <Label>{t('deadline.description')}</Label>
               <Input
                 value={description}
-                onChange={e => setDescription(e.target.value)}
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder={t('deadline.descriptionPlaceholder')}
               />
             </div>
@@ -131,7 +125,7 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess, deadline }
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>{t('deadline.type')}</Label>
-                <Select value={type} onValueChange={v => setType(v as Deadline['type'])}>
+                <Select value={type} onValueChange={(v) => setType(v as Deadline['type'])}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -146,7 +140,7 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess, deadline }
 
               <div>
                 <Label>{t('deadline.target')}</Label>
-                <Select value={targetType} onValueChange={v => setTargetType(v as Deadline['target_type'])}>
+                <Select value={targetType} onValueChange={(v) => setTargetType(v as Deadline['target_type'])}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -161,11 +155,17 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess, deadline }
 
             {(targetType === 'group' || targetType === 'individual') && (
               <div>
-                <Label>{targetType === 'group' ? t('deadline.targetId.group') : t('deadline.targetId.individual')}</Label>
+                <Label>
+                  {targetType === 'group' ? t('deadline.targetId.group') : t('deadline.targetId.individual')}
+                </Label>
                 <Input
                   value={targetId}
-                  onChange={e => setTargetId(e.target.value)}
-                  placeholder={targetType === 'group' ? t('deadline.targetId.groupPlaceholder') : t('deadline.targetId.individualPlaceholder')}
+                  onChange={(e) => setTargetId(e.target.value)}
+                  placeholder={
+                    targetType === 'group'
+                      ? t('deadline.targetId.groupPlaceholder')
+                      : t('deadline.targetId.individualPlaceholder')
+                  }
                 />
               </div>
             )}
@@ -173,19 +173,11 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess, deadline }
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>{t('deadline.dueDate')}</Label>
-                <Input
-                  type="date"
-                  value={dueDate}
-                  onChange={e => setDueDate(e.target.value)}
-                />
+                <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
               </div>
               <div>
                 <Label>{t('deadline.time')}</Label>
-                <Input
-                  type="time"
-                  value={dueTime}
-                  onChange={e => setDueTime(e.target.value)}
-                />
+                <Input type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} />
               </div>
             </div>
           </div>
@@ -195,7 +187,7 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess, deadline }
               {t('action.close')}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? '...' : (isEdit ? t('deadline.edit') : t('deadline.create'))}
+              {loading ? '...' : isEdit ? t('deadline.edit') : t('deadline.create')}
             </Button>
           </DialogFooter>
         </form>

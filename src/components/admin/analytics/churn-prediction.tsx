@@ -5,14 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertCircle, TrendingDown, TrendingUp, Minus, Shield } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
@@ -35,7 +28,9 @@ interface ChurnPredictionTableProps {
   apiEndpoint?: string;
 }
 
-export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analytics/churn-prediction' }: ChurnPredictionTableProps) {
+export default function ChurnPredictionTable({
+  apiEndpoint = '/api/admin/analytics/churn-prediction',
+}: ChurnPredictionTableProps) {
   const [data, setData] = useState<ChurnPrediction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -56,9 +51,15 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((data) => { if (!controller.signal.aborted) setData(data.predictions); })
-      .catch((err) => { if (err.name !== 'AbortError' && !controller.signal.aborted) setError(t('analytics.error')); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+      .then((data) => {
+        if (!controller.signal.aborted) setData(data.predictions);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError' && !controller.signal.aborted) setError(t('analytics.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
     return () => controller.abort();
   }, [apiEndpoint, startDate, endDate]);
 
@@ -73,13 +74,37 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
   }
   if (!data.length) return <EmptyState />;
 
-  const filtered = filter === 'all' ? data : data.filter(d => d.risk_level === filter);
+  const filtered = filter === 'all' ? data : data.filter((d) => d.risk_level === filter);
 
   const riskLevels = [
-    { key: 'critical', label: t('analytics.churn.critical'), count: data.filter(d => d.risk_level === 'critical').length, color: 'text-red-700', bg: 'bg-red-100 dark:bg-red-950' },
-    { key: 'high', label: t('analytics.churn.high'), count: data.filter(d => d.risk_level === 'high').length, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-950/50' },
-    { key: 'medium', label: t('analytics.churn.medium'), count: data.filter(d => d.risk_level === 'medium').length, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/50' },
-    { key: 'low', label: t('analytics.churn.low'), count: data.filter(d => d.risk_level === 'low').length, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/50' },
+    {
+      key: 'critical',
+      label: t('analytics.churn.critical'),
+      count: data.filter((d) => d.risk_level === 'critical').length,
+      color: 'text-red-700',
+      bg: 'bg-red-100 dark:bg-red-950',
+    },
+    {
+      key: 'high',
+      label: t('analytics.churn.high'),
+      count: data.filter((d) => d.risk_level === 'high').length,
+      color: 'text-red-600',
+      bg: 'bg-red-50 dark:bg-red-950/50',
+    },
+    {
+      key: 'medium',
+      label: t('analytics.churn.medium'),
+      count: data.filter((d) => d.risk_level === 'medium').length,
+      color: 'text-amber-600',
+      bg: 'bg-amber-50 dark:bg-amber-950/50',
+    },
+    {
+      key: 'low',
+      label: t('analytics.churn.low'),
+      count: data.filter((d) => d.risk_level === 'low').length,
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50 dark:bg-emerald-950/50',
+    },
   ];
 
   const riskColors: Record<string, string> = {
@@ -99,7 +124,7 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
     <div className="space-y-6">
       {/* Summary cards */}
       <div className="grid gap-4 sm:grid-cols-4">
-        {riskLevels.map(level => (
+        {riskLevels.map((level) => (
           <Card
             key={level.key}
             className={`cursor-pointer transition ${filter === level.key ? 'ring-2 ring-primary' : ''}`}
@@ -151,18 +176,20 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Progress value={prediction.churn_score} className="h-2 w-16" />
-                        <Badge className={riskColors[prediction.risk_level]}>
-                          {prediction.churn_score}
-                        </Badge>
+                        <Badge className={riskColors[prediction.risk_level]}>{prediction.churn_score}</Badge>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1 max-w-[200px]">
                         {prediction.risk_factors.slice(0, 2).map((factor) => (
-                          <p key={factor} className="text-xs text-muted-foreground truncate">{factor}</p>
+                          <p key={factor} className="text-xs text-muted-foreground truncate">
+                            {factor}
+                          </p>
                         ))}
                         {prediction.risk_factors.length > 2 && (
-                          <p className="text-xs text-muted-foreground">+{prediction.risk_factors.length - 2} {t('analytics.churn.more')}</p>
+                          <p className="text-xs text-muted-foreground">
+                            +{prediction.risk_factors.length - 2} {t('analytics.churn.more')}
+                          </p>
                         )}
                       </div>
                     </TableCell>
@@ -170,7 +197,11 @@ export default function ChurnPredictionTable({ apiEndpoint = '/api/admin/analyti
                       <div className="flex items-center gap-1">
                         {trendIcons[prediction.velocity_trend]}
                         <span className="text-xs">
-                          {prediction.velocity_trend === 'improving' ? t('analytics.churn.improving') : prediction.velocity_trend === 'declining' ? t('analytics.churn.declining') : t('analytics.churn.stable')}
+                          {prediction.velocity_trend === 'improving'
+                            ? t('analytics.churn.improving')
+                            : prediction.velocity_trend === 'declining'
+                              ? t('analytics.churn.declining')
+                              : t('analytics.churn.stable')}
                         </span>
                       </div>
                     </TableCell>

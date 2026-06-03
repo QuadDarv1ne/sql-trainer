@@ -9,7 +9,10 @@ import { logger } from '@/lib/logger';
 import type { MongoSchema } from '@/lib/mongodb-engine';
 
 const sqlVerifySchema = z.object({
-  sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
+  sql: z
+    .string()
+    .min(1, { message: 'SQL запрос не может быть пустым' })
+    .max(10000, { message: 'Запрос слишком длинный' }),
   taskId: z.string().min(1, { message: 'taskId обязателен' }),
   dbType: z.string().optional(),
 });
@@ -52,7 +55,7 @@ export async function POST(request: NextRequest) {
     if (!limitResult.success) {
       return NextResponse.json(
         { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Слишком много попыток. Попробуйте позже' },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
@@ -66,7 +69,7 @@ export async function POST(request: NextRequest) {
     if (!task) {
       return NextResponse.json(
         { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Задание не найдено' },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -92,7 +95,7 @@ export async function POST(request: NextRequest) {
     logger.error('SQL verify error:', err);
     return NextResponse.json(
       { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Произошла внутренняя ошибка' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -101,15 +104,11 @@ export async function POST(request: NextRequest) {
  * Verification path for queries that contain DML (INSERT/UPDATE/DELETE).
  * Executes user SQL and solution SELECT on the same database so DML changes persist.
  */
-function verifyWithSharedDb(
-  userSql: string,
-  task: ReturnType<typeof getTaskById>,
-  dbType: string
-): NextResponse {
+function verifyWithSharedDb(userSql: string, task: ReturnType<typeof getTaskById>, dbType: string): NextResponse {
   if (!task) {
     return NextResponse.json(
       { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Задание не найдено' },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -122,7 +121,7 @@ function verifyWithSharedDb(
   const [userResult, solutionResult, userSelectResult] = executeWithSchemaMulti(
     [userSql, solutionSelectSql, userSelectSql],
     task.schema,
-    dbType as 'sqlite' | 'postgresql' | 'clickhouse'
+    dbType as 'sqlite' | 'postgresql' | 'clickhouse',
   );
 
   // Check if user's full query executed successfully
@@ -140,7 +139,7 @@ function verifyWithSharedDb(
     const [applyUserDml, verificationResult] = executeWithSchemaMulti(
       [userSql, task.verificationQuery],
       task.schema,
-      dbType as 'sqlite' | 'postgresql' | 'clickhouse'
+      dbType as 'sqlite' | 'postgresql' | 'clickhouse',
     );
 
     if (!applyUserDml.success) {
@@ -174,15 +173,11 @@ function verifyWithSharedDb(
 /**
  * Verification path for pure SELECT queries (no DML).
  */
-function verifySelectOnly(
-  sql: string,
-  task: ReturnType<typeof getTaskById>,
-  dbType: string
-): NextResponse {
+function verifySelectOnly(sql: string, task: ReturnType<typeof getTaskById>, dbType: string): NextResponse {
   if (!task) {
     return NextResponse.json(
       { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Задание не найдено' },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -202,7 +197,7 @@ function verifySelectOnly(
   const solutionResult = executeWithSchema(
     task.sampleSolution,
     task.schema,
-    dbType as 'sqlite' | 'postgresql' | 'clickhouse'
+    dbType as 'sqlite' | 'postgresql' | 'clickhouse',
   );
 
   if (!solutionResult.success) {
@@ -210,7 +205,7 @@ function verifySelectOnly(
     const verificationResult = executeWithSchema(
       task.verificationQuery,
       task.schema,
-      dbType as 'sqlite' | 'postgresql' | 'clickhouse'
+      dbType as 'sqlite' | 'postgresql' | 'clickhouse',
     );
     const expectedRowCount =
       verificationResult.success && verificationResult.rows.length > 0
@@ -237,7 +232,7 @@ function verifySelectOnly(
  */
 function compareResults(
   userResult: { success: boolean; columns: string[]; rows: Record<string, unknown>[] },
-  solutionResult: { success: boolean; columns: string[]; rows: Record<string, unknown>[] }
+  solutionResult: { success: boolean; columns: string[]; rows: Record<string, unknown>[] },
 ): NextResponse {
   const userRowCount = userResult.success ? userResult.rows.length : 0;
   const expectedRowCount = solutionResult.rows.length;
@@ -273,13 +268,12 @@ function compareResults(
   const userColumns = userResult.columns.map((c) => c.toLowerCase().trim()).sort();
   const expectedColumns = solutionResult.columns.map((c) => c.toLowerCase().trim()).sort();
   const columnsMatch =
-    userColumns.length === expectedColumns.length &&
-    userColumns.every((col, i) => col === expectedColumns[i]);
+    userColumns.length === expectedColumns.length && userColumns.every((col, i) => col === expectedColumns[i]);
 
   // If columns don't match, provide details
   if (!columnsMatch) {
-    const missingCols = expectedColumns.filter(c => !userColumns.includes(c));
-    const extraCols = userColumns.filter(c => !expectedColumns.includes(c));
+    const missingCols = expectedColumns.filter((c) => !userColumns.includes(c));
+    const extraCols = userColumns.filter((c) => !expectedColumns.includes(c));
     let colDetail = '';
     if (missingCols.length > 0) {
       colDetail += ` Не хватает столбцов: ${missingCols.join(', ')}.`;
@@ -299,12 +293,8 @@ function compareResults(
   }
 
   // Normalize and compare data rows (order-insensitive)
-  const userRowsNormalized = userResult.rows
-    .map((row) => normalizeRow(row, userResult.columns))
-    .sort();
-  const expectedRowsNormalized = solutionResult.rows
-    .map((row) => normalizeRow(row, solutionResult.columns))
-    .sort();
+  const userRowsNormalized = userResult.rows.map((row) => normalizeRow(row, userResult.columns)).sort();
+  const expectedRowsNormalized = solutionResult.rows.map((row) => normalizeRow(row, solutionResult.columns)).sort();
 
   const dataMatch = userRowsNormalized.every((row, i) => row === expectedRowsNormalized[i]);
 
@@ -320,10 +310,10 @@ function compareResults(
   // If row count matches but content differs — find first difference
   let diffDetail = '';
   const sortedColumns = [...userResult.columns].sort((a, b) => a.localeCompare(b));
-  const userRowsByIndex = userResult.rows
-    .map((row) => sortedColumns.map((col) => normalizeValue(row[col])).join('|'));
-  const expectedRowsByIndex = solutionResult.rows
-    .map((row) => sortedColumns.map((col) => normalizeValue(row[col])).join('|'));
+  const userRowsByIndex = userResult.rows.map((row) => sortedColumns.map((col) => normalizeValue(row[col])).join('|'));
+  const expectedRowsByIndex = solutionResult.rows.map((row) =>
+    sortedColumns.map((col) => normalizeValue(row[col])).join('|'),
+  );
   for (let i = 0; i < Math.min(userRowsByIndex.length, expectedRowsByIndex.length); i++) {
     if (userRowsByIndex[i] !== expectedRowsByIndex[i]) {
       const userRow = userResult.rows[i];
@@ -360,24 +350,21 @@ function compareResults(
  * Verification for MongoDB tasks.
  * Executes user query and solution query, compares results.
  */
-function verifyMongoDb(
-  userQuery: string,
-  task: ReturnType<typeof getTaskById>
-): NextResponse {
+function verifyMongoDb(userQuery: string, task: ReturnType<typeof getTaskById>): NextResponse {
   if (!task) {
     return NextResponse.json(
       { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Задание не найдено' },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
   let schema: MongoSchema;
   try {
-    schema = task.schema ? JSON.parse(task.schema) as MongoSchema : {};
+    schema = task.schema ? (JSON.parse(task.schema) as MongoSchema) : {};
   } catch {
     return NextResponse.json(
       { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Ошибка схемы данных задания' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

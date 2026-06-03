@@ -68,9 +68,7 @@ export default function AchievementAnalytics() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <h4 className="font-medium">{achievement.title}</h4>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {achievement.description}
-                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{achievement.description}</p>
                     </div>
                     <Badge variant="outline" className="flex-shrink-0">
                       {achievement.earn_rate}%
@@ -80,7 +78,8 @@ export default function AchievementAnalytics() {
                   <div className="mt-2">
                     <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                       <span>
-                        {achievement.earned_count}/{achievement.total_students} {t('analytics.achievements.earnRate').toLowerCase()}
+                        {achievement.earned_count}/{achievement.total_students}{' '}
+                        {t('analytics.achievements.earnRate').toLowerCase()}
                       </span>
                     </div>
                     <Progress value={achievement.earn_rate} className="h-2" />

@@ -48,10 +48,11 @@ export default function QueryResultChart({ columns, rows, onClose }: QueryResult
     }
 
     // Use first non-numeric column as label, or first column if all are numeric
-    const labelCol = columns.find((col) => {
-      const firstVal = rows[0]?.[col];
-      return typeof firstVal !== 'number';
-    }) || columns[0];
+    const labelCol =
+      columns.find((col) => {
+        const firstVal = rows[0]?.[col];
+        return typeof firstVal !== 'number';
+      }) || columns[0];
 
     // Use first numeric column as value
     const valueCol = numericCols[0];
@@ -79,9 +80,7 @@ export default function QueryResultChart({ columns, rows, onClose }: QueryResult
       <div className="flex h-full items-center justify-center p-6 text-center">
         <div>
           <BarChart3 className="mx-auto h-10 w-10 text-muted-foreground/30" />
-          <p className="mt-2 text-sm text-muted-foreground">
-            Нет числовых данных для визуализации
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">Нет числовых данных для визуализации</p>
           <p className="mt-1 text-xs text-muted-foreground/70">
             Для построения графика нужен хотя бы один числовой столбец
           </p>
@@ -122,12 +121,7 @@ export default function QueryResultChart({ columns, rows, onClose }: QueryResult
           >
             {t('results.chart.horizontal')}
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0"
-            onClick={onClose}
-          >
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={onClose}>
             <X className="h-3.5 w-3.5" />
           </Button>
         </div>
@@ -140,10 +134,7 @@ export default function QueryResultChart({ columns, rows, onClose }: QueryResult
             {chartData.map((d) => {
               const heightPercent = (Math.abs(d.value) / maxValue) * 100;
               return (
-                <div
-                  key={d.label}
-                  className="flex flex-1 flex-col items-center gap-1"
-                >
+                <div key={d.label} className="flex flex-1 flex-col items-center gap-1">
                   <span className="text-[10px] font-mono text-muted-foreground">
                     {typeof d.value === 'number' && d.value % 1 !== 0
                       ? d.value.toFixed(1)
@@ -154,10 +145,7 @@ export default function QueryResultChart({ columns, rows, onClose }: QueryResult
                     style={{ height: `${Math.max(heightPercent, 2)}%` }}
                     title={`${d.label}: ${d.value}`}
                   />
-                  <span
-                    className="truncate text-[10px] text-muted-foreground"
-                    title={d.label}
-                  >
+                  <span className="truncate text-[10px] text-muted-foreground" title={d.label}>
                     {d.label}
                   </span>
                 </div>

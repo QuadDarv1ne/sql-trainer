@@ -9,12 +9,14 @@ import { ROLE_LABELS, ROLE_COLORS } from '../lib/rbac';
 const createdUsers: Array<{ email: string; name: string; role: UserRole }> = [];
 
 vi.mock('../lib/db-users', () => ({
-  createUser: vi.fn(async (email: string, name: string, _password: string, _phone: string | undefined, role: UserRole) => {
-    if (createdUsers.some(u => u.email === email)) return null;
-    const user = { id: 'test-id', email, name, phone: null, role };
-    createdUsers.push({ email, name, role });
-    return user;
-  }),
+  createUser: vi.fn(
+    async (email: string, name: string, _password: string, _phone: string | undefined, role: UserRole) => {
+      if (createdUsers.some((u) => u.email === email)) return null;
+      const user = { id: 'test-id', email, name, phone: null, role };
+      createdUsers.push({ email, name, role });
+      return user;
+    },
+  ),
 }));
 
 vi.mock('../lib/rate-limit', () => ({

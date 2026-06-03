@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
-import {
-  Card, CardContent, CardHeader, CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
@@ -42,17 +40,25 @@ export default function CompletionFunnelChart({ apiEndpoint }: CompletionFunnelC
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`${apiEndpoint || '/api/admin/analytics/funnel'}?${params}`)
-      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .then(d => setFunnel(d.funnel))
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then((d) => setFunnel(d.funnel))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
   }, [apiEndpoint, startDate, endDate]);
 
   if (loading) return <p className="text-center py-4 text-muted-foreground">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!funnel || funnel.length === 0) return <EmptyState />;
 
-  const chartData = funnel.map(s => ({
+  const chartData = funnel.map((s) => ({
     name: t(DIFFICULTY_LABELS[s.difficulty] || s.difficulty),
     started: s.students_started,
     completed: s.students_completed_all,
@@ -73,10 +79,20 @@ export default function CompletionFunnelChart({ apiEndpoint }: CompletionFunnelC
               <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 13 }} />
               <Tooltip />
               <Legend />
-              <Bar dataKey="started" name={t('analytics.funnel.started')} fill="hsl(var(--primary))" radius={[0, 4, 4, 0]}>
+              <Bar
+                dataKey="started"
+                name={t('analytics.funnel.started')}
+                fill="hsl(var(--primary))"
+                radius={[0, 4, 4, 0]}
+              >
                 <LabelList dataKey="started" position="right" />
               </Bar>
-              <Bar dataKey="completed" name={t('analytics.funnel.completed')} fill="hsl(var(--chart-2, 142, 76%, 36%))" radius={[0, 4, 4, 0]}>
+              <Bar
+                dataKey="completed"
+                name={t('analytics.funnel.completed')}
+                fill="hsl(var(--chart-2, 142, 76%, 36%))"
+                radius={[0, 4, 4, 0]}
+              >
                 <LabelList dataKey="completed" position="right" />
               </Bar>
             </BarChart>

@@ -1,11 +1,23 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle2, XCircle, Clock, AlertTriangle, Copy, Download, ShieldCheck, Lightbulb, ArrowUpDown, ArrowUp, ArrowDown, BarChart3 } from 'lucide-react';
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  AlertTriangle,
+  Copy,
+  Download,
+  ShieldCheck,
+  Lightbulb,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  BarChart3,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { t } from '@/lib/i18n';
 import { plural } from '@/lib/utils';
@@ -48,21 +60,24 @@ export default function ResultsTable({
     setCurrentPage(1);
   }, [rows]);
 
-  const handleSort = useCallback((col: string) => {
-    if (sortColumn === col) {
-      if (sortDirection === 'asc') {
-        setSortDirection('desc');
-      } else if (sortDirection === 'desc') {
-        setSortDirection(null);
-        setSortColumn(null);
+  const handleSort = useCallback(
+    (col: string) => {
+      if (sortColumn === col) {
+        if (sortDirection === 'asc') {
+          setSortDirection('desc');
+        } else if (sortDirection === 'desc') {
+          setSortDirection(null);
+          setSortColumn(null);
+        } else {
+          setSortDirection('asc');
+        }
       } else {
+        setSortColumn(col);
         setSortDirection('asc');
       }
-    } else {
-      setSortColumn(col);
-      setSortDirection('asc');
-    }
-  }, [sortColumn, sortDirection]);
+    },
+    [sortColumn, sortDirection],
+  );
 
   const sortedRows = useMemo(() => {
     if (!sortColumn || !sortDirection || rows.length === 0) return rows;
@@ -82,34 +97,31 @@ export default function ResultsTable({
   }, [rows, sortColumn, sortDirection]);
 
   const paginatedRows = useMemo(() => {
-    return sortedRows.slice(
-      (currentPage - 1) * pageSize,
-      currentPage * pageSize
-    );
+    return sortedRows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   }, [sortedRows, currentPage]);
 
   const totalPages = Math.ceil(sortedRows.length / pageSize);
 
   const copyResults = useCallback(() => {
     const header = columns.join('\t');
-    const data = sortedRows.map(row =>
-      columns.map(col => formatCellValue(row[col])).join('\t')
-    ).join('\n');
+    const data = sortedRows.map((row) => columns.map((col) => formatCellValue(row[col])).join('\t')).join('\n');
     navigator.clipboard.writeText(header + '\n' + data).then(() => {
       toast.success(t('results.copied'));
     });
   }, [columns, sortedRows]);
 
   const exportCSV = useCallback(() => {
-    const header = columns.map(c => `"${c}"`).join(',');
-    const data = sortedRows.map(row =>
-      columns.map(col => {
-        const val = formatForCSV(row[col]);
-        return val.includes(',') || val.includes('"')
-          ? `"${val.replace(/"/g, '""')}"`
-          : val;
-      }).join(',')
-    ).join('\n');
+    const header = columns.map((c) => `"${c}"`).join(',');
+    const data = sortedRows
+      .map((row) =>
+        columns
+          .map((col) => {
+            const val = formatForCSV(row[col]);
+            return val.includes(',') || val.includes('"') ? `"${val.replace(/"/g, '""')}"` : val;
+          })
+          .join(','),
+      )
+      .join('\n');
     const csv = '\uFEFF' + header + '\n' + data;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -154,21 +166,19 @@ export default function ResultsTable({
           <div className="flex flex-col gap-2 items-center">
             <p className="text-sm text-muted-foreground">{message}</p>
             {verification && (
-              <p className={`text-sm font-medium ${
-                verification.verified
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : 'text-amber-600 dark:text-amber-400'
-              }`}>
+              <p
+                className={`text-sm font-medium ${
+                  verification.verified
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-amber-600 dark:text-amber-400'
+                }`}
+              >
                 {verification.message}
               </p>
             )}
           </div>
         )}
-        {!message && (
-          <p className="text-xs text-muted-foreground">
-            {t('results.ddlSuccess')}
-          </p>
-        )}
+        {!message && <p className="text-xs text-muted-foreground">{t('results.ddlSuccess')}</p>}
       </div>
     );
   }
@@ -264,66 +274,74 @@ export default function ResultsTable({
         {chartView ? (
           <QueryResultChart columns={columns} rows={sortedRows} onClose={() => setChartView(false)} />
         ) : (
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-12 text-center text-xs font-medium text-muted-foreground">#</TableHead>
-              {columns.map((col) => {
-                const isSorted = sortColumn === col;
-                const dir = isSorted ? sortDirection : null;
-                return (
-                  <TableHead
-                    key={col}
-                    className="whitespace-nowrap text-xs font-medium text-emerald-600 dark:text-emerald-400 cursor-pointer hover:bg-muted/50 select-none"
-                    onClick={() => handleSort(col)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleSort(col);
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    title={t('results.sortClick')}
-                    aria-label={t('results.sortByColumn', {
-                      col,
-                      state: isSorted && dir === 'asc' ? t('results.sortAsc') : isSorted && dir === 'desc' ? t('results.sortDesc') : t('results.sortNone'),
-                    })}
-                  >
-                    <div className="flex items-center gap-1">
-                      {col}
-                      {dir === 'asc' && <ArrowUp className="h-3 w-3" />}
-                      {dir === 'desc' && <ArrowDown className="h-3 w-3" />}
-                      {!dir && <ArrowUpDown className="h-3 w-3 opacity-40" />}
-                    </div>
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedRows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={columns.length + 1} className="h-24 text-center text-muted-foreground">
-                  {t('results.noData')}
-                </TableCell>
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="w-12 text-center text-xs font-medium text-muted-foreground">#</TableHead>
+                {columns.map((col) => {
+                  const isSorted = sortColumn === col;
+                  const dir = isSorted ? sortDirection : null;
+                  return (
+                    <TableHead
+                      key={col}
+                      className="whitespace-nowrap text-xs font-medium text-emerald-600 dark:text-emerald-400 cursor-pointer hover:bg-muted/50 select-none"
+                      onClick={() => handleSort(col)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleSort(col);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      title={t('results.sortClick')}
+                      aria-label={t('results.sortByColumn', {
+                        col,
+                        state:
+                          isSorted && dir === 'asc'
+                            ? t('results.sortAsc')
+                            : isSorted && dir === 'desc'
+                              ? t('results.sortDesc')
+                              : t('results.sortNone'),
+                      })}
+                    >
+                      <div className="flex items-center gap-1">
+                        {col}
+                        {dir === 'asc' && <ArrowUp className="h-3 w-3" />}
+                        {dir === 'desc' && <ArrowDown className="h-3 w-3" />}
+                        {!dir && <ArrowUpDown className="h-3 w-3 opacity-40" />}
+                      </div>
+                    </TableHead>
+                  );
+                })}
               </TableRow>
-            ) : (
-              paginatedRows.map((row, idx) => (
-                <TableRow key={`page-${currentPage}-row-${idx}-${JSON.stringify(Object.values(row)).slice(0, 20)}`} className="text-sm">
-                  <TableCell className="text-center text-xs text-muted-foreground">
-                    {(currentPage - 1) * pageSize + idx + 1}
+            </TableHeader>
+            <TableBody>
+              {paginatedRows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={columns.length + 1} className="h-24 text-center text-muted-foreground">
+                    {t('results.noData')}
                   </TableCell>
-                  {columns.map((col) => (
-                    <TableCell key={col} className="whitespace-nowrap font-mono text-xs">
-                      {formatCellValue(row[col])}
-                    </TableCell>
-                  ))}
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                paginatedRows.map((row, idx) => (
+                  <TableRow
+                    key={`page-${currentPage}-row-${idx}-${JSON.stringify(Object.values(row)).slice(0, 20)}`}
+                    className="text-sm"
+                  >
+                    <TableCell className="text-center text-xs text-muted-foreground">
+                      {(currentPage - 1) * pageSize + idx + 1}
+                    </TableCell>
+                    {columns.map((col) => (
+                      <TableCell key={col} className="whitespace-nowrap font-mono text-xs">
+                        {formatCellValue(row[col])}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         )}
       </div>
 
@@ -331,7 +349,11 @@ export default function ResultsTable({
       {!chartView && totalPages > 1 && (
         <div className="flex items-center justify-between border-t border-border px-4 py-2">
           <span className="text-xs text-muted-foreground">
-            {t('results.showing', { start: String((currentPage - 1) * pageSize + 1), end: String(Math.min(currentPage * pageSize, sortedRows.length)), total: String(sortedRows.length) })}
+            {t('results.showing', {
+              start: String((currentPage - 1) * pageSize + 1),
+              end: String(Math.min(currentPage * pageSize, sortedRows.length)),
+              total: String(sortedRows.length),
+            })}
           </span>
           <div className="flex items-center gap-1">
             <button

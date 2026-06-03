@@ -6,7 +6,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, TrendingDown, Minus, Target, Flame, Award, BookOpen, AlertTriangle, Lightbulb, Clock } from 'lucide-react';
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Target,
+  Flame,
+  Award,
+  BookOpen,
+  AlertTriangle,
+  Lightbulb,
+  Clock,
+} from 'lucide-react';
 import { t } from '@/lib/i18n';
 import EmptyState from './empty-state';
 
@@ -25,7 +36,14 @@ interface AcademicSummary {
   streak_current: number;
   streak_longest: number;
   achievements: Array<{ title: string; earned_at: number }>;
-  skill_breakdown: Array<{ category: string; label: string; completed: number; total: number; rate: number; avg_attempts: number }>;
+  skill_breakdown: Array<{
+    category: string;
+    label: string;
+    completed: number;
+    total: number;
+    rate: number;
+    avg_attempts: number;
+  }>;
   recent_activity: Array<{ task_id: string; task_title: string; completed_at: number; attempts: number }>;
   performance_trend: 'improving' | 'stable' | 'declining';
   at_risk_flags: string[];
@@ -63,16 +81,26 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
     setError('');
     setData(null);
     fetch(`/api/admin/analytics/student/${studentId}/academic-summary`)
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch student academic profile')))
-      .then(d => setData(d.academicSummary))
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch student academic profile'))))
+      .then((d) => setData(d.academicSummary))
       .catch(() => setError(t('analytics.error')))
       .finally(() => setLoading(false));
   }, [studentId, open]);
 
   if (!studentId) return null;
 
-  const TrendIcon = data?.performance_trend === 'improving' ? TrendingUp : data?.performance_trend === 'declining' ? TrendingDown : Minus;
-  const trendColor = data?.performance_trend === 'improving' ? 'text-emerald-600 dark:text-emerald-400' : data?.performance_trend === 'declining' ? 'text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-300';
+  const TrendIcon =
+    data?.performance_trend === 'improving'
+      ? TrendingUp
+      : data?.performance_trend === 'declining'
+        ? TrendingDown
+        : Minus;
+  const trendColor =
+    data?.performance_trend === 'improving'
+      ? 'text-emerald-600 dark:text-emerald-400'
+      : data?.performance_trend === 'declining'
+        ? 'text-red-600 dark:text-red-400'
+        : 'text-gray-400 dark:text-gray-300';
 
   const getSkillColor = (rate: number) =>
     rate >= 75 ? 'text-emerald-600' : rate >= 50 ? 'text-amber-600' : 'text-red-600';
@@ -81,9 +109,7 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {data ? t('academicProfile.title', { name: data.name }) : t('analytics.loading')}
-          </DialogTitle>
+          <DialogTitle>{data ? t('academicProfile.title', { name: data.name }) : t('analytics.loading')}</DialogTitle>
         </DialogHeader>
 
         {loading && <p className="text-center py-8">{t('analytics.loading')}</p>}
@@ -112,8 +138,10 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
-                      {data.at_risk_flags.map(flag => (
-                        <Badge key={flag} variant="destructive">{flagLabels[flag] || flag}</Badge>
+                      {data.at_risk_flags.map((flag) => (
+                        <Badge key={flag} variant="destructive">
+                          {flagLabels[flag] || flag}
+                        </Badge>
                       ))}
                     </div>
                   </CardContent>
@@ -126,7 +154,9 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                   <CardContent className="p-4 flex items-center gap-3">
                     <Target className="h-8 w-8 text-emerald-600 shrink-0" />
                     <div>
-                      <p className="text-2xl font-bold">{data.tasks_completed}/{data.total_tasks}</p>
+                      <p className="text-2xl font-bold">
+                        {data.tasks_completed}/{data.total_tasks}
+                      </p>
                       <p className="text-xs text-muted-foreground">{t('academicProfile.tasksCompleted')}</p>
                     </div>
                   </CardContent>
@@ -145,7 +175,9 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                     <Flame className="h-8 w-8 text-orange-500 shrink-0" />
                     <div>
                       <p className="text-2xl font-bold">{data.streak_current}</p>
-                      <p className="text-xs text-muted-foreground">{t('academicProfile.streak')} (max: {data.streak_longest})</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t('academicProfile.streak')} (max: {data.streak_longest})
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
@@ -176,7 +208,12 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                       {data.recommendations.map((rec) => {
                         const key = rec.startsWith('focus_on_') ? `focus_on_${rec.replace('focus_on_', '')}` : rec;
                         const label = recommendationLabels[key] || rec;
-                        return <li key={rec} className="flex items-center gap-2"><span className="text-amber-500">•</span>{label}</li>;
+                        return (
+                          <li key={rec} className="flex items-center gap-2">
+                            <span className="text-amber-500">•</span>
+                            {label}
+                          </li>
+                        );
                       })}
                     </ul>
                   </CardContent>
@@ -186,7 +223,7 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
 
             {/* Skills Tab */}
             <TabsContent value="skills" className="space-y-4">
-              {data.skill_breakdown.map(skill => (
+              {data.skill_breakdown.map((skill) => (
                 <Card key={skill.category}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-2">
@@ -196,13 +233,21 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                       </div>
                       <div className="flex items-center gap-3">
                         <span className={`font-bold ${getSkillColor(skill.rate)}`}>{skill.rate}%</span>
-                        <span className="text-xs text-muted-foreground">{skill.completed}/{skill.total}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {skill.completed}/{skill.total}
+                        </span>
                       </div>
                     </div>
                     <Progress value={skill.rate} className="h-2 mb-2" />
                     <div className="flex gap-4 text-xs text-muted-foreground">
-                      <span>{t('academicProfile.attempts')}: {skill.avg_attempts}</span>
-                      <span>{skill.completed === skill.total ? t('academicProfile.complete') : `${skill.total - skill.completed} ${t('academicProfile.remaining')}`}</span>
+                      <span>
+                        {t('academicProfile.attempts')}: {skill.avg_attempts}
+                      </span>
+                      <span>
+                        {skill.completed === skill.total
+                          ? t('academicProfile.complete')
+                          : `${skill.total - skill.completed} ${t('academicProfile.remaining')}`}
+                      </span>
                     </div>
                   </CardContent>
                 </Card>
@@ -222,11 +267,19 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                   ) : (
                     <div className="space-y-2">
                       {data.recent_activity.map((activity) => (
-                        <div key={activity.task_id} className="flex items-center justify-between py-2 border-b last:border-0">
+                        <div
+                          key={activity.task_id}
+                          className="flex items-center justify-between py-2 border-b last:border-0"
+                        >
                           <div>
                             <p className="font-medium text-sm">{activity.task_title}</p>
                             <p className="text-xs text-muted-foreground">
-                              {new Date(activity.completed_at).toLocaleDateString('ru-RU', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              {new Date(activity.completed_at).toLocaleDateString('ru-RU', {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
                             </p>
                           </div>
                           <Badge variant={activity.attempts === 1 ? 'default' : 'secondary'}>
@@ -255,7 +308,10 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                   ) : (
                     <div className="grid gap-2 sm:grid-cols-2">
                       {data.achievements.map((achievement) => (
-                        <div key={`${achievement.title}-${achievement.earned_at}`} className="flex items-start gap-2 p-3 rounded-lg border">
+                        <div
+                          key={`${achievement.title}-${achievement.earned_at}`}
+                          className="flex items-start gap-2 p-3 rounded-lg border"
+                        >
                           <Award className="h-4 w-4 text-purple-600 mt-0.5 shrink-0" />
                           <div>
                             <p className="text-sm font-medium">{achievement.title}</p>

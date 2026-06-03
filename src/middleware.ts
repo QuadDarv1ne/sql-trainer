@@ -39,7 +39,7 @@ const securityHeaders = {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "upgrade-insecure-requests",
+    'upgrade-insecure-requests',
   ].join('; '),
 };
 
@@ -58,10 +58,7 @@ export default auth(async (request) => {
   if (isCsrfProtectedRoute(pathname) && isCsrfProtectedMethod(request.method)) {
     const isValid = validateCsrfTokenEdge(request);
     if (!isValid) {
-      return NextResponse.json(
-        { success: false, error: 'CSRF validation failed' },
-        { status: 403 },
-      );
+      return NextResponse.json({ success: false, error: 'CSRF validation failed' }, { status: 403 });
     }
   }
 

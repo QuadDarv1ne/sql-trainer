@@ -46,7 +46,7 @@ export default function ErrorTrendsChart() {
   if (error) return <div className="text-red-500 py-8">{error}</div>;
   if (data.length === 0) return <EmptyState />;
 
-  const filteredData = data.filter(d => d.total_completions > 0);
+  const filteredData = data.filter((d) => d.total_completions > 0);
   if (filteredData.length === 0) return <EmptyState />;
 
   return (
@@ -64,8 +64,24 @@ export default function ErrorTrendsChart() {
               <YAxis yAxisId="right" orientation="right" />
               <Tooltip />
               <Legend />
-              <Line yAxisId="left" type="monotone" dataKey="avg_attempts" name="Avg Attempts" stroke="#ef4444" strokeWidth={2} dot={false} />
-              <Line yAxisId="right" type="monotone" dataKey="high_attempt_rate" name="High Attempt Rate (%)" stroke="#f59e0b" strokeWidth={2} dot={false} />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="avg_attempts"
+                name="Avg Attempts"
+                stroke="#ef4444"
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="high_attempt_rate"
+                name="High Attempt Rate (%)"
+                stroke="#f59e0b"
+                strokeWidth={2}
+                dot={false}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>

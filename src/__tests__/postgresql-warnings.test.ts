@@ -3,12 +3,12 @@ import { detectDroppedFunctions, adaptWithWarnings } from '@/lib/postgresql-adap
 
 describe('detectDroppedFunctions', () => {
   it('should return empty array when no dropped functions are present', () => {
-    const sql = 'SELECT * FROM users WHERE name = \'test\'';
+    const sql = "SELECT * FROM users WHERE name = 'test'";
     expect(detectDroppedFunctions(sql)).toEqual([]);
   });
 
   it('should detect DATE_TRUNC function', () => {
-    const sql = 'SELECT DATE_TRUNC(\'month\', created_at) FROM users';
+    const sql = "SELECT DATE_TRUNC('month', created_at) FROM users";
     const dropped = detectDroppedFunctions(sql);
     expect(dropped).toContain('DATE_TRUNC');
   });
@@ -22,7 +22,7 @@ describe('detectDroppedFunctions', () => {
   });
 
   it('should not flag functions that have SQLite equivalents', () => {
-    const sql = 'SELECT COALESCE(name, \'unknown\'), ABS(price), ROUND(val, 2) FROM t';
+    const sql = "SELECT COALESCE(name, 'unknown'), ABS(price), ROUND(val, 2) FROM t";
     const dropped = detectDroppedFunctions(sql);
     expect(dropped).toEqual([]);
   });
@@ -30,16 +30,16 @@ describe('detectDroppedFunctions', () => {
 
 describe('adaptWithWarnings', () => {
   it('should return warnings for dropped functions', () => {
-    const sql = 'SELECT DATE_TRUNC(\'day\', created_at), GREATEST(a, b) FROM t';
+    const sql = "SELECT DATE_TRUNC('day', created_at), GREATEST(a, b) FROM t";
     const result = adaptWithWarnings(sql);
     expect(result.warnings.length).toBeGreaterThan(0);
-    expect(result.warnings.some(w => w.includes('DATE_TRUNC'))).toBe(true);
-    expect(result.warnings.some(w => w.includes('GREATEST'))).toBe(true);
+    expect(result.warnings.some((w) => w.includes('DATE_TRUNC'))).toBe(true);
+    expect(result.warnings.some((w) => w.includes('GREATEST'))).toBe(true);
     expect(result.sql).toBeDefined();
   });
 
   it('should return empty warnings when no functions are dropped', () => {
-    const sql = 'SELECT * FROM users WHERE name = \'test\'';
+    const sql = "SELECT * FROM users WHERE name = 'test'";
     const result = adaptWithWarnings(sql);
     expect(result.warnings).toEqual([]);
   });

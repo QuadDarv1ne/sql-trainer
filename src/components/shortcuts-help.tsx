@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { HelpCircle, Keyboard } from 'lucide-react';
 import { t } from '@/lib/i18n';
@@ -71,10 +65,7 @@ export default function ShortcutsHelp() {
               </h4>
               <div className="space-y-1.5">
                 {section.items.map((item) => (
-                  <div
-                    key={item.keys}
-                    className="flex items-center justify-between rounded-md bg-muted/50 px-3 py-2"
-                  >
+                  <div key={item.keys} className="flex items-center justify-between rounded-md bg-muted/50 px-3 py-2">
                     <span className="text-sm">{item.description}</span>
                     <kbd className="rounded border border-border bg-background px-2 py-0.5 font-mono text-xs">
                       {item.keys}

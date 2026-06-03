@@ -23,7 +23,11 @@ interface ClassReportData {
 }
 
 export default function ClassReport() {
-  const { data: report, loading, error } = useAnalyticsQuery<ClassReportData>({
+  const {
+    data: report,
+    loading,
+    error,
+  } = useAnalyticsQuery<ClassReportData>({
     endpoint: '/api/admin/analytics/class-report',
     transform: (json) => (json.report || {}) as ClassReportData,
   });
@@ -40,16 +44,42 @@ export default function ClassReport() {
   };
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!report) return <EmptyState />;
 
   const stats = [
-    { label: t('analytics.classReport.totalStudents'), value: report.total_students, icon: Users, color: 'text-blue-600' },
-    { label: t('analytics.classReport.activeStudents'), value: report.active_students, icon: TrendingUp, color: 'text-emerald-600' },
-    { label: t('analytics.classReport.avgCompletion'), value: `${report.avg_completion_rate}%`, icon: Award, color: 'text-purple-600' },
+    {
+      label: t('analytics.classReport.totalStudents'),
+      value: report.total_students,
+      icon: Users,
+      color: 'text-blue-600',
+    },
+    {
+      label: t('analytics.classReport.activeStudents'),
+      value: report.active_students,
+      icon: TrendingUp,
+      color: 'text-emerald-600',
+    },
+    {
+      label: t('analytics.classReport.avgCompletion'),
+      value: `${report.avg_completion_rate}%`,
+      icon: Award,
+      color: 'text-purple-600',
+    },
     { label: t('analytics.classReport.avgAttempts'), value: report.avg_attempts, icon: Clock, color: 'text-amber-600' },
     { label: t('analytics.classReport.atRisk'), value: report.at_risk_count, icon: AlertCircle, color: 'text-red-600' },
-    { label: t('analytics.classReport.excelling'), value: report.excelling_count, icon: Award, color: 'text-emerald-600' },
+    {
+      label: t('analytics.classReport.excelling'),
+      value: report.excelling_count,
+      icon: Award,
+      color: 'text-emerald-600',
+    },
   ];
 
   return (
@@ -94,8 +124,12 @@ export default function ClassReport() {
                     <span className="font-medium">{student.name}</span>
                   </div>
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="text-muted-foreground">{student.tasks_completed} {t('classReport.task')}</span>
-                    <span className="text-muted-foreground">{t('classReport.avgAttemptsLabel')}: {student.avg_attempts}</span>
+                    <span className="text-muted-foreground">
+                      {student.tasks_completed} {t('classReport.task')}
+                    </span>
+                    <span className="text-muted-foreground">
+                      {t('classReport.avgAttemptsLabel')}: {student.avg_attempts}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -113,10 +147,15 @@ export default function ClassReport() {
           <CardContent>
             <div className="space-y-2">
               {report.struggling_students.map((student) => (
-                <div key={student.user_id} className="flex items-center justify-between p-3 rounded-lg border border-amber-200 dark:border-amber-900">
+                <div
+                  key={student.user_id}
+                  className="flex items-center justify-between p-3 rounded-lg border border-amber-200 dark:border-amber-900"
+                >
                   <span className="font-medium">{student.name}</span>
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="text-muted-foreground">{student.tasks_completed} {t('classReport.task')}</span>
+                    <span className="text-muted-foreground">
+                      {student.tasks_completed} {t('classReport.task')}
+                    </span>
                     <Badge variant="outline" className="border-amber-500 text-amber-600">
                       {t('classReport.avgAttemptsLabel')}: {student.avg_attempts}
                     </Badge>
@@ -137,13 +176,18 @@ export default function ClassReport() {
           <CardContent>
             <div className="space-y-2">
               {report.inactive_students.map((student) => (
-                <div key={student.user_id} className="flex items-center justify-between p-3 rounded-lg border border-red-200 dark:border-red-900">
+                <div
+                  key={student.user_id}
+                  className="flex items-center justify-between p-3 rounded-lg border border-red-200 dark:border-red-900"
+                >
                   <span className="font-medium">{student.name}</span>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
                     <span>
                       {student.last_active
-                        ? t('classReport.daysAgo', { days: String(Math.floor((Date.now() - student.last_active) / (24 * 60 * 60 * 1000))) })
+                        ? t('classReport.daysAgo', {
+                            days: String(Math.floor((Date.now() - student.last_active) / (24 * 60 * 60 * 1000))),
+                          })
                         : t('classReport.neverActive')}
                     </span>
                   </div>

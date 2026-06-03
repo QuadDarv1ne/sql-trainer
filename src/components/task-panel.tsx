@@ -62,9 +62,7 @@ export default function TaskPanel({
         <BookOpen className="h-12 w-12 text-muted-foreground/30" />
         <div>
           <h3 className="text-sm font-medium text-muted-foreground">{t('task.selectTask')}</h3>
-          <p className="mt-1 text-xs text-muted-foreground/70">
-            {t('task.selectTaskDesc')}
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground/70">{t('task.selectTaskDesc')}</p>
         </div>
       </div>
     );
@@ -75,9 +73,7 @@ export default function TaskPanel({
       {/* Task header */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <Badge className={DIFFICULTY_COLORS[task.difficulty]}>
-            {DIFFICULTY_LABELS[task.difficulty]}
-          </Badge>
+          <Badge className={DIFFICULTY_COLORS[task.difficulty]}>{DIFFICULTY_LABELS[task.difficulty]}</Badge>
           {isCompleted && (
             <Badge variant="outline" className="border-emerald-500 text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
@@ -116,12 +112,8 @@ export default function TaskPanel({
         <Card className="border-emerald-200 bg-emerald-50/50 dark:border-emerald-800 dark:bg-emerald-950/20">
           <CardContent className="p-4 text-center space-y-2">
             <PartyPopper className="mx-auto h-8 w-8 text-emerald-500" />
-            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-              {t('task.congrats')}
-            </p>
-            <p className="text-xs text-emerald-600/70 dark:text-emerald-500/70">
-              {t('task.congratsDesc')}
-            </p>
+            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">{t('task.congrats')}</p>
+            <p className="text-xs text-emerald-600/70 dark:text-emerald-500/70">{t('task.congratsDesc')}</p>
           </CardContent>
         </Card>
       )}
@@ -157,7 +149,10 @@ export default function TaskPanel({
                 key={relatedTask.id}
                 onClick={() => onNextRelated?.(index)}
                 className="flex items-center gap-2 rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/40"
-                aria-label={t('task.goToRelated', { title: relatedTask.title, difficulty: DIFFICULTY_LABELS[relatedTask.difficulty] })}
+                aria-label={t('task.goToRelated', {
+                  title: relatedTask.title,
+                  difficulty: DIFFICULTY_LABELS[relatedTask.difficulty],
+                })}
               >
                 <Badge className={DIFFICULTY_COLORS[relatedTask.difficulty]} variant="outline">
                   {DIFFICULTY_LABELS[relatedTask.difficulty]}
@@ -175,14 +170,19 @@ export default function TaskPanel({
         if (!task) return null;
         const hints = generateProgressiveHints(task.id, task.hint, task.taskText, task.progressiveHints);
         const nextLevel = getNextHintLevel(hintLevel);
-        const hintLevelLabels = [
-          '',
-          t('task.hintLevel1'),
-          t('task.hintLevel2'),
-          t('task.hintLevel3'),
+        const hintLevelLabels = ['', t('task.hintLevel1'), t('task.hintLevel2'), t('task.hintLevel3')];
+        const hintLevelIcons = [
+          null,
+          <Info key="1" className="h-4 w-4" />,
+          <HelpCircle key="2" className="h-4 w-4" />,
+          <AlertCircle key="3" className="h-4 w-4" />,
         ];
-        const hintLevelIcons = [null, <Info key="1" className="h-4 w-4" />, <HelpCircle key="2" className="h-4 w-4" />, <AlertCircle key="3" className="h-4 w-4" />];
-        const hintLevelColors = ['', 'text-blue-600 dark:text-blue-400', 'text-amber-600 dark:text-amber-400', 'text-orange-600 dark:text-orange-400'];
+        const hintLevelColors = [
+          '',
+          'text-blue-600 dark:text-blue-400',
+          'text-amber-600 dark:text-amber-400',
+          'text-orange-600 dark:text-orange-400',
+        ];
         const hintBgColors = [
           '',
           'bg-blue-50/50 dark:bg-blue-950/20',
@@ -212,44 +212,31 @@ export default function TaskPanel({
             </div>
 
             {/* Show revealed hints */}
-            {hintLevel > 0 && hints.slice(0, hintLevel).map((hint) => (
-              <Card
-                key={hint.level}
-                className={`border ${hintBorderColors[hint.level]} ${hintBgColors[hint.level]}`}
-              >
-                <CardHeader className="pb-2 px-4 pt-4">
-                  <CardTitle className={`text-sm font-medium flex items-center gap-2 ${hintLevelColors[hint.level]}`}>
-                    {hintLevelIcons[hint.level]}
-                    {hintLevelLabels[hint.level]}
-                    {hint.xpPenalty > 0 && (
-                      <span className="text-xs text-muted-foreground ml-auto">
-                        (-{hint.xpPenalty} XP)
-                      </span>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="px-4 pb-4">
-                  <p className="text-sm leading-relaxed">{hint.text}</p>
-                </CardContent>
-              </Card>
-            ))}
+            {hintLevel > 0 &&
+              hints.slice(0, hintLevel).map((hint) => (
+                <Card key={hint.level} className={`border ${hintBorderColors[hint.level]} ${hintBgColors[hint.level]}`}>
+                  <CardHeader className="pb-2 px-4 pt-4">
+                    <CardTitle className={`text-sm font-medium flex items-center gap-2 ${hintLevelColors[hint.level]}`}>
+                      {hintLevelIcons[hint.level]}
+                      {hintLevelLabels[hint.level]}
+                      {hint.xpPenalty > 0 && (
+                        <span className="text-xs text-muted-foreground ml-auto">(-{hint.xpPenalty} XP)</span>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-4 pb-4">
+                    <p className="text-sm leading-relaxed">{hint.text}</p>
+                  </CardContent>
+                </Card>
+              ))}
 
             {/* Next hint button */}
             {nextLevel !== null && !isCompleted && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full h-9"
-                onClick={onRevealNextHint}
-              >
+              <Button variant="outline" size="sm" className="w-full h-9" onClick={onRevealNextHint}>
                 <Lightbulb className="mr-2 h-4 w-4" />
-                {hintLevel === 0
-                  ? t('task.showFirstHint')
-                  : t('task.showNextHint', { level: String(nextLevel) })}
+                {hintLevel === 0 ? t('task.showFirstHint') : t('task.showNextHint', { level: String(nextLevel) })}
                 {hints[nextLevel - 1]?.xpPenalty > 0 && (
-                  <span className="ml-2 text-xs text-muted-foreground">
-                    (-{hints[nextLevel - 1].xpPenalty} XP)
-                  </span>
+                  <span className="ml-2 text-xs text-muted-foreground">(-{hints[nextLevel - 1].xpPenalty} XP)</span>
                 )}
               </Button>
             )}
@@ -272,12 +259,7 @@ export default function TaskPanel({
             <Trophy className="h-4 w-4 text-amber-500" />
             {t('task.solutionTitle')}
           </h4>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 text-xs"
-            onClick={onShowSolution}
-          >
+          <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={onShowSolution}>
             {solutionVisible ? (
               <>
                 <EyeOff className="mr-1.5 h-3.5 w-3.5" />

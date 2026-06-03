@@ -61,10 +61,14 @@ export default function LeaderboardTable() {
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
-      case 1: return <Trophy className="h-4 w-4 text-yellow-500 dark:text-yellow-400" />;
-      case 2: return <Medal className="h-4 w-4 text-gray-400 dark:text-gray-300" />;
-      case 3: return <Medal className="h-4 w-4 text-amber-600 dark:text-amber-400" />;
-      default: return <span className="text-xs font-mono text-muted-foreground w-4 text-center">{rank}</span>;
+      case 1:
+        return <Trophy className="h-4 w-4 text-yellow-500 dark:text-yellow-400" />;
+      case 2:
+        return <Medal className="h-4 w-4 text-gray-400 dark:text-gray-300" />;
+      case 3:
+        return <Medal className="h-4 w-4 text-amber-600 dark:text-amber-400" />;
+      default:
+        return <span className="text-xs font-mono text-muted-foreground w-4 text-center">{rank}</span>;
     }
   };
 
@@ -85,23 +89,18 @@ export default function LeaderboardTable() {
               const rank = idx + 1;
               const isCurrentUser = entry.user_id === session?.user?.id;
               return (
-                <TableRow
-                  key={entry.user_id}
-                  className={isCurrentUser ? 'bg-emerald-50 dark:bg-emerald-950/20' : ''}
-                >
-                  <TableCell className="text-center">
-                    {getRankIcon(rank)}
-                  </TableCell>
+                <TableRow key={entry.user_id} className={isCurrentUser ? 'bg-emerald-50 dark:bg-emerald-950/20' : ''}>
+                  <TableCell className="text-center">{getRankIcon(rank)}</TableCell>
                   <TableCell className="font-medium">
                     {entry.name}
-                    {isCurrentUser && <Badge variant="secondary" className="ml-2 text-[10px]">{t('leaderboard.you')}</Badge>}
+                    {isCurrentUser && (
+                      <Badge variant="secondary" className="ml-2 text-[10px]">
+                        {t('leaderboard.you')}
+                      </Badge>
+                    )}
                   </TableCell>
-                  <TableCell className="text-right">
-                    {entry.tasks_completed}
-                  </TableCell>
-                  <TableCell className="text-right text-muted-foreground">
-                    {entry.total_attempts}
-                  </TableCell>
+                  <TableCell className="text-right">{entry.tasks_completed}</TableCell>
+                  <TableCell className="text-right text-muted-foreground">{entry.total_attempts}</TableCell>
                 </TableRow>
               );
             })}

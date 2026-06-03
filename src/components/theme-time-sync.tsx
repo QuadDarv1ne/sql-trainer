@@ -16,9 +16,15 @@ export function ThemeTimeSync() {
   const themeValueRef = useRef(theme);
   const resolvedRef = useRef(resolvedTheme);
 
-  useEffect(() => { setMounted(true); }, []);
-  useEffect(() => { themeValueRef.current = theme; }, [theme]);
-  useEffect(() => { resolvedRef.current = resolvedTheme; }, [resolvedTheme]);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  useEffect(() => {
+    themeValueRef.current = theme;
+  }, [theme]);
+  useEffect(() => {
+    resolvedRef.current = resolvedTheme;
+  }, [resolvedTheme]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -36,9 +42,8 @@ export function ThemeTimeSync() {
       if (currentResolved !== targetTheme) {
         setTheme(targetTheme);
         const locale = getLocale();
-        const themeName = targetTheme === 'dark'
-          ? tWithLocale(locale, 'header.theme.dark')
-          : tWithLocale(locale, 'header.theme.light');
+        const themeName =
+          targetTheme === 'dark' ? tWithLocale(locale, 'header.theme.dark') : tWithLocale(locale, 'header.theme.light');
         const timeDesc = shouldDark
           ? tWithLocale(locale, 'theme.time.evening')
           : tWithLocale(locale, 'theme.time.daytime');
@@ -49,16 +54,17 @@ export function ThemeTimeSync() {
 
         // After auto-switching, schedule a reset back to 'system'
         // so the system theme can take over again at the next time boundary
-        const minutesToBoundary = shouldDark
-          ? (7 - hour + 24) % 24 * 60
-          : (20 - hour + 24) % 24 * 60;
+        const minutesToBoundary = shouldDark ? ((7 - hour + 24) % 24) * 60 : ((20 - hour + 24) % 24) * 60;
         if (minutesToBoundary > 0) {
-          setTimeout(() => {
-            // Reset to system — OS or next time boundary will handle the switch
-            if (themeValueRef.current !== 'system') {
-              setTheme('system');
-            }
-          }, minutesToBoundary * 60 * 1000);
+          setTimeout(
+            () => {
+              // Reset to system — OS or next time boundary will handle the switch
+              if (themeValueRef.current !== 'system') {
+                setTheme('system');
+              }
+            },
+            minutesToBoundary * 60 * 1000,
+          );
         }
       }
     };

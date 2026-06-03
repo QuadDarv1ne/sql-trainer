@@ -70,7 +70,7 @@ export function adaptClickHouseToSQLite(sql: string): string {
   result = result.replace(/\bARRAY\s+JOIN\b/gi, 'JOIN');
 
   // Replace formatDate
-  result = result.replace(/\bformatDate\s*\(/gi, "STRFTIME(");
+  result = result.replace(/\bformatDate\s*\(/gi, 'STRFTIME(');
 
   // Replace toTypeName
   result = result.replace(/\btoTypeName\s*\([^)]+\)/gi, "'Unknown'");
@@ -168,9 +168,9 @@ function replaceClickHouseFunctions(sql: string): string {
   result = result.replace(/\btoISOYear\s*\(/gi, "CAST(STRFTIME('%Y', ");
 
   // Date formatting
-  result = result.replace(/\btoYYYYMM\s*\(/gi, "STRFTIME(");
-  result = result.replace(/\btoYYYYMMDD\s*\(/gi, "STRFTIME(");
-  result = result.replace(/\btoYYYYMMDDhhmmss\s*\(/gi, "STRFTIME(");
+  result = result.replace(/\btoYYYYMM\s*\(/gi, 'STRFTIME(');
+  result = result.replace(/\btoYYYYMMDD\s*\(/gi, 'STRFTIME(');
+  result = result.replace(/\btoYYYYMMDDhhmmss\s*\(/gi, 'STRFTIME(');
 
   // now() and today()
   result = result.replace(/\bnow\s*\(\s*\)/gi, "DATETIME('now')");
@@ -243,7 +243,7 @@ function replaceClickHouseFunctions(sql: string): string {
   // replaceOne(s, pattern, replacement)
   result = result.replace(
     /\breplaceOne\s*\(\s*([^,]+),\s*([^,]+),\s*([^)]+)\s*\)/gi,
-    "CASE WHEN INSTR($1, $2) > 0 THEN SUBSTR($1, 1, INSTR($1, $2) - 1) || $3 || SUBSTR($1, INSTR($1, $2) + LENGTH($2)) ELSE $1 END"
+    'CASE WHEN INSTR($1, $2) > 0 THEN SUBSTR($1, 1, INSTR($1, $2) - 1) || $3 || SUBSTR($1, INSTR($1, $2) + LENGTH($2)) ELSE $1 END',
   );
   // replaceAll(s, pattern, replacement) → REPLACE
   result = result.replace(/\breplaceAll\s*\(\s*([^,]+),\s*([^,]+),\s*([^)]+)\s*\)/gi, 'REPLACE($1, $2, $3)');
@@ -314,7 +314,10 @@ function replaceClickHouseFunctions(sql: string): string {
   });
 
   // age
-  result = result.replace(/\bage\s*\(\s*([^)]+)\)/gi, 'CAST((JULIANDAY(DATE("now")) - JULIANDAY($1)) / 365.25 AS INTEGER)');
+  result = result.replace(
+    /\bage\s*\(\s*([^)]+)\)/gi,
+    'CAST((JULIANDAY(DATE("now")) - JULIANDAY($1)) / 365.25 AS INTEGER)',
+  );
 
   // formatDateTime
   result = result.replace(/\bformatDateTime\s*\(\s*([^,]+),\s*['"]([^'"]+)['"]/gi, (match, expr, fmt) => {
@@ -514,8 +517,50 @@ function replaceNullCoalescing(sql: string): string {
     if (ch === '?' && i > 0 && i < sql.length - 1 && /\s/.test(sql[i - 1]) && /\s/.test(sql[i + 1])) {
       let j = i + 1;
       while (j < sql.length && /\s/.test(sql[j])) j++;
-      const nextToken = sql.substring(j, j + 20).match(/^[a-zA-Z_]*/)?.[0]?.toLowerCase() || '';
-      const structuralTokens = ['where', 'and', 'or', 'order', 'group', 'having', 'limit', 'offset', 'union', 'from', 'select', 'insert', 'update', 'delete', 'set', 'join', 'on', 'into', 'values', 'create', 'drop', 'alter', 'with', 'as', 'case', 'when', 'then', 'else', 'end', 'not', 'null', 'is', 'in', 'exists', 'between', 'like', 'returning'];
+      const nextToken =
+        sql
+          .substring(j, j + 20)
+          .match(/^[a-zA-Z_]*/)?.[0]
+          ?.toLowerCase() || '';
+      const structuralTokens = [
+        'where',
+        'and',
+        'or',
+        'order',
+        'group',
+        'having',
+        'limit',
+        'offset',
+        'union',
+        'from',
+        'select',
+        'insert',
+        'update',
+        'delete',
+        'set',
+        'join',
+        'on',
+        'into',
+        'values',
+        'create',
+        'drop',
+        'alter',
+        'with',
+        'as',
+        'case',
+        'when',
+        'then',
+        'else',
+        'end',
+        'not',
+        'null',
+        'is',
+        'in',
+        'exists',
+        'between',
+        'like',
+        'returning',
+      ];
       const nextChar = sql[j] || '';
       const isStructural = structuralTokens.includes(nextToken) || [')', ',', ';'].includes(nextChar);
       if (!isStructural) {

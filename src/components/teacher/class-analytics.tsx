@@ -42,9 +42,15 @@ export default function ClassAnalytics() {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((res) => { if (!controller.signal.aborted) setData(res.analytics); })
-      .catch(() => { if (!controller.signal.aborted) setError(t('teacher.error')); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+      .then((res) => {
+        if (!controller.signal.aborted) setData(res.analytics);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setError(t('teacher.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -86,11 +92,7 @@ export default function ClassAnalytics() {
               name={t('teacher.progress.completed')}
               fill={difficultyColors[data?.difficultyStats[0]?.difficulty || 'beginner']}
             />
-            <Bar
-              dataKey="avgAttempts"
-              name={t('teacher.progress.avgAttempts')}
-              fill="#6366f1"
-            />
+            <Bar dataKey="avgAttempts" name={t('teacher.progress.avgAttempts')} fill="#6366f1" />
           </BarChart>
         </ResponsiveContainer>
       </DataCard>
@@ -111,8 +113,12 @@ export default function ClassAnalytics() {
                   <span className="text-sm font-medium">{task.task_id}</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm">
-                  <span className="text-muted-foreground">{task.completions} {t('teacher.analytics.completions')}</span>
-                  <span className="text-muted-foreground">{t('teacher.progress.avgAttempts')}: {task.avg_attempts}</span>
+                  <span className="text-muted-foreground">
+                    {task.completions} {t('teacher.analytics.completions')}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {t('teacher.progress.avgAttempts')}: {task.avg_attempts}
+                  </span>
                 </div>
               </div>
             ))}
@@ -128,11 +134,18 @@ export default function ClassAnalytics() {
         >
           <div className="space-y-2">
             {(data?.strugglingTasks || []).slice(0, 5).map((task) => (
-              <div key={task.task_id} className="flex items-center justify-between p-2 rounded border border-red-200 dark:border-red-900">
+              <div
+                key={task.task_id}
+                className="flex items-center justify-between p-2 rounded border border-red-200 dark:border-red-900"
+              >
                 <span className="text-sm font-medium">{task.task_id}</span>
                 <div className="flex items-center gap-4 text-sm">
-                  <span className="text-red-600">{t('teacher.progress.avgAttempts')}: {task.avg_attempts}</span>
-                  <span className="text-muted-foreground">{task.failure_rate}% {t('teacher.analytics.failRate')}</span>
+                  <span className="text-red-600">
+                    {t('teacher.progress.avgAttempts')}: {task.avg_attempts}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {task.failure_rate}% {t('teacher.analytics.failRate')}
+                  </span>
                 </div>
               </div>
             ))}

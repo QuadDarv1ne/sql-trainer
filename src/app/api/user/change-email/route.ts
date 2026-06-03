@@ -28,10 +28,7 @@ export async function POST(request: NextRequest) {
     // Rate limit: 5 attempts per 15 minutes per user
     const limit = await rateLimit(`change-email:${session.user.id}`, { max: 5, windowMs: 15 * 60 * 1000 });
     if (!limit.success) {
-      return NextResponse.json(
-        { success: false, error: 'Слишком много попыток. Попробуйте позже' },
-        { status: 429 }
-      );
+      return NextResponse.json({ success: false, error: 'Слишком много попыток. Попробуйте позже' }, { status: 429 });
     }
 
     const body = await request.json();
@@ -43,36 +40,24 @@ export async function POST(request: NextRequest) {
     // Verify password
     const user = await findUserByIdWithHash(session.user.id);
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Пользователь не найден' },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: 'Пользователь не найден' }, { status: 404 });
     }
 
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
-      return NextResponse.json(
-        { success: false, error: 'Неверный пароль' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Неверный пароль' }, { status: 400 });
     }
 
     // Check if email is already taken
     const existingUser = await findUserByEmail(newEmail);
     if (existingUser && existingUser.id !== user.id) {
-      return NextResponse.json(
-        { success: false, error: 'Этот email уже используется' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Этот email уже используется' }, { status: 400 });
     }
 
     // Update email
     const updated = await updateUser(user.id, { email: newEmail });
     if (!updated) {
-      return NextResponse.json(
-        { success: false, error: 'Не удалось обновить email' },
-        { status: 500 }
-      );
+      return NextResponse.json({ success: false, error: 'Не удалось обновить email' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, message: 'Email успешно изменён', email: newEmail });

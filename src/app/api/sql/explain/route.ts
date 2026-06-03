@@ -7,7 +7,10 @@ import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 
 const sqlExplainSchema = z.object({
-  sql: z.string().min(1, { message: 'SQL запрос не может быть пустым' }).max(10000, { message: 'Запрос слишком длинный' }),
+  sql: z
+    .string()
+    .min(1, { message: 'SQL запрос не может быть пустым' })
+    .max(10000, { message: 'Запрос слишком длинный' }),
   dbType: z.enum(['sqlite', 'postgresql', 'mongodb']).optional(),
   taskId: z.string().min(1, { message: 'taskId обязателен для EXPLAIN' }),
 });
@@ -63,10 +66,7 @@ export async function POST(request: NextRequest) {
     const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
     const limitResult = await rateLimit(`explain:${ip}`, { max: 15, windowMs: 60_000 });
     if (!limitResult.success) {
-      return NextResponse.json(
-        { success: false, error: 'Слишком много запросов. Подождите немного' },
-        { status: 429 }
-      );
+      return NextResponse.json({ success: false, error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
     }
 
     const body = await request.json();
@@ -77,13 +77,10 @@ export async function POST(request: NextRequest) {
 
     const task = getTaskById(taskId);
     if (!task) {
-      return NextResponse.json(
-        { success: false, error: 'Задание не найдено' },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: 'Задание не найдено' }, { status: 404 });
     }
 
-    const effectiveDbType = VALID_DB_TYPES.includes(dbType as typeof VALID_DB_TYPES[number]) ? dbType : 'sqlite';
+    const effectiveDbType = VALID_DB_TYPES.includes(dbType as (typeof VALID_DB_TYPES)[number]) ? dbType : 'sqlite';
     const result = explainQuery(sql, task.schema, effectiveDbType);
 
     if (result.success && result.plan) {
@@ -94,9 +91,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result);
   } catch (err: unknown) {
     logger.error('SQL explain error:', err);
-    return NextResponse.json(
-      { success: false, error: 'Произошла внутренняя ошибка' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Произошла внутренняя ошибка' }, { status: 500 });
   }
 }

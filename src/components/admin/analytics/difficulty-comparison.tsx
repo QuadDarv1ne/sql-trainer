@@ -6,15 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle } from 'lucide-react';
-import {
-  ResponsiveContainer,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  Legend,
-} from 'recharts';
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from 'recharts';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
@@ -73,7 +65,7 @@ export default function DifficultyComparisonChart() {
     advanced: 'border-red-500 text-red-600',
   };
 
-  const radarData = data.map(d => ({
+  const radarData = data.map((d) => ({
     name: difficultyLabels[d.difficulty],
     completion_rate: d.completion_rate,
     first_attempt_rate: d.first_attempt_rate,
@@ -117,7 +109,7 @@ export default function DifficultyComparisonChart() {
               <Badge variant="outline" className={difficultyColors[entry.difficulty]}>
                 {difficultyLabels[entry.difficulty]}
               </Badge>
-              
+
               <div className="space-y-2">
                 <div>
                   <div className="flex justify-between text-xs mb-1">
@@ -126,7 +118,7 @@ export default function DifficultyComparisonChart() {
                   </div>
                   <Progress value={entry.completion_rate} className="h-2" />
                 </div>
-                
+
                 <div>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-muted-foreground">{t('analytics.difficulty.firstAttempt')}</span>

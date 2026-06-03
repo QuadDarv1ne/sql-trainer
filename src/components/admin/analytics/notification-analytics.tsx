@@ -8,12 +8,18 @@ import { AlertCircle, Mail, Send, CheckCircle, XCircle } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
 } from 'recharts';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import EmptyState from './empty-state';
 
 interface ChannelStats {
@@ -41,10 +47,20 @@ interface DeliveryTrendEntry {
 
 export default function NotificationAnalytics() {
   const [channels, setChannels] = useState<ChannelStats[]>([]);
-  const [emailQueue, setEmailQueue] = useState<{ total: number; sent: number; pending: number; failed: number; retrying: number } | null>(null);
+  const [emailQueue, setEmailQueue] = useState<{
+    total: number;
+    sent: number;
+    pending: number;
+    failed: number;
+    retrying: number;
+  } | null>(null);
   const [recentFailures, setRecentFailures] = useState<FailureEntry[]>([]);
   const [deliveryTrend, setDeliveryTrend] = useState<DeliveryTrendEntry[]>([]);
-  const [overallStats, setOverallStats] = useState<{ total_sent: number; total_failed: number; overall_success_rate: number } | null>(null);
+  const [overallStats, setOverallStats] = useState<{
+    total_sent: number;
+    total_failed: number;
+    overall_success_rate: number;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { startDate, endDate } = useDateRange();
@@ -59,8 +75,8 @@ export default function NotificationAnalytics() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/notifications?${params}`, { signal: controller.signal })
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch notification analytics')))
-      .then(data => {
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch notification analytics'))))
+      .then((data) => {
         if (!controller.signal.aborted) {
           setChannels(data.by_channel || []);
           setEmailQueue(data.email_queue);
@@ -69,20 +85,50 @@ export default function NotificationAnalytics() {
           setOverallStats(data.overall_stats);
         }
       })
-      .catch((err) => { if (err.name !== 'AbortError' && !controller.signal.aborted) setError(t('analytics.error')); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+      .catch((err) => {
+        if (err.name !== 'AbortError' && !controller.signal.aborted) setError(t('analytics.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
     return () => controller.abort();
   }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!overallStats) return <EmptyState />;
 
   const stats = [
-    { label: t('analytics.notifications.totalSent'), value: overallStats.total_sent, icon: Send, color: 'text-blue-600' },
-    { label: t('analytics.notifications.overallSuccess'), value: `${overallStats.overall_success_rate}%`, icon: CheckCircle, color: 'text-emerald-600' },
-    { label: t('analytics.notifications.failed'), value: overallStats.total_failed, icon: XCircle, color: 'text-red-600' },
-    { label: t('analytics.notifications.pending'), value: emailQueue?.pending || 0, icon: Mail, color: 'text-amber-600' },
+    {
+      label: t('analytics.notifications.totalSent'),
+      value: overallStats.total_sent,
+      icon: Send,
+      color: 'text-blue-600',
+    },
+    {
+      label: t('analytics.notifications.overallSuccess'),
+      value: `${overallStats.overall_success_rate}%`,
+      icon: CheckCircle,
+      color: 'text-emerald-600',
+    },
+    {
+      label: t('analytics.notifications.failed'),
+      value: overallStats.total_failed,
+      icon: XCircle,
+      color: 'text-red-600',
+    },
+    {
+      label: t('analytics.notifications.pending'),
+      value: emailQueue?.pending || 0,
+      icon: Mail,
+      color: 'text-amber-600',
+    },
   ];
 
   return (
@@ -90,7 +136,7 @@ export default function NotificationAnalytics() {
       <h2 className="text-2xl font-bold">{t('analytics.notifications.title')}</h2>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map(stat => (
+        {stats.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="p-4 flex items-center gap-3">
               <stat.icon className={`h-8 w-8 ${stat.color}`} />
@@ -105,7 +151,9 @@ export default function NotificationAnalytics() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader><CardTitle>{t('analytics.notifications.channel')}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>{t('analytics.notifications.channel')}</CardTitle>
+          </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={channels}>
@@ -123,7 +171,9 @@ export default function NotificationAnalytics() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>{t('analytics.notifications.emailQueue')}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>{t('analytics.notifications.emailQueue')}</CardTitle>
+          </CardHeader>
           <CardContent>
             {emailQueue && (
               <div className="space-y-3">
@@ -132,8 +182,12 @@ export default function NotificationAnalytics() {
                   { label: t('analytics.notifications.delivered'), value: emailQueue.sent, color: 'text-emerald-600' },
                   { label: t('analytics.notifications.pending'), value: emailQueue.pending, color: 'text-amber-600' },
                   { label: t('analytics.notifications.failed'), value: emailQueue.failed, color: 'text-red-600' },
-                  { label: t('analytics.notifications.retrying'), value: emailQueue.retrying, color: 'text-purple-600' },
-                ].map(item => (
+                  {
+                    label: t('analytics.notifications.retrying'),
+                    value: emailQueue.retrying,
+                    color: 'text-purple-600',
+                  },
+                ].map((item) => (
                   <div key={item.label} className="flex justify-between">
                     <span className="text-muted-foreground">{item.label}</span>
                     <span className={`font-bold ${item.color}`}>{item.value}</span>
@@ -146,7 +200,9 @@ export default function NotificationAnalytics() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle>{t('analytics.notifications.recentFailures')}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>{t('analytics.notifications.recentFailures')}</CardTitle>
+        </CardHeader>
         <CardContent>
           {recentFailures.length > 0 ? (
             <Table>
@@ -161,7 +217,9 @@ export default function NotificationAnalytics() {
               <TableBody>
                 {recentFailures.slice(0, 10).map((f) => (
                   <TableRow key={`${f.channel}-${f.user_name}-${f.sent_at}`}>
-                    <TableCell><Badge>{f.channel}</Badge></TableCell>
+                    <TableCell>
+                      <Badge>{f.channel}</Badge>
+                    </TableCell>
                     <TableCell>{f.user_name}</TableCell>
                     <TableCell>{new Date(f.sent_at).toLocaleDateString()}</TableCell>
                     <TableCell className="text-red-600 max-w-xs truncate">{f.error}</TableCell>
@@ -176,7 +234,9 @@ export default function NotificationAnalytics() {
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Тренд доставки (30 дней)</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>Тренд доставки (30 дней)</CardTitle>
+        </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={deliveryTrend}>

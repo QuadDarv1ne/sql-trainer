@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import {
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  Radar, ResponsiveContainer, Legend, Tooltip,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
 } from 'recharts';
-import {
-  Card, CardContent, CardHeader, CardTitle,
-} from '@/components/ui/card';
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
@@ -46,8 +48,11 @@ export default function SkillBreakdownChart({ apiEndpoint }: SkillBreakdownChart
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`${apiEndpoint || '/api/admin/analytics/skills'}?${params}`)
-      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .then(d => {
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.json();
+      })
+      .then((d) => {
         setData(d.breakdown);
         if (d.breakdown.length > 0) setSelectedStudent(d.breakdown[0].user_id);
       })
@@ -56,12 +61,15 @@ export default function SkillBreakdownChart({ apiEndpoint }: SkillBreakdownChart
   }, [apiEndpoint, startDate, endDate]);
 
   if (loading) return <p className="text-center py-4 text-muted-foreground">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!data || data.length === 0) return <EmptyState />;
 
-  const student = selectedStudent
-    ? data.find(s => s.user_id === selectedStudent) || data[0]
-    : data[0];
+  const student = selectedStudent ? data.find((s) => s.user_id === selectedStudent) || data[0] : data[0];
 
   const chartData: SkillData[] = Object.entries(student.skills).map(([skill, info]) => ({
     skill: t(`analytics.skills.category.${skill}`),
@@ -79,7 +87,7 @@ export default function SkillBreakdownChart({ apiEndpoint }: SkillBreakdownChart
               <SelectValue placeholder={t('analytics.skills.selectStudent')} />
             </SelectTrigger>
             <SelectContent>
-              {data.map(s => (
+              {data.map((s) => (
                 <SelectItem key={s.user_id} value={s.user_id}>
                   {s.name} ({s.overall_score}%)
                 </SelectItem>
@@ -117,7 +125,9 @@ export default function SkillBreakdownChart({ apiEndpoint }: SkillBreakdownChart
               {Object.entries(student.skills).map(([skill, info]) => (
                 <div key={skill} className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">{t(`analytics.skills.category.${skill}`)}</span>
-                  <span className="font-medium">{info.completed}/{info.total}</span>
+                  <span className="font-medium">
+                    {info.completed}/{info.total}
+                  </span>
                 </div>
               ))}
             </div>

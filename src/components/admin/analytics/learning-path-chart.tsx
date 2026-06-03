@@ -5,16 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle } from 'lucide-react';
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
@@ -75,13 +66,13 @@ export default function LearningPathChart() {
   if (!data.length) return <EmptyState />;
 
   // Aggregate by path type
-  const aggregated = ['sequential', 'mixed', 'random'].map(type => {
-    const entries = data.filter(d => d.path_type === type);
+  const aggregated = ['sequential', 'mixed', 'random'].map((type) => {
+    const entries = data.filter((d) => d.path_type === type);
     if (!entries.length) return { name: pathTypeLabels[type], completion_rate: 0, avg_attempts: 0, count: 0 };
     return {
       name: pathTypeLabels[type],
-      completion_rate: Math.round(entries.reduce((s, e) => s + e.completion_rate, 0) / entries.length * 10) / 10,
-      avg_attempts: Math.round(entries.reduce((s, e) => s + e.avg_attempts, 0) / entries.length * 100) / 100,
+      completion_rate: Math.round((entries.reduce((s, e) => s + e.completion_rate, 0) / entries.length) * 10) / 10,
+      avg_attempts: Math.round((entries.reduce((s, e) => s + e.avg_attempts, 0) / entries.length) * 100) / 100,
       count: entries.length,
     };
   });
@@ -108,13 +99,27 @@ export default function LearningPathChart() {
           {aggregated.map((entry) => (
             <div key={entry.name} className="p-4 rounded-lg border space-y-2">
               <div className="flex items-center justify-between">
-                <Badge className={pathTypeColors[entry.name.includes(t('analytics.learningPath.sequential').split(' ')[0]) ? 'sequential' : entry.name.includes(t('analytics.learningPath.mixed').split(' ')[0]) ? 'mixed' : 'random'] || ''}>
+                <Badge
+                  className={
+                    pathTypeColors[
+                      entry.name.includes(t('analytics.learningPath.sequential').split(' ')[0])
+                        ? 'sequential'
+                        : entry.name.includes(t('analytics.learningPath.mixed').split(' ')[0])
+                          ? 'mixed'
+                          : 'random'
+                    ] || ''
+                  }
+                >
                   {entry.name}
                 </Badge>
-                <span className="text-xs text-muted-foreground">{entry.count} {t('analytics.students.title').toLowerCase()}</span>
+                <span className="text-xs text-muted-foreground">
+                  {entry.count} {t('analytics.students.title').toLowerCase()}
+                </span>
               </div>
               <div className="text-2xl font-bold">{entry.completion_rate}%</div>
-              <div className="text-xs text-muted-foreground">{t('analytics.difficulty.completion')} | {t('analytics.tasks.avgAttempts')}: {entry.avg_attempts}</div>
+              <div className="text-xs text-muted-foreground">
+                {t('analytics.difficulty.completion')} | {t('analytics.tasks.avgAttempts')}: {entry.avg_attempts}
+              </div>
             </div>
           ))}
         </div>

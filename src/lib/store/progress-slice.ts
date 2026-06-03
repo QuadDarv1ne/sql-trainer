@@ -129,7 +129,11 @@ export const createProgressSlice: StateCreator<ProgressSlice, [], [], ProgressSl
   saveQuery: (query) =>
     set((state) => ({
       savedQueries: [
-        { ...query, id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`, createdAt: Date.now() },
+        {
+          ...query,
+          id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          createdAt: Date.now(),
+        },
         ...state.savedQueries,
       ].slice(0, MAX_SAVED_QUERIES),
     })),

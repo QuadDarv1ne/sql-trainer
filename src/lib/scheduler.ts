@@ -2,7 +2,14 @@
  * Heartbeat-based scheduler — processes due reminders and emails without external cron.
  * Called periodically from API routes to trigger reminder processing.
  */
-import { getDueReminders, markScheduleSent, markScheduleFailed, getNotificationPreferences, getDb, queueEmail } from './db-users';
+import {
+  getDueReminders,
+  markScheduleSent,
+  markScheduleFailed,
+  getNotificationPreferences,
+  getDb,
+  queueEmail,
+} from './db-users';
 import { processEmailQueue, renderReminderEmail } from './email';
 import { sendPushToUser } from './push-notifications';
 import { logger } from './logger';
@@ -10,7 +17,11 @@ import { logger } from './logger';
 let lastTick = 0;
 const TICK_INTERVAL_MS = 60_000; // Check every 60 seconds
 
-export async function heartbeat(): Promise<{ processed_reminders: number; processed_emails_sent: number; processed_emails_failed: number }> {
+export async function heartbeat(): Promise<{
+  processed_reminders: number;
+  processed_emails_sent: number;
+  processed_emails_failed: number;
+}> {
   const now = Date.now();
   if (now - lastTick < TICK_INTERVAL_MS) {
     return { processed_reminders: 0, processed_emails_sent: 0, processed_emails_failed: 0 };
@@ -70,11 +81,13 @@ function processDueReminders(): number {
           }
 
           // Get deadline info for email content
-          const deadline = db.prepare('SELECT * FROM deadlines WHERE id = ?').get(reminder.deadline_id) as {
-            title: string;
-            type: string;
-            due_at: number;
-          } | undefined;
+          const deadline = db.prepare('SELECT * FROM deadlines WHERE id = ?').get(reminder.deadline_id) as
+            | {
+                title: string;
+                type: string;
+                due_at: number;
+              }
+            | undefined;
 
           if (deadline) {
             const now = Date.now();
@@ -108,11 +121,13 @@ function processDueReminders(): number {
           }
 
           // Get deadline info for push content
-          const deadline = db.prepare('SELECT * FROM deadlines WHERE id = ?').get(reminder.deadline_id) as {
-            title: string;
-            type: string;
-            due_at: number;
-          } | undefined;
+          const deadline = db.prepare('SELECT * FROM deadlines WHERE id = ?').get(reminder.deadline_id) as
+            | {
+                title: string;
+                type: string;
+                due_at: number;
+              }
+            | undefined;
 
           if (deadline) {
             const now = Date.now();

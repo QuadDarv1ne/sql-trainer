@@ -2,12 +2,7 @@
 
 import { useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { BookOpen, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { t } from '@/lib/i18n';
@@ -136,13 +131,15 @@ const GLOSSARY_ENTRIES: GlossaryEntry[] = [
   {
     term: 'CTE (WITH)',
     defKey: 'glossary.defs.cte',
-    example: 'WITH dept_stats AS (SELECT dept_id, AVG(salary) avg_sal FROM employees GROUP BY dept_id) SELECT * FROM dept_stats',
+    example:
+      'WITH dept_stats AS (SELECT dept_id, AVG(salary) avg_sal FROM employees GROUP BY dept_id) SELECT * FROM dept_stats',
     category: 'advanced',
   },
   {
     term: 'Рекурсивный CTE',
     defKey: 'glossary.defs.recursiveCte',
-    example: 'WITH RECURSIVE tree AS (SELECT * FROM cats WHERE parent_id IS NULL UNION ALL SELECT c.* FROM cats c JOIN tree t ON c.parent_id = t.id) SELECT * FROM tree',
+    example:
+      'WITH RECURSIVE tree AS (SELECT * FROM cats WHERE parent_id IS NULL UNION ALL SELECT c.* FROM cats c JOIN tree t ON c.parent_id = t.id) SELECT * FROM tree',
     category: 'advanced',
   },
   {
@@ -172,13 +169,15 @@ const GLOSSARY_ENTRIES: GlossaryEntry[] = [
   {
     term: 'LATERAL JOIN',
     defKey: 'glossary.defs.lateralJoin',
-    example: 'SELECT d.name, top.name FROM departments d CROSS JOIN LATERAL (SELECT name FROM employees e WHERE e.dept_id = d.id ORDER BY salary DESC LIMIT 1) top',
+    example:
+      'SELECT d.name, top.name FROM departments d CROSS JOIN LATERAL (SELECT name FROM employees e WHERE e.dept_id = d.id ORDER BY salary DESC LIMIT 1) top',
     category: 'advanced',
   },
   {
     term: 'Транзакция',
     defKey: 'glossary.defs.transaction',
-    example: 'BEGIN; UPDATE accounts SET balance = balance - 100 WHERE id = 1; UPDATE accounts SET balance = balance + 100 WHERE id = 2; COMMIT;',
+    example:
+      'BEGIN; UPDATE accounts SET balance = balance - 100 WHERE id = 1; UPDATE accounts SET balance = balance + 100 WHERE id = 2; COMMIT;',
     category: 'advanced',
   },
   {
@@ -216,10 +215,7 @@ export default function SQLGlossary() {
   const filteredEntries = GLOSSARY_ENTRIES.filter((entry) => {
     const searchLower = search.toLowerCase();
     const defText = t(entry.defKey).toLowerCase();
-    return (
-      entry.term.toLowerCase().includes(searchLower) ||
-      defText.includes(searchLower)
-    );
+    return entry.term.toLowerCase().includes(searchLower) || defText.includes(searchLower);
   });
 
   const grouped = categories.map((cat) => ({
@@ -276,7 +272,7 @@ export default function SQLGlossary() {
                   ))}
                 </Accordion>
               </div>
-            )
+            ),
           )}
         </div>
       </ScrollArea>

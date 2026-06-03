@@ -1,10 +1,6 @@
 import { withAdminAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
-import {
-  getAllGroupsForAdmin,
-  getGroupById,
-  deleteGroup,
-} from '@/lib/db-users';
+import { getAllGroupsForAdmin, getGroupById, deleteGroup } from '@/lib/db-users';
 
 export const GET = withAdminAuth(async () => {
   const groups = getAllGroupsForAdmin();

@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+build
+_next
+coverage
+dist
+data
+public/sw.js
+public/workbox-*.js
+*.md
+package-lock.json
+next-env.d.ts
+_archive_extracted

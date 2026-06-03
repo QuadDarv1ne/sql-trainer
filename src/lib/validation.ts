@@ -18,10 +18,7 @@ export function validateBody<T extends z.ZodType>(
   if (!result.success) {
     const firstError = result.error.issues[0]?.message ?? t('export.error.invalidFormat');
     return {
-      response: NextResponse.json(
-        { success: false, error: firstError },
-        { status: 400 },
-      ),
+      response: NextResponse.json({ success: false, error: firstError }, { status: 400 }),
     };
   }
 
@@ -46,10 +43,7 @@ export async function parseAndValidate<T extends z.ZodType>(
     body = await request.json();
   } catch {
     return {
-      response: NextResponse.json(
-        { success: false, error: t('validation.invalidRequest') },
-        { status: 400 },
-      ),
+      response: NextResponse.json({ success: false, error: t('validation.invalidRequest') }, { status: 400 }),
     };
   }
 

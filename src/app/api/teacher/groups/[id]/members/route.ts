@@ -1,12 +1,7 @@
 import { withTeacherAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import {
-  getGroupById,
-  addGroupMembers,
-  removeGroupMember,
-  getGroupMembers,
-} from '@/lib/db-users';
+import { getGroupById, addGroupMembers, removeGroupMember, getGroupMembers } from '@/lib/db-users';
 
 export const POST = withTeacherAuth(async ({ session, request }) => {
   try {

@@ -9,16 +9,13 @@ export const GET = withTeacherAuth(async ({ session, params }) => {
   if (!id || !UUID_REGEX.test(id)) {
     return NextResponse.json({ error: 'Invalid student ID format' }, { status: 400 });
   }
-  
+
   // Verify that the student belongs to one of the teacher's groups
   const teacherId = session.user.id;
   if (!isStudentInTeacherGroup(id, teacherId)) {
-    return NextResponse.json(
-      { error: 'Access denied: student not in your groups' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Access denied: student not in your groups' }, { status: 403 });
   }
-  
+
   const student = getStudentDetail(id);
   if (!student) {
     return NextResponse.json({ error: 'Student not found' }, { status: 404 });

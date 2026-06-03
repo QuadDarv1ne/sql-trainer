@@ -28,25 +28,9 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
-import {
-  PanelLeftClose,
-  PanelLeftOpen,
-  Table as TableIcon,
-  Loader2,
-  Menu,
-} from 'lucide-react';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { PanelLeftClose, PanelLeftOpen, Table as TableIcon, Loader2, Menu } from 'lucide-react';
 
 // Dynamic import for SQL Editor (no SSR)
 const SQLEditor = dynamic(() => import('@/components/sql-editor'), {
@@ -184,14 +168,13 @@ export default function HomePage() {
           logger.error('Failed to sync server progress', e);
         }
       });
-    return () => { controller.abort(); };
+    return () => {
+      controller.abort();
+    };
   }, [session?.user]);
 
   // Get current task
-  const currentTask = useMemo(
-    () => (currentTaskId ? getTaskById(currentTaskId) : null),
-    [currentTaskId]
-  );
+  const currentTask = useMemo(() => (currentTaskId ? getTaskById(currentTaskId) : null), [currentTaskId]);
 
   // Load schema when task changes
   useEffect(() => {
@@ -221,7 +204,9 @@ export default function HomePage() {
     };
 
     loadSchema();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [currentTask, dbType]);
 
   // Execute query
@@ -384,7 +369,12 @@ export default function HomePage() {
         const nextLevel = getNextHintLevel(hintLevel);
         if (nextLevel !== null && currentTask) {
           setHintLevel(nextLevel);
-          const hints = generateProgressiveHints(currentTask.id, currentTask.hint, currentTask.taskText, currentTask.progressiveHints);
+          const hints = generateProgressiveHints(
+            currentTask.id,
+            currentTask.hint,
+            currentTask.taskText,
+            currentTask.progressiveHints,
+          );
           setTotalHintPenalty(calculateHintPenalty(hints, nextLevel));
         }
       }
@@ -485,7 +475,10 @@ export default function HomePage() {
         });
 
         const { newAchievements, xpGained } = checkAndUnlockAchievements({
-          completedTasks: [...completedTasks, { taskId: currentTaskId, completedAt: Date.now(), attempts: attemptCountRef.current }],
+          completedTasks: [
+            ...completedTasks,
+            { taskId: currentTaskId, completedAt: Date.now(), attempts: attemptCountRef.current },
+          ],
           queryHistoryLength: queryHistory.length,
           currentStreak: streak.currentStreak,
           taskId: currentTaskId,
@@ -512,7 +505,22 @@ export default function HomePage() {
     } finally {
       setIsExecuting(false);
     }
-  }, [editorContent, isExecuting, currentTaskId, dbType, completedTasks, queryHistory, streak, setIsExecuting, markTaskCompleted, updateStreak, checkAndUnlockAchievements, addXP, isTaskCompleted, setVerification]);
+  }, [
+    editorContent,
+    isExecuting,
+    currentTaskId,
+    dbType,
+    completedTasks,
+    queryHistory,
+    streak,
+    setIsExecuting,
+    markTaskCompleted,
+    updateStreak,
+    checkAndUnlockAchievements,
+    addXP,
+    isTaskCompleted,
+    setVerification,
+  ]);
 
   // Reset DB (re-init task)
   const resetDb = () => {
@@ -537,8 +545,7 @@ export default function HomePage() {
 
   // Compute next task info
   const nextTaskInfo = useMemo(() => {
-    if (!currentTask)
-      return { hasNext: false, label: '', isLastTask: false, allCompleted: false };
+    if (!currentTask) return { hasNext: false, label: '', isLastTask: false, allCompleted: false };
 
     const currentIndex = TRAINING_TASKS.findIndex((t) => t.id === currentTask.id);
     const allDone = completedTasks.length === TRAINING_TASKS.length;
@@ -601,31 +608,34 @@ export default function HomePage() {
     }
   }, [currentTask, setCurrentTaskId]);
 
-  const goToRelatedTask = useCallback((taskIndex: number) => {
-    if (relatedTasks[taskIndex]) {
-      setCurrentTaskId(relatedTasks[taskIndex].id);
-    }
-  }, [relatedTasks, setCurrentTaskId]);
+  const goToRelatedTask = useCallback(
+    (taskIndex: number) => {
+      if (relatedTasks[taskIndex]) {
+        setCurrentTaskId(relatedTasks[taskIndex].id);
+      }
+    },
+    [relatedTasks, setCurrentTaskId],
+  );
 
   const handleRestoreQuery = useCallback(
     (sql: string) => {
       setEditorContent(sql);
     },
-    [setEditorContent]
+    [setEditorContent],
   );
 
   const handlePreviewTable = useCallback(
     (tableName: string) => {
       setEditorContent(`SELECT * FROM ${tableName} LIMIT 100;`);
     },
-    [setEditorContent]
+    [setEditorContent],
   );
 
   const handleInsertTemplate = useCallback(
     (sql: string) => {
       setEditorContent(sql);
     },
-    [setEditorContent]
+    [setEditorContent],
   );
 
   const handleStartTraining = useCallback(() => {
@@ -679,11 +689,7 @@ export default function HomePage() {
             className="hidden md:flex h-9 w-9"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
-            {sidebarOpen ? (
-              <PanelLeftClose className="h-5 w-5" />
-            ) : (
-              <PanelLeftOpen className="h-5 w-5" />
-            )}
+            {sidebarOpen ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
           </Button>
 
           {/* Logo */}
@@ -733,7 +739,11 @@ export default function HomePage() {
               <ThemeToggle />
             </TooltipTrigger>
             <TooltipContent side="bottom" className="text-xs">
-              {mounted && theme === 'dark' ? t('header.theme.system') : mounted && theme === 'system' ? t('header.theme.light') : t('header.theme.dark')}
+              {mounted && theme === 'dark'
+                ? t('header.theme.system')
+                : mounted && theme === 'system'
+                  ? t('header.theme.light')
+                  : t('header.theme.dark')}
             </TooltipContent>
           </Tooltip>
 
@@ -796,12 +806,16 @@ export default function HomePage() {
                       ? t('editor.placeholder.task', { title: currentTask.title })
                       : t('editor.placeholder.free')
                   }
-                  schema={schemaInfo ? {
-                    tables: schemaInfo.tables.map(t => ({
-                      name: t.name,
-                      columns: t.columns.map(c => ({ name: c.name, type: c.type })),
-                    })),
-                  } : null}
+                  schema={
+                    schemaInfo
+                      ? {
+                          tables: schemaInfo.tables.map((t) => ({
+                            name: t.name,
+                            columns: t.columns.map((c) => ({ name: c.name, type: c.type })),
+                          })),
+                        }
+                      : null
+                  }
                 />
               </div>
             </ResizablePanel>
@@ -850,7 +864,12 @@ export default function HomePage() {
                         const nextLevel = getNextHintLevel(hintLevel);
                         if (nextLevel !== null && currentTask) {
                           setHintLevel(nextLevel);
-                          const hints = generateProgressiveHints(currentTask.id, currentTask.hint, currentTask.taskText, currentTask.progressiveHints);
+                          const hints = generateProgressiveHints(
+                            currentTask.id,
+                            currentTask.hint,
+                            currentTask.taskText,
+                            currentTask.progressiveHints,
+                          );
                           setTotalHintPenalty(calculateHintPenalty(hints, nextLevel));
                         }
                       }}

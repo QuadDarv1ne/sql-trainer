@@ -31,10 +31,7 @@ export async function POST(request: NextRequest) {
     // Rate limit: 5 attempts per 15 minutes per user
     const limit = await rateLimit(`change-password:${session.user.id}`, { max: 5, windowMs: 15 * 60 * 1000 });
     if (!limit.success) {
-      return NextResponse.json(
-        { success: false, error: 'Слишком много попыток. Попробуйте позже' },
-        { status: 429 }
-      );
+      return NextResponse.json({ success: false, error: 'Слишком много попыток. Попробуйте позже' }, { status: 429 });
     }
 
     const body = await request.json();
@@ -46,34 +43,25 @@ export async function POST(request: NextRequest) {
     // Verify current password
     const user = await findUserByIdWithHash(session.user.id);
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Пользователь не найден' },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: 'Пользователь не найден' }, { status: 404 });
     }
 
     const valid = await bcrypt.compare(currentPassword, user.password_hash);
     if (!valid) {
-      return NextResponse.json(
-        { success: false, error: 'Неверный текущий пароль' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Неверный текущий пароль' }, { status: 400 });
     }
 
     if (currentPassword === newPassword) {
       return NextResponse.json(
         { success: false, error: 'Новый пароль должен отличаться от текущего' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Update password
     const updated = await updatePassword(user.id, newPassword);
     if (!updated) {
-      return NextResponse.json(
-        { success: false, error: 'Не удалось обновить пароль' },
-        { status: 500 }
-      );
+      return NextResponse.json({ success: false, error: 'Не удалось обновить пароль' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, message: 'Пароль успешно изменён' });

@@ -10,13 +10,15 @@ export interface ExportColumn {
 export function exportToCSV(data: Record<string, unknown>[], columns: ExportColumn[], filename: string): void {
   if (!data?.length) return;
 
-  const header = columns.map(col => `"${col.label}"`).join(',');
-  const rows = data.map(row => {
-    return columns.map(col => {
-      const value = row[col.key];
-      const escaped = String(value ?? '').replace(/"/g, '""');
-      return `"${escaped}"`;
-    }).join(',');
+  const header = columns.map((col) => `"${col.label}"`).join(',');
+  const rows = data.map((row) => {
+    return columns
+      .map((col) => {
+        const value = row[col.key];
+        const escaped = String(value ?? '').replace(/"/g, '""');
+        return `"${escaped}"`;
+      })
+      .join(',');
   });
 
   const csv = [header, ...rows].join('\n');
@@ -45,11 +47,15 @@ export function exportToExcel(data: Record<string, unknown>[], columns: ExportCo
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#x27;');
 
-  const headerRow = columns.map(col => `<th style="background:#2563eb;color:white;font-weight:bold;">${escapeHtml(col.label)}</th>`).join('');
-  const bodyRows = data.map(row => {
-    const cells = columns.map(col => `<td>${escapeHtml(String(row[col.key] ?? ''))}</td>`).join('');
-    return `<tr>${cells}</tr>`;
-  }).join('');
+  const headerRow = columns
+    .map((col) => `<th style="background:#2563eb;color:white;font-weight:bold;">${escapeHtml(col.label)}</th>`)
+    .join('');
+  const bodyRows = data
+    .map((row) => {
+      const cells = columns.map((col) => `<td>${escapeHtml(String(row[col.key] ?? ''))}</td>`).join('');
+      return `<tr>${cells}</tr>`;
+    })
+    .join('');
 
   const html = `
     <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">

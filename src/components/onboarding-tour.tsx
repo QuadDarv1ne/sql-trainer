@@ -114,12 +114,7 @@ export default function OnboardingTour({ onComplete }: OnboardingTourProps) {
                 <span className="text-2xl">{step.icon}</span>
                 {step.title}
               </CardTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleSkip}
-                className="h-8 w-8"
-              >
+              <Button variant="ghost" size="icon" onClick={handleSkip} className="h-8 w-8">
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -131,23 +126,14 @@ export default function OnboardingTour({ onComplete }: OnboardingTourProps) {
                 <div
                   key={i}
                   className={`h-1.5 flex-1 rounded-full transition-colors ${
-                    i === currentStep
-                      ? 'bg-emerald-500'
-                      : i < currentStep
-                        ? 'bg-emerald-300'
-                        : 'bg-muted'
+                    i === currentStep ? 'bg-emerald-500' : i < currentStep ? 'bg-emerald-300' : 'bg-muted'
                   }`}
                 />
               ))}
             </div>
           </CardContent>
           <CardFooter className="flex justify-between pt-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handlePrev}
-              disabled={isFirstStep}
-            >
+            <Button variant="ghost" size="sm" onClick={handlePrev} disabled={isFirstStep}>
               <ArrowLeft className="mr-1 h-4 w-4" />
               {t('onboarding.prev')}
             </Button>

@@ -12,13 +12,11 @@ export const GET = withAdminAuth(async ({ params }) => {
     return NextResponse.json({ error: 'Student not found' }, { status: 404 });
   }
   const userAchievements = await getUserAchievements(id);
-  const achievementDetails = await getAchievementDetails(
-    userAchievements.map(a => a.id)
-  );
+  const achievementDetails = await getAchievementDetails(userAchievements.map((a) => a.id));
   return NextResponse.json({
     student,
-    achievements: achievementDetails.map(detail => {
-      const earned = userAchievements.find(a => a.id === detail.id);
+    achievements: achievementDetails.map((detail) => {
+      const earned = userAchievements.find((a) => a.id === detail.id);
       return { ...detail, earned_at: earned?.earned_at || 0 };
     }),
   });

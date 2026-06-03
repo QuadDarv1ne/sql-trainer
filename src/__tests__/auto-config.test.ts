@@ -2,9 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { getOptimalDatabase } from '@/lib/auto-config';
 import type { DatabaseConfig } from '@/lib/auto-config';
 
-function makeDb(
-  overrides: Partial<DatabaseConfig> & { type: DatabaseConfig['type'] }
-): DatabaseConfig {
+function makeDb(overrides: Partial<DatabaseConfig> & { type: DatabaseConfig['type'] }): DatabaseConfig {
   const { type, ...rest } = overrides;
   return {
     type,
@@ -61,9 +59,7 @@ describe('getOptimalDatabase', () => {
   });
 
   it('should throw if SQLite config is missing', () => {
-    const configs: DatabaseConfig[] = [
-      makeDb({ type: 'postgresql', available: false, mode: 'adapter' }),
-    ];
+    const configs: DatabaseConfig[] = [makeDb({ type: 'postgresql', available: false, mode: 'adapter' })];
 
     expect(() => getOptimalDatabase(configs)).toThrow('SQLite configuration not found');
   });

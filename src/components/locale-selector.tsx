@@ -34,7 +34,9 @@ export default function LocaleSelector() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs">
           <Globe className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{current?.flag} {current?.label}</span>
+          <span className="hidden sm:inline">
+            {current?.flag} {current?.label}
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

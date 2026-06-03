@@ -5,9 +5,7 @@ import { Clock, TrendingUp, Users, Activity } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { AnalyticsCard } from './analytics-card';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface StudyPatternSummary {
   avg_sessions_per_week: number;
@@ -22,14 +20,17 @@ interface StudyPatternSummary {
 
 function HeatmapCell({ value, max }: { value: number; max: number }) {
   const intensity = max > 0 ? value / max : 0;
-  const bg = intensity === 0 ? 'bg-gray-100 dark:bg-gray-800' :
-    intensity < 0.25 ? 'bg-blue-100 dark:bg-blue-900' :
-    intensity < 0.5 ? 'bg-blue-200 dark:bg-blue-800' :
-    intensity < 0.75 ? 'bg-blue-300 dark:bg-blue-700' :
-    'bg-blue-400 dark:bg-blue-600';
-  return (
-    <div className={`w-6 h-6 rounded-sm ${bg}`} title={`${value}`} />
-  );
+  const bg =
+    intensity === 0
+      ? 'bg-gray-100 dark:bg-gray-800'
+      : intensity < 0.25
+        ? 'bg-blue-100 dark:bg-blue-900'
+        : intensity < 0.5
+          ? 'bg-blue-200 dark:bg-blue-800'
+          : intensity < 0.75
+            ? 'bg-blue-300 dark:bg-blue-700'
+            : 'bg-blue-400 dark:bg-blue-600';
+  return <div className={`w-6 h-6 rounded-sm ${bg}`} title={`${value}`} />;
 }
 
 export default function StudyPatterns() {
@@ -74,7 +75,9 @@ export default function StudyPatterns() {
               <span className="text-sm text-muted-foreground">{t('analytics.studyPatterns.preferredTime')}</span>
             </div>
             <div className="mt-2 text-3xl font-bold">{data.preferred_hour}:00</div>
-            <div className="text-xs text-muted-foreground">{t('analytics.studyPatterns.preferredDay')}: {data.preferred_day}</div>
+            <div className="text-xs text-muted-foreground">
+              {t('analytics.studyPatterns.preferredDay')}: {data.preferred_day}
+            </div>
           </CardContent>
         </Card>
 
@@ -159,7 +162,9 @@ export default function StudyPatterns() {
                 {/* Hour labels row */}
                 <div className="flex gap-0.5 mb-1">
                   {Array.from({ length: 24 }, (_, h) => (
-                    <div key={h} className="w-6 text-center text-xs text-muted-foreground">{h}</div>
+                    <div key={h} className="w-6 text-center text-xs text-muted-foreground">
+                      {h}
+                    </div>
                   ))}
                 </div>
                 {data.day_hour_heatmap.map((row, dayIdx) => (

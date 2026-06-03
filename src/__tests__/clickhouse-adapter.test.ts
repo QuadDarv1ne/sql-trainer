@@ -11,7 +11,9 @@ describe('adaptClickHouseToSQLite', () => {
 
   describe('WITH FILL', () => {
     it('strips WITH FILL clause', () => {
-      const result = adaptClickHouseToSQLite('SELECT toStartOfMonth(date) AS m, count() FROM t GROUP BY m ORDER BY m WITH FILL');
+      const result = adaptClickHouseToSQLite(
+        'SELECT toStartOfMonth(date) AS m, count() FROM t GROUP BY m ORDER BY m WITH FILL',
+      );
       expect(result).not.toContain('WITH FILL');
     });
   });

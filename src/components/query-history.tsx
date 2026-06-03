@@ -62,9 +62,7 @@ export default function QueryHistory({ onRestoreQuery }: QueryHistoryProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {recentHistory.length === 0 ? (
-          <div className="px-3 py-6 text-center text-sm text-muted-foreground">
-            {t('history.empty')}
-          </div>
+          <div className="px-3 py-6 text-center text-sm text-muted-foreground">{t('history.empty')}</div>
         ) : (
           recentHistory.map((entry, idx) => (
             <DropdownMenuItem
@@ -79,18 +77,20 @@ export default function QueryHistory({ onRestoreQuery }: QueryHistoryProps) {
                 ) : (
                   <XCircle className="h-4 w-4 shrink-0 text-red-500" />
                 )}
-                <code className="flex-1 truncate text-xs font-mono">
-                  {truncateSql(entry.sql)}
-                </code>
+                <code className="flex-1 truncate text-xs font-mono">{truncateSql(entry.sql)}</code>
                 <span className="shrink-0 text-xs text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" />
                   {formatTime(entry.timestamp)}
                 </span>
               </div>
               <div className="flex w-full items-center gap-2 pl-6 text-xs text-muted-foreground">
-                <span>{entry.executionTime.toFixed(1)} {t('results.ms')}</span>
+                <span>
+                  {entry.executionTime.toFixed(1)} {t('results.ms')}
+                </span>
                 {entry.rowCount !== undefined && (
-                  <span>• {entry.rowCount} {plural(entry.rowCount, 'строка', 'строки', 'строк')}</span>
+                  <span>
+                    • {entry.rowCount} {plural(entry.rowCount, 'строка', 'строки', 'строк')}
+                  </span>
                 )}
               </div>
             </DropdownMenuItem>

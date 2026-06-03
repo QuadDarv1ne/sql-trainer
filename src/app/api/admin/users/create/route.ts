@@ -46,11 +46,14 @@ export const POST = withAdminAuth(async ({ request, session }) => {
     password,
     sanitizedPhone.value || undefined,
     role || 'student',
-    session.user.id
+    session.user.id,
   );
   if (!user) {
     return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
   }
 
-  return NextResponse.json({ success: true, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
+  return NextResponse.json({
+    success: true,
+    user: { id: user.id, email: user.email, name: user.name, role: user.role },
+  });
 });

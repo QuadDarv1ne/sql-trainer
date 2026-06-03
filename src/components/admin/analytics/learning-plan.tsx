@@ -30,7 +30,7 @@ export default function LearningPlan() {
     setLoading(true);
     setError('');
     fetch(`/api/admin/analytics/learning-plan?userId=${encodeURIComponent(userId.trim())}`)
-      .then(r => {
+      .then((r) => {
         if (!r.ok) throw new Error('Plan not found');
         return r.json();
       })
@@ -47,7 +47,8 @@ export default function LearningPlan() {
 
   const levelBadge = (level: string) => {
     if (level === 'beginner') return <Badge className="bg-green-600">{t('analytics.learningPlan.beginner')}</Badge>;
-    if (level === 'intermediate') return <Badge className="bg-amber-600">{t('analytics.learningPlan.intermediate')}</Badge>;
+    if (level === 'intermediate')
+      return <Badge className="bg-amber-600">{t('analytics.learningPlan.intermediate')}</Badge>;
     return <Badge className="bg-red-600">{t('analytics.learningPlan.advanced')}</Badge>;
   };
 
@@ -69,9 +70,9 @@ export default function LearningPlan() {
               <Input
                 id="userId"
                 value={userId}
-                onChange={e => setUserId(e.target.value)}
+                onChange={(e) => setUserId(e.target.value)}
                 placeholder="Enter student ID"
-                onKeyDown={e => e.key === 'Enter' && fetchPlan()}
+                onKeyDown={(e) => e.key === 'Enter' && fetchPlan()}
               />
             </div>
             <Button onClick={fetchPlan} disabled={loading || !userId.trim()} className="mt-8">
@@ -114,7 +115,9 @@ export default function LearningPlan() {
                   <div className="text-sm text-muted-foreground">{t('analytics.learningPlan.beginner')}</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-amber-600">{plan.completed_by_difficulty.intermediate}/15</div>
+                  <div className="text-2xl font-bold text-amber-600">
+                    {plan.completed_by_difficulty.intermediate}/15
+                  </div>
                   <div className="text-sm text-muted-foreground">{t('analytics.learningPlan.intermediate')}</div>
                 </div>
               </div>
@@ -163,7 +166,10 @@ export default function LearningPlan() {
               <CardContent>
                 <div className="space-y-2">
                   {plan.milestones.map((m) => (
-                    <div key={`${m.milestone}-${m.target_date}`} className="flex items-center justify-between py-2 border-b last:border-0">
+                    <div
+                      key={`${m.milestone}-${m.target_date}`}
+                      className="flex items-center justify-between py-2 border-b last:border-0"
+                    >
                       <span>{m.milestone}</span>
                       <Badge variant="outline">{m.target_date}</Badge>
                     </div>

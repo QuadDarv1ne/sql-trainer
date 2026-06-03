@@ -67,7 +67,8 @@ export function detectConcepts(sql: string): Set<SQLConcept> {
       });
       for (const table of tables) {
         const occurrences = s.split(new RegExp(`\\b${table}\\b`, 'g')).length - 1;
-        if (occurrences >= 3) { // appears in FROM + JOIN + ON
+        if (occurrences >= 3) {
+          // appears in FROM + JOIN + ON
           concepts.add('self_join');
           break;
         }
@@ -110,7 +111,9 @@ export function detectConcepts(sql: string): Set<SQLConcept> {
   if (/\bunion\s+all\b/.test(s) || /\bunion\b/.test(s)) concepts.add('union');
 
   // Date functions
-  if (/\b(date|strftime|datediff|date_format|date_trunc|toyyyymm|extract|date_add|date_sub|now|current_date)\b/.test(s)) {
+  if (
+    /\b(date|strftime|datediff|date_format|date_trunc|toyyyymm|extract|date_add|date_sub|now|current_date)\b/.test(s)
+  ) {
     concepts.add('date_functions');
   }
 
@@ -141,10 +144,7 @@ export function detectConcepts(sql: string): Set<SQLConcept> {
 /**
  * Get concepts practiced by the user based on completed tasks.
  */
-export function getPracticedConcepts(
-  completedTaskIds: string[],
-  allTasks: TrainingTask[]
-): Set<SQLConcept> {
+export function getPracticedConcepts(completedTaskIds: string[], allTasks: TrainingTask[]): Set<SQLConcept> {
   const practiced = new Set<SQLConcept>();
   for (const ct of completedTaskIds) {
     const task = allTasks.find((t) => t.id === ct);
@@ -165,7 +165,7 @@ export function getPracticedConcepts(
 export function recommendByConcept(
   completedTaskIds: string[],
   allTasks: TrainingTask[],
-  targetDifficulty: string | null
+  targetDifficulty: string | null,
 ): { task: TrainingTask; missingConcept: SQLConcept } | null {
   const completedSet = new Set(completedTaskIds);
   const practicedConcepts = getPracticedConcepts(completedTaskIds, allTasks);
@@ -208,7 +208,7 @@ export function recommendByConcept(
       (t) =>
         !completedSet.has(t.id) &&
         (!targetDifficulty || t.difficulty === targetDifficulty) &&
-        detectConcepts(t.sampleSolution).has(concept)
+        detectConcepts(t.sampleSolution).has(concept),
     );
 
     if (candidates.length > 0) {
@@ -220,9 +220,7 @@ export function recommendByConcept(
   for (const concept of conceptPriority) {
     if (practicedConcepts.has(concept)) continue;
 
-    const candidates = allTasks.filter(
-      (t) => !completedSet.has(t.id) && detectConcepts(t.sampleSolution).has(concept)
-    );
+    const candidates = allTasks.filter((t) => !completedSet.has(t.id) && detectConcepts(t.sampleSolution).has(concept));
 
     if (candidates.length > 0) {
       return { task: candidates[0], missingConcept: concept };

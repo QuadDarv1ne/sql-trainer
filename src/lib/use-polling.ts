@@ -15,10 +15,7 @@ interface UsePollingOptions {
   enabled?: boolean;
 }
 
-export function usePolling(
-  callback: () => void | Promise<void>,
-  options: UsePollingOptions = {}
-) {
+export function usePolling(callback: () => void | Promise<void>, options: UsePollingOptions = {}) {
   const { intervalMs = 30000, enabled = true } = options;
   const callbackRef = useRef(callback);
   const [isPaused, setIsPaused] = useState(false);
@@ -34,7 +31,9 @@ export function usePolling(
       isFetchingRef.current = true;
       const result = callbackRef.current();
       if (result instanceof Promise) {
-        result.finally(() => { isFetchingRef.current = false; });
+        result.finally(() => {
+          isFetchingRef.current = false;
+        });
       } else {
         isFetchingRef.current = false;
       }
@@ -59,7 +58,8 @@ export function usePolling(
         // Immediately refresh when tab becomes visible (if not already fetching)
         if (!isFetchingRef.current) {
           const result = callbackRef.current();
-          if (result instanceof Promise) result.catch((err) => logger.error('[usePolling] visibility refresh error:', err));
+          if (result instanceof Promise)
+            result.catch((err) => logger.error('[usePolling] visibility refresh error:', err));
         }
       }
     };

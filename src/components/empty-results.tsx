@@ -10,12 +10,8 @@ export default function EmptyResults() {
         <TableIcon className="h-8 w-8 text-muted-foreground/40" />
       </div>
       <div>
-        <p className="text-sm font-medium text-muted-foreground">
-          {t('results.title')}
-        </p>
-        <p className="mt-1 text-xs text-muted-foreground/70">
-          {t('results.executeHint')}
-        </p>
+        <p className="text-sm font-medium text-muted-foreground">{t('results.title')}</p>
+        <p className="mt-1 text-xs text-muted-foreground/70">{t('results.executeHint')}</p>
       </div>
     </div>
   );

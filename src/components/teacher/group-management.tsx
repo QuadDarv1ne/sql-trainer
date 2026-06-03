@@ -14,14 +14,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -183,8 +176,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
 
     const emails = studentEmails
       .split(/[,\n]+/)
-      .map(e => e.trim())
-      .filter(e => e.length > 0);
+      .map((e) => e.trim())
+      .filter((e) => e.length > 0);
 
     try {
       const res = await fetch(`/api/teacher/groups/${selectedGroup.id}/members`, {
@@ -297,9 +290,10 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     }
   };
 
-  const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredStudents = students.filter(
+    (student) =>
+      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const allSelected = selectedStudents.size === filteredStudents.length && filteredStudents.length > 0;
@@ -308,7 +302,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     if (allSelected) {
       setSelectedStudents(new Set());
     } else {
-      setSelectedStudents(new Set(filteredStudents.map(s => s.id)));
+      setSelectedStudents(new Set(filteredStudents.map((s) => s.id)));
     }
   };
 
@@ -369,9 +363,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                 <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   {t('common.cancel', { default: 'Отмена' })}
                 </Button>
-                <Button onClick={handleCreateGroup}>
-                  {t('common.create', { default: 'Создать' })}
-                </Button>
+                <Button onClick={handleCreateGroup}>{t('common.create', { default: 'Создать' })}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -380,7 +372,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
 
       {/* Groups List */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {groups.map(group => (
+        {groups.map((group) => (
           <Card
             key={group.id}
             className={`cursor-pointer transition-all ${
@@ -396,16 +388,14 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                   <Users className="h-5 w-5 text-blue-600" />
                   <CardTitle className="text-lg">{group.name}</CardTitle>
                 </div>
-                <Badge variant="outline">{group.studentCount} {t('groups.students', { default: 'студ.' })}</Badge>
+                <Badge variant="outline">
+                  {group.studentCount} {t('groups.students', { default: 'студ.' })}
+                </Badge>
               </div>
-              {group.description && (
-                <CardDescription className="line-clamp-2">{group.description}</CardDescription>
-              )}
+              {group.description && <CardDescription className="line-clamp-2">{group.description}</CardDescription>}
             </CardHeader>
             <CardContent>
-              <div className="text-xs text-muted-foreground">
-                {new Date(group.createdAt).toLocaleDateString()}
-              </div>
+              <div className="text-xs text-muted-foreground">{new Date(group.createdAt).toLocaleDateString()}</div>
             </CardContent>
           </Card>
         ))}
@@ -445,11 +435,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                     {t('groups.export', { default: 'Экспорт' })}
                   </Button>
                   {selectedStudents.size > 0 && (
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={handleBulkRemove}
-                    >
+                    <Button variant="destructive" size="sm" onClick={handleBulkRemove}>
                       <Trash2 className="h-4 w-4 mr-2" />
                       {t('groups.removeSelected', { default: `Удалить ${selectedStudents.size}` })}
                     </Button>
@@ -469,10 +455,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                     className="pl-10"
                   />
                   {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2"
-                    >
+                    <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2">
                       <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
                     </button>
                   )}
@@ -487,10 +470,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12">
-                      <Checkbox
-                        checked={allSelected}
-                        onCheckedChange={toggleSelectAll}
-                      />
+                      <Checkbox checked={allSelected} onCheckedChange={toggleSelectAll} />
                     </TableHead>
                     <TableHead>{t('groups.student', { default: 'Студент' })}</TableHead>
                     <TableHead>{t('groups.level', { default: 'Уровень' })}</TableHead>
@@ -500,7 +480,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredStudents.map(student => (
+                  {filteredStudents.map((student) => (
                     <TableRow key={student.id}>
                       <TableCell>
                         <Checkbox
@@ -524,7 +504,10 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                         <div className="flex items-center gap-2">
                           <div className="flex-1 w-24">
                             <Progress
-                              value={(student.completedTasks / Math.max(1, student.completedTasks + student.totalAttempts)) * 100}
+                              value={
+                                (student.completedTasks / Math.max(1, student.completedTasks + student.totalAttempts)) *
+                                100
+                              }
                               className="h-2"
                             />
                           </div>
@@ -591,7 +574,9 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
           <DialogHeader>
             <DialogTitle>{t('groups.addStudentsTitle', { default: 'Добавить студентов' })}</DialogTitle>
             <DialogDescription>
-              {t('groups.addStudentsDesc', { default: 'Введите email адреса студентов (через запятую или каждый с новой строки)' })}
+              {t('groups.addStudentsDesc', {
+                default: 'Введите email адреса студентов (через запятую или каждый с новой строки)',
+              })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -610,9 +595,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
             <Button variant="outline" onClick={() => setIsAddStudentDialogOpen(false)}>
               {t('common.cancel', { default: 'Отмена' })}
             </Button>
-            <Button onClick={handleAddStudents}>
-              {t('groups.add', { default: 'Добавить' })}
-            </Button>
+            <Button onClick={handleAddStudents}>{t('groups.add', { default: 'Добавить' })}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -58,7 +58,15 @@ export const createDatabaseSlice: StateCreator<DatabaseSlice, [], [], DatabaseSl
   setDbType: (type) => set({ dbType: type, editorContent: '', lastResult: null, verification: null }),
 
   currentTaskId: null,
-  setCurrentTaskId: (id) => set({ currentTaskId: id, editorContent: '', lastResult: null, hintVisible: false, solutionVisible: false, verification: null }),
+  setCurrentTaskId: (id) =>
+    set({
+      currentTaskId: id,
+      editorContent: '',
+      lastResult: null,
+      hintVisible: false,
+      solutionVisible: false,
+      verification: null,
+    }),
 
   editorContent: '',
   setEditorContent: (content) => set({ editorContent: content }),

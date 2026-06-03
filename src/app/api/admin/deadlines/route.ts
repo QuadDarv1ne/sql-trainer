@@ -7,14 +7,16 @@ import { validateBody } from '@/lib/validation';
 
 const deadlineSchema = z.object({
   type: z.enum(['course', 'exam', 'task', 'inactivity']),
-  title: z.string().min(1, 'Title is required').max(200, 'Title must be 200 characters or less').refine(
-    (s) => !/<[^>]*>/.test(s),
-    'HTML content is not allowed in title'
-  ),
-  description: z.string().max(2000, 'Description must be 2000 characters or less').refine(
-    (s) => !/<[^>]*>/.test(s),
-    'HTML content is not allowed in description'
-  ).optional(),
+  title: z
+    .string()
+    .min(1, 'Title is required')
+    .max(200, 'Title must be 200 characters or less')
+    .refine((s) => !/<[^>]*>/.test(s), 'HTML content is not allowed in title'),
+  description: z
+    .string()
+    .max(2000, 'Description must be 2000 characters or less')
+    .refine((s) => !/<[^>]*>/.test(s), 'HTML content is not allowed in description')
+    .optional(),
   targetType: z.enum(['individual', 'group', 'all_students']),
   targetId: z.string().optional(),
   taskId: z.string().optional(),
@@ -49,16 +51,19 @@ export const POST = withTeacherAuth(async ({ session, request }) => {
 
   const { type, title, description, targetType, targetId, taskId, dueAt } = parsed.data;
 
-  const deadline = createDeadline({
-    creatorId: session.user.id,
-    type,
-    title,
-    description,
-    targetType,
-    targetId,
-    taskId,
-    dueAt: Number(dueAt),
-  }, session.user.id);
+  const deadline = createDeadline(
+    {
+      creatorId: session.user.id,
+      type,
+      title,
+      description,
+      targetType,
+      targetId,
+      taskId,
+      dueAt: Number(dueAt),
+    },
+    session.user.id,
+  );
 
   // Build reminder schedule for target users
   buildReminderSchedule(deadline.id);

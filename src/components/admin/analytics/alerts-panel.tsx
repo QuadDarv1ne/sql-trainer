@@ -23,12 +23,18 @@ interface StudentAlert {
 
 const AlertIcon = ({ type }: { type: string }) => {
   switch (type) {
-    case 'at_risk': return <AlertTriangle className="h-5 w-5 text-red-600" />;
-    case 'inactive': return <AlertCircle className="h-5 w-5 text-amber-600" />;
-    case 'struggling': return <AlertTriangle className="h-5 w-5 text-orange-600" />;
-    case 'excelling': return <TrendingUp className="h-5 w-5 text-emerald-600" />;
-    case 'milestone': return <Award className="h-5 w-5 text-blue-600" />;
-    default: return <AlertCircle className="h-5 w-5" />;
+    case 'at_risk':
+      return <AlertTriangle className="h-5 w-5 text-red-600" />;
+    case 'inactive':
+      return <AlertCircle className="h-5 w-5 text-amber-600" />;
+    case 'struggling':
+      return <AlertTriangle className="h-5 w-5 text-orange-600" />;
+    case 'excelling':
+      return <TrendingUp className="h-5 w-5 text-emerald-600" />;
+    case 'milestone':
+      return <Award className="h-5 w-5 text-blue-600" />;
+    default:
+      return <AlertCircle className="h-5 w-5" />;
   }
 };
 
@@ -42,13 +48,23 @@ export default function AlertsPanel() {
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { data: alerts, loading, error } = useAnalyticsQuery<StudentAlert[]>({
+  const {
+    data: alerts,
+    loading,
+    error,
+  } = useAnalyticsQuery<StudentAlert[]>({
     endpoint: '/api/admin/analytics/alerts',
     dataKey: 'alerts',
   });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!alerts || !alerts.length) return <EmptyState icon="alert" title={t('analytics.alerts.noAlerts')} />;
 
   const alertTypeLabels: Record<string, string> = {
@@ -85,8 +101,8 @@ export default function AlertsPanel() {
                         alert.severity === 'high'
                           ? 'border-red-500 text-red-600'
                           : alert.severity === 'medium'
-                          ? 'border-amber-500 text-amber-600'
-                          : 'border-blue-500 text-blue-600'
+                            ? 'border-amber-500 text-amber-600'
+                            : 'border-blue-500 text-blue-600'
                       }
                     >
                       {t(`analytics.alerts.severity.${alert.severity}`)}
@@ -115,11 +131,7 @@ export default function AlertsPanel() {
         </CardContent>
       </Card>
 
-      <StudentDetailDialog
-        studentId={selectedStudent}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
+      <StudentDetailDialog studentId={selectedStudent} open={dialogOpen} onOpenChange={setDialogOpen} />
     </>
   );
 }

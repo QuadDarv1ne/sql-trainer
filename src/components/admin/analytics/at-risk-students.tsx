@@ -5,9 +5,7 @@ import { ArrowUpRight, ArrowDownRight, Minus, Users } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { AnalyticsCard } from './analytics-card';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface AtRiskStudent {
   user_id: string;
@@ -30,9 +28,18 @@ const reasonLabels: Record<string, string> = {
 
 function RiskBadge({ level }: { level: string }) {
   const config = {
-    high: { label: t('analytics.atRisk.highRisk'), className: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
-    medium: { label: t('analytics.atRisk.mediumRisk'), className: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' },
-    low: { label: t('analytics.atRisk.lowRisk'), className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
+    high: {
+      label: t('analytics.atRisk.highRisk'),
+      className: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    },
+    medium: {
+      label: t('analytics.atRisk.mediumRisk'),
+      className: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
+    },
+    low: {
+      label: t('analytics.atRisk.lowRisk'),
+      className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+    },
   };
   const { label, className } = config[level as keyof typeof config] || config.low;
   return <Badge className={className}>{label}</Badge>;
@@ -63,8 +70,8 @@ export default function AtRiskStudents() {
     );
   }
 
-  const highCount = data.filter(s => s.risk_level === 'high').length;
-  const mediumCount = data.filter(s => s.risk_level === 'medium').length;
+  const highCount = data.filter((s) => s.risk_level === 'high').length;
+  const mediumCount = data.filter((s) => s.risk_level === 'medium').length;
 
   return (
     <div className="space-y-4">
@@ -75,10 +82,14 @@ export default function AtRiskStudents() {
           <span className="font-bold text-lg">{data.length}</span>
         </div>
         {highCount > 0 && (
-          <Badge variant="destructive">{highCount} {t('analytics.atRisk.highRisk')}</Badge>
+          <Badge variant="destructive">
+            {highCount} {t('analytics.atRisk.highRisk')}
+          </Badge>
         )}
         {mediumCount > 0 && (
-          <Badge className="bg-amber-100 text-amber-800">{mediumCount} {t('analytics.atRisk.mediumRisk')}</Badge>
+          <Badge className="bg-amber-100 text-amber-800">
+            {mediumCount} {t('analytics.atRisk.mediumRisk')}
+          </Badge>
         )}
       </div>
 
@@ -103,10 +114,12 @@ export default function AtRiskStudents() {
                     <div>{student.name}</div>
                     <div className="text-xs text-muted-foreground">{student.email}</div>
                   </TableCell>
-                  <TableCell className="text-center"><RiskBadge level={student.risk_level} /></TableCell>
+                  <TableCell className="text-center">
+                    <RiskBadge level={student.risk_level} />
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {student.risk_reasons.map(reason => (
+                      {student.risk_reasons.map((reason) => (
                         <Badge key={reason} variant="outline" className="text-xs">
                           {reasonLabels[reason] || reason}
                         </Badge>

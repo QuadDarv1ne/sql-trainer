@@ -7,14 +7,7 @@ import { Deadline } from '@/lib/db-users';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -80,7 +73,9 @@ export function TeacherDeadlineManager() {
     }
   }, []);
 
-  useEffect(() => { fetchDeadlines(); }, [fetchDeadlines]);
+  useEffect(() => {
+    fetchDeadlines();
+  }, [fetchDeadlines]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -98,7 +93,12 @@ export function TeacherDeadlineManager() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center" role="status">{t('teacher.loading')}</div>;
+  if (loading)
+    return (
+      <div className="p-8 text-center" role="status">
+        {t('teacher.loading')}
+      </div>
+    );
 
   if (error) {
     return (
@@ -136,15 +136,13 @@ export function TeacherDeadlineManager() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {deadlines.map(d => {
+              {deadlines.map((d) => {
                 const status = getTimeStatus(d.due_at);
                 return (
                   <TableRow key={d.id}>
                     <TableCell className="font-medium">
                       <div>{d.title}</div>
-                      {d.description && (
-                        <div className="text-sm text-muted-foreground">{d.description}</div>
-                      )}
+                      {d.description && <div className="text-sm text-muted-foreground">{d.description}</div>}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{t(typeLabels[d.type])}</Badge>
@@ -155,12 +153,7 @@ export function TeacherDeadlineManager() {
                       <Badge variant={status.variant}>{status.label}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-destructive"
-                        onClick={() => setDeleteId(d.id)}
-                      >
+                      <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setDeleteId(d.id)}>
                         {t('deadline.delete')}
                       </Button>
                     </TableCell>
@@ -172,11 +165,7 @@ export function TeacherDeadlineManager() {
         )}
       </CardContent>
 
-      <CreateDeadlineDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        onSuccess={fetchDeadlines}
-      />
+      <CreateDeadlineDialog open={dialogOpen} onOpenChange={setDialogOpen} onSuccess={fetchDeadlines} />
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>

@@ -5,8 +5,16 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Calendar } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
 } from 'recharts';
 import EmptyState from './empty-state';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
@@ -21,7 +29,13 @@ interface WeekdayData {
 interface ComparisonData {
   weekday: WeekdayData;
   weekend: WeekdayData;
-  by_difficulty: Array<{ difficulty: string; weekday_completions: number; weekend_completions: number; weekday_avg_attempts: number; weekend_avg_attempts: number }>;
+  by_difficulty: Array<{
+    difficulty: string;
+    weekday_completions: number;
+    weekend_completions: number;
+    weekday_avg_attempts: number;
+    weekend_avg_attempts: number;
+  }>;
   hourly_weekday: Array<{ hour: number; completions: number }>;
   hourly_weekend: Array<{ hour: number; completions: number }>;
 }
@@ -45,17 +59,39 @@ export default function WeekdayComparison() {
   const hourlyWeekend = data?.hourly_weekend || [];
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!weekday || !weekend) return <EmptyState />;
 
   const comparisonData = [
-    { metric: t('analytics.weekday.completions'), weekday: weekday.total_completions, weekend: weekend.total_completions },
-    { metric: t('analytics.weekday.uniqueStudents'), weekday: weekday.unique_students, weekend: weekend.unique_students },
+    {
+      metric: t('analytics.weekday.completions'),
+      weekday: weekday.total_completions,
+      weekend: weekend.total_completions,
+    },
+    {
+      metric: t('analytics.weekday.uniqueStudents'),
+      weekday: weekday.unique_students,
+      weekend: weekend.unique_students,
+    },
     { metric: t('analytics.weekday.avgAttempts'), weekday: weekday.avg_attempts, weekend: weekend.avg_attempts },
-    { metric: t('analytics.weekday.firstAttemptRate'), weekday: weekday.first_attempt_rate, weekend: weekend.first_attempt_rate },
+    {
+      metric: t('analytics.weekday.firstAttemptRate'),
+      weekday: weekday.first_attempt_rate,
+      weekend: weekend.first_attempt_rate,
+    },
   ];
 
-  const difficultyLabels: Record<string, string> = { beginner: t('difficulty.beginner'), intermediate: t('difficulty.intermediate'), advanced: t('difficulty.advanced') };
+  const difficultyLabels: Record<string, string> = {
+    beginner: t('difficulty.beginner'),
+    intermediate: t('difficulty.intermediate'),
+    advanced: t('difficulty.advanced'),
+  };
 
   return (
     <div className="space-y-6">
@@ -63,24 +99,58 @@ export default function WeekdayComparison() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5 text-blue-600" />{t('analytics.weekday.weekday')}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-blue-600" />
+              {t('analytics.weekday.weekday')}
+            </CardTitle>
+          </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              <div><p className="text-2xl font-bold">{weekday.total_completions}</p><p className="text-xs text-muted-foreground">{t('analytics.weekday.completions')}</p></div>
-              <div><p className="text-2xl font-bold">{weekday.unique_students}</p><p className="text-xs text-muted-foreground">{t('analytics.weekday.uniqueStudents')}</p></div>
-              <div><p className="text-2xl font-bold">{weekday.avg_attempts}</p><p className="text-xs text-muted-foreground">{t('analytics.weekday.avgAttempts')}</p></div>
-              <div><p className="text-2xl font-bold">{weekday.first_attempt_rate}%</p><p className="text-xs text-muted-foreground">{t('analytics.weekday.firstAttemptRate')}</p></div>
+              <div>
+                <p className="text-2xl font-bold">{weekday.total_completions}</p>
+                <p className="text-xs text-muted-foreground">{t('analytics.weekday.completions')}</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{weekday.unique_students}</p>
+                <p className="text-xs text-muted-foreground">{t('analytics.weekday.uniqueStudents')}</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{weekday.avg_attempts}</p>
+                <p className="text-xs text-muted-foreground">{t('analytics.weekday.avgAttempts')}</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{weekday.first_attempt_rate}%</p>
+                <p className="text-xs text-muted-foreground">{t('analytics.weekday.firstAttemptRate')}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5 text-purple-600" />{t('analytics.weekday.weekend')}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-purple-600" />
+              {t('analytics.weekday.weekend')}
+            </CardTitle>
+          </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              <div><p className="text-2xl font-bold">{weekend.total_completions}</p><p className="text-xs text-muted-foreground">{t('analytics.weekday.completions')}</p></div>
-              <div><p className="text-2xl font-bold">{weekend.unique_students}</p><p className="text-xs text-muted-foreground">{t('analytics.weekday.uniqueStudents')}</p></div>
-              <div><p className="text-2xl font-bold">{weekend.avg_attempts}</p><p className="text-xs text-muted-foreground">{t('analytics.weekday.avgAttempts')}</p></div>
-              <div><p className="text-2xl font-bold">{weekend.first_attempt_rate}%</p><p className="text-xs text-muted-foreground">{t('analytics.weekday.firstAttemptRate')}</p></div>
+              <div>
+                <p className="text-2xl font-bold">{weekend.total_completions}</p>
+                <p className="text-xs text-muted-foreground">{t('analytics.weekday.completions')}</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{weekend.unique_students}</p>
+                <p className="text-xs text-muted-foreground">{t('analytics.weekday.uniqueStudents')}</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{weekend.avg_attempts}</p>
+                <p className="text-xs text-muted-foreground">{t('analytics.weekday.avgAttempts')}</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{weekend.first_attempt_rate}%</p>
+                <p className="text-xs text-muted-foreground">{t('analytics.weekday.firstAttemptRate')}</p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -88,10 +158,14 @@ export default function WeekdayComparison() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader><CardTitle>{t('analytics.weekday.byDifficulty')}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>{t('analytics.weekday.byDifficulty')}</CardTitle>
+          </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={byDifficulty.map(d => ({ ...d, difficulty: difficultyLabels[d.difficulty] || d.difficulty }))}>
+              <BarChart
+                data={byDifficulty.map((d) => ({ ...d, difficulty: difficultyLabels[d.difficulty] || d.difficulty }))}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="difficulty" />
                 <YAxis />
@@ -105,7 +179,9 @@ export default function WeekdayComparison() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>{t('analytics.weekday.hourly')}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>{t('analytics.weekday.hourly')}</CardTitle>
+          </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart>
@@ -114,8 +190,24 @@ export default function WeekdayComparison() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" data={hourlyWeekday} dataKey="completions" stroke="#3b82f6" name={t('analytics.weekday.weekday')} strokeWidth={2} dot={false} />
-                <Line type="monotone" data={hourlyWeekend} dataKey="completions" stroke="#8b5cf6" name={t('analytics.weekday.weekend')} strokeWidth={2} dot={false} />
+                <Line
+                  type="monotone"
+                  data={hourlyWeekday}
+                  dataKey="completions"
+                  stroke="#3b82f6"
+                  name={t('analytics.weekday.weekday')}
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  data={hourlyWeekend}
+                  dataKey="completions"
+                  stroke="#8b5cf6"
+                  name={t('analytics.weekday.weekend')}
+                  strokeWidth={2}
+                  dot={false}
+                />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -123,7 +215,9 @@ export default function WeekdayComparison() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle>{t('analytics.weekday.metricComparison')}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>{t('analytics.weekday.metricComparison')}</CardTitle>
+        </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={comparisonData}>

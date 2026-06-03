@@ -191,12 +191,7 @@ const defaultStats: UserStats = {
   hintFreeCount: 0,
 };
 
-export const createGamificationSlice: StateCreator<
-  GamificationSlice,
-  [],
-  [],
-  GamificationSlice
-> = (set, get) => ({
+export const createGamificationSlice: StateCreator<GamificationSlice, [], [], GamificationSlice> = (set, get) => ({
   userStats: defaultStats,
   addXP: (amount) => {
     const { userStats } = get();
@@ -255,21 +250,36 @@ export const createGamificationSlice: StateCreator<
     }
 
     // Difficulty completions
-    const beginnerCount = TRAINING_TASKS.filter((t) => t.difficulty === 'beginner' && completedTaskIds.has(t.id)).length;
-    const intermediateCount = TRAINING_TASKS.filter((t) => t.difficulty === 'intermediate' && completedTaskIds.has(t.id)).length;
-    const advancedCount = TRAINING_TASKS.filter((t) => t.difficulty === 'advanced' && completedTaskIds.has(t.id)).length;
+    const beginnerCount = TRAINING_TASKS.filter(
+      (t) => t.difficulty === 'beginner' && completedTaskIds.has(t.id),
+    ).length;
+    const intermediateCount = TRAINING_TASKS.filter(
+      (t) => t.difficulty === 'intermediate' && completedTaskIds.has(t.id),
+    ).length;
+    const advancedCount = TRAINING_TASKS.filter(
+      (t) => t.difficulty === 'advanced' && completedTaskIds.has(t.id),
+    ).length;
 
-    if (beginnerCount === TRAINING_TASKS.filter((t) => t.difficulty === 'beginner').length && !achievementSet.has(ACHIEVEMENTS.BEGINNER_COMPLETE.id)) {
+    if (
+      beginnerCount === TRAINING_TASKS.filter((t) => t.difficulty === 'beginner').length &&
+      !achievementSet.has(ACHIEVEMENTS.BEGINNER_COMPLETE.id)
+    ) {
       newAchievementIds.push(ACHIEVEMENTS.BEGINNER_COMPLETE.id);
       achievementSet.add(ACHIEVEMENTS.BEGINNER_COMPLETE.id);
     }
 
-    if (intermediateCount === TRAINING_TASKS.filter((t) => t.difficulty === 'intermediate').length && !achievementSet.has(ACHIEVEMENTS.INTERMEDIATE_COMPLETE.id)) {
+    if (
+      intermediateCount === TRAINING_TASKS.filter((t) => t.difficulty === 'intermediate').length &&
+      !achievementSet.has(ACHIEVEMENTS.INTERMEDIATE_COMPLETE.id)
+    ) {
       newAchievementIds.push(ACHIEVEMENTS.INTERMEDIATE_COMPLETE.id);
       achievementSet.add(ACHIEVEMENTS.INTERMEDIATE_COMPLETE.id);
     }
 
-    if (advancedCount === TRAINING_TASKS.filter((t) => t.difficulty === 'advanced').length && !achievementSet.has(ACHIEVEMENTS.ADVANCED_COMPLETE.id)) {
+    if (
+      advancedCount === TRAINING_TASKS.filter((t) => t.difficulty === 'advanced').length &&
+      !achievementSet.has(ACHIEVEMENTS.ADVANCED_COMPLETE.id)
+    ) {
       newAchievementIds.push(ACHIEVEMENTS.ADVANCED_COMPLETE.id);
       achievementSet.add(ACHIEVEMENTS.ADVANCED_COMPLETE.id);
     }
@@ -328,7 +338,15 @@ export const createGamificationSlice: StateCreator<
       }
 
       // First window function
-      if ((solutionUpper.includes('ROW_NUMBER') || solutionUpper.includes('RANK()') || solutionUpper.includes('DENSE_RANK') || solutionUpper.includes('LAG(') || solutionUpper.includes('LEAD(') || solutionUpper.includes('OVER')) && !achievementSet.has(ACHIEVEMENTS.FIRST_WINDOW.id)) {
+      if (
+        (solutionUpper.includes('ROW_NUMBER') ||
+          solutionUpper.includes('RANK()') ||
+          solutionUpper.includes('DENSE_RANK') ||
+          solutionUpper.includes('LAG(') ||
+          solutionUpper.includes('LEAD(') ||
+          solutionUpper.includes('OVER')) &&
+        !achievementSet.has(ACHIEVEMENTS.FIRST_WINDOW.id)
+      ) {
         newAchievementIds.push(ACHIEVEMENTS.FIRST_WINDOW.id);
         achievementSet.add(ACHIEVEMENTS.FIRST_WINDOW.id);
       }
@@ -361,15 +379,27 @@ export const createGamificationSlice: StateCreator<
     const categoryTasks = (cat: string) => TRAINING_TASKS.filter((t) => t.category === cat);
     const categoryCompleted = (cat: string) => categoryTasks(cat).filter((t) => completedTaskIds.has(t.id)).length;
 
-    if (categoryCompleted('company') === categoryTasks('company').length && categoryTasks('company').length > 0 && !achievementSet.has(ACHIEVEMENTS.COMPANY_COMPLETE.id)) {
+    if (
+      categoryCompleted('company') === categoryTasks('company').length &&
+      categoryTasks('company').length > 0 &&
+      !achievementSet.has(ACHIEVEMENTS.COMPANY_COMPLETE.id)
+    ) {
       newAchievementIds.push(ACHIEVEMENTS.COMPANY_COMPLETE.id);
       achievementSet.add(ACHIEVEMENTS.COMPANY_COMPLETE.id);
     }
-    if (categoryCompleted('shop') === categoryTasks('shop').length && categoryTasks('shop').length > 0 && !achievementSet.has(ACHIEVEMENTS.SHOP_COMPLETE.id)) {
+    if (
+      categoryCompleted('shop') === categoryTasks('shop').length &&
+      categoryTasks('shop').length > 0 &&
+      !achievementSet.has(ACHIEVEMENTS.SHOP_COMPLETE.id)
+    ) {
       newAchievementIds.push(ACHIEVEMENTS.SHOP_COMPLETE.id);
       achievementSet.add(ACHIEVEMENTS.SHOP_COMPLETE.id);
     }
-    if (categoryCompleted('analytics') === categoryTasks('analytics').length && categoryTasks('analytics').length > 0 && !achievementSet.has(ACHIEVEMENTS.ANALYTICS_COMPLETE.id)) {
+    if (
+      categoryCompleted('analytics') === categoryTasks('analytics').length &&
+      categoryTasks('analytics').length > 0 &&
+      !achievementSet.has(ACHIEVEMENTS.ANALYTICS_COMPLETE.id)
+    ) {
       newAchievementIds.push(ACHIEVEMENTS.ANALYTICS_COMPLETE.id);
       achievementSet.add(ACHIEVEMENTS.ANALYTICS_COMPLETE.id);
     }

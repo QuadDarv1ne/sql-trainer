@@ -1,16 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-} from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { GraduationCap, TrendingUp } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
@@ -41,22 +32,18 @@ function LevelCard({ level, count, color }: { level: string; count: number; colo
 
 function HeatmapCell({ value, max }: { value: number; max: number }) {
   const intensity = max > 0 ? value / max : 0;
-  const bg = intensity === 0
-    ? 'bg-muted/30'
-    : intensity < 0.25
-      ? 'bg-primary/20'
-      : intensity < 0.5
-        ? 'bg-primary/40'
-        : intensity < 0.75
-          ? 'bg-primary/60'
-          : 'bg-primary';
+  const bg =
+    intensity === 0
+      ? 'bg-muted/30'
+      : intensity < 0.25
+        ? 'bg-primary/20'
+        : intensity < 0.5
+          ? 'bg-primary/40'
+          : intensity < 0.75
+            ? 'bg-primary/60'
+            : 'bg-primary';
 
-  return (
-    <div
-      className={`h-6 w-6 rounded-sm ${bg} transition-colors`}
-      title={`${value}`}
-    />
-  );
+  return <div className={`h-6 w-6 rounded-sm ${bg} transition-colors`} title={`${value}`} />;
 }
 
 export default function AggregatePerformance() {
@@ -67,7 +54,13 @@ export default function AggregatePerformance() {
 
   if (loading || error || !data) {
     return (
-      <AnalyticsCard loading={loading} error={error} empty={!data} onRefresh={refetch} title={t('analytics.aggregatePerformance.title')} />
+      <AnalyticsCard
+        loading={loading}
+        error={error}
+        empty={!data}
+        onRefresh={refetch}
+        title={t('analytics.aggregatePerformance.title')}
+      />
     );
   }
 

@@ -19,9 +19,14 @@ interface DBStatsData {
 function formatBytes(bytes: number): string {
   if (bytes === 0) return t('admin.stats.bytes.zero');
   const k = 1024;
-  const sizes = [t('admin.stats.bytes.B'), t('admin.stats.bytes.KB'), t('admin.stats.bytes.MB'), t('admin.stats.bytes.GB')];
+  const sizes = [
+    t('admin.stats.bytes.B'),
+    t('admin.stats.bytes.KB'),
+    t('admin.stats.bytes.MB'),
+    t('admin.stats.bytes.GB'),
+  ];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 10) / 10 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(k, i)) * 10) / 10 + ' ' + sizes[i];
 }
 
 export default function DBStats() {
@@ -39,14 +44,18 @@ export default function DBStats() {
         if (!r.ok) throw new Error('Failed to fetch');
         return r.json();
       })
-      .then((data) => { if (!controller.signal.aborted) setStats(data.stats); })
+      .then((data) => {
+        if (!controller.signal.aborted) setStats(data.stats);
+      })
       .catch((e) => {
         if (!controller.signal.aborted) {
           logger.error('Failed to fetch DB stats:', e);
           setStats(null);
         }
       })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
     return () => controller.abort();
   }, []);
 
@@ -54,13 +63,38 @@ export default function DBStats() {
   if (!stats) return <p className="text-center py-4 text-red-500">{t('admin.stats.error')}</p>;
 
   const statCards = [
-    { label: t('admin.stats.totalUsers'), value: stats.totalUsers, icon: Users, color: 'text-blue-600 dark:text-blue-400' },
+    {
+      label: t('admin.stats.totalUsers'),
+      value: stats.totalUsers,
+      icon: Users,
+      color: 'text-blue-600 dark:text-blue-400',
+    },
     { label: t('admin.stats.students'), value: stats.studentsCount, icon: Users, color: 'text-blue-400' },
-    { label: t('admin.stats.teachers'), value: stats.teachersCount, icon: Users, color: 'text-amber-600 dark:text-amber-400' },
+    {
+      label: t('admin.stats.teachers'),
+      value: stats.teachersCount,
+      icon: Users,
+      color: 'text-amber-600 dark:text-amber-400',
+    },
     { label: t('admin.stats.admins'), value: stats.adminsCount, icon: Users, color: 'text-red-600 dark:text-red-400' },
-    { label: t('admin.stats.completions'), value: stats.totalCompletions, icon: BookOpen, color: 'text-emerald-600 dark:text-emerald-400' },
-    { label: t('admin.stats.achievements'), value: stats.achievementsAwarded, icon: Award, color: 'text-purple-600 dark:text-purple-400' },
-    { label: t('admin.stats.dbSize'), value: formatBytes(stats.dbSizeBytes), icon: Database, color: 'text-gray-600 dark:text-gray-400' },
+    {
+      label: t('admin.stats.completions'),
+      value: stats.totalCompletions,
+      icon: BookOpen,
+      color: 'text-emerald-600 dark:text-emerald-400',
+    },
+    {
+      label: t('admin.stats.achievements'),
+      value: stats.achievementsAwarded,
+      icon: Award,
+      color: 'text-purple-600 dark:text-purple-400',
+    },
+    {
+      label: t('admin.stats.dbSize'),
+      value: formatBytes(stats.dbSizeBytes),
+      icon: Database,
+      color: 'text-gray-600 dark:text-gray-400',
+    },
   ];
 
   return (

@@ -14,18 +14,8 @@ import {
 import { EditorState, Compartment } from '@codemirror/state';
 import { sql } from '@codemirror/lang-sql';
 import { oneDark } from '@codemirror/theme-one-dark';
-import {
-  defaultKeymap,
-  history,
-  historyKeymap,
-  undo,
-  redo,
-} from '@codemirror/commands';
-import {
-  syntaxHighlighting,
-  defaultHighlightStyle,
-  bracketMatching,
-} from '@codemirror/language';
+import { defaultKeymap, history, historyKeymap, undo, redo } from '@codemirror/commands';
+import { syntaxHighlighting, defaultHighlightStyle, bracketMatching } from '@codemirror/language';
 import {
   closeBrackets,
   closeBracketsKeymap,
@@ -74,7 +64,7 @@ function formatSqlSegment(segment: string): string {
       const prevChar = str[offset - 1];
       if (prevChar === '\n' || prevChar === ' ') return match;
       return '\n' + match;
-    }
+    },
   );
 
   // Extra newline before WITH
@@ -84,11 +74,33 @@ function formatSqlSegment(segment: string): string {
   // Indent lines with paren depth tracking
   const lines = result.split('\n');
   const indentKeywords = new Set([
-    'select', 'from', 'where', 'and', 'or', 'order by', 'group by',
-    'having', 'limit', 'offset', 'union all', 'union', 'intersect',
-    'except', 'inner join', 'left join', 'right join', 'full join',
-    'cross join', 'join', 'on', 'set', 'values', 'insert into',
-    'update', 'delete from', 'returning',
+    'select',
+    'from',
+    'where',
+    'and',
+    'or',
+    'order by',
+    'group by',
+    'having',
+    'limit',
+    'offset',
+    'union all',
+    'union',
+    'intersect',
+    'except',
+    'inner join',
+    'left join',
+    'right join',
+    'full join',
+    'cross join',
+    'join',
+    'on',
+    'set',
+    'values',
+    'insert into',
+    'update',
+    'delete from',
+    'returning',
   ]);
 
   const indentedLines: string[] = [];
@@ -115,33 +127,107 @@ function formatSqlSegment(segment: string): string {
 
 // Expanded autocomplete keywords — PostgreSQL
 const PG_KEYWORDS = [
-  'STRING_AGG', 'ARRAY_AGG', 'CONCAT_WS', 'BOOL_AND', 'BOOL_OR',
-  'DATE_TRUNC', 'GENERATE_SERIES', 'LATERAL', 'FILTER', 'ILIKE',
-  'AT TIME ZONE', 'EXTRACT', 'INTERVAL',
+  'STRING_AGG',
+  'ARRAY_AGG',
+  'CONCAT_WS',
+  'BOOL_AND',
+  'BOOL_OR',
+  'DATE_TRUNC',
+  'GENERATE_SERIES',
+  'LATERAL',
+  'FILTER',
+  'ILIKE',
+  'AT TIME ZONE',
+  'EXTRACT',
+  'INTERVAL',
 ];
 
 // Expanded autocomplete keywords — ClickHouse
 const CH_KEYWORDS = [
-  'toDate', 'toDateTime', 'toStartOfDay', 'toStartOfWeek', 'toStartOfMonth',
-  'toStartOfQuarter', 'toStartOfYear', 'toYYYYMM', 'toYYYYMMDD',
-  'now', 'today', 'yesterday',
-  'sumIf', 'countIf', 'avgIf', 'minIf', 'maxIf',
-  'multiIf', 'uniqExact', 'uniq', 'groupArray', 'groupUniqArray',
-  'formatDateTime', 'toUInt32', 'toInt64', 'toFloat64', 'toString',
-  'has', 'arrayJoin', 'greatest', 'least',
+  'toDate',
+  'toDateTime',
+  'toStartOfDay',
+  'toStartOfWeek',
+  'toStartOfMonth',
+  'toStartOfQuarter',
+  'toStartOfYear',
+  'toYYYYMM',
+  'toYYYYMMDD',
+  'now',
+  'today',
+  'yesterday',
+  'sumIf',
+  'countIf',
+  'avgIf',
+  'minIf',
+  'maxIf',
+  'multiIf',
+  'uniqExact',
+  'uniq',
+  'groupArray',
+  'groupUniqArray',
+  'formatDateTime',
+  'toUInt32',
+  'toInt64',
+  'toFloat64',
+  'toString',
+  'has',
+  'arrayJoin',
+  'greatest',
+  'least',
 ];
 
 // SQL functions (expanded)
 const SQL_FUNCTIONS = [
-  'COUNT', 'SUM', 'AVG', 'MIN', 'MAX',
-  'ABS', 'ROUND', 'CEIL', 'FLOOR', 'CAST',
-  'UPPER', 'LOWER', 'LENGTH', 'SUBSTR', 'SUBSTRING', 'TRIM', 'LTRIM', 'RTRIM',
-  'REPLACE', 'INSTR', 'POSITION', 'COALESCE', 'NULLIF', 'IFNULL', 'IIF',
-  'TYPEOF', 'HEX', 'QUOTE', 'RANDOMBLOB', 'ZEROBLOB',
-  'DATE', 'TIME', 'DATETIME', 'JULIANDAY', 'STRFTIME', 'UNIXEPOCH',
-  'ROW_NUMBER', 'RANK', 'DENSE_RANK', 'NTILE', 'LAG', 'LEAD',
-  'FIRST_VALUE', 'LAST_VALUE', 'NTH_VALUE',
-  'GROUP_CONCAT', 'PRINTF', 'UNICODE', 'CHAR',
+  'COUNT',
+  'SUM',
+  'AVG',
+  'MIN',
+  'MAX',
+  'ABS',
+  'ROUND',
+  'CEIL',
+  'FLOOR',
+  'CAST',
+  'UPPER',
+  'LOWER',
+  'LENGTH',
+  'SUBSTR',
+  'SUBSTRING',
+  'TRIM',
+  'LTRIM',
+  'RTRIM',
+  'REPLACE',
+  'INSTR',
+  'POSITION',
+  'COALESCE',
+  'NULLIF',
+  'IFNULL',
+  'IIF',
+  'TYPEOF',
+  'HEX',
+  'QUOTE',
+  'RANDOMBLOB',
+  'ZEROBLOB',
+  'DATE',
+  'TIME',
+  'DATETIME',
+  'JULIANDAY',
+  'STRFTIME',
+  'UNIXEPOCH',
+  'ROW_NUMBER',
+  'RANK',
+  'DENSE_RANK',
+  'NTILE',
+  'LAG',
+  'LEAD',
+  'FIRST_VALUE',
+  'LAST_VALUE',
+  'NTH_VALUE',
+  'GROUP_CONCAT',
+  'PRINTF',
+  'UNICODE',
+  'CHAR',
 ];
 
 // Light theme for SQL editor
@@ -152,8 +238,7 @@ const lightTheme = EditorView.theme({
   },
   '.cm-scroller': {
     overflow: 'auto',
-    fontFamily:
-      "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
+    fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
   },
   '.cm-content': {
     padding: '12px 0',
@@ -276,17 +361,20 @@ interface SQLEditorProps {
   onHistoryChange?: (canUndo: boolean, canRedo: boolean) => void;
 }
 
-const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
-  value,
-  onChange,
-  onRun,
-  height = '300px',
-  schema = null,
-  onFormatSQL,
-  onUndo,
-  onRedo,
-  onHistoryChange,
-}: SQLEditorProps, ref) {
+const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor(
+  {
+    value,
+    onChange,
+    onRun,
+    height = '300px',
+    schema = null,
+    onFormatSQL,
+    onUndo,
+    onRedo,
+    onHistoryChange,
+  }: SQLEditorProps,
+  ref,
+) {
   const { theme, resolvedTheme } = useTheme();
   const placeholder = t('sqlEditor.placeholder');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -307,14 +395,17 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
   // Compute isDark from resolvedTheme for consistent detection (handles 'system' correctly)
   const isDark = resolvedTheme !== 'light';
 
-  const emitHistoryChange = useCallback((docChanged?: boolean) => {
-    if (docChanged) {
-      historyCountRef.current++;
-      canUndoRef.current = historyCountRef.current > 0;
-      canRedoRef.current = false; // New action clears redo stack
-    }
-    onHistoryChange?.(canUndoRef.current, canRedoRef.current);
-  }, [onHistoryChange]);
+  const emitHistoryChange = useCallback(
+    (docChanged?: boolean) => {
+      if (docChanged) {
+        historyCountRef.current++;
+        canUndoRef.current = historyCountRef.current > 0;
+        canRedoRef.current = false; // New action clears redo stack
+      }
+      onHistoryChange?.(canUndoRef.current, canRedoRef.current);
+    },
+    [onHistoryChange],
+  );
 
   useEffect(() => {
     themeRef.current = theme;
@@ -344,34 +435,38 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
     schemaRef.current = schema;
   }, [schema]);
 
-  useImperativeHandle(ref, () => ({
-    undo: () => {
-      const view = viewRef.current;
-      if (view) {
-        undo({ state: view.state, dispatch: view.dispatch.bind(view) });
-        if (historyCountRef.current > 0) {
-          historyCountRef.current--;
+  useImperativeHandle(
+    ref,
+    () => ({
+      undo: () => {
+        const view = viewRef.current;
+        if (view) {
+          undo({ state: view.state, dispatch: view.dispatch.bind(view) });
+          if (historyCountRef.current > 0) {
+            historyCountRef.current--;
+          }
+          canUndoRef.current = historyCountRef.current > 0;
+          canRedoRef.current = true;
+          emitHistoryChange();
         }
-        canUndoRef.current = historyCountRef.current > 0;
-        canRedoRef.current = true;
-        emitHistoryChange();
-      }
-      onUndo?.();
-    },
-    redo: () => {
-      const view = viewRef.current;
-      if (view) {
-        redo({ state: view.state, dispatch: view.dispatch.bind(view) });
-        historyCountRef.current++;
-        canUndoRef.current = true;
-        canRedoRef.current = false;
-        emitHistoryChange();
-      }
-      onRedo?.();
-    },
-    canUndo: () => canUndoRef.current,
-    canRedo: () => canRedoRef.current,
-  }), [onUndo, onRedo, emitHistoryChange]);
+        onUndo?.();
+      },
+      redo: () => {
+        const view = viewRef.current;
+        if (view) {
+          redo({ state: view.state, dispatch: view.dispatch.bind(view) });
+          historyCountRef.current++;
+          canUndoRef.current = true;
+          canRedoRef.current = false;
+          emitHistoryChange();
+        }
+        onRedo?.();
+      },
+      canUndo: () => canUndoRef.current,
+      canRedo: () => canRedoRef.current,
+    }),
+    [onUndo, onRedo, emitHistoryChange],
+  );
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -380,39 +475,40 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
     const isDark = resolvedTheme !== 'light';
 
     // Custom theme extension
-    const customTheme = isDark ? EditorView.theme({
-      '&': {
-        height: '100%',
-        fontSize: '14px',
-      },
-      '.cm-scroller': {
-        overflow: 'auto',
-        fontFamily:
-          "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
-      },
-      '.cm-content': {
-        padding: '12px 0',
-        minHeight: '100%',
-      },
-      '.cm-gutters': {
-        backgroundColor: 'transparent',
-        borderRight: '1px solid #333',
-        color: '#666',
-      },
-      '&.cm-focused .cm-cursor': {
-        borderLeftColor: '#10b981',
-        borderLeftWidth: '2px',
-      },
-      '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': {
-        backgroundColor: '#264f78 !important',
-      },
-      '.cm-activeLine': {
-        backgroundColor: 'rgba(16, 185, 129, 0.06)',
-      },
-      '.cm-activeLineGutter': {
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-      },
-    }) : lightTheme;
+    const customTheme = isDark
+      ? EditorView.theme({
+          '&': {
+            height: '100%',
+            fontSize: '14px',
+          },
+          '.cm-scroller': {
+            overflow: 'auto',
+            fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
+          },
+          '.cm-content': {
+            padding: '12px 0',
+            minHeight: '100%',
+          },
+          '.cm-gutters': {
+            backgroundColor: 'transparent',
+            borderRight: '1px solid #333',
+            color: '#666',
+          },
+          '&.cm-focused .cm-cursor': {
+            borderLeftColor: '#10b981',
+            borderLeftWidth: '2px',
+          },
+          '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': {
+            backgroundColor: '#264f78 !important',
+          },
+          '.cm-activeLine': {
+            backgroundColor: 'rgba(16, 185, 129, 0.06)',
+          },
+          '.cm-activeLineGutter': {
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          },
+        })
+      : lightTheme;
 
     // Custom keybindings
     const runKeymap = keymap.of([
@@ -484,13 +580,10 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
           schemaRef.current
             ? {
                 schema: Object.fromEntries(
-                  schemaRef.current.tables.map((t) => [
-                    t.name,
-                    { columns: t.columns.map((c) => c.name) },
-                  ]),
+                  schemaRef.current.tables.map((t) => [t.name, { columns: t.columns.map((c) => c.name) }]),
                 ) as Record<string, { columns: string[] }>,
               }
-            : undefined
+            : undefined,
         ),
         autocompletion({
           override: [
@@ -502,13 +595,7 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
         }),
         ...(isDark ? [oneDark] : []),
         themeCompartmentRef.current.of(customTheme),
-        keymap.of([
-          ...closeBracketsKeymap,
-          ...defaultKeymap,
-          ...searchKeymap,
-          ...historyKeymap,
-          ...completionKeymap,
-        ]),
+        keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...searchKeymap, ...historyKeymap, ...completionKeymap]),
         runKeymap,
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
@@ -531,7 +618,7 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
       view.destroy();
       viewRef.current = null;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- one-time editor init; theme updated via compartment reconfigure
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-time editor init; theme updated via compartment reconfigure
   }, [emitHistoryChange]);
 
   // Update theme when it changes using compartment reconfigure (preserves undo history)
@@ -540,20 +627,25 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
     if (!view) return;
 
     const isDark = resolvedTheme !== 'light';
-    const newCustomTheme = isDark ? EditorView.theme({
-      '&': { height: '100%', fontSize: '14px' },
-      '.cm-scroller': { overflow: 'auto', fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace" },
-      '.cm-content': { padding: '12px 0', minHeight: '100%' },
-      '.cm-gutters': { backgroundColor: 'transparent', borderRight: '1px solid #333', color: '#666' },
-      '&.cm-focused .cm-cursor': { borderLeftColor: '#10b981', borderLeftWidth: '2px' },
-      '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': { backgroundColor: '#264f78 !important' },
-      '.cm-activeLine': { backgroundColor: 'rgba(16, 185, 129, 0.06)' },
-      '.cm-activeLineGutter': { backgroundColor: 'rgba(16, 185, 129, 0.1)' },
-      '@media (max-width: 768px)': {
-        '&': { fontSize: '16px' },
-        '.cm-content': { padding: '8px 0' },
-      },
-    }) : lightTheme;
+    const newCustomTheme = isDark
+      ? EditorView.theme({
+          '&': { height: '100%', fontSize: '14px' },
+          '.cm-scroller': {
+            overflow: 'auto',
+            fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
+          },
+          '.cm-content': { padding: '12px 0', minHeight: '100%' },
+          '.cm-gutters': { backgroundColor: 'transparent', borderRight: '1px solid #333', color: '#666' },
+          '&.cm-focused .cm-cursor': { borderLeftColor: '#10b981', borderLeftWidth: '2px' },
+          '&.cm-focused .cm-selectionBackground, .cm-selectionBackground': { backgroundColor: '#264f78 !important' },
+          '.cm-activeLine': { backgroundColor: 'rgba(16, 185, 129, 0.06)' },
+          '.cm-activeLineGutter': { backgroundColor: 'rgba(16, 185, 129, 0.1)' },
+          '@media (max-width: 768px)': {
+            '&': { fontSize: '16px' },
+            '.cm-content': { padding: '8px 0' },
+          },
+        })
+      : lightTheme;
 
     view.dispatch({
       effects: themeCompartmentRef.current.reconfigure(newCustomTheme),
@@ -574,17 +666,15 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor({
   }, [value]);
 
   return (
-    <div className={`relative h-full w-full overflow-hidden rounded-md border border-border ${isDark ? 'bg-[#282c34]' : 'bg-white'}`}>
+    <div
+      className={`relative h-full w-full overflow-hidden rounded-md border border-border ${isDark ? 'bg-[#282c34]' : 'bg-white'}`}
+    >
       {(!value || value.trim() === '') && (
         <div className="pointer-events-none absolute left-12 top-3 z-10 text-muted-foreground/50 text-sm">
           {placeholder}
         </div>
       )}
-      <div
-        ref={containerRef}
-        style={{ height }}
-        className="w-full"
-      />
+      <div ref={containerRef} style={{ height }} className="w-full" />
     </div>
   );
 });

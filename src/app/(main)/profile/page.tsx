@@ -22,9 +22,22 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import {
-  Loader2, User, Mail, Phone, Save, Lock, Eye, EyeOff,
-  Trash2, AlertTriangle, Shield, CheckCircle2, AlertCircle, RotateCcw,
-  Bookmark, Copy,
+  Loader2,
+  User,
+  Mail,
+  Phone,
+  Save,
+  Lock,
+  Eye,
+  EyeOff,
+  Trash2,
+  AlertTriangle,
+  Shield,
+  CheckCircle2,
+  AlertCircle,
+  RotateCcw,
+  Bookmark,
+  Copy,
 } from 'lucide-react';
 import ProgressStats from '@/components/profile/progress-stats';
 import AchievementsGrid from '@/components/profile/achievements-grid';
@@ -41,7 +54,12 @@ interface UserProfile {
   created_at: number;
 }
 
-function getPasswordStrength(password: string): { score: number; label: string; color: string; requirements: { met: boolean; text: string }[] } {
+function getPasswordStrength(password: string): {
+  score: number;
+  label: string;
+  color: string;
+  requirements: { met: boolean; text: string }[];
+} {
   const requirements = [
     { met: password.length >= 6, text: t('profile.req.minChars') },
     { met: /[A-Z]/.test(password), text: t('profile.req.uppercase') },
@@ -50,14 +68,21 @@ function getPasswordStrength(password: string): { score: number; label: string; 
     { met: /[^A-Za-z0-9]/.test(password), text: t('profile.req.special') },
   ];
 
-  const metCount = requirements.filter(r => r.met).length;
+  const metCount = requirements.filter((r) => r.met).length;
   const score = Math.round((metCount / requirements.length) * 100);
 
   let label = t('profile.strength.weak');
   let color = 'text-red-500';
-  if (score >= 80) { label = t('profile.strength.strong'); color = 'text-emerald-500'; }
-  else if (score >= 60) { label = t('profile.strength.fair'); color = 'text-yellow-500'; }
-  else if (score >= 40) { label = t('profile.strength.weak'); color = 'text-orange-500'; }
+  if (score >= 80) {
+    label = t('profile.strength.strong');
+    color = 'text-emerald-500';
+  } else if (score >= 60) {
+    label = t('profile.strength.fair');
+    color = 'text-yellow-500';
+  } else if (score >= 40) {
+    label = t('profile.strength.weak');
+    color = 'text-orange-500';
+  }
 
   return { score, label, color, requirements };
 }
@@ -66,11 +91,14 @@ function SavedQueriesSection() {
   const { savedQueries, deleteSavedQuery, resetAllProgress, undoReset } = useSQLTrainerStore();
 
   const copyToClipboard = (sql: string) => {
-    navigator.clipboard.writeText(sql).then(() => {
-      toast.success(t('profile.sqlCopied'));
-    }).catch(() => {
-      toast.error(t('profile.copyFailed'));
-    });
+    navigator.clipboard
+      .writeText(sql)
+      .then(() => {
+        toast.success(t('profile.sqlCopied'));
+      })
+      .catch(() => {
+        toast.error(t('profile.copyFailed'));
+      });
   };
 
   const handleResetAll = () => {
@@ -95,9 +123,7 @@ function SavedQueriesSection() {
           <CardContent className="flex flex-col items-center justify-center gap-3 py-12 text-center">
             <Bookmark className="h-12 w-12 text-muted-foreground/30" />
             <h3 className="text-lg font-semibold">{t('profile.savedEmpty')}</h3>
-            <p className="text-sm text-muted-foreground">
-              {t('profile.savedEmptyDesc')}
-            </p>
+            <p className="text-sm text-muted-foreground">{t('profile.savedEmptyDesc')}</p>
           </CardContent>
         </Card>
         <ResetProgressCard onReset={handleResetAll} />
@@ -125,9 +151,7 @@ function SavedQueriesSection() {
                     minute: '2-digit',
                   })}
                 </p>
-                <pre className="mt-2 max-h-24 overflow-auto rounded-md bg-muted p-3 text-xs font-mono">
-                  {query.sql}
-                </pre>
+                <pre className="mt-2 max-h-24 overflow-auto rounded-md bg-muted p-3 text-xs font-mono">{query.sql}</pre>
               </div>
               <div className="flex shrink-0 gap-1">
                 <Button
@@ -166,14 +190,15 @@ function ResetProgressCard({ onReset }: { onReset: () => void }) {
           <RotateCcw className="h-5 w-5" />
           {t('profile.resetProgress')}
         </CardTitle>
-        <CardDescription>
-          {t('profile.resetProgressDesc')}
-        </CardDescription>
+        <CardDescription>{t('profile.resetProgressDesc')}</CardDescription>
       </CardHeader>
       <CardFooter>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" className="text-orange-600 border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-950">
+            <Button
+              variant="outline"
+              className="text-orange-600 border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-950"
+            >
               <RotateCcw className="mr-2 h-4 w-4" />
               {t('profile.resetButton')}
             </Button>
@@ -181,16 +206,11 @@ function ResetProgressCard({ onReset }: { onReset: () => void }) {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>{t('profile.resetConfirmTitle')}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {t('profile.resetConfirmDesc')}
-              </AlertDialogDescription>
+              <AlertDialogDescription>{t('profile.resetConfirmDesc')}</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t('profile.cancel')}</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={onReset}
-                className="bg-orange-600 hover:bg-orange-700"
-              >
+              <AlertDialogAction onClick={onReset} className="bg-orange-600 hover:bg-orange-700">
                 {t('profile.resetAction')}
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -338,7 +358,7 @@ export default function ProfilePage() {
       const data = await res.json();
       if (data.success) {
         toast.success(t('profile.emailChanged'));
-        setProfile(prev => prev ? { ...prev, email: newEmail } : null);
+        setProfile((prev) => (prev ? { ...prev, email: newEmail } : null));
         update({ email: newEmail });
         setEmailPassword('');
       } else {
@@ -392,9 +412,7 @@ export default function ProfilePage() {
       <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
         <AlertCircle className="h-12 w-12 text-destructive" />
         <h2 className="text-lg font-semibold">{t('profile.pageError')}</h2>
-        <p className="max-w-md text-sm text-muted-foreground">
-          {t('profile.pageErrorDesc')}
-        </p>
+        <p className="max-w-md text-sm text-muted-foreground">{t('profile.pageErrorDesc')}</p>
         <Button onClick={() => window.location.reload()}>
           <RotateCcw className="mr-2 h-4 w-4" />
           {t('profile.refreshPage')}
@@ -424,7 +442,9 @@ export default function ProfilePage() {
         {/* Page Header */}
         <div className="mb-2">
           <h1 className="text-2xl font-bold tracking-tight">{t('profile.title', { default: 'Профиль' })}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{t('profile.subtitle', { default: 'Управляйте своим профилем и отслеживайте прогресс' })}</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {t('profile.subtitle', { default: 'Управляйте своим профилем и отслеживайте прогресс' })}
+          </p>
         </div>
 
         {/* Profile Header */}
@@ -459,10 +479,23 @@ export default function ProfilePage() {
                 </Button>
               ) : (
                 <div className="flex items-center gap-2 shrink-0">
-                  <Button variant="outline" size="sm" onClick={() => { setEditMode(false); setEditName(profile.name); setEditPhone(profile.phone || ''); }}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEditMode(false);
+                      setEditName(profile.name);
+                      setEditPhone(profile.phone || '');
+                    }}
+                  >
                     {t('profile.cancel')}
                   </Button>
-                  <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSave} disabled={saving}>
+                  <Button
+                    size="sm"
+                    className="bg-emerald-600 hover:bg-emerald-700"
+                    onClick={handleSave}
+                    disabled={saving}
+                  >
                     {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}
                     {t('profile.save')}
                   </Button>
@@ -478,7 +511,12 @@ export default function ProfilePage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="edit-phone">{t('profile.phone')}</Label>
-                  <Input id="edit-phone" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder={t('profile.phonePlaceholder')} />
+                  <Input
+                    id="edit-phone"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    placeholder={t('profile.phonePlaceholder')}
+                  />
                 </div>
               </div>
             )}
@@ -569,22 +607,28 @@ export default function ProfilePage() {
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-muted-foreground">{t('profile.passwordStrength')}</span>
-                            <span className={`font-medium ${passwordStrength.color}`}>
-                              {passwordStrength.label}
-                            </span>
+                            <span className={`font-medium ${passwordStrength.color}`}>{passwordStrength.label}</span>
                           </div>
                           <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
                             <div
                               className="h-full transition-all duration-300 rounded-full"
                               style={{
                                 width: `${passwordStrength.score}%`,
-                                backgroundColor: passwordStrength.score >= 80 ? '#10b981' : passwordStrength.score >= 60 ? '#eab308' : '#ef4444',
+                                backgroundColor:
+                                  passwordStrength.score >= 80
+                                    ? '#10b981'
+                                    : passwordStrength.score >= 60
+                                      ? '#eab308'
+                                      : '#ef4444',
                               }}
                             />
                           </div>
                           <ul className="grid grid-cols-2 gap-1 text-xs">
                             {passwordStrength.requirements.map((req, i) => (
-                              <li key={i} className={`flex items-center gap-1 ${req.met ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                              <li
+                                key={i}
+                                className={`flex items-center gap-1 ${req.met ? 'text-emerald-600' : 'text-muted-foreground'}`}
+                              >
                                 {req.met ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
                                 {req.text}
                               </li>
@@ -636,7 +680,11 @@ export default function ProfilePage() {
                       className="bg-emerald-600 hover:bg-emerald-700"
                       disabled={changingPassword || newPassword !== confirmPassword || !currentPassword || !newPassword}
                     >
-                      {changingPassword ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Shield className="mr-2 h-4 w-4" />}
+                      {changingPassword ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Shield className="mr-2 h-4 w-4" />
+                      )}
                       {t('profile.changePasswordBtn')}
                     </Button>
                   </CardFooter>
@@ -699,7 +747,11 @@ export default function ProfilePage() {
                       className="bg-emerald-600 hover:bg-emerald-700"
                       disabled={changingEmail || newEmail === profile.email || !emailPassword}
                     >
-                      {changingEmail ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
+                      {changingEmail ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Mail className="mr-2 h-4 w-4" />
+                      )}
                       {t('profile.changeEmailBtn')}
                     </Button>
                   </CardFooter>
@@ -713,9 +765,7 @@ export default function ProfilePage() {
                     <AlertTriangle className="h-5 w-5" />
                     {t('profile.deleteAccount')}
                   </CardTitle>
-                  <CardDescription>
-                    {t('profile.deleteAccountDesc')}
-                  </CardDescription>
+                  <CardDescription>{t('profile.deleteAccountDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -753,9 +803,7 @@ export default function ProfilePage() {
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>{t('profile.resetConfirmTitle')}</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          {t('profile.deleteConfirmDesc')}
-                        </AlertDialogDescription>
+                        <AlertDialogDescription>{t('profile.deleteConfirmDesc')}</AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>{t('profile.cancel')}</AlertDialogCancel>

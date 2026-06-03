@@ -1,13 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -66,25 +60,41 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
         generateClassReportPDF(
           {
             total_students: students.length,
-            active_students: students.filter((s: StudentRecord) => s.last_active && s.last_active > Date.now() - 7 * 24 * 60 * 60 * 1000).length,
-            avg_completion_rate: students.length > 0
-              ? Math.round(students.reduce((s: number, st: StudentRecord) => s + st.completion_rate, 0) / students.length)
-              : 0,
-            avg_attempts: students.length > 0
-              ? Math.round(students.reduce((s: number, st: StudentRecord) => s + st.avg_attempts, 0) / students.length * 10) / 10
-              : 0,
+            active_students: students.filter(
+              (s: StudentRecord) => s.last_active && s.last_active > Date.now() - 7 * 24 * 60 * 60 * 1000,
+            ).length,
+            avg_completion_rate:
+              students.length > 0
+                ? Math.round(
+                    students.reduce((s: number, st: StudentRecord) => s + st.completion_rate, 0) / students.length,
+                  )
+                : 0,
+            avg_attempts:
+              students.length > 0
+                ? Math.round(
+                    (students.reduce((s: number, st: StudentRecord) => s + st.avg_attempts, 0) / students.length) * 10,
+                  ) / 10
+                : 0,
             at_risk_count: students.filter((s: StudentRecord) => s.tasks_completed < 5).length,
             excelling_count: students.filter((s: StudentRecord) => s.tasks_completed > 45).length,
             top_performers: students
               .filter((s: StudentRecord) => s.tasks_completed > 30)
               .sort((a: StudentRecord, b: StudentRecord) => b.tasks_completed - a.tasks_completed)
               .slice(0, 5)
-              .map((s: StudentRecord) => ({ name: s.name, tasks_completed: s.tasks_completed, avg_attempts: s.avg_attempts })),
+              .map((s: StudentRecord) => ({
+                name: s.name,
+                tasks_completed: s.tasks_completed,
+                avg_attempts: s.avg_attempts,
+              })),
             struggling_students: students
               .filter((s: StudentRecord) => s.avg_attempts > 4 && s.tasks_completed >= 3)
               .sort((a: StudentRecord, b: StudentRecord) => b.avg_attempts - a.avg_attempts)
               .slice(0, 5)
-              .map((s: StudentRecord) => ({ name: s.name, tasks_completed: s.tasks_completed, avg_attempts: s.avg_attempts })),
+              .map((s: StudentRecord) => ({
+                name: s.name,
+                tasks_completed: s.tasks_completed,
+                avg_attempts: s.avg_attempts,
+              })),
             inactive_students: students
               .filter((s: StudentRecord) => !s.last_active || s.last_active < Date.now() - 7 * 24 * 60 * 60 * 1000)
               .slice(0, 10)
@@ -94,7 +104,7 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
             title: t('teacher.export.classReport'),
             generatedAt: new Date(),
             locale: getLocale(),
-          }
+          },
         );
       } else {
         // CSV or Excel: fetch all data and export
@@ -106,7 +116,7 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
 
         for (const [key, sectionData] of Object.entries(data)) {
           if (!Array.isArray(sectionData) || !sectionData.length) continue;
-          const cols = Object.keys(sectionData[0] as Record<string, unknown>).map(k => ({ key: k, label: k }));
+          const cols = Object.keys(sectionData[0] as Record<string, unknown>).map((k) => ({ key: k, label: k }));
           if (format === 'csv') {
             exportToCSV(sectionData as Record<string, unknown>[], cols, `${filename}-${key}`);
           } else {
@@ -130,15 +140,13 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
             <FileSpreadsheet className="h-5 w-5" />
             {t('teacher.export.title')}
           </DialogTitle>
-          <DialogDescription>
-            {t('teacher.export.description')}
-          </DialogDescription>
+          <DialogDescription>{t('teacher.export.description')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
             <Label>{t('teacher.export.format')}</Label>
-            <RadioGroup value={format} onValueChange={v => setFormat(v as typeof format)} className="flex gap-4 mt-2">
+            <RadioGroup value={format} onValueChange={(v) => setFormat(v as typeof format)} className="flex gap-4 mt-2">
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="csv" id="t-csv" />
                 <Label htmlFor="t-csv">{t('analytics.export.format.csv')}</Label>
@@ -158,52 +166,32 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
 
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Checkbox
-                id="t-progress"
-                checked={includeProgress}
-                onCheckedChange={v => setIncludeProgress(!!v)}
-              />
+              <Checkbox id="t-progress" checked={includeProgress} onCheckedChange={(v) => setIncludeProgress(!!v)} />
               <Label htmlFor="t-progress">{t('teacher.tabs.progress')}</Label>
             </div>
             <div className="flex items-center gap-2">
               <Checkbox
                 id="t-engagement"
                 checked={includeEngagement}
-                onCheckedChange={v => setIncludeEngagement(!!v)}
+                onCheckedChange={(v) => setIncludeEngagement(!!v)}
               />
               <Label htmlFor="t-engagement">{t('teacher.tabs.engagement')}</Label>
             </div>
             <div className="flex items-center gap-2">
-              <Checkbox
-                id="t-analytics"
-                checked={includeAnalytics}
-                onCheckedChange={v => setIncludeAnalytics(!!v)}
-              />
+              <Checkbox id="t-analytics" checked={includeAnalytics} onCheckedChange={(v) => setIncludeAnalytics(!!v)} />
               <Label htmlFor="t-analytics">{t('teacher.tabs.analytics')}</Label>
             </div>
             <Separator />
             <div className="flex items-center gap-2">
-              <Checkbox
-                id="t-skills"
-                checked={includeSkills}
-                onCheckedChange={v => setIncludeSkills(!!v)}
-              />
+              <Checkbox id="t-skills" checked={includeSkills} onCheckedChange={(v) => setIncludeSkills(!!v)} />
               <Label htmlFor="t-skills">{t('admin.tabs.skills')}</Label>
             </div>
             <div className="flex items-center gap-2">
-              <Checkbox
-                id="t-funnel"
-                checked={includeFunnel}
-                onCheckedChange={v => setIncludeFunnel(!!v)}
-              />
+              <Checkbox id="t-funnel" checked={includeFunnel} onCheckedChange={(v) => setIncludeFunnel(!!v)} />
               <Label htmlFor="t-funnel">{t('admin.tabs.funnel')}</Label>
             </div>
             <div className="flex items-center gap-2">
-              <Checkbox
-                id="t-mastery"
-                checked={includeMastery}
-                onCheckedChange={v => setIncludeMastery(!!v)}
-              />
+              <Checkbox id="t-mastery" checked={includeMastery} onCheckedChange={(v) => setIncludeMastery(!!v)} />
               <Label htmlFor="t-mastery">{t('admin.tabs.mastery')}</Label>
             </div>
           </div>

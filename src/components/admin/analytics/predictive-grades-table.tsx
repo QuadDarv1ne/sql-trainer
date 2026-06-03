@@ -6,14 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
@@ -106,18 +99,18 @@ export default function PredictiveGradesTable() {
                   <span className="text-xs ml-2">{entry.predicted_final}%</span>
                 </TableCell>
                 <TableCell>
-                  <Badge className={gradeColors[entry.grade_letter] || ''}>
-                    {entry.grade_letter}
-                  </Badge>
+                  <Badge className={gradeColors[entry.grade_letter] || ''}>{entry.grade_letter}</Badge>
                 </TableCell>
                 <TableCell>{Math.round(entry.confidence * 100)}%</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
                     <TrajectoryIcon trajectory={entry.trajectory} />
                     <span className="text-xs">
-                      {entry.trajectory === 'rising' ? t('analytics.grades.rising') :
-                       entry.trajectory === 'falling' ? t('analytics.grades.falling') :
-                       t('analytics.grades.flat')}
+                      {entry.trajectory === 'rising'
+                        ? t('analytics.grades.rising')
+                        : entry.trajectory === 'falling'
+                          ? t('analytics.grades.falling')
+                          : t('analytics.grades.flat')}
                     </span>
                   </div>
                 </TableCell>

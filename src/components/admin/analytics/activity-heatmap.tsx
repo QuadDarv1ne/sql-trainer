@@ -16,7 +16,6 @@ interface HeatmapData {
   week_number: number;
 }
 
-
 function getColor(count: number, maxCount: number): string {
   if (count === 0) return 'hsl(142, 33%, 96%)';
   const intensity = count / maxCount;
@@ -28,7 +27,15 @@ function getColor(count: number, maxCount: number): string {
 }
 
 export default function ActivityHeatmap() {
-  const DAY_NAMES = [t('analytics.heatmap.day1'), t('analytics.heatmap.day2'), t('analytics.heatmap.day3'), t('analytics.heatmap.day4'), t('analytics.heatmap.day5'), t('analytics.heatmap.day6'), t('analytics.heatmap.day7')];
+  const DAY_NAMES = [
+    t('analytics.heatmap.day1'),
+    t('analytics.heatmap.day2'),
+    t('analytics.heatmap.day3'),
+    t('analytics.heatmap.day4'),
+    t('analytics.heatmap.day5'),
+    t('analytics.heatmap.day6'),
+    t('analytics.heatmap.day7'),
+  ];
   const [data, setData] = useState<HeatmapData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +64,9 @@ export default function ActivityHeatmap() {
   if (loading) {
     return (
       <Card>
-        <CardHeader><CardTitle>{t('analytics.heatmap.dailyTitle')}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>{t('analytics.heatmap.dailyTitle')}</CardTitle>
+        </CardHeader>
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </CardContent>
@@ -68,7 +77,9 @@ export default function ActivityHeatmap() {
   if (error) {
     return (
       <Card>
-        <CardHeader><CardTitle>{t('analytics.heatmap.dailyTitle')}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>{t('analytics.heatmap.dailyTitle')}</CardTitle>
+        </CardHeader>
         <CardContent>
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -82,7 +93,9 @@ export default function ActivityHeatmap() {
   if (data.length === 0) {
     return (
       <Card>
-        <CardHeader><CardTitle>{t('analytics.heatmap.dailyTitle')}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>{t('analytics.heatmap.dailyTitle')}</CardTitle>
+        </CardHeader>
         <CardContent>
           <EmptyState />
         </CardContent>
@@ -104,10 +117,12 @@ export default function ActivityHeatmap() {
     if (week) week.push(d);
   });
 
-  Array.from(dataByWeek.keys()).sort((a, b) => a - b).forEach((w) => {
-    const weekData = dataByWeek.get(w);
-    if (weekData) weeks.push(weekData);
-  });
+  Array.from(dataByWeek.keys())
+    .sort((a, b) => a - b)
+    .forEach((w) => {
+      const weekData = dataByWeek.get(w);
+      if (weekData) weeks.push(weekData);
+    });
 
   const totalDays = data.length;
 
@@ -117,7 +132,10 @@ export default function ActivityHeatmap() {
         <div className="flex items-center justify-between">
           <CardTitle>{t('analytics.heatmap.dailyTitle')}</CardTitle>
           <span className="text-sm text-muted-foreground">
-            {t('analytics.heatmap.subtitle', { completions: String(totalCompletions), weeks: String(Math.round(totalDays / 7)) })}
+            {t('analytics.heatmap.subtitle', {
+              completions: String(totalCompletions),
+              weeks: String(Math.round(totalDays / 7)),
+            })}
           </span>
         </div>
       </CardHeader>

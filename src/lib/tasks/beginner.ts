@@ -7,7 +7,6 @@ import type { TrainingTask } from './types';
 import { ANALYTICS_SCHEMA, CLICKHOUSE_EVENTS_SCHEMA, EMPLOYEES_SCHEMA, SHOP_SCHEMA } from './schemas';
 
 export const BEGINNER_TASKS: TrainingTask[] = [
-
   // ==================== BEGINNER TASKS ====================
   {
     id: 'beginner-1',
@@ -246,9 +245,9 @@ export const BEGINNER_TASKS: TrainingTask[] = [
       },
     ],
     sampleSolution: 'SELECT department_id, AVG(salary) as avg_salary FROM employees GROUP BY department_id;',
-    verificationQuery: 'SELECT COUNT(DISTINCT department_id) as dept_count FROM employees WHERE department_id IS NOT NULL;',
+    verificationQuery:
+      'SELECT COUNT(DISTINCT department_id) as dept_count FROM employees WHERE department_id IS NOT NULL;',
   },
-
 
   // ==================== SHOP TASKS ====================
   {
@@ -259,9 +258,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'shop',
     schema: SHOP_SCHEMA,
-    taskText: 'Сгруппируйте заказы по месяцам, используя функцию toYYYYMM(order_date). Для каждого месяца выведите month и order_count. Отсортируйте по month.',
+    taskText:
+      'Сгруппируйте заказы по месяцам, используя функцию toYYYYMM(order_date). Для каждого месяца выведите month и order_count. Отсортируйте по month.',
     hint: 'toYYYYMM(date) преобразует дату в число в формате YYYYMM, удобное для группировки по месяцам.',
-    sampleSolution: 'SELECT toYYYYMM(order_date) AS month, COUNT(*) AS order_count FROM orders GROUP BY month ORDER BY month;',
+    sampleSolution:
+      'SELECT toYYYYMM(order_date) AS month, COUNT(*) AS order_count FROM orders GROUP BY month ORDER BY month;',
     verificationQuery: 'SELECT COUNT(*) as count FROM orders;',
   },
 
@@ -273,9 +274,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'postgresql',
     category: 'shop',
     schema: SHOP_SCHEMA,
-    taskText: 'Для каждого клиента выведите полное имя (first_name и last_name через пробел) и email. Используйте CONCAT_WS(\' \', first_name, last_name) для объединения с разделителем. Выведите full_name и email. Отсортируйте по full_name.',
+    taskText:
+      "Для каждого клиента выведите полное имя (first_name и last_name через пробел) и email. Используйте CONCAT_WS(' ', first_name, last_name) для объединения с разделителем. Выведите full_name и email. Отсортируйте по full_name.",
     hint: 'CONCAT_WS(separator, str1, str2, ...) объединяет строки через разделитель, автоматически пропуская NULL значения.',
-    sampleSolution: "SELECT CONCAT_WS(' ', first_name, last_name) AS full_name, email FROM customers ORDER BY full_name;",
+    sampleSolution:
+      "SELECT CONCAT_WS(' ', first_name, last_name) AS full_name, email FROM customers ORDER BY full_name;",
     verificationQuery: 'SELECT COUNT(*) as count FROM customers;',
   },
 
@@ -301,7 +304,8 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'sqlite',
     category: 'shop',
     schema: SHOP_SCHEMA,
-    taskText: 'Выведите названия товаров (name), цены (price) и остаток на складе (stock_quantity) из таблицы products. Отсортируйте по убыванию цены.',
+    taskText:
+      'Выведите названия товаров (name), цены (price) и остаток на складе (stock_quantity) из таблицы products. Отсортируйте по убыванию цены.',
     hint: 'SELECT с ORDER BY price DESC для сортировки по убыванию.',
     sampleSolution: 'SELECT name, price, stock_quantity FROM products ORDER BY price DESC;',
     verificationQuery: 'SELECT COUNT(*) as count FROM products;',
@@ -357,9 +361,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'sqlite',
     category: 'shop',
     schema: SHOP_SCHEMA,
-    taskText: 'Вычислите среднюю цену и количество товаров для каждой категории. Выведите category_id, среднюю цену и количество.',
+    taskText:
+      'Вычислите среднюю цену и количество товаров для каждой категории. Выведите category_id, среднюю цену и количество.',
     hint: 'AVG(price) и COUNT(*) с GROUP BY category_id.',
-    sampleSolution: 'SELECT category_id, ROUND(AVG(price)) as avg_price, COUNT(*) as product_count FROM products GROUP BY category_id ORDER BY avg_price DESC;',
+    sampleSolution:
+      'SELECT category_id, ROUND(AVG(price)) as avg_price, COUNT(*) as product_count FROM products GROUP BY category_id ORDER BY avg_price DESC;',
     verificationQuery: 'SELECT COUNT(DISTINCT category_id) as count FROM products;',
   },
 
@@ -377,7 +383,6 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     verificationQuery: 'SELECT COUNT(DISTINCT city) as count FROM customers;',
   },
 
-
   // ==================== COMPANY TASKS (PostgreSQL/ClickHouse) ====================
   {
     id: 'ch-40',
@@ -387,9 +392,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Выведите бюджет каждого отдела с визуальной полоской. Используйте bar(budget / 500000, 0, 10, 20) — параметр 20 задаёт ширину полоски в символах. Выведите name, budget и budget_bar. Отсортируйте по budget DESC.',
+    taskText:
+      'Выведите бюджет каждого отдела с визуальной полоской. Используйте bar(budget / 500000, 0, 10, 20) — параметр 20 задаёт ширину полоски в символах. Выведите name, budget и budget_bar. Отсортируйте по budget DESC.',
     hint: 'bar(value, min, max, width) рисует текстовую полоску из символов ▏..▉ пропорционально значению. Полезно для визуализации в консоли.',
-    sampleSolution: "SELECT name, budget, bar(budget / 500000, 0, 10, 20) AS budget_bar FROM departments ORDER BY budget DESC;",
+    sampleSolution:
+      'SELECT name, budget, bar(budget / 500000, 0, 10, 20) AS budget_bar FROM departments ORDER BY budget DESC;',
     verificationQuery: 'SELECT COUNT(*) as count FROM departments;',
   },
 
@@ -401,12 +408,13 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'postgresql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Для каждого отдела вычислите бюджет на одного сотрудника (budget / количество сотрудников). Используйте NULLIF(COUNT(e.id), 0), чтобы избежать деления на ноль, если в отделе нет сотрудников. Выведите name отдела, budget, emp_count и budget_per_employee. Отсортируйте по budget_per_employee DESC.',
+    taskText:
+      'Для каждого отдела вычислите бюджет на одного сотрудника (budget / количество сотрудников). Используйте NULLIF(COUNT(e.id), 0), чтобы избежать деления на ноль, если в отделе нет сотрудников. Выведите name отдела, budget, emp_count и budget_per_employee. Отсортируйте по budget_per_employee DESC.',
     hint: 'NULLIF(col, 0) возвращает NULL, если col = 0. Деление на NULL даёт NULL вместо ошибки деления на ноль.',
-    sampleSolution: "SELECT d.name, d.budget, COUNT(e.id) AS emp_count, ROUND(d.budget / NULLIF(COUNT(e.id), 0), 2) AS budget_per_employee FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name, d.budget ORDER BY budget_per_employee DESC;",
+    sampleSolution:
+      'SELECT d.name, d.budget, COUNT(e.id) AS emp_count, ROUND(d.budget / NULLIF(COUNT(e.id), 0), 2) AS budget_per_employee FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name, d.budget ORDER BY budget_per_employee DESC;',
     verificationQuery: 'SELECT COUNT(*) as count FROM departments;',
   },
-
 
   // ==================== ANALYTICS TASKS (ClickHouse) ====================
   {
@@ -417,7 +425,8 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText: 'Выведите все события из таблицы events, ограничив результат 10 строками. Используйте ClickHouse-синтаксис.',
+    taskText:
+      'Выведите все события из таблицы events, ограничив результат 10 строками. Используйте ClickHouse-синтаксис.',
     hint: 'Используйте SELECT * FROM events LIMIT 10.',
     sampleSolution: 'SELECT * FROM events LIMIT 10;',
     verificationQuery: 'SELECT COUNT(*) as count FROM events;',
@@ -431,9 +440,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText: 'Найдите все события с устройства \'mobile\'. Выведите event_id, user_id, event_type и event_time. Отсортируйте по event_time.',
-    hint: 'Используйте WHERE device = \'mobile\' и ORDER BY event_time.',
-    sampleSolution: "SELECT event_id, user_id, event_type, event_time FROM events WHERE device = 'mobile' ORDER BY event_time;",
+    taskText:
+      "Найдите все события с устройства 'mobile'. Выведите event_id, user_id, event_type и event_time. Отсортируйте по event_time.",
+    hint: "Используйте WHERE device = 'mobile' и ORDER BY event_time.",
+    sampleSolution:
+      "SELECT event_id, user_id, event_type, event_time FROM events WHERE device = 'mobile' ORDER BY event_time;",
     verificationQuery: "SELECT COUNT(*) as count FROM events WHERE device = 'mobile';",
   },
 
@@ -445,9 +456,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText: 'Посчитайте количество событий каждого типа (event_type). Выведите event_type и количество. Используйте ClickHouse-функцию count().',
+    taskText:
+      'Посчитайте количество событий каждого типа (event_type). Выведите event_type и количество. Используйте ClickHouse-функцию count().',
     hint: 'SELECT event_type, count(*) as event_count FROM events GROUP BY event_type ORDER BY event_count DESC.',
-    sampleSolution: 'SELECT event_type, count(*) as event_count FROM events GROUP BY event_type ORDER BY event_count DESC;',
+    sampleSolution:
+      'SELECT event_type, count(*) as event_count FROM events GROUP BY event_type ORDER BY event_count DESC;',
     verificationQuery: 'SELECT COUNT(DISTINCT event_type) as count FROM events;',
   },
 
@@ -459,9 +472,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText: 'Найдите топ-3 страны по количеству событий. Выведите country и count. Используйте GROUP BY, ORDER BY DESC и LIMIT.',
+    taskText:
+      'Найдите топ-3 страны по количеству событий. Выведите country и count. Используйте GROUP BY, ORDER BY DESC и LIMIT.',
     hint: 'Сгруппируйте по country, отсортируйте по убыванию и ограничьте 3 строками.',
-    sampleSolution: 'SELECT country, count(*) as event_count FROM events GROUP BY country ORDER BY event_count DESC LIMIT 3;',
+    sampleSolution:
+      'SELECT country, count(*) as event_count FROM events GROUP BY country ORDER BY event_count DESC LIMIT 3;',
     verificationQuery: 'SELECT COUNT(DISTINCT country) as count FROM events;',
   },
 
@@ -473,9 +488,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText: 'Посчитайте количество уникальных пользователей (user_id) для каждого устройства (device). Используйте ClickHouse-функцию uniq().',
+    taskText:
+      'Посчитайте количество уникальных пользователей (user_id) для каждого устройства (device). Используйте ClickHouse-функцию uniq().',
     hint: 'uniq(user_id) считает количество уникальных значений user_id в каждой группе.',
-    sampleSolution: 'SELECT device, uniq(user_id) as unique_users, count(*) as total_events FROM events GROUP BY device ORDER BY unique_users DESC;',
+    sampleSolution:
+      'SELECT device, uniq(user_id) as unique_users, count(*) as total_events FROM events GROUP BY device ORDER BY unique_users DESC;',
     verificationQuery: 'SELECT COUNT(DISTINCT device) as count FROM events;',
   },
 
@@ -487,9 +504,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'analytics',
     schema: CLICKHOUSE_EVENTS_SCHEMA,
-    taskText: 'Для каждого события (кроме первого) найдите предыдущую длительность с помощью функции neighbour(duration, -1). Выведите id, event_type, duration и prev_duration. Отфильтруйте только события, у которых duration > 0, prev_duration > 0 и ABS(duration - prev_duration) < 10. Отсортируйте по id.',
+    taskText:
+      'Для каждого события (кроме первого) найдите предыдущую длительность с помощью функции neighbour(duration, -1). Выведите id, event_type, duration и prev_duration. Отфильтруйте только события, у которых duration > 0, prev_duration > 0 и ABS(duration - prev_duration) < 10. Отсортируйте по id.',
     hint: 'neighbour(col, offset) позволяет получить значение из соседней строки: offset = -1 — предыдущая строка, offset = 1 — следующая.',
-    sampleSolution: "SELECT id, event_type, duration, neighbour(duration, -1) AS prev_duration FROM events WHERE duration > 0 AND neighbour(duration, -1) > 0 AND abs(duration - neighbour(duration, -1)) < 10 ORDER BY id;",
+    sampleSolution:
+      'SELECT id, event_type, duration, neighbour(duration, -1) AS prev_duration FROM events WHERE duration > 0 AND neighbour(duration, -1) > 0 AND abs(duration - neighbour(duration, -1)) < 10 ORDER BY id;',
     verificationQuery: 'SELECT COUNT(*) as count FROM events WHERE duration > 0;',
   },
 
@@ -501,9 +520,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'analytics',
     schema: CLICKHOUSE_EVENTS_SCHEMA,
-    taskText: 'Выведите события с форматированной датой: id, event_type и formatted_time в формате \'DD.MM.YYYY HH:MM\'. Используйте formatDateTime(event_time, \'%d.%m.%Y %H:%i\'). Отсортируйте по event_time.',
+    taskText:
+      "Выведите события с форматированной датой: id, event_type и formatted_time в формате 'DD.MM.YYYY HH:MM'. Используйте formatDateTime(event_time, '%d.%m.%Y %H:%i'). Отсортируйте по event_time.",
     hint: 'formatDateTime(date, format) форматирует DateTime по шаблону. %d — день, %m — месяц, %Y — год, %H — часы, %i — минуты.',
-    sampleSolution: "SELECT id, event_type, formatDateTime(event_time, '%d.%m.%Y %H:%i') AS formatted_time FROM events ORDER BY event_time;",
+    sampleSolution:
+      "SELECT id, event_type, formatDateTime(event_time, '%d.%m.%Y %H:%i') AS formatted_time FROM events ORDER BY event_time;",
     verificationQuery: 'SELECT COUNT(*) as count FROM events;',
   },
 
@@ -529,7 +550,8 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText: 'Выведите user_id, event_type и дату события (только дата, без времени) для всех событий. Используйте toDate().',
+    taskText:
+      'Выведите user_id, event_type и дату события (только дата, без времени) для всех событий. Используйте toDate().',
     hint: 'toDate(event_time) преобразует DateTime в дату.',
     sampleSolution: 'SELECT user_id, event_type, toDate(event_time) as event_date FROM events LIMIT 20;',
     verificationQuery: 'SELECT COUNT(*) as count FROM events;',
@@ -544,7 +566,7 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
     taskText: 'Найдите все события с device = "mobile". Выведите event_id, user_id, event_type.',
-    hint: 'Используйте WHERE device = \'mobile\'.',
+    hint: "Используйте WHERE device = 'mobile'.",
     sampleSolution: "SELECT event_id, user_id, event_type FROM events WHERE device = 'mobile';",
     verificationQuery: "SELECT COUNT(*) as count FROM events WHERE device = 'mobile';",
   },
@@ -557,12 +579,12 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'postgresql',
     category: 'analytics',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Найдите всех активных сотрудников с помощью IS TRUE. Выведите first_name и last_name. Отсортируйте по last_name.',
+    taskText:
+      'Найдите всех активных сотрудников с помощью IS TRUE. Выведите first_name и last_name. Отсортируйте по last_name.',
     hint: 'PostgreSQL supports native BOOLEAN type with TRUE/FALSE values.',
     sampleSolution: 'SELECT first_name, last_name FROM employees WHERE is_active IS TRUE ORDER BY last_name;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees WHERE is_active = 1;',
   },
-
 
   // ==================== EXAM TASKS ====================
   {
@@ -574,9 +596,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'exam',
     examGroup: 'ch-exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Сгруппируйте сотрудников по месяцу найма с помощью toStartOfMonth(toDate(hire_date)). Выведите hire_month и emp_count. Отсортируйте по hire_month.',
+    taskText:
+      'Сгруппируйте сотрудников по месяцу найма с помощью toStartOfMonth(toDate(hire_date)). Выведите hire_month и emp_count. Отсортируйте по hire_month.',
     hint: 'toStartOfMonth(date) приводит дату к первому дню месяца. Удобно для помесячной группировки.',
-    sampleSolution: 'SELECT toStartOfMonth(toDate(hire_date)) AS hire_month, COUNT(*) AS emp_count FROM employees GROUP BY hire_month ORDER BY hire_month;',
+    sampleSolution:
+      'SELECT toStartOfMonth(toDate(hire_date)) AS hire_month, COUNT(*) AS emp_count FROM employees GROUP BY hire_month ORDER BY hire_month;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
   },
 
@@ -589,9 +613,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'exam',
     examGroup: 'ch-exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Для каждого сотрудника определите категорию зарплаты с помощью вложенных if(): «низкая» (< 110000), «средняя» (110000–140000), «высокая» (> 140000). Выведите first_name, last_name, salary и salary_category. Отсортируйте по salary DESC.',
+    taskText:
+      'Для каждого сотрудника определите категорию зарплаты с помощью вложенных if(): «низкая» (< 110000), «средняя» (110000–140000), «высокая» (> 140000). Выведите first_name, last_name, salary и salary_category. Отсортируйте по salary DESC.',
     hint: 'if(condition, then, else) — условное выражение. Для множественных условий вкладывайте: if(c1, v1, if(c2, v2, else)). Или используйте multiIf.',
-    sampleSolution: "SELECT first_name, last_name, salary, if(salary < 110000, 'низкая', if(salary < 140000, 'средняя', 'высокая')) AS salary_category FROM employees ORDER BY salary DESC;",
+    sampleSolution:
+      "SELECT first_name, last_name, salary, if(salary < 110000, 'низкая', if(salary < 140000, 'средняя', 'высокая')) AS salary_category FROM employees ORDER BY salary DESC;",
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
   },
 
@@ -604,9 +630,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'exam',
     examGroup: 'ch-exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Выведите сотрудников: first_name, last_name и formatted_date — hire_date в формате \'YYYY-MM-DD\'. Используйте formatDateTime(toDateTime(hire_date), \'%Y-%m-%d\'). Отсортируйте по hire_date.',
+    taskText:
+      "Выведите сотрудников: first_name, last_name и formatted_date — hire_date в формате 'YYYY-MM-DD'. Используйте formatDateTime(toDateTime(hire_date), '%Y-%m-%d'). Отсортируйте по hire_date.",
     hint: 'formatDateTime(datetime, format) форматирует DateTime. %Y — 4-значный год, %m — месяц (01-12), %d — день (01-31).',
-    sampleSolution: "SELECT first_name, last_name, formatDateTime(toDateTime(hire_date), '%Y-%m-%d') AS formatted_date FROM employees ORDER BY hire_date;",
+    sampleSolution:
+      "SELECT first_name, last_name, formatDateTime(toDateTime(hire_date), '%Y-%m-%d') AS formatted_date FROM employees ORDER BY hire_date;",
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
   },
 
@@ -619,10 +647,12 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'exam',
     examGroup: 'exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Найдите всех сотрудников, чья зарплата от 100000 до 130000 включительно. Выведите first_name, last_name, salary. Отсортируйте по зарплате.',
+    taskText:
+      'Найдите всех сотрудников, чья зарплата от 100000 до 130000 включительно. Выведите first_name, last_name, salary. Отсортируйте по зарплате.',
     hint: 'Используйте WHERE salary BETWEEN 100000 AND 130000.',
-    sampleSolution: 'SELECT first_name, last_name, salary FROM employees WHERE salary BETWEEN 100000 AND 130000 ORDER BY salary;',
-    verificationQuery: "SELECT COUNT(*) as count FROM employees WHERE salary BETWEEN 100000 AND 130000;",
+    sampleSolution:
+      'SELECT first_name, last_name, salary FROM employees WHERE salary BETWEEN 100000 AND 130000 ORDER BY salary;',
+    verificationQuery: 'SELECT COUNT(*) as count FROM employees WHERE salary BETWEEN 100000 AND 130000;',
   },
 
   {
@@ -634,9 +664,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'exam',
     examGroup: 'exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Выведите 3-х самых низкооплачиваемых сотрудников (first_name, last_name, salary) из отдела "HR" (department_id = 4).',
+    taskText:
+      'Выведите 3-х самых низкооплачиваемых сотрудников (first_name, last_name, salary) из отдела "HR" (department_id = 4).',
     hint: 'WHERE department_id = 4, ORDER BY salary ASC, LIMIT 3.',
-    sampleSolution: 'SELECT first_name, last_name, salary FROM employees WHERE department_id = 4 ORDER BY salary ASC LIMIT 3;',
+    sampleSolution:
+      'SELECT first_name, last_name, salary FROM employees WHERE department_id = 4 ORDER BY salary ASC LIMIT 3;',
     verificationQuery: 'SELECT 3 as expected_count;',
   },
 
@@ -649,7 +681,8 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'exam',
     examGroup: 'exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Найдите всех сотрудников, чья фамилия заканчивается на "ова". Выведите first_name, last_name. Отсортируйте по фамилии.',
+    taskText:
+      'Найдите всех сотрудников, чья фамилия заканчивается на "ова". Выведите first_name, last_name. Отсортируйте по фамилии.',
     hint: "Используйте WHERE last_name LIKE '%ова'.",
     sampleSolution: "SELECT first_name, last_name FROM employees WHERE last_name LIKE '%ова' ORDER BY last_name;",
     verificationQuery: "SELECT COUNT(*) as count FROM employees WHERE last_name LIKE '%ова';",
@@ -664,9 +697,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'exam',
     examGroup: 'exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Посчитайте количество активных сотрудников (is_active = 1) и среднюю зарплату среди них в одном запросе.',
+    taskText:
+      'Посчитайте количество активных сотрудников (is_active = 1) и среднюю зарплату среди них в одном запросе.',
     hint: 'WHERE is_active = 1, затем COUNT(*) и AVG(salary).',
-    sampleSolution: 'SELECT COUNT(*) as active_count, ROUND(AVG(salary)) as avg_salary FROM employees WHERE is_active = 1;',
+    sampleSolution:
+      'SELECT COUNT(*) as active_count, ROUND(AVG(salary)) as avg_salary FROM employees WHERE is_active = 1;',
     verificationQuery: 'SELECT 22 as expected_count;',
   },
 
@@ -679,9 +714,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'exam',
     examGroup: 'exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Для каждого города departments выведите: количество отделов и суммарный бюджет. Выведите location, count, total_budget.',
+    taskText:
+      'Для каждого города departments выведите: количество отделов и суммарный бюджет. Выведите location, count, total_budget.',
     hint: 'GROUP BY location с COUNT(*) и SUM(budget).',
-    sampleSolution: 'SELECT location, COUNT(*) as dept_count, SUM(budget) as total_budget FROM departments GROUP BY location ORDER BY total_budget DESC;',
+    sampleSolution:
+      'SELECT location, COUNT(*) as dept_count, SUM(budget) as total_budget FROM departments GROUP BY location ORDER BY total_budget DESC;',
     verificationQuery: 'SELECT COUNT(DISTINCT location) as count FROM departments;',
   },
 
@@ -694,9 +731,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'exam',
     examGroup: 'pg-exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Выведите first_name, last_name и salary сотрудников, у которых зарплата больше 120000. Добавьте столбец high_salary со значением TRUE или FALSE (salary > 120000). Отсортируйте по salary DESC.',
+    taskText:
+      'Выведите first_name, last_name и salary сотрудников, у которых зарплата больше 120000. Добавьте столбец high_salary со значением TRUE или FALSE (salary > 120000). Отсортируйте по salary DESC.',
     hint: 'В PostgreSQL выражение (salary > 120000) возвращает TRUE или FALSE. Можно использовать прямо в SELECT как вычисляемый столбец.',
-    sampleSolution: 'SELECT first_name, last_name, salary, (salary > 120000) AS high_salary FROM employees WHERE salary > 120000 ORDER BY salary DESC;',
+    sampleSolution:
+      'SELECT first_name, last_name, salary, (salary > 120000) AS high_salary FROM employees WHERE salary > 120000 ORDER BY salary DESC;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees WHERE salary > 120000;',
   },
 
@@ -709,7 +748,8 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'exam',
     examGroup: 'pg-exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Найдите всех сотрудников, у которых в first_name есть буква «а» (русская, строчная). Используйте ILIKE для регистронезависимого поиска. Выведите first_name и last_name. Отсортируйте по first_name.',
+    taskText:
+      'Найдите всех сотрудников, у которых в first_name есть буква «а» (русская, строчная). Используйте ILIKE для регистронезависимого поиска. Выведите first_name и last_name. Отсортируйте по first_name.',
     hint: 'ILIKE выполняет регистронезависимый поиск с шаблонами: % — любая последовательность символов, _ — один символ.',
     sampleSolution: "SELECT first_name, last_name FROM employees WHERE first_name ILIKE '%а%' ORDER BY first_name;",
     verificationQuery: "SELECT COUNT(*) as count FROM employees WHERE first_name LIKE '%а%' OR first_name LIKE '%А%';",
@@ -724,9 +764,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'exam',
     examGroup: 'pg-exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Выведите проекты: name, start_date, end_date и status. Замените NULL в end_date на текст \'В процессе\' с помощью COALESCE. Отсортируйте по name.',
+    taskText:
+      "Выведите проекты: name, start_date, end_date и status. Замените NULL в end_date на текст 'В процессе' с помощью COALESCE. Отсортируйте по name.",
     hint: 'COALESCE(val1, val2, ...) возвращает первый не-NULL аргумент. Полезно для замены NULL на значения по умолчанию.',
-    sampleSolution: "SELECT name, start_date, COALESCE(end_date, 'В процессе') AS end_date, status FROM projects ORDER BY name;",
+    sampleSolution:
+      "SELECT name, start_date, COALESCE(end_date, 'В процессе') AS end_date, status FROM projects ORDER BY name;",
     verificationQuery: 'SELECT COUNT(*) as count FROM projects;',
   },
 
@@ -739,7 +781,8 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText: 'Посчитайте количество уникальных пользователей (user_id) для каждого дня. Используйте toDate(event_time) для группировки по дням и uniq() для подсчёта уникальных. Выведите day и dau. Отсортируйте по day.',
+    taskText:
+      'Посчитайте количество уникальных пользователей (user_id) для каждого дня. Используйте toDate(event_time) для группировки по дням и uniq() для подсчёта уникальных. Выведите day и dau. Отсортируйте по day.',
     hint: 'uniq(user_id) — быстрая аппроксимация количества уникальных значений в ClickHouse. toDate(event_time) извлекает дату из DateTime.',
     sampleSolution: 'SELECT toDate(event_time) AS day, uniq(user_id) AS dau FROM events GROUP BY day ORDER BY day;',
     verificationQuery: 'SELECT COUNT(*) as count FROM events;',
@@ -753,9 +796,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText: 'Посчитайте количество событий и долю (%) для каждого устройства (device). Используйте count() для подсчёта и count() * 100.0 / (SELECT count() FROM events) для доли. Выведите device, events_count и events_pct.',
+    taskText:
+      'Посчитайте количество событий и долю (%) для каждого устройства (device). Используйте count() для подсчёта и count() * 100.0 / (SELECT count() FROM events) для доли. Выведите device, events_count и events_pct.',
     hint: 'Для доли можно использовать оконную функцию: count() * 100.0 / sum(count()) OVER () — это даст процент от общего числа.',
-    sampleSolution: 'SELECT device, count(*) AS events_count, round(count(*) * 100.0 / sum(count()) OVER (), 1) AS events_pct FROM events GROUP BY device ORDER BY events_count DESC;',
+    sampleSolution:
+      'SELECT device, count(*) AS events_count, round(count(*) * 100.0 / sum(count()) OVER (), 1) AS events_pct FROM events GROUP BY device ORDER BY events_count DESC;',
     verificationQuery: 'SELECT COUNT(DISTINCT device) as count FROM events;',
   },
 
@@ -767,10 +812,11 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText: 'Посчитайте количество событий для каждого типа (event_type) с помощью countIf(). Выведите page_views (event_type = "page_view"), clicks (event_type = "click") и purchases (event_type = "purchase").',
+    taskText:
+      'Посчитайте количество событий для каждого типа (event_type) с помощью countIf(). Выведите page_views (event_type = "page_view"), clicks (event_type = "click") и purchases (event_type = "purchase").',
     hint: 'countIf(event_type = "page_view") считает только просмотры. Используйте несколько countIf в одном запросе для воронки.',
-    sampleSolution: "SELECT countIf(event_type = 'page_view') AS page_views, countIf(event_type = 'click') AS clicks, countIf(event_type = 'purchase') AS purchases FROM events;",
+    sampleSolution:
+      "SELECT countIf(event_type = 'page_view') AS page_views, countIf(event_type = 'click') AS clicks, countIf(event_type = 'purchase') AS purchases FROM events;",
     verificationQuery: 'SELECT COUNT(*) as count FROM events;',
   },
-
 ];

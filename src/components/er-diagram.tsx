@@ -85,10 +85,14 @@ function detectSchemaType(tables: string[]): 'company' | 'shop' | 'orders' | 'bo
 
 function getLayout(schemaType: string, tableNames: string[]): Record<string, { x: number; y: number }> {
   switch (schemaType) {
-    case 'company': return COMPANY_LAYOUT;
-    case 'shop': return SHOP_LAYOUT;
-    case 'orders': return ORDERS_LAYOUT;
-    case 'books': return BOOKS_LAYOUT;
+    case 'company':
+      return COMPANY_LAYOUT;
+    case 'shop':
+      return SHOP_LAYOUT;
+    case 'orders':
+      return ORDERS_LAYOUT;
+    case 'books':
+      return BOOKS_LAYOUT;
     default: {
       const layout: Record<string, { x: number; y: number }> = {};
       const cols = 2;
@@ -102,10 +106,14 @@ function getLayout(schemaType: string, tableNames: string[]): Record<string, { x
 
 function getRelations(schemaType: string): { from: string; to: string; fromCol: string; toCol: string }[] {
   switch (schemaType) {
-    case 'company': return COMPANY_RELATIONS;
-    case 'shop': return SHOP_RELATIONS;
-    case 'orders': return ORDERS_RELATIONS;
-    default: return [];
+    case 'company':
+      return COMPANY_RELATIONS;
+    case 'shop':
+      return SHOP_RELATIONS;
+    case 'orders':
+      return ORDERS_RELATIONS;
+    default:
+      return [];
   }
 }
 
@@ -120,18 +128,24 @@ export default function ERDiagram({ schema }: ERDiagramProps) {
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button === 0) {
-      setIsPanning(true);
-      setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
-    }
-  }, [pan]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.button === 0) {
+        setIsPanning(true);
+        setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+      }
+    },
+    [pan],
+  );
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (isPanning) {
-      setPan({ x: e.clientX - panStart.x, y: e.clientY - panStart.y });
-    }
-  }, [isPanning, panStart]);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (isPanning) {
+        setPan({ x: e.clientX - panStart.x, y: e.clientY - panStart.y });
+      }
+    },
+    [isPanning, panStart],
+  );
 
   const handleMouseUp = useCallback(() => {
     setIsPanning(false);
@@ -150,13 +164,14 @@ export default function ERDiagram({ schema }: ERDiagramProps) {
   tables.forEach((t) => tableMap.set(t.name, t));
 
   const schemaType = detectSchemaType(tables.map((t) => t.name));
-  const layout = getLayout(schemaType, tables.map((t) => t.name));
+  const layout = getLayout(
+    schemaType,
+    tables.map((t) => t.name),
+  );
   const relations = getRelations(schemaType);
 
   const tableNames = new Set(tables.map((t) => t.name));
-  const activeRelations = relations.filter(
-    (r) => tableNames.has(r.from) && tableNames.has(r.to)
-  );
+  const activeRelations = relations.filter((r) => tableNames.has(r.from) && tableNames.has(r.to));
 
   let maxX = 0;
   let maxY = 0;
@@ -171,14 +186,20 @@ export default function ERDiagram({ schema }: ERDiagramProps) {
   const viewBox = `0 0 ${maxX + 30} ${maxY + 30}`;
 
   const headerColor =
-    schemaType === 'company' ? 'fill-emerald-600'
-      : schemaType === 'shop' ? 'fill-violet-600'
-        : schemaType === 'orders' ? 'fill-blue-600'
+    schemaType === 'company'
+      ? 'fill-emerald-600'
+      : schemaType === 'shop'
+        ? 'fill-violet-600'
+        : schemaType === 'orders'
+          ? 'fill-blue-600'
           : 'fill-slate-600';
 
   const handleZoomIn = () => setZoom((z) => Math.min(z + ZOOM_STEP, MAX_ZOOM));
   const handleZoomOut = () => setZoom((z) => Math.max(z - ZOOM_STEP, MIN_ZOOM));
-  const handleReset = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
+  const handleReset = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
 
   return (
     <div className="relative w-full">
@@ -271,11 +292,7 @@ export default function ERDiagram({ schema }: ERDiagramProps) {
             const tableHeight = HEADER_HEIGHT + table.columns.length * ROW_HEIGHT + PADDING;
 
             return (
-              <g
-                key={table.name}
-                transform={`translate(${pos.x}, ${pos.y})`}
-                filter="url(#er-shadow)"
-              >
+              <g key={table.name} transform={`translate(${pos.x}, ${pos.y})`} filter="url(#er-shadow)">
                 {/* Table background */}
                 <rect
                   x="0"
@@ -287,21 +304,8 @@ export default function ERDiagram({ schema }: ERDiagramProps) {
                   strokeWidth="1"
                 />
                 {/* Table header */}
-                <rect
-                  x="0"
-                  y="0"
-                  width={TABLE_WIDTH}
-                  height={HEADER_HEIGHT}
-                  rx="6"
-                  className={headerColor}
-                />
-                <rect
-                  x="0"
-                  y={HEADER_HEIGHT - 6}
-                  width={TABLE_WIDTH}
-                  height="6"
-                  className={headerColor}
-                />
+                <rect x="0" y="0" width={TABLE_WIDTH} height={HEADER_HEIGHT} rx="6" className={headerColor} />
+                <rect x="0" y={HEADER_HEIGHT - 6} width={TABLE_WIDTH} height="6" className={headerColor} />
                 <text
                   x="10"
                   y={HEADER_HEIGHT / 2 + 4}
@@ -317,17 +321,15 @@ export default function ERDiagram({ schema }: ERDiagramProps) {
                   const y = HEADER_HEIGHT + idx * ROW_HEIGHT + ROW_HEIGHT / 2 + 3;
                   return (
                     <g key={col.name}>
-                      {col.primaryKey && (
-                        <circle cx="14" cy={y - 3} r="4" className="fill-amber-400" />
-                      )}
-                      {!col.primaryKey && (
-                        <circle cx="14" cy={y - 3} r="2.5" className="fill-muted-foreground/30" />
-                      )}
+                      {col.primaryKey && <circle cx="14" cy={y - 3} r="4" className="fill-amber-400" />}
+                      {!col.primaryKey && <circle cx="14" cy={y - 3} r="2.5" className="fill-muted-foreground/30" />}
                       <text
                         x="24"
                         y={y}
                         fontSize={FONT_SIZE}
-                        className={col.primaryKey ? 'fill-amber-700 dark:fill-amber-300 font-medium' : 'fill-foreground'}
+                        className={
+                          col.primaryKey ? 'fill-amber-700 dark:fill-amber-300 font-medium' : 'fill-foreground'
+                        }
                       >
                         {col.name}
                       </text>

@@ -4,14 +4,16 @@ import { updateDeadline, deleteDeadline, getDeadlineById } from '@/lib/db-users'
 import { z } from 'zod';
 import { validateBody } from '@/lib/validation';
 
-const updateDeadlineSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
-  dueDate: z.string().datetime().optional(),
-  courseId: z.string().optional(),
-}).refine((data) => Object.keys(data).length > 0, {
-  message: 'At least one field must be provided',
-});
+const updateDeadlineSchema = z
+  .object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+    dueDate: z.string().datetime().optional(),
+    courseId: z.string().optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: 'At least one field must be provided',
+  });
 
 export const PUT = withTeacherAuth(async ({ session, request, params }) => {
   if (!params?.id) {

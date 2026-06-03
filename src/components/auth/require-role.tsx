@@ -18,12 +18,7 @@ interface RequireRoleProps {
   silent?: boolean;
 }
 
-export default function RequireRole({
-  role: requiredRole,
-  children,
-  fallback,
-  silent = false,
-}: RequireRoleProps) {
+export default function RequireRole({ role: requiredRole, children, fallback, silent = false }: RequireRoleProps) {
   const { data: session } = useSession();
   const userRole = (session?.user as { role?: Role })?.role || 'student';
 

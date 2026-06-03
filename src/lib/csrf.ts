@@ -36,19 +36,11 @@ async function signToken(rawToken: string): Promise<string> {
   const timestamp = Date.now();
 
   const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
+  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, [
+    'sign',
+  ]);
 
-  const signature = await crypto.subtle.sign(
-    'HMAC',
-    key,
-    encoder.encode(rawToken + timestamp.toString())
-  );
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(rawToken + timestamp.toString()));
   const signatureB64 = base64urlEncode(new Uint8Array(signature));
 
   const payload = base64urlEncode(JSON.stringify({ csrf: rawToken, iat: timestamp }));
@@ -70,23 +62,21 @@ async function verifyToken(token: string): Promise<{ csrf: string } | null> {
   }
 
   const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['verify']
-  );
+  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, [
+    'verify',
+  ]);
 
   const sigBytes = new Uint8Array(
-    base64urlDecode(signatureB64).split('').map(c => c.charCodeAt(0))
+    base64urlDecode(signatureB64)
+      .split('')
+      .map((c) => c.charCodeAt(0)),
   );
 
   const isValid = await crypto.subtle.verify(
     'HMAC',
     key,
     sigBytes,
-    encoder.encode(payload.csrf + payload.iat.toString())
+    encoder.encode(payload.csrf + payload.iat.toString()),
   );
   if (!isValid) return null;
 
@@ -199,10 +189,7 @@ export function validateCsrfTokenEdge(request: Request): boolean {
  * Create a NextResponse that rejects the request due to invalid CSRF token.
  */
 export function csrfErrorResponse(): NextResponse {
-  return NextResponse.json(
-    { success: false, error: 'CSRF validation failed' },
-    { status: 403 }
-  );
+  return NextResponse.json({ success: false, error: 'CSRF validation failed' }, { status: 403 });
 }
 
 /**

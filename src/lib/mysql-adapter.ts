@@ -54,14 +54,34 @@ export function detectDroppedFunctions(originalSql: string): string[] {
 
   // Functions that are NOT adapted (should be reported as dropped if present in original)
   const unadaptedFunctions = [
-    'LOAD_FILE', 'INET_ATON', 'INET_NTOA', 'INET6_ATON', 'INET6_NTOA',
-    'CAST', 'CONVERT', 'BINARY',
-    'CASE', 'NULLIF',
-    'GET_LOCK', 'RELEASE_LOCK', 'IS_FREE_LOCK', 'IS_USED_LOCK',
-    'BENCHMARK', 'SLEEP',
-    'MD5', 'SHA1', 'SHA2', 'PASSWORD', 'ENCRYPT', 'DECODE', 'ENCODE',
-    'AES_ENCRYPT', 'AES_DECRYPT',
-    'COMPRESS', 'UNCOMPRESS', 'UNCOMPRESSED_LENGTH',
+    'LOAD_FILE',
+    'INET_ATON',
+    'INET_NTOA',
+    'INET6_ATON',
+    'INET6_NTOA',
+    'CAST',
+    'CONVERT',
+    'BINARY',
+    'CASE',
+    'NULLIF',
+    'GET_LOCK',
+    'RELEASE_LOCK',
+    'IS_FREE_LOCK',
+    'IS_USED_LOCK',
+    'BENCHMARK',
+    'SLEEP',
+    'MD5',
+    'SHA1',
+    'SHA2',
+    'PASSWORD',
+    'ENCRYPT',
+    'DECODE',
+    'ENCODE',
+    'AES_ENCRYPT',
+    'AES_DECRYPT',
+    'COMPRESS',
+    'UNCOMPRESS',
+    'UNCOMPRESSED_LENGTH',
   ];
 
   for (const func of unadaptedFunctions) {
@@ -81,105 +101,72 @@ function adaptFunction(sql: string): string {
   let result = sql;
 
   // IF(condition, true_val, false_val) -> CASE WHEN condition THEN true_val ELSE false_val END
-  result = result.replace(
-    /\bIF\s*\(([^,]+),\s*([^,]+),\s*([^)]+)\)/gi,
-    'CASE WHEN $1 THEN $2 ELSE $3 END'
-  );
+  result = result.replace(/\bIF\s*\(([^,]+),\s*([^,]+),\s*([^)]+)\)/gi, 'CASE WHEN $1 THEN $2 ELSE $3 END');
 
   // DATE_FORMAT(date, format) -> strftime adapted
-  result = result.replace(
-    /\bDATE_FORMAT\s*\(\s*([^,]+)\s*,\s*'%Y-%m-%d'\s*\)/gi,
-    "date($1)"
-  );
-  result = result.replace(
-    /\bDATE_FORMAT\s*\(\s*([^,]+)\s*,\s*'%Y-%m-%d %H:%i:%s'\s*\)/gi,
-    "datetime($1)"
-  );
-  result = result.replace(
-    /\bDATE_FORMAT\s*\(\s*([^,]+)\s*,\s*'%H:%i:%s'\s*\)/gi,
-    "time($1)"
-  );
-  result = result.replace(
-    /\bDATE_FORMAT\s*\(\s*([^,]+)\s*,\s*'%Y'\s*\)/gi,
-    "strftime('%Y', $1)"
-  );
-  result = result.replace(
-    /\bDATE_FORMAT\s*\(\s*([^,]+)\s*,\s*'%m'\s*\)/gi,
-    "strftime('%m', $1)"
-  );
-  result = result.replace(
-    /\bDATE_FORMAT\s*\(\s*([^,]+)\s*,\s*'%d'\s*\)/gi,
-    "strftime('%d', $1)"
-  );
+  result = result.replace(/\bDATE_FORMAT\s*\(\s*([^,]+)\s*,\s*'%Y-%m-%d'\s*\)/gi, 'date($1)');
+  result = result.replace(/\bDATE_FORMAT\s*\(\s*([^,]+)\s*,\s*'%Y-%m-%d %H:%i:%s'\s*\)/gi, 'datetime($1)');
+  result = result.replace(/\bDATE_FORMAT\s*\(\s*([^,]+)\s*,\s*'%H:%i:%s'\s*\)/gi, 'time($1)');
+  result = result.replace(/\bDATE_FORMAT\s*\(\s*([^,]+)\s*,\s*'%Y'\s*\)/gi, "strftime('%Y', $1)");
+  result = result.replace(/\bDATE_FORMAT\s*\(\s*([^,]+)\s*,\s*'%m'\s*\)/gi, "strftime('%m', $1)");
+  result = result.replace(/\bDATE_FORMAT\s*\(\s*([^,]+)\s*,\s*'%d'\s*\)/gi, "strftime('%d', $1)");
 
   // STR_TO_DATE(str, format) -> date(str) or datetime(str)
-  result = result.replace(
-    /\bSTR_TO_DATE\s*\(\s*([^,]+)\s*,\s*'%Y-%m-%d'\s*\)/gi,
-    'date($1)'
-  );
-  result = result.replace(
-    /\bSTR_TO_DATE\s*\(\s*([^,]+)\s*,\s*'%Y-%m-%d %H:%i:%s'\s*\)/gi,
-    'datetime($1)'
-  );
+  result = result.replace(/\bSTR_TO_DATE\s*\(\s*([^,]+)\s*,\s*'%Y-%m-%d'\s*\)/gi, 'date($1)');
+  result = result.replace(/\bSTR_TO_DATE\s*\(\s*([^,]+)\s*,\s*'%Y-%m-%d %H:%i:%s'\s*\)/gi, 'datetime($1)');
 
   // DATE_ADD(date, INTERVAL n DAY/HOUR/MINUTE/SECOND)
-  result = result.replace(
-    /\bDATE_ADD\s*\(\s*([^,]+)\s*,\s*INTERVAL\s+(\d+)\s+DAY\s*\)/gi,
-    "date($1, '+$2 days')"
-  );
+  result = result.replace(/\bDATE_ADD\s*\(\s*([^,]+)\s*,\s*INTERVAL\s+(\d+)\s+DAY\s*\)/gi, "date($1, '+$2 days')");
   result = result.replace(
     /\bDATE_ADD\s*\(\s*([^,]+)\s*,\s*INTERVAL\s+(\d+)\s+HOUR\s*\)/gi,
-    "datetime($1, '+$2 hours')"
+    "datetime($1, '+$2 hours')",
   );
   result = result.replace(
     /\bDATE_ADD\s*\(\s*([^,]+)\s*,\s*INTERVAL\s+(\d+)\s+MINUTE\s*\)/gi,
-    "datetime($1, '+$2 minutes')"
+    "datetime($1, '+$2 minutes')",
   );
   result = result.replace(
     /\bDATE_ADD\s*\(\s*([^,]+)\s*,\s*INTERVAL\s+(\d+)\s+SECOND\s*\)/gi,
-    "datetime($1, '+$2 seconds')"
+    "datetime($1, '+$2 seconds')",
   );
 
   // DATE_SUB(date, INTERVAL n DAY/HOUR/MINUTE/SECOND)
-  result = result.replace(
-    /\bDATE_SUB\s*\(\s*([^,]+)\s*,\s*INTERVAL\s+(\d+)\s+DAY\s*\)/gi,
-    "date($1, '-$2 days')"
-  );
+  result = result.replace(/\bDATE_SUB\s*\(\s*([^,]+)\s*,\s*INTERVAL\s+(\d+)\s+DAY\s*\)/gi, "date($1, '-$2 days')");
   result = result.replace(
     /\bDATE_SUB\s*\(\s*([^,]+)\s*,\s*INTERVAL\s+(\d+)\s+HOUR\s*\)/gi,
-    "datetime($1, '-$2 hours')"
+    "datetime($1, '-$2 hours')",
   );
   result = result.replace(
     /\bDATE_SUB\s*\(\s*([^,]+)\s*,\s*INTERVAL\s+(\d+)\s+MINUTE\s*\)/gi,
-    "datetime($1, '-$2 minutes')"
+    "datetime($1, '-$2 minutes')",
   );
   result = result.replace(
     /\bDATE_SUB\s*\(\s*([^,]+)\s*,\s*INTERVAL\s+(\d+)\s+SECOND\s*\)/gi,
-    "datetime($1, '-$2 seconds')"
+    "datetime($1, '-$2 seconds')",
   );
 
   // DATEDIFF(date1, date2) -> julianday difference
   result = result.replace(
     /\bDATEDIFF\s*\(\s*([^,]+)\s*,\s*([^)]+)\s*\)/gi,
-    "CAST(julianday($1) - julianday($2) AS INTEGER)"
+    'CAST(julianday($1) - julianday($2) AS INTEGER)',
   );
 
   // TIMESTAMPDIFF(unit, date1, date2)
   result = result.replace(
     /\bTIMESTAMPDIFF\s*\(\s*SECOND\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)/gi,
-    "CAST((julianday($2) - julianday($1)) * 86400 AS INTEGER)"
+    'CAST((julianday($2) - julianday($1)) * 86400 AS INTEGER)',
   );
   result = result.replace(
     /\bTIMESTAMPDIFF\s*\(\s*MINUTE\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)/gi,
-    "CAST((julianday($2) - julianday($1)) * 1440 AS INTEGER)"
+    'CAST((julianday($2) - julianday($1)) * 1440 AS INTEGER)',
   );
   result = result.replace(
     /\bTIMESTAMPDIFF\s*\(\s*HOUR\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)/gi,
-    "CAST((julianday($2) - julianday($1)) * 24 AS INTEGER)"
+    'CAST((julianday($2) - julianday($1)) * 24 AS INTEGER)',
   );
   result = result.replace(
     /\bTIMESTAMPDIFF\s*\(\s*DAY\s*,\s*([^,]+)\s*,\s*([^)]+)\s*\)/gi,
-    "CAST(julianday($2) - julianday($1) AS INTEGER)"
+    'CAST(julianday($2) - julianday($1) AS INTEGER)',
   );
 
   // CONCAT_WS(separator, ...) is supported by SQLite as is
@@ -187,24 +174,18 @@ function adaptFunction(sql: string): string {
   // FIELD(value, val1, val2, ...) -> CASE WHEN
   result = result.replace(
     /\bFIELD\s*\(\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*([^)]+)\)/gi,
-    'CASE $1 WHEN $2 THEN 1 WHEN $3 THEN 2 ELSE 3 END'
+    'CASE $1 WHEN $2 THEN 1 WHEN $3 THEN 2 ELSE 3 END',
   );
 
   // FIND_IN_SET(str, strlist) -> LIKE
   result = result.replace(
     /\bFIND_IN_SET\s*\(\s*([^,]+)\s*,\s*([^)]+)\s*\)/gi,
-    "(CASE WHEN ',' || $2 || ',' LIKE '%,' || $1 || ',%' THEN 1 ELSE 0 END)"
+    "(CASE WHEN ',' || $2 || ',' LIKE '%,' || $1 || ',%' THEN 1 ELSE 0 END)",
   );
 
   // REGEXP/RLIKE -> SQLite doesn't support regex natively, use LIKE approximation
-  result = result.replace(
-    /\b([^,\s]+)\s+REGEXP\s+([^,\s]+)/gi,
-    "$1 LIKE $2"
-  );
-  result = result.replace(
-    /\bRLIKE\s+([^,\s]+)/gi,
-    "LIKE $1"
-  );
+  result = result.replace(/\b([^,\s]+)\s+REGEXP\s+([^,\s]+)/gi, '$1 LIKE $2');
+  result = result.replace(/\bRLIKE\s+([^,\s]+)/gi, 'LIKE $1');
 
   return result;
 }

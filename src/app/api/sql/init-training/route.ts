@@ -17,10 +17,7 @@ export async function POST(request: NextRequest) {
     const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
     const limitResult = await rateLimit(`init-training:${ip}`, { max: 20, windowMs: 60_000 });
     if (!limitResult.success) {
-      return NextResponse.json(
-        { success: false, error: 'Слишком много запросов. Подождите немного' },
-        { status: 429 }
-      );
+      return NextResponse.json({ success: false, error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
     }
 
     const body = await request.json();
@@ -31,10 +28,7 @@ export async function POST(request: NextRequest) {
 
     const task = getTaskById(taskId);
     if (!task) {
-      return NextResponse.json(
-        { success: false, error: 'Задание не найдено' },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: 'Задание не найдено' }, { status: 404 });
     }
 
     const effectiveDbType = dbType || task.dbType;
@@ -73,10 +67,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err: unknown) {
     logger.error('SQL init-training POST error:', err);
-    return NextResponse.json(
-      { success: false, error: 'Произошла внутренняя ошибка' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Произошла внутренняя ошибка' }, { status: 500 });
   }
 }
 
@@ -86,10 +77,7 @@ export async function GET(request: Request) {
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
     const limitResult = await rateLimit(`init-training-list:${ip}`, { max: 10, windowMs: 60_000 });
     if (!limitResult.success) {
-      return NextResponse.json(
-        { success: false, error: 'Слишком много запросов. Подождите немного' },
-        { status: 429 }
-      );
+      return NextResponse.json({ success: false, error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
     }
 
     // Return all tasks (without schema to reduce payload)
@@ -104,9 +92,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: true, tasks: tasksList });
   } catch (err: unknown) {
     logger.error('SQL init-training GET error:', err);
-    return NextResponse.json(
-      { success: false, error: 'Произошла внутренняя ошибка' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Произошла внутренняя ошибка' }, { status: 500 });
   }
 }

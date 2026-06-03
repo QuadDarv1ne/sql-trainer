@@ -1,11 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import {
-  exportToCSV,
-  exportToJSON,
-  formatDate,
-  formatPercent,
-  formatNumber,
-} from '@/lib/export-utils';
+import { exportToCSV, exportToJSON, formatDate, formatPercent, formatNumber } from '@/lib/export-utils';
 
 const columns = [
   { key: 'name', label: 'Имя' },
@@ -45,7 +39,7 @@ describe('exportToCSV', () => {
     setupDomMocks();
     exportToCSV(data, columns, 'test-file');
     expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
-    const blobArg = (vi.mocked(URL.createObjectURL)).mock.calls[0][0] as Blob;
+    const blobArg = vi.mocked(URL.createObjectURL).mock.calls[0][0] as Blob;
     expect(blobArg.type).toBe('text/csv;charset=utf-8;');
   });
 
@@ -72,7 +66,7 @@ describe('exportToJSON', () => {
     setupDomMocks();
     exportToJSON(data, 'test-file');
     expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
-    const blobArg = (vi.mocked(URL.createObjectURL)).mock.calls[0][0] as Blob;
+    const blobArg = vi.mocked(URL.createObjectURL).mock.calls[0][0] as Blob;
     expect(blobArg.type).toBe('application/json;charset=utf-8;');
   });
 

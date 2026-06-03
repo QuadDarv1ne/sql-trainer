@@ -110,7 +110,7 @@ export default function AnalyticsDashboard() {
     <DateRangeContext.Provider value={{ startDate, endDate }}>
       <div className="space-y-6">
         <DateRangeFilter onFilterChange={handleFilterChange} onExport={handleExport} onRefresh={handleRefresh} />
-        
+
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="flex-wrap h-auto">
             <TabsTrigger value="executive">{t('analytics.executiveSummary.title')}</TabsTrigger>
@@ -166,7 +166,7 @@ export default function AnalyticsDashboard() {
             <TabsTrigger value="attempt-efficiency">{t('admin.tabs.attemptEfficiency')}</TabsTrigger>
             <TabsTrigger value="student-comparison">{t('admin.tabs.studentComparison')}</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="executive" className="space-y-6">
             <ExecutiveSummary />
           </TabsContent>
@@ -199,36 +199,36 @@ export default function AnalyticsDashboard() {
             <DifficultyComparisonChart />
             <AchievementAnalytics />
           </TabsContent>
-          
+
           <TabsContent value="progress" className="space-y-6">
             <ActivityHeatmap />
             <LearningPaceChart />
             <ProgressTrackingChart />
             <CohortAnalysisTable />
           </TabsContent>
-          
+
           <TabsContent value="students" className="space-y-6">
             <StudentPerformanceCards />
           </TabsContent>
-          
+
           <TabsContent value="errors" className="space-y-6">
             <ErrorTrendsChart />
             <ErrorPatternsTable />
           </TabsContent>
-          
+
           <TabsContent value="engagement" className="space-y-6">
             <EngagementMetrics />
           </TabsContent>
-          
+
           <TabsContent value="churn" className="space-y-6">
             <ChurnPredictionTable />
           </TabsContent>
-          
+
           <TabsContent value="alerts" className="space-y-6">
             <AlertsPanel />
             <RecommendationsPanel />
           </TabsContent>
-          
+
           <TabsContent value="class" className="space-y-6">
             <ClassReport />
           </TabsContent>
@@ -394,12 +394,7 @@ export default function AnalyticsDashboard() {
           </TabsContent>
         </Tabs>
 
-        <ExportDialog
-          open={exportOpen}
-          onOpenChange={setExportOpen}
-          startDate={startDate}
-          endDate={endDate}
-        />
+        <ExportDialog open={exportOpen} onOpenChange={setExportOpen} startDate={startDate} endDate={endDate} />
       </div>
     </DateRangeContext.Provider>
   );

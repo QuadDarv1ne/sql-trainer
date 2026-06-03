@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { findUserByEmail, createResetCode, updatePassword, verifyResetCode, getUserById, queueEmail } from '@/lib/db-users';
+import {
+  findUserByEmail,
+  createResetCode,
+  updatePassword,
+  verifyResetCode,
+  getUserById,
+  queueEmail,
+} from '@/lib/db-users';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { escapeHtml, getUserEmail } from '@/lib/email';
@@ -37,10 +44,7 @@ export async function POST(request: NextRequest) {
     const rateLimitKey = `reset:${email}`;
     const limitResult = await rateLimit(rateLimitKey, { max: 3, windowMs: 15 * 60 * 1000 });
     if (!limitResult.success) {
-      return NextResponse.json(
-        { success: false, error: 'Слишком много запросов. Попробуйте позже' },
-        { status: 429 }
-      );
+      return NextResponse.json({ success: false, error: 'Слишком много запросов. Попробуйте позже' }, { status: 429 });
     }
 
     const user = await findUserByEmail(email);
@@ -84,10 +88,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err: unknown) {
     logger.error('Reset password POST error:', err);
-    return NextResponse.json(
-      { success: false, error: 'Внутренняя ошибка сервера' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }
 
@@ -109,26 +110,17 @@ export async function PUT(request: NextRequest) {
     const rateLimitKey = `reset-verify:${code.substring(0, 3)}`;
     const limitResult = await rateLimit(rateLimitKey, { max: 5, windowMs: 15 * 60 * 1000 });
     if (!limitResult.success) {
-      return NextResponse.json(
-        { success: false, error: 'Слишком много попыток. Попробуйте позже' },
-        { status: 429 }
-      );
+      return NextResponse.json({ success: false, error: 'Слишком много попыток. Попробуйте позже' }, { status: 429 });
     }
 
     const verifyResult = await verifyResetCode(code);
     if (!verifyResult) {
-      return NextResponse.json(
-        { success: false, error: 'Неверный или просроченный код' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Неверный или просроченный код' }, { status: 400 });
     }
 
     const updated = await updatePassword(verifyResult.userId, newPassword);
     if (!updated) {
-      return NextResponse.json(
-        { success: false, error: 'Не удалось обновить пароль' },
-        { status: 500 }
-      );
+      return NextResponse.json({ success: false, error: 'Не удалось обновить пароль' }, { status: 500 });
     }
 
     const user = await getUserById(verifyResult.userId);
@@ -139,9 +131,6 @@ export async function PUT(request: NextRequest) {
     });
   } catch (err: unknown) {
     logger.error('Reset password PUT error:', err);
-    return NextResponse.json(
-      { success: false, error: 'Внутренняя ошибка сервера' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Внутренняя ошибка сервера' }, { status: 500 });
   }
 }

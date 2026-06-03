@@ -75,10 +75,7 @@ export class RedisRateLimiter implements RateLimiter {
     return checkInMemory(key, options);
   }
 
-  private async checkWithRedis(
-    key: string,
-    { max, windowMs = 60_000 }: RateLimitOptions
-  ): Promise<RateLimitResult> {
+  private async checkWithRedis(key: string, { max, windowMs = 60_000 }: RateLimitOptions): Promise<RateLimitResult> {
     if (!this.redis) {
       return checkInMemory(key, { max, windowMs });
     }

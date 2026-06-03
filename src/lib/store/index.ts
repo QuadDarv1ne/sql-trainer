@@ -311,6 +311,6 @@ export const useSQLTrainerStore = create<CombinedState>()(
         unlockedAchievements: state.unlockedAchievements,
         onboardingCompleted: state.onboardingCompleted,
       }),
-    }
-  )
+    },
+  ),
 );

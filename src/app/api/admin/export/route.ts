@@ -14,17 +14,21 @@ import {
 
 function toCSV(columns: string[], rows: Record<string, unknown>[]): string {
   const header = columns.join(',');
-  const body = rows.map(row =>
-    columns.map(c => {
-      const val = row[c];
-      if (val === null || val === undefined) return '';
-      const str = String(val);
-      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-        return `"${str.replace(/"/g, '""')}"`;
-      }
-      return str;
-    }).join(',')
-  ).join('\n');
+  const body = rows
+    .map((row) =>
+      columns
+        .map((c) => {
+          const val = row[c];
+          if (val === null || val === undefined) return '';
+          const str = String(val);
+          if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+            return `"${str.replace(/"/g, '""')}"`;
+          }
+          return str;
+        })
+        .join(','),
+    )
+    .join('\n');
   return header + '\n' + body;
 }
 
@@ -51,8 +55,21 @@ export async function GET(request: Request): Promise<Response> {
     switch (section) {
       case 'users': {
         const users = getAllUsers();
-        const columns = ['id', 'name', 'email', 'phone', 'role', 'created_at', 'last_active', 'tasks_completed', 'avg_attempts', 'achievements_count', 'banned_at', 'ban_reason'];
-        const data = users.map(u => ({
+        const columns = [
+          'id',
+          'name',
+          'email',
+          'phone',
+          'role',
+          'created_at',
+          'last_active',
+          'tasks_completed',
+          'avg_attempts',
+          'achievements_count',
+          'banned_at',
+          'ban_reason',
+        ];
+        const data = users.map((u) => ({
           ...u,
           created_at: u.created_at ? new Date(u.created_at).toISOString() : '',
           last_active: u.last_active ? new Date(u.last_active).toISOString() : '',
@@ -63,12 +80,15 @@ export async function GET(request: Request): Promise<Response> {
       case 'leaderboard': {
         const leaderboard = getLeaderboard(100, 0);
         const columns = ['user_id', 'name', 'tasks_completed', 'total_attempts'];
-        return csvResponse(toCSV(columns, leaderboard as unknown as Record<string, unknown>[]), `leaderboard_${ts}.csv`);
+        return csvResponse(
+          toCSV(columns, leaderboard as unknown as Record<string, unknown>[]),
+          `leaderboard_${ts}.csv`,
+        );
       }
       case 'banned': {
         const banned = getBannedUsers();
         const columns = ['id', 'name', 'email', 'role', 'banned_at', 'ban_reason', 'banned_by_name', 'created_at'];
-        const data = banned.map(u => ({
+        const data = banned.map((u) => ({
           ...u,
           banned_at: u.banned_at ? new Date(u.banned_at).toISOString() : '',
           created_at: u.created_at ? new Date(u.created_at).toISOString() : '',
@@ -78,7 +98,7 @@ export async function GET(request: Request): Promise<Response> {
       case 'deleted': {
         const deleted = getDeletedUsers();
         const columns = ['id', 'name', 'email', 'role', 'deleted_at', 'created_at'];
-        const data = deleted.map(u => ({
+        const data = deleted.map((u) => ({
           ...u,
           deleted_at: u.deleted_at ? new Date(u.deleted_at).toISOString() : '',
           created_at: u.created_at ? new Date(u.created_at).toISOString() : '',
@@ -87,8 +107,21 @@ export async function GET(request: Request): Promise<Response> {
       }
       case 'deadlines': {
         const deadlines = getAllDeadlines();
-        const columns = ['id', 'creator_id', 'type', 'title', 'description', 'target_type', 'target_id', 'group_id', 'task_id', 'due_at', 'created_at', 'updated_at'];
-        const data = deadlines.map(d => ({
+        const columns = [
+          'id',
+          'creator_id',
+          'type',
+          'title',
+          'description',
+          'target_type',
+          'target_id',
+          'group_id',
+          'task_id',
+          'due_at',
+          'created_at',
+          'updated_at',
+        ];
+        const data = deadlines.map((d) => ({
           ...d,
           due_at: d.due_at ? new Date(d.due_at).toISOString() : '',
           created_at: d.created_at ? new Date(d.created_at).toISOString() : '',
@@ -99,7 +132,7 @@ export async function GET(request: Request): Promise<Response> {
       case 'audit': {
         const audit = getAuditTrail(500, 0);
         const columns = ['id', 'actor_id', 'actor_name', 'action', 'target_type', 'target_id', 'details', 'created_at'];
-        const data = audit.map(a => ({
+        const data = audit.map((a) => ({
           ...a,
           created_at: a.created_at ? new Date(a.created_at).toISOString() : '',
         }));

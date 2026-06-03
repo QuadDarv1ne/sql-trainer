@@ -15,12 +15,19 @@ const sqliteAvailable = vi.hoisted(() => {
 
 const describeIf = sqliteAvailable ? describe : describe.skip;
 
-import { executeQuery, executeWithSchema, executeWithSchemaMulti, getSchemaInfo, explainQuery, splitStatements } from '@/lib/sql-engine';
+import {
+  executeQuery,
+  executeWithSchema,
+  executeWithSchemaMulti,
+  getSchemaInfo,
+  explainQuery,
+  splitStatements,
+} from '@/lib/sql-engine';
 
 describeIf('sql-engine', () => {
   describe('splitStatements', () => {
     it('should split statements on semicolons', () => {
-      const sql = "SELECT 1; SELECT 2;";
+      const sql = 'SELECT 1; SELECT 2;';
       expect(splitStatements(sql)).toEqual(['SELECT 1', 'SELECT 2']);
     });
 
@@ -159,7 +166,7 @@ describeIf('sql-engine', () => {
         CREATE TABLE employees (id INTEGER PRIMARY KEY, salary TEXT);
         INSERT INTO employees VALUES (1, '50000');
       `;
-      const query = "SELECT salary::INTEGER as salary_num FROM employees";
+      const query = 'SELECT salary::INTEGER as salary_num FROM employees';
       const result = executeWithSchema(query, schema, 'postgresql');
       expect(result.success).toBe(true);
       expect(result.rows).toHaveLength(1);
@@ -207,7 +214,7 @@ describeIf('sql-engine', () => {
 
     it('should handle PostgreSQL NOW() function', () => {
       const schema = `CREATE TABLE logs (id INTEGER PRIMARY KEY, created_at TEXT)`;
-      const query = "SELECT NOW() as current_time";
+      const query = 'SELECT NOW() as current_time';
       const result = executeWithSchema(query, schema, 'postgresql');
       expect(result.success).toBe(true);
       expect(result.rows).toHaveLength(1);
@@ -220,7 +227,7 @@ describeIf('sql-engine', () => {
         CREATE TABLE names (id INTEGER PRIMARY KEY, full_name TEXT);
         INSERT INTO names VALUES (1, 'John Doe');
       `;
-      const query = "SELECT SUBSTRING(full_name, 1, 4) as short_name FROM names";
+      const query = 'SELECT SUBSTRING(full_name, 1, 4) as short_name FROM names';
       const result = executeWithSchema(query, schema, 'postgresql');
       expect(result.success).toBe(true);
       expect(result.rows[0].short_name).toBe('John');
@@ -308,7 +315,7 @@ describeIf('sql-engine', () => {
       const query = 'SELECT DATE_TRUNC("month", NOW()) as month_start FROM test';
       const result = executeWithSchema(query, schema, 'postgresql');
       expect(result.warnings).toBeDefined();
-      expect(result.warnings?.some(w => w.includes('DATE_TRUNC'))).toBe(true);
+      expect(result.warnings?.some((w) => w.includes('DATE_TRUNC'))).toBe(true);
     });
   });
 
@@ -436,7 +443,7 @@ describeIf('sql-engine', () => {
 
   describe('executeQuery - WITH and PRAGMA', () => {
     it('should execute WITH (CTE) queries', () => {
-      const result = executeQuery("WITH cte AS (SELECT 1 as val) SELECT * FROM cte");
+      const result = executeQuery('WITH cte AS (SELECT 1 as val) SELECT * FROM cte');
       expect(result.success).toBe(true);
       expect(result.rows).toEqual([{ val: 1 }]);
     });
@@ -520,7 +527,7 @@ describeIf('sql-engine', () => {
       `;
       const info = getSchemaInfo(schema);
       expect(info.tables).toHaveLength(2);
-      const usersTable = info.tables.find(t => t.name === 'users');
+      const usersTable = info.tables.find((t) => t.name === 'users');
       expect(usersTable).toBeDefined();
       expect(usersTable?.columns).toHaveLength(3);
       expect(usersTable?.columns[0].primaryKey).toBe(true);
@@ -604,10 +611,7 @@ describeIf('sql-engine', () => {
         INSERT INTO multi_test VALUES (1, 'Alice');
         INSERT INTO multi_test VALUES (2, 'Bob');
       `;
-      const inputs = [
-        "SELECT * FROM multi_test WHERE id = 1",
-        "SELECT * FROM multi_test WHERE id = 2",
-      ];
+      const inputs = ['SELECT * FROM multi_test WHERE id = 1', 'SELECT * FROM multi_test WHERE id = 2'];
       const results = executeWithSchemaMulti(inputs, schema);
       expect(results).toHaveLength(2);
       expect(results[0].success).toBe(true);
@@ -624,7 +628,7 @@ describeIf('sql-engine', () => {
       `;
       const inputs = [
         "UPDATE persist_test SET name = 'Updated' WHERE id = 1",
-        "SELECT * FROM persist_test WHERE id = 1",
+        'SELECT * FROM persist_test WHERE id = 1',
       ];
       const results = executeWithSchemaMulti(inputs, schema);
       expect(results).toHaveLength(2);
@@ -648,10 +652,7 @@ describeIf('sql-engine', () => {
         INSERT INTO pg_multi (name) VALUES ('Alice');
         INSERT INTO pg_multi (name) VALUES ('Bob');
       `;
-      const inputs = [
-        "SELECT * FROM pg_multi WHERE name ILIKE 'alice'",
-        "SELECT COUNT(*) as cnt FROM pg_multi",
-      ];
+      const inputs = ["SELECT * FROM pg_multi WHERE name ILIKE 'alice'", 'SELECT COUNT(*) as cnt FROM pg_multi'];
       const results = executeWithSchemaMulti(inputs, schema, 'postgresql');
       expect(results).toHaveLength(2);
       expect(results[0].success).toBe(true);
@@ -663,7 +664,7 @@ describeIf('sql-engine', () => {
         CREATE TABLE mysql_multi (id INTEGER PRIMARY KEY, name TEXT);
         INSERT INTO mysql_multi VALUES (1, 'test');
       `;
-      const inputs = ["SELECT * FROM mysql_multi"];
+      const inputs = ['SELECT * FROM mysql_multi'];
       const results = executeWithSchemaMulti(inputs, schema, 'mysql');
       expect(results).toHaveLength(1);
       expect(results[0].success).toBe(true);
@@ -674,7 +675,7 @@ describeIf('sql-engine', () => {
         CREATE TABLE ch_multi (id INTEGER PRIMARY KEY, name TEXT);
         INSERT INTO ch_multi VALUES (1, 'test');
       `;
-      const inputs = ["SELECT * FROM ch_multi"];
+      const inputs = ['SELECT * FROM ch_multi'];
       const results = executeWithSchemaMulti(inputs, schema, 'clickhouse');
       expect(results).toHaveLength(1);
       expect(results[0].success).toBe(true);

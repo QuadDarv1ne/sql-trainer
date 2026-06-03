@@ -6,14 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle } from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
@@ -107,9 +100,7 @@ export default function BottleneckAnalysis() {
                   <Badge variant="outline">{difficultyLabels[entry.difficulty]}</Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge className={severityColors[entry.severity]}>
-                    {severityLabels[entry.severity]}
-                  </Badge>
+                  <Badge className={severityColors[entry.severity]}>{severityLabels[entry.severity]}</Badge>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">

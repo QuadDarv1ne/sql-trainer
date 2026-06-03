@@ -22,13 +22,16 @@ function computeSkillGaps(
   tasks: Array<{ id: string; title: string; category: string }>,
   completedTasks: Array<{ task_id: string; attempts: number }>,
 ): SkillGap[] {
-  const completedMap = new Map(completedTasks.map(t => [t.task_id, t.attempts]));
-  const categoryMap = new Map<string, {
-    total: number;
-    completed: number;
-    totalAttempts: number;
-    struggleTasks: { task_id: string; title: string; attempts: number }[];
-  }>();
+  const completedMap = new Map(completedTasks.map((t) => [t.task_id, t.attempts]));
+  const categoryMap = new Map<
+    string,
+    {
+      total: number;
+      completed: number;
+      totalAttempts: number;
+      struggleTasks: { task_id: string; title: string; attempts: number }[];
+    }
+  >();
 
   for (const task of tasks) {
     const cat = task.category || 'general';
@@ -51,9 +54,7 @@ function computeSkillGaps(
   const result: SkillGap[] = [];
   for (const [category, data] of categoryMap) {
     const completionPct = Math.round((data.completed / data.total) * 100);
-    const avgAttempts = data.completed > 0
-      ? Math.round((data.totalAttempts / data.completed) * 10) / 10
-      : 0;
+    const avgAttempts = data.completed > 0 ? Math.round((data.totalAttempts / data.completed) * 10) / 10 : 0;
 
     result.push({
       category,
@@ -122,7 +123,7 @@ describe('Skill Gap Analysis', () => {
         { task_id: 't2', attempts: 2 },
       ];
       const result = computeSkillGaps(sampleTasks, completed);
-      const sqlBasics = result.find(g => g.category === 'SQL Basics');
+      const sqlBasics = result.find((g) => g.category === 'SQL Basics');
       expect(sqlBasics).toBeDefined();
       if (!sqlBasics) throw new Error('Expected SQL Basics category to exist');
       expect(sqlBasics.tasks_completed).toBe(2);
@@ -138,13 +139,13 @@ describe('Skill Gap Analysis', () => {
         { task_id: 't3', attempts: 4 }, // struggle
       ];
       const result = computeSkillGaps(sampleTasks, completed);
-      const sqlBasics = result.find(g => g.category === 'SQL Basics');
+      const sqlBasics = result.find((g) => g.category === 'SQL Basics');
       expect(sqlBasics).toBeDefined();
       if (!sqlBasics) throw new Error('Expected SQL Basics category to exist');
       expect(sqlBasics.struggle_tasks.length).toBe(1);
       expect(sqlBasics.struggle_tasks[0].task_id).toBe('t2');
 
-      const filtering = result.find(g => g.category === 'Filtering');
+      const filtering = result.find((g) => g.category === 'Filtering');
       expect(filtering).toBeDefined();
       if (!filtering) throw new Error('Expected Filtering category to exist');
       expect(filtering.struggle_tasks.length).toBe(1);

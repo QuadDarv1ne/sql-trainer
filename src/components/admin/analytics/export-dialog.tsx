@@ -1,13 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -52,11 +46,11 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
   ];
 
   const [selectedSections, setSelectedSections] = useState<Record<string, boolean>>(
-    Object.fromEntries(sections.map(s => [s.key, s.checked]))
+    Object.fromEntries(sections.map((s) => [s.key, s.checked])),
   );
 
   const toggleSection = (key: string) => {
-    setSelectedSections(prev => ({ ...prev, [key]: !prev[key] }));
+    setSelectedSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const handleExportAnalytics = async () => {
@@ -82,7 +76,12 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
         const pdfSections: AnalyticsSection[] = [];
 
         if (data.classReport) {
-          const report = data.classReport as { total_students?: number; active_students?: number; avg_completion_rate?: number; avg_attempts?: number };
+          const report = data.classReport as {
+            total_students?: number;
+            active_students?: number;
+            avg_completion_rate?: number;
+            avg_attempts?: number;
+          };
           pdfData.overview = {
             total_students: report.total_students || 0,
             active_students: report.active_students || 0,
@@ -107,14 +106,14 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
         for (const [key, sectionData] of Object.entries(data)) {
           if (key === 'exportedAt') continue;
           if (!Array.isArray(sectionData) || !sectionData.length) continue;
-          const cols = Object.keys(sectionData[0]).map(k => ({ key: k, label: k }));
+          const cols = Object.keys(sectionData[0]).map((k) => ({ key: k, label: k }));
           exportToCSV(sectionData, cols, `${filename}-${key}`);
         }
       } else if (format === 'excel') {
         for (const [key, sectionData] of Object.entries(data)) {
           if (key === 'exportedAt') continue;
           if (!Array.isArray(sectionData) || !sectionData.length) continue;
-          const cols = Object.keys(sectionData[0]).map(k => ({ key: k, label: k }));
+          const cols = Object.keys(sectionData[0]).map((k) => ({ key: k, label: k }));
           exportToExcel(sectionData, cols, `${filename}-${key}`);
         }
       } else {
@@ -171,12 +170,14 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
             <FileSpreadsheet className="h-5 w-5" />
             {t('analytics.lms.title')}
           </DialogTitle>
-          <DialogDescription>
-            {t('teacher.export.description')}
-          </DialogDescription>
+          <DialogDescription>{t('teacher.export.description')}</DialogDescription>
         </DialogHeader>
 
-        <RadioGroup value={activeTab} onValueChange={v => setActiveTab(v as 'analytics' | 'lms')} className="flex gap-4">
+        <RadioGroup
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as 'analytics' | 'lms')}
+          className="flex gap-4"
+        >
           <div className="flex items-center gap-2">
             <RadioGroupItem value="analytics" id="analytics" />
             <Label htmlFor="analytics">{t('admin.tabs.analytics')}</Label>
@@ -193,7 +194,11 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
           <div className="space-y-4">
             <div>
               <Label className="text-base">{t('teacher.export.format')}</Label>
-              <RadioGroup value={format} onValueChange={v => setFormat(v as typeof format)} className="flex gap-4 mt-2">
+              <RadioGroup
+                value={format}
+                onValueChange={(v) => setFormat(v as typeof format)}
+                className="flex gap-4 mt-2"
+              >
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="csv" id="csv" />
                   <Label htmlFor="csv" className="flex items-center gap-1">
@@ -224,14 +229,16 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
             <div>
               <Label className="text-base">{t('analytics.export.sectionsTitle')}</Label>
               <div className="grid grid-cols-2 gap-2 mt-2">
-                {sections.map(section => (
+                {sections.map((section) => (
                   <div key={section.key} className="flex items-center gap-2">
                     <Checkbox
                       id={section.key}
                       checked={selectedSections[section.key]}
                       onCheckedChange={() => toggleSection(section.key)}
                     />
-                    <Label htmlFor={section.key} className="text-sm">{section.label}</Label>
+                    <Label htmlFor={section.key} className="text-sm">
+                      {section.label}
+                    </Label>
                   </div>
                 ))}
               </div>
@@ -257,7 +264,11 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
           <div className="space-y-4">
             <div>
               <Label>{t('analytics.lms.format')}</Label>
-              <RadioGroup value={lmsFormat} onValueChange={v => setLmsFormat(v as typeof lmsFormat)} className="flex gap-4 mt-2">
+              <RadioGroup
+                value={lmsFormat}
+                onValueChange={(v) => setLmsFormat(v as typeof lmsFormat)}
+                className="flex gap-4 mt-2"
+              >
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="csv" id="lms-csv" />
                   <Label htmlFor="lms-csv">{t('analytics.export.format.csv')}</Label>
@@ -278,7 +289,7 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
                 <Checkbox
                   id="includeProgress"
                   checked={includeProgress}
-                  onCheckedChange={v => setIncludeProgress(!!v)}
+                  onCheckedChange={(v) => setIncludeProgress(!!v)}
                 />
                 <Label htmlFor="includeProgress">{t('analytics.lms.includeProgress')}</Label>
               </div>
@@ -286,7 +297,7 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
                 <Checkbox
                   id="includeAchievements"
                   checked={includeAchievements}
-                  onCheckedChange={v => setIncludeAchievements(!!v)}
+                  onCheckedChange={(v) => setIncludeAchievements(!!v)}
                 />
                 <Label htmlFor="includeAchievements">{t('analytics.lms.includeAchievements')}</Label>
               </div>
@@ -294,7 +305,7 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
                 <Checkbox
                   id="includeAttempts"
                   checked={includeAttempts}
-                  onCheckedChange={v => setIncludeAttempts(!!v)}
+                  onCheckedChange={(v) => setIncludeAttempts(!!v)}
                 />
                 <Label htmlFor="includeAttempts">{t('analytics.lms.includeAttempts')}</Label>
               </div>

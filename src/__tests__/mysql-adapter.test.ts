@@ -26,7 +26,7 @@ describe('mysql-adapter', () => {
 
     it('should convert SHOW TABLES to sqlite_master query', () => {
       const result = adaptMySQLToSQLite('SHOW TABLES;');
-      expect(result).toContain("SELECT name FROM sqlite_master");
+      expect(result).toContain('SELECT name FROM sqlite_master');
     });
 
     it('should convert DESCRIBE table to PRAGMA', () => {
@@ -51,7 +51,7 @@ describe('mysql-adapter', () => {
     });
 
     it('should remove ON DUPLICATE KEY UPDATE clause', () => {
-      const result = adaptMySQLToSQLite("INSERT INTO t (id) VALUES (1) ON DUPLICATE KEY UPDATE id = 2");
+      const result = adaptMySQLToSQLite('INSERT INTO t (id) VALUES (1) ON DUPLICATE KEY UPDATE id = 2');
       expect(result).not.toContain('ON DUPLICATE KEY');
     });
   });
@@ -151,44 +151,44 @@ describe('mysql-adapter', () => {
     });
 
     it('should convert DATE_ADD with INTERVAL n DAY', () => {
-      const result = adaptMySQLToSQLite("SELECT DATE_ADD(NOW(), INTERVAL 7 DAY)");
+      const result = adaptMySQLToSQLite('SELECT DATE_ADD(NOW(), INTERVAL 7 DAY)');
       expect(result).toContain('date(');
       expect(result).toContain('+7 days');
     });
 
     it('should convert DATE_ADD with INTERVAL n HOUR', () => {
-      const result = adaptMySQLToSQLite("SELECT DATE_ADD(NOW(), INTERVAL 3 HOUR)");
+      const result = adaptMySQLToSQLite('SELECT DATE_ADD(NOW(), INTERVAL 3 HOUR)');
       expect(result).toContain('+3 hours');
     });
 
     it('should convert DATE_SUB with INTERVAL n DAY', () => {
-      const result = adaptMySQLToSQLite("SELECT DATE_SUB(NOW(), INTERVAL 30 DAY)");
+      const result = adaptMySQLToSQLite('SELECT DATE_SUB(NOW(), INTERVAL 30 DAY)');
       expect(result).toContain('date(');
       expect(result).toContain('-30 days');
     });
 
     it('should convert DATEDIFF to julianday', () => {
-      const result = adaptMySQLToSQLite("SELECT DATEDIFF(end_date, start_date) FROM t");
+      const result = adaptMySQLToSQLite('SELECT DATEDIFF(end_date, start_date) FROM t');
       expect(result).toContain('julianday');
     });
 
     it('should convert TIMESTAMPDIFF with DAY', () => {
-      const result = adaptMySQLToSQLite("SELECT TIMESTAMPDIFF(DAY, start_date, end_date) FROM t");
+      const result = adaptMySQLToSQLite('SELECT TIMESTAMPDIFF(DAY, start_date, end_date) FROM t');
       expect(result).toContain('julianday');
     });
 
     it('should convert TIMESTAMPDIFF with HOUR', () => {
-      const result = adaptMySQLToSQLite("SELECT TIMESTAMPDIFF(HOUR, start_date, end_date) FROM t");
+      const result = adaptMySQLToSQLite('SELECT TIMESTAMPDIFF(HOUR, start_date, end_date) FROM t');
       expect(result).toContain('* 24');
     });
 
     it('should convert TIMESTAMPDIFF with MINUTE', () => {
-      const result = adaptMySQLToSQLite("SELECT TIMESTAMPDIFF(MINUTE, start_date, end_date) FROM t");
+      const result = adaptMySQLToSQLite('SELECT TIMESTAMPDIFF(MINUTE, start_date, end_date) FROM t');
       expect(result).toContain('* 1440');
     });
 
     it('should convert TIMESTAMPDIFF with SECOND', () => {
-      const result = adaptMySQLToSQLite("SELECT TIMESTAMPDIFF(SECOND, start_date, end_date) FROM t");
+      const result = adaptMySQLToSQLite('SELECT TIMESTAMPDIFF(SECOND, start_date, end_date) FROM t');
       expect(result).toContain('* 86400');
     });
 
@@ -219,13 +219,13 @@ describe('mysql-adapter', () => {
     });
 
     it('should return empty array when no functions dropped', () => {
-      const original = "SELECT * FROM t";
+      const original = 'SELECT * FROM t';
       const dropped = detectDroppedFunctions(original);
       expect(dropped).toEqual([]);
     });
 
     it('should detect MD5 as dropped when present', () => {
-      const original = "SELECT MD5(password)";
+      const original = 'SELECT MD5(password)';
       const dropped = detectDroppedFunctions(original);
       expect(dropped).toContain('MD5');
     });
@@ -233,19 +233,19 @@ describe('mysql-adapter', () => {
 
   describe('adaptMySQLWithWarnings', () => {
     it('should return adapted SQL and warnings array', () => {
-      const result = adaptMySQLWithWarnings("SELECT * FROM users");
+      const result = adaptMySQLWithWarnings('SELECT * FROM users');
       expect(result.sql).toBeDefined();
       expect(Array.isArray(result.warnings)).toBe(true);
     });
 
     it('should return no warnings for compatible SQL', () => {
-      const result = adaptMySQLWithWarnings("SELECT * FROM users WHERE id = 1");
+      const result = adaptMySQLWithWarnings('SELECT * FROM users WHERE id = 1');
       expect(result.warnings).toEqual([]);
     });
 
     it('should warn about SLEEP function being dropped', () => {
       // SLEEP is not adapted, so it should be detected as dropped
-      const dropped = detectDroppedFunctions("SELECT SLEEP(5)");
+      const dropped = detectDroppedFunctions('SELECT SLEEP(5)');
       expect(dropped).toContain('SLEEP');
     });
   });
@@ -287,7 +287,7 @@ describe('mysql-adapter', () => {
     });
 
     it('should handle DATE_ADD and DATE_SUB together', () => {
-      const sql = "SELECT DATE_ADD(NOW(), INTERVAL 7 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY)";
+      const sql = 'SELECT DATE_ADD(NOW(), INTERVAL 7 DAY), DATE_SUB(NOW(), INTERVAL 30 DAY)';
       const result = adaptMySQLToSQLite(sql);
       expect(result).toContain('+7 days');
       expect(result).toContain('-30 days');

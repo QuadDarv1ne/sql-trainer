@@ -5,14 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertCircle, TrendingUp, TrendingDown, Minus, Target } from 'lucide-react';
 import StudentDetailDialog from './student-detail-dialog';
 import { t } from '@/lib/i18n';
@@ -121,17 +114,15 @@ export default function StudentPerformanceCards() {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Badge variant="secondary">{student.tasks_completed}/{TRAINING_TASKS.length}</Badge>
+                      <Badge variant="secondary">
+                        {student.tasks_completed}/{TRAINING_TASKS.length}
+                      </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      {Math.round(student.avg_attempts * 10) / 10}
-                    </TableCell>
+                    <TableCell className="text-right">{Math.round(student.avg_attempts * 10) / 10}</TableCell>
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-1">
                         <TrendIcon trend={student.performance_trend} />
-                        <span className="text-xs">
-                          {t(`analytics.students.trend.${student.performance_trend}`)}
-                        </span>
+                        <span className="text-xs">{t(`analytics.students.trend.${student.performance_trend}`)}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
@@ -151,8 +142,8 @@ export default function StudentPerformanceCards() {
                           student.weakest_difficulty === 'beginner'
                             ? 'border-emerald-500 text-emerald-600'
                             : student.weakest_difficulty === 'intermediate'
-                            ? 'border-amber-500 text-amber-600'
-                            : 'border-red-500 text-red-600'
+                              ? 'border-amber-500 text-amber-600'
+                              : 'border-red-500 text-red-600'
                         }
                       >
                         {difficultyLabels[student.weakest_difficulty]}
@@ -161,9 +152,7 @@ export default function StudentPerformanceCards() {
                     <TableCell>
                       <div className="space-y-1">
                         <Progress value={student.completion_rate} className="h-2" />
-                        <p className="text-xs text-muted-foreground text-right">
-                          {student.completion_rate}%
-                        </p>
+                        <p className="text-xs text-muted-foreground text-right">{student.completion_rate}%</p>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
@@ -182,11 +171,7 @@ export default function StudentPerformanceCards() {
         </CardContent>
       </Card>
 
-      <StudentDetailDialog
-        studentId={selectedStudentId}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-      />
+      <StudentDetailDialog studentId={selectedStudentId} open={dialogOpen} onOpenChange={setDialogOpen} />
     </>
   );
 }

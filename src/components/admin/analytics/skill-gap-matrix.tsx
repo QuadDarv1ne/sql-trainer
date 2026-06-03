@@ -5,9 +5,7 @@ import { BookOpen, AlertTriangle } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { AnalyticsCard } from './analytics-card';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface SkillGapEntry {
   user_id: string;
@@ -56,15 +54,17 @@ export default function SkillGapMatrix() {
   }
 
   const students = Array.from(studentMap.entries());
-  const categories = data.length > 0 ? [...new Set(data.map(d => d.category))] : [];
-  const weakCount = data.filter(d => d.is_weak).length;
+  const categories = data.length > 0 ? [...new Set(data.map((d) => d.category))] : [];
+  const weakCount = data.filter((d) => d.is_weak).length;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <BookOpen className="h-5 w-5 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">{students.length} {t('analytics.skillGap.students')}</span>
+          <span className="text-sm text-muted-foreground">
+            {students.length} {t('analytics.skillGap.students')}
+          </span>
         </div>
         {weakCount > 0 && (
           <Badge variant="destructive" className="flex items-center gap-1">
@@ -80,8 +80,8 @@ export default function SkillGapMatrix() {
             <TableHeader>
               <TableRow>
                 <TableHead className="sticky left-0 bg-background z-10">{t('analytics.leaderboard.name')}</TableHead>
-                {categories.map(cat => {
-                  const entry = data.find(d => d.category === cat);
+                {categories.map((cat) => {
+                  const entry = data.find((d) => d.category === cat);
                   return (
                     <TableHead key={cat} className="text-center min-w-[120px]">
                       {entry?.category_label || cat}
@@ -94,14 +94,17 @@ export default function SkillGapMatrix() {
               {students.map(([userId, { name, skills }]) => (
                 <TableRow key={userId}>
                   <TableCell className="font-medium sticky left-0 bg-background z-10">{name}</TableCell>
-                  {categories.map(cat => {
-                    const skill = skills.find(s => s.category === cat);
-                    if (!skill) return <TableCell key={cat} className="text-center text-muted-foreground">—</TableCell>;
+                  {categories.map((cat) => {
+                    const skill = skills.find((s) => s.category === cat);
+                    if (!skill)
+                      return (
+                        <TableCell key={cat} className="text-center text-muted-foreground">
+                          —
+                        </TableCell>
+                      );
                     return (
                       <TableCell key={cat} className="text-center">
-                        <Badge className={CellColor({ rate: skill.completion_rate })}>
-                          {skill.completion_rate}%
-                        </Badge>
+                        <Badge className={CellColor({ rate: skill.completion_rate })}>{skill.completion_rate}%</Badge>
                         <div className="text-xs text-muted-foreground mt-1">
                           {skill.completed_tasks}/{skill.total_tasks}
                         </div>

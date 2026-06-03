@@ -1,9 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import {
-  Database,
-} from 'lucide-react';
+import { Database } from 'lucide-react';
 import type { DbType } from '@/lib/training-tasks';
 import { t } from '@/lib/i18n';
 

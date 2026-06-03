@@ -5,21 +5,8 @@ import { logger } from '@/lib/logger';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Users,
   Activity,
@@ -166,7 +153,7 @@ export default function AdminAnalytics() {
           <h2 className="text-2xl font-bold">{t('admin.analytics.title', { default: 'Административная панель' })}</h2>
         </div>
         <div className="flex items-center gap-2">
-            <Select value={timeRange} onValueChange={(v: string) => setTimeRange(v as typeof timeRange)}>
+          <Select value={timeRange} onValueChange={(v: string) => setTimeRange(v as typeof timeRange)}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -225,9 +212,7 @@ export default function AdminAnalytics() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t('admin.metrics.queries', { default: 'Запросов' })}
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.metrics.queries', { default: 'Запросов' })}</CardTitle>
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -241,9 +226,7 @@ export default function AdminAnalytics() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t('admin.metrics.errors', { default: 'Ошибки' })}
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.metrics.errors', { default: 'Ошибки' })}</CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -273,17 +256,13 @@ export default function AdminAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{((metrics?.databaseSize ?? 0) / 1024 / 1024).toFixed(2)} МБ</div>
-            <div className="text-xs text-muted-foreground">
-              {t('admin.metrics.dbSize', { default: 'Размер БД' })}
-            </div>
+            <div className="text-xs text-muted-foreground">{t('admin.metrics.dbSize', { default: 'Размер БД' })}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t('admin.metrics.uptime', { default: 'Uptime' })}
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.metrics.uptime', { default: 'Uptime' })}</CardTitle>
             <Server className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -296,9 +275,7 @@ export default function AdminAnalytics() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t('admin.metrics.activeNow', { default: 'Онлайн' })}
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.metrics.activeNow', { default: 'Онлайн' })}</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -357,7 +334,7 @@ export default function AdminAnalytics() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {userActivity.map(user => (
+              {userActivity.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>
                     <div>
@@ -368,11 +345,7 @@ export default function AdminAnalytics() {
                   <TableCell>
                     <Badge
                       variant={
-                        user.role === 'admin'
-                          ? 'destructive'
-                          : user.role === 'teacher'
-                            ? 'secondary'
-                            : 'outline'
+                        user.role === 'admin' ? 'destructive' : user.role === 'teacher' ? 'secondary' : 'outline'
                       }
                     >
                       {user.role === 'admin'
@@ -394,11 +367,7 @@ export default function AdminAnalytics() {
                   <TableCell>
                     <Badge
                       variant={
-                        user.status === 'active'
-                          ? 'default'
-                          : user.status === 'banned'
-                            ? 'destructive'
-                            : 'secondary'
+                        user.status === 'active' ? 'default' : user.status === 'banned' ? 'destructive' : 'secondary'
                       }
                       className="flex items-center gap-1 w-fit"
                     >
@@ -448,7 +417,7 @@ export default function AdminAnalytics() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {auditLogs.map(log => (
+              {auditLogs.map((log) => (
                 <TableRow key={log.id}>
                   <TableCell>
                     <div className="flex items-center gap-2">

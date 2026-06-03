@@ -6,17 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import {
-  ResponsiveContainer,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  Line,
-  ComposedChart,
-} from 'recharts';
+import { ResponsiveContainer, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Line, ComposedChart } from 'recharts';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
@@ -75,7 +65,7 @@ export default function TopicPerformanceChart() {
   }
   if (!data.length) return <EmptyState />;
 
-  const chartData = data.map(d => ({
+  const chartData = data.map((d) => ({
     name: topicLabels[d.topic] || d.topic,
     avg_attempts: d.avg_attempts,
     completion_rate: d.completion_rate,
@@ -102,8 +92,20 @@ export default function TopicPerformanceChart() {
             <YAxis yAxisId="right" orientation="right" domain={[0, 100]} />
             <Tooltip />
             <Legend />
-            <Bar yAxisId="left" dataKey="avg_attempts" fill="hsl(var(--primary))" name={t('analytics.tasks.avgAttempts')} />
-            <Line yAxisId="right" type="monotone" dataKey="completion_rate" stroke="hsl(var(--success))" name={t('analytics.difficulty.completion')} strokeWidth={2} />
+            <Bar
+              yAxisId="left"
+              dataKey="avg_attempts"
+              fill="hsl(var(--primary))"
+              name={t('analytics.tasks.avgAttempts')}
+            />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="completion_rate"
+              stroke="hsl(var(--success))"
+              name={t('analytics.difficulty.completion')}
+              strokeWidth={2}
+            />
           </ComposedChart>
         </ResponsiveContainer>
 

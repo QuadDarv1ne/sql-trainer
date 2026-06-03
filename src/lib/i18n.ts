@@ -29,7 +29,8 @@ export const translations: Record<Locale, Record<string, string>> = {
 
     // Metadata (SEO, OG, Twitter)
     'metadata.title': 'SQL Тренажёр — Интерактивное обучение SQL',
-    'metadata.description': 'Интерактивный тренажёр по SQL с поддержкой SQLite и PostgreSQL. Выполнение запросов, тренировочные задания, справочник SQL.',
+    'metadata.description':
+      'Интерактивный тренажёр по SQL с поддержкой SQLite и PostgreSQL. Выполнение запросов, тренировочные задания, справочник SQL.',
     'metadata.keywords': 'SQL, тренажёр, SQLite, PostgreSQL, обучение, базы данных',
     'metadata.og.title': 'SQL Тренажёр',
     'metadata.og.description': 'Интерактивное обучение SQL — SQLite и PostgreSQL',
@@ -50,7 +51,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'auth.phoneOptional': 'Телефон (необязательно)',
     'auth.phonePlaceholder': '+7 (999) 123-45-67',
     'auth.role': 'Роль',
-    'auth.roleDefaultStudent': 'По умолчанию назначается роль «Студент». Роль можно изменить в профиле или обратиться к администратору.',
+    'auth.roleDefaultStudent':
+      'По умолчанию назначается роль «Студент». Роль можно изменить в профиле или обратиться к администратору.',
     'auth.role.student': 'Студент',
     'auth.role.teacher': 'Преподаватель',
     'auth.role.admin': 'Администратор',
@@ -195,32 +197,48 @@ export const translations: Record<Locale, Record<string, string>> = {
     'glossary.defs.select': 'Команда для извлечения данных из таблицы. Указывает, какие столбцы вернуть.',
     'glossary.defs.from': 'Указывает таблицу, из которой извлекать данные.',
     'glossary.defs.where': 'Фильтрует строки до вывода результата. Включает только те строки, где условие истинно.',
-    'glossary.defs.orderBy': 'Сортирует результаты по одному или нескольким столбцам. ASC — по возрастанию, DESC — по убыванию.',
-    'glossary.defs.limitOffset': 'LIMIT ограничивает количество возвращаемых строк. OFFSET пропускает первые N строк. Используются для пагинации.',
+    'glossary.defs.orderBy':
+      'Сортирует результаты по одному или нескольким столбцам. ASC — по возрастанию, DESC — по убыванию.',
+    'glossary.defs.limitOffset':
+      'LIMIT ограничивает количество возвращаемых строк. OFFSET пропускает первые N строк. Используются для пагинации.',
     'glossary.defs.distinct': 'Возвращает только уникальные значения, убирая дубликаты.',
     'glossary.defs.null': 'Специальное значение, означающее «отсутствие данных». Не равно ни 0, ни пустой строке.',
     'glossary.defs.alias': 'Временное имя для столбца или таблицы. Делает запрос читабельнее.',
-    'glossary.defs.join': 'Объединяет строки из двух таблиц по совпадению ключей. Типы: INNER, LEFT, RIGHT, FULL, CROSS.',
+    'glossary.defs.join':
+      'Объединяет строки из двух таблиц по совпадению ключей. Типы: INNER, LEFT, RIGHT, FULL, CROSS.',
     'glossary.defs.innerJoin': 'Возвращает только строки, где есть совпадение в обеих таблицах.',
     'glossary.defs.leftJoin': 'Возвращает ВСЕ строки левой таблицы. Если нет совпадения — правые столбцы будут NULL.',
-    'glossary.defs.groupBy': 'Группирует строки с одинаковыми значениями. Агрегатные функции (COUNT, SUM, AVG) вычисляют результат внутри каждой группы.',
+    'glossary.defs.groupBy':
+      'Группирует строки с одинаковыми значениями. Агрегатные функции (COUNT, SUM, AVG) вычисляют результат внутри каждой группы.',
     'glossary.defs.having': 'Фильтрует группы ПОСЛЕ GROUP BY. Аналог WHERE, но для агрегатных результатов.',
-    'glossary.defs.subquery': 'Запрос внутри другого запроса. Скалярный подзапрос возвращает одно значение, табличный — таблицу.',
-    'glossary.defs.caseWhen': 'Условное выражение, аналог if/else. Возвращает разные значения в зависимости от условий.',
-    'glossary.defs.coalesce': 'Возвращает первый не-NULL аргумент. Используется для замены NULL на значения по умолчанию.',
-    'glossary.defs.union': 'Объединяет результаты двух запросов в один, убирая дубликаты. UNION ALL сохраняет дубликаты.',
+    'glossary.defs.subquery':
+      'Запрос внутри другого запроса. Скалярный подзапрос возвращает одно значение, табличный — таблицу.',
+    'glossary.defs.caseWhen':
+      'Условное выражение, аналог if/else. Возвращает разные значения в зависимости от условий.',
+    'glossary.defs.coalesce':
+      'Возвращает первый не-NULL аргумент. Используется для замены NULL на значения по умолчанию.',
+    'glossary.defs.union':
+      'Объединяет результаты двух запросов в один, убирая дубликаты. UNION ALL сохраняет дубликаты.',
     'glossary.defs.exists': 'Проверяет, возвращает ли подзапрос хотя бы одну строку. Возвращает TRUE или FALSE.',
-    'glossary.defs.cte': 'Обобщённое табличное выражение — именованный подзапрос. Делает сложные запросы читаемее, можно использовать несколько раз.',
-    'glossary.defs.recursiveCte': 'CTE, который ссылается на сам себя. Используется для иерархических данных (оргструктура, категории).',
-    'glossary.defs.windowFunctions': 'Вычисляют значение для каждой строки, не «схлопывая» группы. PARTITION BY делит на группы, ORDER BY — порядок внутри.',
+    'glossary.defs.cte':
+      'Обобщённое табличное выражение — именованный подзапрос. Делает сложные запросы читаемее, можно использовать несколько раз.',
+    'glossary.defs.recursiveCte':
+      'CTE, который ссылается на сам себя. Используется для иерархических данных (оргструктура, категории).',
+    'glossary.defs.windowFunctions':
+      'Вычисляют значение для каждой строки, не «схлопывая» группы. PARTITION BY делит на группы, ORDER BY — порядок внутри.',
     'glossary.defs.rowNumber': 'Присваивает уникальный номер 1, 2, 3... каждой строке внутри партиции.',
     'glossary.defs.rankDenseRank': 'RANK — ранг с пропусками (1, 1, 3), DENSE_RANK — без пропусков (1, 1, 2).',
-    'glossary.defs.lagLead': 'LAG — значение предыдущей строки, LEAD — следующей. Используются для сравнения с соседними строками.',
-    'glossary.defs.lateralJoin': 'Подзапрос в FROM, который может ссылаться на столбцы предыдущих таблиц. PostgreSQL специфика.',
-    'glossary.defs.transaction': 'Набор операций, выполняемых как единое целое. BEGIN начинает, COMMIT фиксирует, ROLLBACK отменяет.',
-    'glossary.defs.index': 'Структура данных для ускорения поиска. CREATE INDEX создаёт индекс по столбцу. Ускоряет SELECT, замедляет INSERT/UPDATE.',
+    'glossary.defs.lagLead':
+      'LAG — значение предыдущей строки, LEAD — следующей. Используются для сравнения с соседними строками.',
+    'glossary.defs.lateralJoin':
+      'Подзапрос в FROM, который может ссылаться на столбцы предыдущих таблиц. PostgreSQL специфика.',
+    'glossary.defs.transaction':
+      'Набор операций, выполняемых как единое целое. BEGIN начинает, COMMIT фиксирует, ROLLBACK отменяет.',
+    'glossary.defs.index':
+      'Структура данных для ускорения поиска. CREATE INDEX создаёт индекс по столбцу. Ускоряет SELECT, замедляет INSERT/UPDATE.',
     'glossary.defs.view': 'Сохранённый запрос, который можно использовать как таблицу. Упрощает сложные запросы.',
-    'glossary.defs.explain': 'Показывает план выполнения запроса. Помогает понять, как СУБД обрабатывает запрос и где оптимизировать.',
+    'glossary.defs.explain':
+      'Показывает план выполнения запроса. Помогает понять, как СУБД обрабатывает запрос и где оптимизировать.',
 
     // Export/Import
     'exportImport.title': 'Экспорт / Импорт прогресса',
@@ -505,17 +523,23 @@ export const translations: Record<Locale, Record<string, string>> = {
     'onboarding.next': 'Далее',
     'onboarding.complete': 'Завершить тур',
     'onboarding.welcome.title': 'Добро пожаловать в SQL Trainer!',
-    'onboarding.welcome.description': 'Этот тур покажет вам основные функции платформы. Вы узнаете, как писать SQL-запросы, проверять результаты и отслеживать свой прогресс.',
+    'onboarding.welcome.description':
+      'Этот тур покажет вам основные функции платформы. Вы узнаете, как писать SQL-запросы, проверять результаты и отслеживать свой прогресс.',
     'onboarding.editor.title': 'SQL Редактор',
-    'onboarding.editor.description': 'Здесь вы пишете SQL-запросы. Редактор поддерживает подсветку синтаксиса, автодополнение и форматирование кода. Используйте Ctrl+Enter для выполнения запроса.',
+    'onboarding.editor.description':
+      'Здесь вы пишете SQL-запросы. Редактор поддерживает подсветку синтаксиса, автодополнение и форматирование кода. Используйте Ctrl+Enter для выполнения запроса.',
     'onboarding.execute.title': 'Панель действий',
-    'onboarding.execute.description': 'Выполняйте запросы, смотрите план выполнения (EXPLAIN), очищайте редактор и управляйте историей запросов. Кнопки всегда доступны над редактором.',
+    'onboarding.execute.description':
+      'Выполняйте запросы, смотрите план выполнения (EXPLAIN), очищайте редактор и управляйте историей запросов. Кнопки всегда доступны над редактором.',
     'onboarding.verify.title': 'Результаты и проверка',
-    'onboarding.verify.description': 'После выполнения запроса вы увидите результаты здесь. Если задание проверено автоматически, появится сообщение об успехе или рекомендации по улучшению.',
+    'onboarding.verify.description':
+      'После выполнения запроса вы увидите результаты здесь. Если задание проверено автоматически, появится сообщение об успехе или рекомендации по улучшению.',
     'onboarding.reference.title': 'Справочник SQL',
-    'onboarding.reference.description': 'В правой панели доступен справочник SQL с примерами синтаксиса, функций и конструкций. Используйте его как шпаргалку при решении заданий.',
+    'onboarding.reference.description':
+      'В правой панели доступен справочник SQL с примерами синтаксиса, функций и конструкций. Используйте его как шпаргалку при решении заданий.',
     'onboarding.progress.title': 'Прогресс и задания',
-    'onboarding.progress.description': 'В левой панели вы видите список заданий, фильтры и свой прогресс. Задания разделены по уровням сложности: начинающий, средний и продвинутый.',
+    'onboarding.progress.description':
+      'В левой панели вы видите список заданий, фильтры и свой прогресс. Задания разделены по уровням сложности: начинающий, средний и продвинутый.',
     'history.restoreQuery': 'Восстановить запрос: {sql}',
     'task.goToRelated': 'Перейти к заданию: {title}, сложность: {difficulty}',
     'contextualTips.label': 'Подсказки по концепциям',
@@ -561,7 +585,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'resetProgress.description': 'Это действие сбросит весь ваш прогресс, достижения и сохранённые запросы',
     'resetProgress.button': 'Сбросить прогресс',
     'resetProgress.confirmTitle': 'Вы уверены?',
-    'resetProgress.confirmDescription': 'Все выполненные задания, достижения, серия практики, XP, уровни и сохранённые запросы будут удалены. Это действие нельзя отменить.',
+    'resetProgress.confirmDescription':
+      'Все выполненные задания, достижения, серия практики, XP, уровни и сохранённые запросы будут удалены. Это действие нельзя отменить.',
     'resetProgress.success': 'Прогресс сброшен',
 
     'error.title': 'Что-то пошло не так',
@@ -1494,7 +1519,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'profile.resetProgressDesc': 'Это действие сбросит весь ваш прогресс, достижения и сохранённые запросы',
     'profile.resetButton': 'Сбросить прогресс',
     'profile.resetConfirmTitle': 'Вы уверены?',
-    'profile.resetConfirmDesc': 'Все выполненные задания, достижения, серия практики, XP, уровни и сохранённые запросы будут удалены. Это действие нельзя отменить.',
+    'profile.resetConfirmDesc':
+      'Все выполненные задания, достижения, серия практики, XP, уровни и сохранённые запросы будут удалены. Это действие нельзя отменить.',
     'profile.resetAction': 'Сбросить',
     'profile.resetSuccess': 'Прогресс сброшен',
     'profile.profileUpdated': 'Профиль обновлён',
@@ -1537,8 +1563,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'profile.emailChangeError': 'Ошибка смены email',
     'profile.fillAllFields': 'Заполните все поля',
     'profile.deleteAccount': 'Удаление аккаунта',
-    'profile.deleteAccountDesc': 'Это действие нельзя отменить. Все ваши данные, прогресс и достижения будут удалены навсегда.',
-    'profile.deleteConfirmDesc': 'Это действие нельзя отменить. Ваш аккаунт, прогресс, достижения и все связанные данные будут удалены навсегда.',
+    'profile.deleteAccountDesc':
+      'Это действие нельзя отменить. Все ваши данные, прогресс и достижения будут удалены навсегда.',
+    'profile.deleteConfirmDesc':
+      'Это действие нельзя отменить. Ваш аккаунт, прогресс, достижения и все связанные данные будут удалены навсегда.',
     'profile.deletePassword': 'Введите пароль для подтверждения',
     'profile.deletePasswordPlaceholder': 'Ваш текущий пароль',
     'profile.deleteAccountBtn': 'Удалить аккаунт',
@@ -1802,7 +1830,8 @@ export const translations: Record<Locale, Record<string, string>> = {
 
     // Landing page
     'landing.hero.title': 'Интерактивное обучение SQL',
-    'landing.hero.subtitle': 'Освойте SQL с нуля до продвинутого уровня на практике. Выполняйте реальные запросы в браузере.',
+    'landing.hero.subtitle':
+      'Освойте SQL с нуля до продвинутого уровня на практике. Выполняйте реальные запросы в браузере.',
     'landing.hero.startTraining': 'Начать обучение',
     'landing.hero.login': 'Войти',
     'landing.modules.editor.title': 'SQL Редактор',
@@ -1873,21 +1902,27 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.testimonials.subtitle': 'Реальные отзывы от студентов по всему миру',
     'landing.testimonials.student1.name': 'Анна Смирнова',
     'landing.testimonials.student1.role': 'Студент, Москва',
-    'landing.testimonials.student1.quote': 'Благодаря этому тренажёру я освоила SQL за 2 недели. Интерактивные задания и мгновенная проверка кода сделали обучение простым и увлекательным.',
+    'landing.testimonials.student1.quote':
+      'Благодаря этому тренажёру я освоила SQL за 2 недели. Интерактивные задания и мгновенная проверка кода сделали обучение простым и увлекательным.',
     'landing.testimonials.student2.name': 'Дмитрий Козлов',
     'landing.testimonials.student2.role': 'Аналитик данных, Санкт-Петербург',
-    'landing.testimonials.student2.quote': 'Отличная практика для подготовки к собеседованиям. Задания progressively усложняются, что помогает постепенно развиваться.',
+    'landing.testimonials.student2.quote':
+      'Отличная практика для подготовки к собеседованиям. Задания progressively усложняются, что помогает постепенно развиваться.',
     'landing.testimonials.student3.name': 'Maria Garcia',
     'landing.testimonials.student3.role': 'Developer, Madrid',
-    'landing.testimonials.student3.quote': 'Best SQL learning platform I\'ve tried. The hands-on approach and immediate feedback make learning efficient and fun.',
+    'landing.testimonials.student3.quote':
+      "Best SQL learning platform I've tried. The hands-on approach and immediate feedback make learning efficient and fun.",
     'landing.faq.title': 'Часто задаваемые вопросы',
     'landing.faq.subtitle': 'Ответы на самые популярные вопросы',
     'landing.faq.free.title': 'Платформа бесплатная?',
-    'landing.faq.free.answer': 'Да! Все базовые задания и функции доступны бесплатно. Вы можете начать обучение без оплаты.',
+    'landing.faq.free.answer':
+      'Да! Все базовые задания и функции доступны бесплатно. Вы можете начать обучение без оплаты.',
     'landing.faq.beginner.title': 'Подходит ли мне платформа, если я новичок?',
-    'landing.faq.beginner.answer': 'Абсолютно! У нас есть задания для всех уровней — от базовых SELECT запросов до сложных оконных функций.',
+    'landing.faq.beginner.answer':
+      'Абсолютно! У нас есть задания для всех уровней — от базовых SELECT запросов до сложных оконных функций.',
     'landing.faq.database.title': 'Какие базы данных поддерживаются?',
-    'landing.faq.database.answer': 'Мы поддерживаем SQLite, PostgreSQL и ClickHouse. Вы можете переключаться между ними прямо в редакторе.',
+    'landing.faq.database.answer':
+      'Мы поддерживаем SQLite, PostgreSQL и ClickHouse. Вы можете переключаться между ними прямо в редакторе.',
     'landing.faq.certificate.title': 'Получу ли я сертификат после обучения?',
     'landing.faq.certificate.answer': 'Да! После прохождения всех уровней вы получите сертификат о завершении курса.',
     'landing.footer.about': 'О проекте',
@@ -1899,8 +1934,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.footer.terms': 'Условия',
     'landing.footer.copyright': '© 2025 SQL Trainer. Все права защищены.',
     'landing.hero.codeComment': '-- Извлеките данные о топ-5 сотрудниках по зарплате',
-    'landing.hero.description': 'Практикуйтесь в написании SQL-запросов с мгновенной проверкой, подробными объяснениями и пошаговым прогрессом от основ до продвинутых тем.',
-    'landing.hero.codeQuery': 'Выберите имя, отдел и зарплату из таблицы сотрудников, отсортируйте по зарплате и ограничьте 5 результатами',
+    'landing.hero.description':
+      'Практикуйтесь в написании SQL-запросов с мгновенной проверкой, подробными объяснениями и пошаговым прогрессом от основ до продвинутых тем.',
+    'landing.hero.codeQuery':
+      'Выберите имя, отдел и зарплату из таблицы сотрудников, отсортируйте по зарплате и ограничьте 5 результатами',
 
     // Modules section headers
     'landing.modules.title': 'Возможности платформы',
@@ -1939,13 +1976,17 @@ export const translations: Record<Locale, Record<string, string>> = {
     'sql.error.tableNotExistGeneric': 'Проверьте название таблицы — возможно, она не существует.',
     'sql.error.columnNotFound': 'Столбец "{{column}}" не найден. Проверьте имя столбца или используйте алиас таблицы.',
     'sql.error.columnNotFoundGeneric': 'Проверьте имя столбца — возможно, оно написано неверно.',
-    'sql.error.ambiguousColumn': 'Имя столбца найдено в нескольких таблицах. Используйте алиас.таблица (например, e.name вместо name).',
+    'sql.error.ambiguousColumn':
+      'Имя столбца найдено в нескольких таблицах. Используйте алиас.таблица (например, e.name вместо name).',
     'sql.error.syntax': 'Проверьте синтаксис запроса. Возможно, пропущена запятая, скобка или ключевое слово.',
-    'sql.error.aggregateInWhere': 'Агрегатные функции (COUNT, SUM, AVG, etc.) нельзя использовать в WHERE. Используйте HAVING для фильтрации агрегатов.',
+    'sql.error.aggregateInWhere':
+      'Агрегатные функции (COUNT, SUM, AVG, etc.) нельзя использовать в WHERE. Используйте HAVING для фильтрации агрегатов.',
     'sql.error.groupBy': 'Все столбцы в SELECT (кроме агрегатных) должны быть в GROUP BY.',
-    'sql.error.uniqueConstraint': 'Нарушено ограничение уникальности. Возможно, вы пытаетесь вставить дублирующийся ключ.',
+    'sql.error.uniqueConstraint':
+      'Нарушено ограничение уникальности. Возможно, вы пытаетесь вставить дублирующийся ключ.',
     'sql.error.foreignKey': 'Нарушено ограничение внешнего ключа. Убедитесь, что связанные записи существуют.',
-    'sql.error.cannotAddForeignKey': 'Не удалось добавить внешний ключ. Проверьте, что типы столбцов совпадают в обеих таблицах.',
+    'sql.error.cannotAddForeignKey':
+      'Не удалось добавить внешний ключ. Проверьте, что типы столбцов совпадают в обеих таблицах.',
     'sql.error.orderBy': 'Проверьте порядок сортировки. ORDER BY должен быть после WHERE/GROUP BY/HAVING.',
     'sql.error.limit': 'LIMIT должен быть последним в запросе (после ORDER BY).',
     'sql.error.unionColumns': 'Все запросы в UNION должны иметь одинаковое количество столбцов.',
@@ -1953,17 +1994,21 @@ export const translations: Record<Locale, Record<string, string>> = {
     'sql.error.divisionByZero': 'Деление на ноль. Используйте NULLIF или CASE для избежания деления на ноль.',
     'sql.error.caseSyntax': 'Проверьте синтаксис CASE WHEN ... THEN ... ELSE ... END.',
     'sql.error.windowFunction': 'Оконные функции требуют OVER(). Например: ROW_NUMBER() OVER (ORDER BY column).',
-    'sql.error.partitionBy': 'PARTITION BY используется внутри OVER(). Например: OVER (PARTITION BY column ORDER BY column).',
-    'sql.error.trigger': 'Проверьте синтаксис CREATE TRIGGER. Триггеры выполняются автоматически при INSERT/UPDATE/DELETE.',
+    'sql.error.partitionBy':
+      'PARTITION BY используется внутри OVER(). Например: OVER (PARTITION BY column ORDER BY column).',
+    'sql.error.trigger':
+      'Проверьте синтаксис CREATE TRIGGER. Триггеры выполняются автоматически при INSERT/UPDATE/DELETE.',
     'sql.error.transaction': 'Транзакция: BEGIN начинает, COMMIT фиксирует, ROLLBACK отменяет изменения.',
     'sql.error.fts': 'FTS5 поиск: используйте MATCH для полнотекстового поиска. Например: WHERE table MATCH "слово".',
     'sql.error.json': 'JSON функции: json_extract(data, "$.field") извлекает значение из JSON.',
     'sql.error.date': 'Даты в SQLite: strftime("%Y", date), julianday(date1) - julianday(date2).',
-    'sql.error.timeout': 'Превышено время выполнения запроса ({{seconds}}с). Проверьте запрос на рекурсивные CTE или слишком большие JOIN.',
+    'sql.error.timeout':
+      'Превышено время выполнения запроса ({{seconds}}с). Проверьте запрос на рекурсивные CTE или слишком большие JOIN.',
     'sql.error.schemaCreate': 'Ошибка создания схемы: {{message}}',
     'sql.error.emptyInput': 'Введите SQL запрос',
     'sql.error.inputTooLong': 'Запрос слишком длинный ({{actual}} символов). Максимум: {{max}} символов.',
-    'sql.warning.mongodbNotSupported': 'MongoDB не поддерживается в SQL режиме. Используйте SQL (SQLite/PostgreSQL/MySQL).',
+    'sql.warning.mongodbNotSupported':
+      'MongoDB не поддерживается в SQL режиме. Используйте SQL (SQLite/PostgreSQL/MySQL).',
     'sql.success.ddl': 'Операция DDL выполнена успешно',
     'sql.success.dml': 'Запрос выполнен. Изменено строк: {{changes}}',
     'sql.success.rowsLimited': 'Результат ограничен {{maxRows}} строками',
@@ -2063,7 +2108,8 @@ export const translations: Record<Locale, Record<string, string>> = {
 
     // Metadata (SEO, OG, Twitter)
     'metadata.title': 'SQL Trainer — Interactive SQL Learning',
-    'metadata.description': 'Interactive SQL trainer with SQLite and PostgreSQL support. Run queries, practice with exercises, and access SQL reference.',
+    'metadata.description':
+      'Interactive SQL trainer with SQLite and PostgreSQL support. Run queries, practice with exercises, and access SQL reference.',
     'metadata.keywords': 'SQL, trainer, SQLite, PostgreSQL, learning, database, exercises',
     'metadata.og.title': 'SQL Trainer',
     'metadata.og.description': 'Interactive SQL learning — SQLite and PostgreSQL',
@@ -2084,7 +2130,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'auth.phoneOptional': 'Phone (optional)',
     'auth.phonePlaceholder': '+1 (555) 123-4567',
     'auth.role': 'Role',
-    'auth.roleDefaultStudent': 'Student role is assigned by default. Role can be changed in your profile or by contacting an administrator.',
+    'auth.roleDefaultStudent':
+      'Student role is assigned by default. Role can be changed in your profile or by contacting an administrator.',
     'auth.role.student': 'Student',
     'auth.role.teacher': 'Teacher',
     'auth.role.admin': 'Admin',
@@ -2230,31 +2277,43 @@ export const translations: Record<Locale, Record<string, string>> = {
     'glossary.defs.from': 'Specifies the table to retrieve data from.',
     'glossary.defs.where': 'Filters rows before results are returned. Includes only rows where the condition is true.',
     'glossary.defs.orderBy': 'Sorts results by one or more columns. ASC for ascending, DESC for descending.',
-    'glossary.defs.limitOffset': 'LIMIT restricts the number of returned rows. OFFSET skips the first N rows. Used for pagination.',
+    'glossary.defs.limitOffset':
+      'LIMIT restricts the number of returned rows. OFFSET skips the first N rows. Used for pagination.',
     'glossary.defs.distinct': 'Returns only unique values, removing duplicates.',
     'glossary.defs.null': 'Special value meaning "no data". Not equal to 0 or an empty string.',
     'glossary.defs.alias': 'Temporary name for a column or table. Makes queries more readable.',
-    'glossary.defs.join': 'Combines rows from two tables based on matching keys. Types: INNER, LEFT, RIGHT, FULL, CROSS.',
+    'glossary.defs.join':
+      'Combines rows from two tables based on matching keys. Types: INNER, LEFT, RIGHT, FULL, CROSS.',
     'glossary.defs.innerJoin': 'Returns only rows where there is a match in both tables.',
     'glossary.defs.leftJoin': 'Returns ALL rows from the left table. If no match, right columns will be NULL.',
-    'glossary.defs.groupBy': 'Groups rows with the same values. Aggregate functions (COUNT, SUM, AVG) compute results within each group.',
+    'glossary.defs.groupBy':
+      'Groups rows with the same values. Aggregate functions (COUNT, SUM, AVG) compute results within each group.',
     'glossary.defs.having': 'Filters groups AFTER GROUP BY. Similar to WHERE but for aggregate results.',
-    'glossary.defs.subquery': 'A query inside another query. Scalar subqueries return one value, table subqueries return a table.',
-    'glossary.defs.caseWhen': 'Conditional expression, similar to if/else. Returns different values based on conditions.',
+    'glossary.defs.subquery':
+      'A query inside another query. Scalar subqueries return one value, table subqueries return a table.',
+    'glossary.defs.caseWhen':
+      'Conditional expression, similar to if/else. Returns different values based on conditions.',
     'glossary.defs.coalesce': 'Returns the first non-NULL argument. Used to replace NULL with default values.',
     'glossary.defs.union': 'Combines results of two queries into one, removing duplicates. UNION ALL keeps duplicates.',
     'glossary.defs.exists': 'Checks whether a subquery returns at least one row. Returns TRUE or FALSE.',
-    'glossary.defs.cte': 'Common Table Expression — a named subquery. Makes complex queries more readable and reusable.',
+    'glossary.defs.cte':
+      'Common Table Expression — a named subquery. Makes complex queries more readable and reusable.',
     'glossary.defs.recursiveCte': 'A CTE that references itself. Used for hierarchical data (org charts, categories).',
-    'glossary.defs.windowFunctions': 'Compute a value for each row without collapsing groups. PARTITION BY splits into groups, ORDER BY defines order within.',
+    'glossary.defs.windowFunctions':
+      'Compute a value for each row without collapsing groups. PARTITION BY splits into groups, ORDER BY defines order within.',
     'glossary.defs.rowNumber': 'Assigns a unique number 1, 2, 3... to each row within a partition.',
     'glossary.defs.rankDenseRank': 'RANK — ranking with gaps (1, 1, 3), DENSE_RANK — without gaps (1, 1, 2).',
-    'glossary.defs.lagLead': 'LAG — value of the previous row, LEAD — of the next row. Used for comparing adjacent rows.',
-    'glossary.defs.lateralJoin': 'A subquery in FROM that can reference columns from preceding tables. PostgreSQL-specific.',
-    'glossary.defs.transaction': 'A set of operations executed as a single unit. BEGIN starts, COMMIT confirms, ROLLBACK cancels.',
-    'glossary.defs.index': 'A data structure to speed up searches. CREATE INDEX creates an index on a column. Speeds up SELECT, slows down INSERT/UPDATE.',
+    'glossary.defs.lagLead':
+      'LAG — value of the previous row, LEAD — of the next row. Used for comparing adjacent rows.',
+    'glossary.defs.lateralJoin':
+      'A subquery in FROM that can reference columns from preceding tables. PostgreSQL-specific.',
+    'glossary.defs.transaction':
+      'A set of operations executed as a single unit. BEGIN starts, COMMIT confirms, ROLLBACK cancels.',
+    'glossary.defs.index':
+      'A data structure to speed up searches. CREATE INDEX creates an index on a column. Speeds up SELECT, slows down INSERT/UPDATE.',
     'glossary.defs.view': 'A saved query that can be used like a table. Simplifies complex queries.',
-    'glossary.defs.explain': 'Shows the query execution plan. Helps understand how the DB processes a query and where to optimize.',
+    'glossary.defs.explain':
+      'Shows the query execution plan. Helps understand how the DB processes a query and where to optimize.',
 
     // Export/Import
     'exportImport.title': 'Export / Import Progress',
@@ -2539,17 +2598,23 @@ export const translations: Record<Locale, Record<string, string>> = {
     'onboarding.next': 'Next',
     'onboarding.complete': 'Complete tour',
     'onboarding.welcome.title': 'Welcome to SQL Trainer!',
-    'onboarding.welcome.description': 'This tour will show you the main features of the platform. You\'ll learn how to write SQL queries, verify results, and track your progress.',
+    'onboarding.welcome.description':
+      "This tour will show you the main features of the platform. You'll learn how to write SQL queries, verify results, and track your progress.",
     'onboarding.editor.title': 'SQL Editor',
-    'onboarding.editor.description': 'Write your SQL queries here. The editor supports syntax highlighting, autocomplete, and code formatting. Use Ctrl+Enter to execute queries.',
+    'onboarding.editor.description':
+      'Write your SQL queries here. The editor supports syntax highlighting, autocomplete, and code formatting. Use Ctrl+Enter to execute queries.',
     'onboarding.execute.title': 'Action Bar',
-    'onboarding.execute.description': 'Execute queries, view execution plans (EXPLAIN), clear the editor, and manage query history. Buttons are always accessible above the editor.',
+    'onboarding.execute.description':
+      'Execute queries, view execution plans (EXPLAIN), clear the editor, and manage query history. Buttons are always accessible above the editor.',
     'onboarding.verify.title': 'Results & Verification',
-    'onboarding.verify.description': 'After executing a query, you\'ll see results here. If the task is auto-verified, you\'ll see a success message or recommendations for improvement.',
+    'onboarding.verify.description':
+      "After executing a query, you'll see results here. If the task is auto-verified, you'll see a success message or recommendations for improvement.",
     'onboarding.reference.title': 'SQL Reference',
-    'onboarding.reference.description': 'The right panel has an SQL reference with syntax examples, functions, and constructs. Use it as a cheat sheet when solving tasks.',
+    'onboarding.reference.description':
+      'The right panel has an SQL reference with syntax examples, functions, and constructs. Use it as a cheat sheet when solving tasks.',
     'onboarding.progress.title': 'Progress & Tasks',
-    'onboarding.progress.description': 'The left panel shows the task list, filters, and your progress. Tasks are organized by difficulty: beginner, intermediate, and advanced.',
+    'onboarding.progress.description':
+      'The left panel shows the task list, filters, and your progress. Tasks are organized by difficulty: beginner, intermediate, and advanced.',
     'history.restoreQuery': 'Restore query: {sql}',
     'task.goToRelated': 'Go to task: {title}, difficulty: {difficulty}',
     'contextualTips.label': 'Concept Tips',
@@ -2595,7 +2660,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'resetProgress.description': 'This will reset all your progress, achievements and saved queries',
     'resetProgress.button': 'Reset Progress',
     'resetProgress.confirmTitle': 'Are you sure?',
-    'resetProgress.confirmDescription': 'All completed tasks, achievements, practice streak, XP, levels and saved queries will be deleted. This action cannot be undone.',
+    'resetProgress.confirmDescription':
+      'All completed tasks, achievements, practice streak, XP, levels and saved queries will be deleted. This action cannot be undone.',
     'resetProgress.success': 'Progress reset',
 
     'error.title': 'Something went wrong',
@@ -3505,7 +3571,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'student.recommendations.trackProgress': 'Track your progress regularly',
     'student.recommendations.streak': 'Great streak!',
     'student.recommendations.streakDesc': "You've been practicing for {streak} days in a row",
-    'student.recommendations.keepStreak': 'Keep it up — don\'t break the streak!',
+    'student.recommendations.keepStreak': "Keep it up — don't break the streak!",
     'student.recommendations.startStreak': 'Start a streak!',
     'student.recommendations.startStreakDesc': 'Practice every day to build a streak',
     'student.recommendations.dailyTask': 'Complete at least one task daily',
@@ -3534,7 +3600,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'profile.resetProgressDesc': 'This will reset all your progress, achievements, and saved queries',
     'profile.resetButton': 'Reset progress',
     'profile.resetConfirmTitle': 'Are you sure?',
-    'profile.resetConfirmDesc': 'All completed tasks, achievements, practice streaks, XP, levels, and saved queries will be deleted. This action cannot be undone.',
+    'profile.resetConfirmDesc':
+      'All completed tasks, achievements, practice streaks, XP, levels, and saved queries will be deleted. This action cannot be undone.',
     'profile.resetAction': 'Reset',
     'profile.resetSuccess': 'Progress reset',
     'profile.profileUpdated': 'Profile updated',
@@ -3577,8 +3644,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'profile.emailChangeError': 'Email change error',
     'profile.fillAllFields': 'Fill in all fields',
     'profile.deleteAccount': 'Delete account',
-    'profile.deleteAccountDesc': 'This action cannot be undone. All your data, progress, and achievements will be permanently deleted.',
-    'profile.deleteConfirmDesc': 'This action cannot be undone. Your account, progress, achievements, and all related data will be permanently deleted.',
+    'profile.deleteAccountDesc':
+      'This action cannot be undone. All your data, progress, and achievements will be permanently deleted.',
+    'profile.deleteConfirmDesc':
+      'This action cannot be undone. Your account, progress, achievements, and all related data will be permanently deleted.',
     'profile.deletePassword': 'Enter password to confirm',
     'profile.deletePasswordPlaceholder': 'Your current password',
     'profile.deleteAccountBtn': 'Delete account',
@@ -3836,7 +3905,8 @@ export const translations: Record<Locale, Record<string, string>> = {
 
     // Landing page
     'landing.hero.title': 'Interactive SQL Learning',
-    'landing.hero.subtitle': 'Master SQL from beginner to advanced through hands-on practice. Run real queries in your browser.',
+    'landing.hero.subtitle':
+      'Master SQL from beginner to advanced through hands-on practice. Run real queries in your browser.',
     'landing.hero.startTraining': 'Start Learning',
     'landing.hero.login': 'Sign In',
     'landing.modules.editor.title': 'SQL Editor',
@@ -3907,23 +3977,30 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.testimonials.subtitle': 'Real reviews from students around the world',
     'landing.testimonials.student1.name': 'Anna Smirnova',
     'landing.testimonials.student1.role': 'Student, Moscow',
-    'landing.testimonials.student1.quote': 'Thanks to this trainer, I learned SQL in 2 weeks. Interactive exercises and instant code verification made learning easy and engaging.',
+    'landing.testimonials.student1.quote':
+      'Thanks to this trainer, I learned SQL in 2 weeks. Interactive exercises and instant code verification made learning easy and engaging.',
     'landing.testimonials.student2.name': 'Dmitry Kozlov',
     'landing.testimonials.student2.role': 'Data Analyst, St. Petersburg',
-    'landing.testimonials.student2.quote': 'Great practice for interview preparation. Exercises progressively increase in difficulty, which helps gradual development.',
+    'landing.testimonials.student2.quote':
+      'Great practice for interview preparation. Exercises progressively increase in difficulty, which helps gradual development.',
     'landing.testimonials.student3.name': 'Maria Garcia',
     'landing.testimonials.student3.role': 'Developer, Madrid',
-    'landing.testimonials.student3.quote': 'Best SQL learning platform I\'ve tried. The hands-on approach and immediate feedback make learning efficient and fun.',
+    'landing.testimonials.student3.quote':
+      "Best SQL learning platform I've tried. The hands-on approach and immediate feedback make learning efficient and fun.",
     'landing.faq.title': 'Frequently asked questions',
     'landing.faq.subtitle': 'Answers to the most popular questions',
     'landing.faq.free.title': 'Is the platform free?',
-    'landing.faq.free.answer': 'Yes! All basic exercises and features are available for free. You can start learning without any payment.',
+    'landing.faq.free.answer':
+      'Yes! All basic exercises and features are available for free. You can start learning without any payment.',
     'landing.faq.beginner.title': 'Is this platform suitable for beginners?',
-    'landing.faq.beginner.answer': 'Absolutely! We have exercises for all levels — from basic SELECT queries to complex window functions.',
+    'landing.faq.beginner.answer':
+      'Absolutely! We have exercises for all levels — from basic SELECT queries to complex window functions.',
     'landing.faq.database.title': 'Which databases are supported?',
-    'landing.faq.database.answer': 'We support SQLite, PostgreSQL, and ClickHouse. You can switch between them directly in the editor.',
+    'landing.faq.database.answer':
+      'We support SQLite, PostgreSQL, and ClickHouse. You can switch between them directly in the editor.',
     'landing.faq.certificate.title': 'Will I receive a certificate after completing the course?',
-    'landing.faq.certificate.answer': 'Yes! After completing all levels, you\'ll receive a course completion certificate.',
+    'landing.faq.certificate.answer':
+      "Yes! After completing all levels, you'll receive a course completion certificate.",
     'landing.footer.about': 'About',
     'landing.footer.features': 'Features',
     'landing.footer.documentation': 'Documentation',
@@ -3933,8 +4010,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.footer.terms': 'Terms',
     'landing.footer.copyright': '© 2025 SQL Trainer. All rights reserved.',
     'landing.hero.codeComment': '-- Extract data about top 5 employees by salary',
-    'landing.hero.description': 'Practice writing SQL queries with instant feedback, detailed explanations, and step-by-step progress from basics to advanced topics.',
-    'landing.hero.codeQuery': 'Select name, department, and salary from employees table, sort by salary descending, and limit to 5 results',
+    'landing.hero.description':
+      'Practice writing SQL queries with instant feedback, detailed explanations, and step-by-step progress from basics to advanced topics.',
+    'landing.hero.codeQuery':
+      'Select name, department, and salary from employees table, sort by salary descending, and limit to 5 results',
 
     // Modules section headers
     'landing.modules.title': 'Platform Features',
@@ -3973,9 +4052,11 @@ export const translations: Record<Locale, Record<string, string>> = {
     'sql.error.tableNotExistGeneric': 'Check the table name — it may not exist.',
     'sql.error.columnNotFound': 'Column "{{column}}" not found. Check the column name or use a table alias.',
     'sql.error.columnNotFoundGeneric': 'Check the column name — it may be misspelled.',
-    'sql.error.ambiguousColumn': 'Column name found in multiple tables. Use alias.table (e.g., e.name instead of name).',
+    'sql.error.ambiguousColumn':
+      'Column name found in multiple tables. Use alias.table (e.g., e.name instead of name).',
     'sql.error.syntax': 'Check the query syntax. A comma, parenthesis, or keyword may be missing.',
-    'sql.error.aggregateInWhere': 'Aggregate functions (COUNT, SUM, AVG, etc.) cannot be used in WHERE. Use HAVING for filtering aggregates.',
+    'sql.error.aggregateInWhere':
+      'Aggregate functions (COUNT, SUM, AVG, etc.) cannot be used in WHERE. Use HAVING for filtering aggregates.',
     'sql.error.groupBy': 'All columns in SELECT (except aggregates) must be in GROUP BY.',
     'sql.error.uniqueConstraint': 'Unique constraint violated. You may be trying to insert a duplicate key.',
     'sql.error.foreignKey': 'Foreign key constraint violated. Make sure related records exist.',
@@ -4575,9 +4656,11 @@ export const translations: Record<Locale, Record<string, string>> = {
     'onboarding.welcome.title': '欢迎使用 SQL 训练器！',
     'onboarding.welcome.description': '本次导览将展示平台的主要功能。你将学习如何编写 SQL 查询、验证结果和跟踪进度。',
     'onboarding.editor.title': 'SQL 编辑器',
-    'onboarding.editor.description': '在此编写 SQL 查询。编辑器支持语法高亮、自动补全和代码格式化。使用 Ctrl+Enter 执行查询。',
+    'onboarding.editor.description':
+      '在此编写 SQL 查询。编辑器支持语法高亮、自动补全和代码格式化。使用 Ctrl+Enter 执行查询。',
     'onboarding.execute.title': '操作栏',
-    'onboarding.execute.description': '执行查询、查看执行计划（EXPLAIN）、清除编辑器和管理查询历史。按钮始终在编辑器上方。',
+    'onboarding.execute.description':
+      '执行查询、查看执行计划（EXPLAIN）、清除编辑器和管理查询历史。按钮始终在编辑器上方。',
     'onboarding.verify.title': '结果与验证',
     'onboarding.verify.description': '执行查询后，结果将显示在此处。如果任务支持自动验证，将显示成功消息或改进建议。',
     'onboarding.reference.title': 'SQL 参考',
@@ -4629,7 +4712,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'resetProgress.description': '这将重置所有进度、成就和已保存的查询',
     'resetProgress.button': '重置进度',
     'resetProgress.confirmTitle': '确定吗？',
-    'resetProgress.confirmDescription': '所有已完成任务、成就、练习连续、XP、等级和已保存的查询都将被删除。此操作无法撤销。',
+    'resetProgress.confirmDescription':
+      '所有已完成任务、成就、练习连续、XP、等级和已保存的查询都将被删除。此操作无法撤销。',
     'resetProgress.success': '进度已重置',
 
     'error.title': '出了点问题',
@@ -5939,7 +6023,8 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.testimonials.subtitle': '来自全球学生的真实评价',
     'landing.testimonials.student1.name': '安娜·斯米尔诺娃',
     'landing.testimonials.student1.role': '学生，莫斯科',
-    'landing.testimonials.student1.quote': '多亏了这个训练器，我在两周内学会了 SQL。交互式练习和即时代码验证让学习变得简单有趣。',
+    'landing.testimonials.student1.quote':
+      '多亏了这个训练器，我在两周内学会了 SQL。交互式练习和即时代码验证让学习变得简单有趣。',
     'landing.testimonials.student2.name': '德米特里·科兹洛夫',
     'landing.testimonials.student2.role': '数据分析师，圣彼得堡',
     'landing.testimonials.student2.quote': '面试准备的绝佳练习。练习难度逐渐增加，有助于逐步提高。',
@@ -6144,7 +6229,11 @@ export function t(key: string, params?: Record<string, string> & { default?: str
  * Translate with explicit locale without mutating global state.
  * Safe for server-side concurrent usage.
  */
-export function tWithLocale(locale: Locale, key: string, params?: Record<string, string> & { default?: string }): string {
+export function tWithLocale(
+  locale: Locale,
+  key: string,
+  params?: Record<string, string> & { default?: string },
+): string {
   const { default: defaultVal, ...restParams } = params || {};
   let value = translations[locale]?.[key] || translations.ru[key] || defaultVal || key;
   if (restParams) {

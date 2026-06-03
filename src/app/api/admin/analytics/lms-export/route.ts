@@ -1,9 +1,5 @@
 import { NextResponse } from 'next/server';
-import {
-  getAllUsers,
-  getStudentProgressById,
-  getAchievementStats,
-} from '@/lib/db-users';
+import { getAllUsers, getStudentProgressById, getAchievementStats } from '@/lib/db-users';
 import { withAnalyticsAuth } from '@/lib/api-auth';
 
 export const GET = withAnalyticsAuth(({ searchParams }) => {
@@ -13,13 +9,13 @@ export const GET = withAnalyticsAuth(({ searchParams }) => {
   const includeAttempts = searchParams.get('includeAttempts') !== 'false';
 
   const users = getAllUsers();
-  const students = users.filter(u => u.role === 'student');
+  const students = users.filter((u) => u.role === 'student');
 
   if (format === 'json') {
     const jsonData = {
       exportDate: new Date().toISOString(),
       format: 'LMS JSON Export',
-      students: students.map(student => {
+      students: students.map((student) => {
         const result: Record<string, unknown> = {
           id: student.id,
           name: student.name,
@@ -31,9 +27,7 @@ export const GET = withAnalyticsAuth(({ searchParams }) => {
           const progress = getStudentProgressById(student.id);
           result.tasksCompleted = student.tasks_completed;
           result.completionRate = progress?.completion_rate ?? 0;
-          result.lastActive = student.last_active
-            ? new Date(student.last_active).toISOString()
-            : null;
+          result.lastActive = student.last_active ? new Date(student.last_active).toISOString() : null;
         }
         if (includeAchievements) {
           const achievements = getAchievementStats();
@@ -105,9 +99,7 @@ export const GET = withAnalyticsAuth(({ searchParams }) => {
     if (includeProgress) {
       const progress = getStudentProgressById(student.id);
       const rate = progress?.completion_rate ?? 0;
-      const lastActive = student.last_active
-        ? sanitizeCsvValue(new Date(student.last_active).toISOString())
-        : 'Never';
+      const lastActive = student.last_active ? sanitizeCsvValue(new Date(student.last_active).toISOString()) : 'Never';
       csv += `,${rate},${lastActive}`;
     }
     csv += '\n';

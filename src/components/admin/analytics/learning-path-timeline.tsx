@@ -43,11 +43,17 @@ export default function LearningPathTimeline({ userId }: LearningPathTimelinePro
 
   if (loading) return <div className="flex justify-center py-4">{t('analytics.loading')}</div>;
   if (error) return <div className="text-red-500 py-4">{error}</div>;
-  if (timeline.length === 0) return <div className="text-center py-4 text-muted-foreground">{t('analytics.noData')}</div>;
+  if (timeline.length === 0)
+    return <div className="text-center py-4 text-muted-foreground">{t('analytics.noData')}</div>;
 
-  const diffColors: Record<string, string> = { beginner: '#22c55e', intermediate: '#f59e0b', advanced: '#ef4444', other: '#6b7280' };
+  const diffColors: Record<string, string> = {
+    beginner: '#22c55e',
+    intermediate: '#f59e0b',
+    advanced: '#ef4444',
+    other: '#6b7280',
+  };
 
-  const chartData = timeline.map(t => ({
+  const chartData = timeline.map((t) => ({
     date: new Date(t.completed_at).toLocaleDateString(),
     cumulative: t.cumulative_count,
     attempts: t.attempts,
@@ -72,20 +78,28 @@ export default function LearningPathTimeline({ userId }: LearningPathTimelinePro
         </div>
 
         <div className="space-y-1 max-h-40 overflow-y-auto">
-          {timeline.slice(-20).reverse().map((entry) => (
-            <div key={`${entry.task_id}-${entry.completed_at}`} className="flex items-center justify-between py-1 border-b text-sm">
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" style={{ borderColor: diffColors[entry.difficulty] }}>
-                  {entry.difficulty}
-                </Badge>
-                <span className="font-mono text-xs">{entry.task_id}</span>
+          {timeline
+            .slice(-20)
+            .reverse()
+            .map((entry) => (
+              <div
+                key={`${entry.task_id}-${entry.completed_at}`}
+                className="flex items-center justify-between py-1 border-b text-sm"
+              >
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" style={{ borderColor: diffColors[entry.difficulty] }}>
+                    {entry.difficulty}
+                  </Badge>
+                  <span className="font-mono text-xs">{entry.task_id}</span>
+                </div>
+                <div className="flex items-center gap-3 text-muted-foreground">
+                  <span>
+                    {entry.attempts} {t('analytics.attempts')}
+                  </span>
+                  <span>{new Date(entry.completed_at).toLocaleDateString()}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-3 text-muted-foreground">
-                <span>{entry.attempts} {t('analytics.attempts')}</span>
-                <span>{new Date(entry.completed_at).toLocaleDateString()}</span>
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
       </CardContent>
     </Card>

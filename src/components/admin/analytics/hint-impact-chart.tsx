@@ -6,24 +6,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AlertCircle } from 'lucide-react';
-import {
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ScatterChart,
-  Scatter,
-  ZAxis,
-} from 'recharts';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, ScatterChart, Scatter, ZAxis } from 'recharts';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
 import EmptyState from './empty-state';
@@ -77,7 +61,7 @@ export default function HintImpactChart() {
   }
   if (!data.length) return <EmptyState />;
 
-  const scatterData = data.map(d => ({
+  const scatterData = data.map((d) => ({
     x: d.hint_likely_rate,
     y: d.avg_attempts,
     z: d.struggle_score,
@@ -133,7 +117,11 @@ export default function HintImpactChart() {
                 </TableCell>
                 <TableCell>{entry.avg_attempts}</TableCell>
                 <TableCell>
-                  <Badge variant={entry.struggle_score > 60 ? 'destructive' : entry.struggle_score > 40 ? 'default' : 'secondary'}>
+                  <Badge
+                    variant={
+                      entry.struggle_score > 60 ? 'destructive' : entry.struggle_score > 40 ? 'default' : 'secondary'
+                    }
+                  >
                     {entry.struggle_score}
                   </Badge>
                 </TableCell>

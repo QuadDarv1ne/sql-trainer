@@ -81,9 +81,7 @@ function TaskRow({
         onClick={onActivate}
         aria-label={`${isDone ? '✓ ' : ''}${task.title}`}
         className={`flex flex-1 items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm transition-colors hover:bg-muted/50 ${
-          isActive
-            ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400'
-            : 'text-foreground/80'
+          isActive ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400' : 'text-foreground/80'
         }`}
       >
         {isDone ? (
@@ -110,22 +108,25 @@ function TaskRow({
 }
 
 export default function Sidebar() {
-  const { currentTaskId, setCurrentTaskId, completedTasks, sidebarOpen, bookmarkedTasks, toggleBookmark, unlockedAchievements } =
-    useSQLTrainerStore();
+  const {
+    currentTaskId,
+    setCurrentTaskId,
+    completedTasks,
+    sidebarOpen,
+    bookmarkedTasks,
+    toggleBookmark,
+    unlockedAchievements,
+  } = useSQLTrainerStore();
   const { data: session } = useSession();
 
-  const [expandedSections, setExpandedSections] = useState<
-    Record<Difficulty, boolean>
-  >({
+  const [expandedSections, setExpandedSections] = useState<Record<Difficulty, boolean>>({
     beginner: true,
     intermediate: true,
     advanced: true,
   });
 
   // Track which category sub-sections are expanded within each difficulty
-  const [expandedCategories, setExpandedCategories] = useState<
-    Record<string, boolean>
-  >({});
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
 
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<CategoryKey | 'all'>('all');
@@ -133,18 +134,11 @@ export default function Sidebar() {
 
   const completedCount = completedTasks.length;
   const totalCount = TRAINING_TASKS.length;
-  const progressPercent =
-    totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+  const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
-  const completedIds = useMemo(
-    () => new Set(completedTasks.map((t) => t.taskId)),
-    [completedTasks]
-  );
+  const completedIds = useMemo(() => new Set(completedTasks.map((t) => t.taskId)), [completedTasks]);
 
-  const bookmarkedIds = useMemo(
-    () => new Set(bookmarkedTasks),
-    [bookmarkedTasks]
-  );
+  const bookmarkedIds = useMemo(() => new Set(bookmarkedTasks), [bookmarkedTasks]);
 
   // Group tasks by difficulty, then by category
   const tasksByDifficultyAndCategory = useMemo(() => {
@@ -231,8 +225,8 @@ export default function Sidebar() {
             <span className="text-[10px] text-muted-foreground/60 truncate ml-auto">
               {(() => {
                 const allKeys = Object.keys(ACHIEVEMENTS);
-                const unlockedIds = new Set(unlockedAchievements.map(a => a.id));
-                const nextKey = allKeys.find(k => !unlockedIds.has(ACHIEVEMENTS[k].id));
+                const unlockedIds = new Set(unlockedAchievements.map((a) => a.id));
+                const nextKey = allKeys.find((k) => !unlockedIds.has(ACHIEVEMENTS[k].id));
                 return nextKey ? `→ ${ACHIEVEMENTS[nextKey].icon} ${ACHIEVEMENTS[nextKey].title}` : '';
               })()}
             </span>
@@ -300,11 +294,7 @@ export default function Sidebar() {
               : 'text-muted-foreground hover:bg-muted/50'
           }`}
         >
-          <Bookmark
-            className={`h-3.5 w-3.5 ${
-              showBookmarksOnly ? 'fill-amber-500 text-amber-500' : ''
-            }`}
-          />
+          <Bookmark className={`h-3.5 w-3.5 ${showBookmarksOnly ? 'fill-amber-500 text-amber-500' : ''}`} />
           {showBookmarksOnly ? t('action.bookmarksOnly') : t('action.bookmarksAll')}
         </button>
       </div>
@@ -312,19 +302,16 @@ export default function Sidebar() {
       {/* Tasks list */}
       <ScrollArea className="flex-1">
         <div className="p-3">
-          {(
-            ['beginner', 'intermediate', 'advanced'] as Difficulty[]
-          ).map((difficulty) => {
+          {(['beginner', 'intermediate', 'advanced'] as Difficulty[]).map((difficulty) => {
             const catMap = tasksByDifficultyAndCategory[difficulty];
             const categories = Object.keys(catMap) as CategoryKey[];
             if (categories.length === 0) return null;
 
             const isExpanded = expandedSections[difficulty];
-            const totalInDifficulty = categories.reduce(
-              (sum, cat) => sum + catMap[cat].length, 0
-            );
+            const totalInDifficulty = categories.reduce((sum, cat) => sum + catMap[cat].length, 0);
             const completedInDifficulty = categories.reduce(
-              (sum, cat) => sum + catMap[cat].filter(t => completedIds.has(t.id)).length, 0
+              (sum, cat) => sum + catMap[cat].filter((t) => completedIds.has(t.id)).length,
+              0,
             );
 
             return (
@@ -336,9 +323,7 @@ export default function Sidebar() {
                   onClick={() => toggleSection(difficulty)}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">
-                      {DIFFICULTY_LABELS[difficulty]}
-                    </span>
+                    <span className="text-sm font-medium">{DIFFICULTY_LABELS[difficulty]}</span>
                     <Badge variant="secondary" className="text-xs px-2">
                       {completedInDifficulty}/{totalInDifficulty}
                     </Badge>
@@ -355,7 +340,7 @@ export default function Sidebar() {
                       const tasks = catMap[cat];
                       const catKey = `${difficulty}-${cat}`;
                       const catIsExpanded = expandedCategories[catKey] !== false; // default expanded
-                      const completedInCat = tasks.filter(t => completedIds.has(t.id)).length;
+                      const completedInCat = tasks.filter((t) => completedIds.has(t.id)).length;
 
                       return (
                         <div key={cat} className="mb-1">
@@ -374,13 +359,12 @@ export default function Sidebar() {
                               <span className="text-xs text-muted-foreground">
                                 {completedInCat}/{tasks.length}
                               </span>
-                              {tasks.length > 3 && (
-                                catIsExpanded ? (
+                              {tasks.length > 3 &&
+                                (catIsExpanded ? (
                                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/60" />
                                 ) : (
                                   <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60" />
-                                )
-                              )}
+                                ))}
                             </button>
                           )}
                           {(catIsExpanded || tasks.length <= 3 || categories.length === 1) && (
@@ -415,12 +399,7 @@ export default function Sidebar() {
         <ExportImportDialog />
 
         {session?.user && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full h-9"
-            asChild
-          >
+          <Button variant="outline" size="sm" className="w-full h-9" asChild>
             <Link href="/profile">
               <User className="mr-2 h-4 w-4" />
               {t('action.profile')}

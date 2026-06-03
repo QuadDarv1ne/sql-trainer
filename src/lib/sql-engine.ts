@@ -189,7 +189,7 @@ const UNSUPPORTED_FUNC_WARNING = (func: string) =>
  */
 function adaptSqlForExecution(
   sql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' | 'mongodb'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' | 'mongodb',
 ): { processedSql: string; warnings: string[] } {
   if (dbType === 'mongodb') {
     return { processedSql: sql, warnings: [t('sql.warning.mongodbNotSupported')] };
@@ -213,10 +213,7 @@ function adaptSqlForExecution(
 /**
  * Adapt schema SQL from PostgreSQL/ClickHouse/MySQL to SQLite.
  */
-function adaptSchemaForDbType(
-  schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql'
-): string {
+function adaptSchemaForDbType(schemaSql: string, dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql'): string {
   if (dbType === 'postgresql') return adaptPostgreSQLToSQLite(schemaSql);
   if (dbType === 'clickhouse') return adaptClickHouseToSQLite(schemaSql);
   if (dbType === 'mysql') return adaptMySQLToSQLite(schemaSql);
@@ -234,7 +231,11 @@ function validateInput(sql: string): string | undefined {
 
   // Check for potentially dangerous operations
   const trimmed = stripLeadingComments(sql).toUpperCase().trim();
-  if (trimmed.startsWith('DROP') && !trimmed.includes('DROP TABLE IF EXISTS') && !trimmed.includes('DROP INDEX IF EXISTS')) {
+  if (
+    trimmed.startsWith('DROP') &&
+    !trimmed.includes('DROP TABLE IF EXISTS') &&
+    !trimmed.includes('DROP INDEX IF EXISTS')
+  ) {
     // Allow DROP but warn
     return undefined; // Let it execute, error handling will catch if table doesn't exist
   }
@@ -388,8 +389,14 @@ function schemaCacheKey(schemaSql: string, dbType: string): string {
  * Uses SQL dump/restore approach for isolation.
  */
 function cloneDatabase(source: Database.Database): Database.Database {
-  const dump = source.prepare("SELECT sql FROM sqlite_master WHERE sql IS NOT NULL AND type IN ('table', 'index') AND name NOT LIKE 'sqlite_%'").all() as { sql: string }[];
-  const tables = source.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[];
+  const dump = source
+    .prepare(
+      "SELECT sql FROM sqlite_master WHERE sql IS NOT NULL AND type IN ('table', 'index') AND name NOT LIKE 'sqlite_%'",
+    )
+    .all() as { sql: string }[];
+  const tables = source
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")
+    .all() as { name: string }[];
   const newDb = new Database(':memory:');
   newDb.pragma('foreign_keys = ON');
   for (const { sql } of dump) {
@@ -401,14 +408,14 @@ function cloneDatabase(source: Database.Database): Database.Database {
     if (rows.length === 0) continue;
     const columns = Object.keys(rows[0]);
     const placeholders = columns.map(() => '?').join(', ');
-    const insertSql = `INSERT INTO "${tableName}" (${columns.map(c => `"${c}"`).join(', ')}) VALUES (${placeholders})`;
+    const insertSql = `INSERT INTO "${tableName}" (${columns.map((c) => `"${c}"`).join(', ')}) VALUES (${placeholders})`;
     const stmt = newDb.prepare(insertSql);
     const insertMany = newDb.transaction((batch: unknown[][]) => {
       for (const row of batch) {
         stmt.run(...(row as unknown[]));
       }
     });
-    insertMany(rows.map(row => Object.values(row)));
+    insertMany(rows.map((row) => Object.values(row)));
   }
   return newDb;
 }
@@ -441,11 +448,7 @@ function touchCacheKey(key: string): void {
  * Execute prepared statements against an already-initialized database.
  * Shared logic between executeQuery and executeWithSchema.
  */
-function executeStatements(
-  db: Database.Database,
-  statements: string[],
-  batchStartTime: number
-): QueryResult {
+function executeStatements(db: Database.Database, statements: string[], batchStartTime: number): QueryResult {
   let lastResult: QueryResult | null = null;
 
   for (const stmt of statements) {
@@ -466,9 +469,7 @@ function executeStatements(
         // Check timeout after execution
         const executionTime = performance.now() - stmtStartTime;
         if (executionTime > MAX_EXECUTION_TIME_MS) {
-          throw new Error(
-            t('sql.error.timeout', { seconds: String(MAX_EXECUTION_TIME_MS / 1000) })
-          );
+          throw new Error(t('sql.error.timeout', { seconds: String(MAX_EXECUTION_TIME_MS / 1000) }));
         }
 
         // Enforce row limit
@@ -482,9 +483,7 @@ function executeStatements(
           columns,
           rows,
           executionTime,
-          message: truncated
-            ? t('sql.success.rowsLimited', { maxRows: String(MAX_ROWS) })
-            : undefined,
+          message: truncated ? t('sql.success.rowsLimited', { maxRows: String(MAX_ROWS) }) : undefined,
         };
       } else if (isDDL(stmt)) {
         db.exec(stmt);
@@ -535,7 +534,7 @@ function executeStatements(
 
 export function executeQuery(
   sql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite',
 ): QueryResult {
   const startTime = performance.now();
 
@@ -579,7 +578,7 @@ export function executeQuery(
 export function executeWithSchema(
   sql: string,
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite',
 ): QueryResult {
   const startTime = performance.now();
 
@@ -670,7 +669,7 @@ export function executeWithSchema(
 export function executeWithSchemaMulti(
   sqlInputs: string[],
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite',
 ): QueryResult[] {
   const startTime = performance.now();
   const cacheKey = schemaCacheKey(schemaSql, dbType);
@@ -748,7 +747,7 @@ export function executeWithSchemaMulti(
 
 export function getSchemaInfo(
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' = 'sqlite',
 ): DatabaseInfo {
   const db = new Database(':memory:');
   db.pragma('foreign_keys = ON');
@@ -759,15 +758,11 @@ export function getSchemaInfo(
     db.exec(processedSchema);
 
     const tables = db
-      .prepare(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
-      )
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
       .all() as { name: string }[];
 
     const tableInfos: TableInfo[] = tables.map((table) => {
-      const columns = db
-        .prepare(`PRAGMA table_info("${table.name}")`)
-        .all() as {
+      const columns = db.prepare(`PRAGMA table_info("${table.name}")`).all() as {
         name: string;
         type: string;
         notnull: number;
@@ -800,7 +795,7 @@ export function getSchemaInfo(
 export function explainQuery(
   sql: string,
   schemaSql: string,
-  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' | 'mongodb' = 'sqlite'
+  dbType: 'sqlite' | 'postgresql' | 'clickhouse' | 'mysql' | 'mongodb' = 'sqlite',
 ): { success: boolean; plan?: string; error?: string } {
   const db = new Database(':memory:');
   db.pragma('foreign_keys = ON');

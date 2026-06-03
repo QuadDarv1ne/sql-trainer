@@ -26,7 +26,7 @@ export function generateProgressiveHints(
   taskId: string,
   oldHint: string,
   taskText: string,
-  progressiveHints?: ProgressiveHint[]
+  progressiveHints?: ProgressiveHint[],
 ): ProgressiveHint[] {
   // If progressive hints are defined for this task, use them
   if (progressiveHints && progressiveHints.length > 0) {
@@ -61,8 +61,16 @@ export function generateProgressiveHints(
 function generateLevel1Hint(taskText: string): string {
   // Extract the main action from the task
   const keywords = [
-    'найдите', 'выведите', 'посчитайте', 'определите', 'сгруппируйте',
-    'отсортируйте', 'объедините', 'фильтруйте', 'вычислите', 'покажите'
+    'найдите',
+    'выведите',
+    'посчитайте',
+    'определите',
+    'сгруппируйте',
+    'отсортируйте',
+    'объедините',
+    'фильтруйте',
+    'вычислите',
+    'покажите',
   ];
 
   for (const keyword of keywords) {
@@ -109,7 +117,5 @@ export function getNextHintLevel(currentLevel: number | null): 1 | 2 | 3 | null 
  * Calculate total XP penalty for all revealed hints.
  */
 export function calculateHintPenalty(hints: ProgressiveHint[], revealedLevel: number): number {
-  return hints
-    .filter(h => h.level <= revealedLevel)
-    .reduce((sum, h) => sum + h.xpPenalty, 0);
+  return hints.filter((h) => h.level <= revealedLevel).reduce((sum, h) => sum + h.xpPenalty, 0);
 }

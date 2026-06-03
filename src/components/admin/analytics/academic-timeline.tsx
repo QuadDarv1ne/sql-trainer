@@ -42,7 +42,9 @@ export default function AcademicTimeline() {
     setError('');
     setSearched(true);
     try {
-      const response = await fetch(`/api/admin/analytics/academic-timeline?userId=${encodeURIComponent(userId.trim())}`);
+      const response = await fetch(
+        `/api/admin/analytics/academic-timeline?userId=${encodeURIComponent(userId.trim())}`,
+      );
       if (!response.ok) throw new Error('Failed to load');
       const data = await response.json();
       setTimeline(data.timeline || []);
@@ -74,8 +76,8 @@ export default function AcademicTimeline() {
             <Input
               placeholder={t('analytics.timeline.placeholder')}
               value={userId}
-              onChange={e => setUserId(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+              onChange={(e) => setUserId(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               className="max-w-sm"
             />
             <Button onClick={handleSearch} disabled={loading || !userId.trim()}>
@@ -84,13 +86,9 @@ export default function AcademicTimeline() {
             </Button>
           </div>
 
-          {error && (
-            <p className="text-sm text-red-600">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-600">{error}</p>}
 
-          {!loading && searched && timeline.length === 0 && !error && (
-            <EmptyState />
-          )}
+          {!loading && searched && timeline.length === 0 && !error && <EmptyState />}
 
           {loading && (
             <div className="flex items-center justify-center py-8">
@@ -106,19 +104,21 @@ export default function AcademicTimeline() {
                 const color = eventColors[event.event_type] || 'bg-gray-500 dark:bg-gray-600';
                 return (
                   <div key={`${event.event_type}-${event.timestamp}`} className="relative pl-8">
-                    <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full ${color} border-2 border-background`} />
+                    <div
+                      className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full ${color} border-2 border-background`}
+                    />
                     <div className="flex items-start gap-3">
                       <Icon className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
                       <div>
                         <div className="font-medium">
-                          {t(`analytics.timeline.events.${event.event_label}`, { default: event.details || event.event_label })}
+                          {t(`analytics.timeline.events.${event.event_label}`, {
+                            default: event.details || event.event_label,
+                          })}
                         </div>
                         {event.details && event.event_label !== event.details && (
                           <div className="text-sm text-muted-foreground">{event.details}</div>
                         )}
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {formatDate(event.timestamp)}
-                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">{formatDate(event.timestamp)}</div>
                       </div>
                     </div>
                   </div>

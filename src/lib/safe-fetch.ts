@@ -23,10 +23,7 @@ interface SafeFetchOptions extends RequestInit {
   onError?: (error: Error) => void;
 }
 
-export async function safeFetch<T = unknown>(
-  url: string | URL,
-  options: SafeFetchOptions = {}
-): Promise<T | null> {
+export async function safeFetch<T = unknown>(url: string | URL, options: SafeFetchOptions = {}): Promise<T | null> {
   const { maxRetries = 0, retryDelay = 1000, onError, headers, ...fetchOptions } = options;
 
   // Attach CSRF token for state-changing requests

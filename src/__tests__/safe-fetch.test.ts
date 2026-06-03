@@ -17,7 +17,7 @@ describe('safeFetch', () => {
   it('should return parsed JSON on successful response', async () => {
     const mockData = { id: 1, name: 'Test' };
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify(mockData), { status: 200, statusText: 'OK' })
+      new Response(JSON.stringify(mockData), { status: 200, statusText: 'OK' }),
     );
 
     const result = await safeFetch<typeof mockData>('/api/test');
@@ -27,7 +27,7 @@ describe('safeFetch', () => {
 
   it('should return null on non-OK response', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response('Not Found', { status: 404, statusText: 'Not Found' })
+      new Response('Not Found', { status: 404, statusText: 'Not Found' }),
     );
 
     const result = await safeFetch('/api/missing');
@@ -45,9 +45,7 @@ describe('safeFetch', () => {
     const mockData = { success: true };
     vi.spyOn(globalThis, 'fetch')
       .mockRejectedValueOnce(new Error('First attempt fails'))
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify(mockData), { status: 200, statusText: 'OK' })
-      );
+      .mockResolvedValueOnce(new Response(JSON.stringify(mockData), { status: 200, statusText: 'OK' }));
 
     const result = await safeFetch('/api/test', { maxRetries: 1, retryDelay: 10 });
     expect(result).toEqual(mockData);
@@ -80,7 +78,7 @@ describe('safeFetch', () => {
     });
 
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ ok: true }), { status: 200, statusText: 'OK' })
+      new Response(JSON.stringify({ ok: true }), { status: 200, statusText: 'OK' }),
     );
 
     await safeFetch('/api/test', { method: 'POST' });
@@ -90,7 +88,7 @@ describe('safeFetch', () => {
       expect.objectContaining({
         method: 'POST',
         headers: expect.any(Headers),
-      })
+      }),
     );
 
     const callHeaders = (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].headers as Headers;
@@ -99,7 +97,7 @@ describe('safeFetch', () => {
 
   it('should not add CSRF header for GET requests', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ ok: true }), { status: 200, statusText: 'OK' })
+      new Response(JSON.stringify({ ok: true }), { status: 200, statusText: 'OK' }),
     );
 
     await safeFetch('/api/test', { method: 'GET' });

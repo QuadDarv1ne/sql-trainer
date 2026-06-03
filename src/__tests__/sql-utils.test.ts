@@ -12,7 +12,7 @@ describe('sql-utils', () => {
       const result = splitSqlSegments("SELECT * FROM users WHERE name = 'Alice'");
       // Segment 0: non-string before first quote
       // Segment 1: from opening quote to closing quote + trailing non-string
-      expect(result[0]).toBe("SELECT * FROM users WHERE name = ");
+      expect(result[0]).toBe('SELECT * FROM users WHERE name = ');
       expect(result[1]).toBe("'Alice'");
     });
 
@@ -28,7 +28,7 @@ describe('sql-utils', () => {
       // segment 0: non-string before first quote
       // segment 1: from 'Alice' to end of string + trailing non-string
       // segment 2: 'Bob' and trailing
-      expect(result[0]).toBe("SELECT * FROM t WHERE a = ");
+      expect(result[0]).toBe('SELECT * FROM t WHERE a = ');
       expect(result[1]).toContain("'Alice'");
       expect(result[2]).toContain("'Bob'");
     });
@@ -83,7 +83,7 @@ describe('sql-utils', () => {
       const result = splitSqlSegments("SELECT 'a', 'b', 'c'");
       // Even indices are non-string, odd are string+trailing
       expect(result.length).toBeGreaterThanOrEqual(3);
-      expect(result[0]).toBe("SELECT ");
+      expect(result[0]).toBe('SELECT ');
     });
   });
 });

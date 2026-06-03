@@ -11,7 +11,10 @@ export const GET = withAdminAuth(async ({ request }) => {
     return NextResponse.json({ error: 'ids query param required (comma-separated)' }, { status: 400 });
   }
 
-  const studentIds = ids.split(',').map(id => id.trim()).filter(Boolean);
+  const studentIds = ids
+    .split(',')
+    .map((id) => id.trim())
+    .filter(Boolean);
 
   const cacheKey = { ids: studentIds.join(',') };
   const cached = getCached('/api/admin/analytics/student-comparison', cacheKey);

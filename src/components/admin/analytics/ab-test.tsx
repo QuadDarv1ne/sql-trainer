@@ -6,9 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, BarChart3, TrendingUp, CheckCircle2, XCircle } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 
 interface ABTestData {
@@ -27,10 +25,16 @@ export default function ABTest() {
   });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!data) return <p className="text-center py-4 text-muted-foreground">{t('analytics.error')}</p>;
 
-  const chartData = data.metrics.map(m => ({
+  const chartData = data.metrics.map((m) => ({
     metric: m.metric,
     [data.group_a.name]: m.group_a,
     [data.group_b.name]: m.group_b,
@@ -45,7 +49,7 @@ export default function ABTest() {
         </h2>
         <select
           value={testType}
-          onChange={e => setTestType(e.target.value)}
+          onChange={(e) => setTestType(e.target.value)}
           className="border rounded-md px-3 py-2 text-sm"
         >
           <option value="learning_path">{t('analytics.abTest.test.learningPath')}</option>
@@ -152,7 +156,8 @@ export default function ABTest() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {m.difference > 0 ? '+' : ''}{m.difference}
+                    {m.difference > 0 ? '+' : ''}
+                    {m.difference}
                   </span>
                   <Badge variant={m.significant ? 'default' : 'secondary'}>
                     {m.significant ? t('analytics.abTest.significant') : t('analytics.abTest.notSignificant')}

@@ -97,7 +97,7 @@ export function generateStudentReportPDF(
     achievements_count: number;
     last_active: number | null;
   },
-  options: PDFReportOptions
+  options: PDFReportOptions,
 ): void {
   const locale = options.locale || 'ru';
   const tr = pdfTranslations[locale];
@@ -168,19 +168,19 @@ export function generateClassReportPDF(
     struggling_students: Array<{ user_id: string; name: string; tasks_completed: number; avg_attempts: number }>;
     inactive_students: Array<{ user_id: string; name: string; last_active: number }>;
   },
-  options: PDFReportOptions
+  options: PDFReportOptions,
 ): void {
   const locale = options.locale || 'ru';
   const tr = pdfTranslations[locale];
   const localeCode = locale === 'ru' ? 'ru-RU' : locale === 'zh' ? 'zh-CN' : 'en-US';
 
-  const topPerformersRows = report.top_performers.map(s => 
-    `<tr><td>${escapeHtml(s.name)}</td><td>${s.tasks_completed}</td><td>${s.avg_attempts}</td></tr>`
-  ).join('');
+  const topPerformersRows = report.top_performers
+    .map((s) => `<tr><td>${escapeHtml(s.name)}</td><td>${s.tasks_completed}</td><td>${s.avg_attempts}</td></tr>`)
+    .join('');
 
-  const strugglingRows = report.struggling_students.map(s => 
-    `<tr><td>${escapeHtml(s.name)}</td><td>${s.tasks_completed}</td><td>${s.avg_attempts}</td></tr>`
-  ).join('');
+  const strugglingRows = report.struggling_students
+    .map((s) => `<tr><td>${escapeHtml(s.name)}</td><td>${s.tasks_completed}</td><td>${s.avg_attempts}</td></tr>`)
+    .join('');
 
   const content = `
     <!DOCTYPE html>
@@ -253,7 +253,15 @@ export interface AnalyticsPDFData {
     overall_compliance_rate: number;
     total_deadlines: number;
     avg_days_late: number;
-    deadlines: Array<{ title: string; due_date: string; targeted: number; on_time: number; late: number; missed: number; compliance_rate: number }>;
+    deadlines: Array<{
+      title: string;
+      due_date: string;
+      targeted: number;
+      on_time: number;
+      late: number;
+      missed: number;
+      compliance_rate: number;
+    }>;
   };
   notifications?: {
     total_sent: number;
@@ -333,7 +341,7 @@ export interface AnalyticsPDFData {
 export function generateAnalyticsPDF(
   data: AnalyticsPDFData,
   sections: AnalyticsSection[],
-  options: PDFReportOptions
+  options: PDFReportOptions,
 ): void {
   const locale = options.locale || 'ru';
   const tr = { ...pdfTranslations[locale], ...pdfAnalyticsTranslations[locale] };
@@ -360,9 +368,12 @@ export function generateAnalyticsPDF(
   // Deadline Compliance Section
   if (sections.includes('deadlineCompliance') && data.deadlineCompliance) {
     const d = data.deadlineCompliance;
-    const deadlineRows = d.deadlines.map(dl =>
-      `<tr><td>${escapeHtml(dl.title)}</td><td>${dl.due_date}</td><td>${dl.targeted}</td><td>${dl.on_time}</td><td>${dl.late}</td><td>${dl.missed}</td><td>${dl.compliance_rate}%</td></tr>`
-    ).join('');
+    const deadlineRows = d.deadlines
+      .map(
+        (dl) =>
+          `<tr><td>${escapeHtml(dl.title)}</td><td>${dl.due_date}</td><td>${dl.targeted}</td><td>${dl.on_time}</td><td>${dl.late}</td><td>${dl.missed}</td><td>${dl.compliance_rate}%</td></tr>`,
+      )
+      .join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.deadlineCompliance}</h1>
@@ -379,9 +390,12 @@ export function generateAnalyticsPDF(
   // Notifications Section
   if (sections.includes('notifications') && data.notifications) {
     const n = data.notifications;
-    const channelRows = n.channels.map(c =>
-      `<tr><td>${escapeHtml(c.channel)}</td><td>${c.sent}</td><td>${c.delivered}</td><td>${c.failed}</td><td>${c.success_rate}%</td></tr>`
-    ).join('');
+    const channelRows = n.channels
+      .map(
+        (c) =>
+          `<tr><td>${escapeHtml(c.channel)}</td><td>${c.sent}</td><td>${c.delivered}</td><td>${c.failed}</td><td>${c.success_rate}%</td></tr>`,
+      )
+      .join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.notifications}</h1>
@@ -398,12 +412,10 @@ export function generateAnalyticsPDF(
   // Streaks Section
   if (sections.includes('streaks') && data.streaks) {
     const s = data.streaks;
-    const distRows = s.distribution.map(d =>
-      `<tr><td>${escapeHtml(d.bucket)}</td><td>${d.count}</td></tr>`
-    ).join('');
-    const topRows = s.top_streaks.map((t, i) =>
-      `<tr><td>${i + 1}</td><td>${escapeHtml(t.name)}</td><td>${t.streak}</td></tr>`
-    ).join('');
+    const distRows = s.distribution.map((d) => `<tr><td>${escapeHtml(d.bucket)}</td><td>${d.count}</td></tr>`).join('');
+    const topRows = s.top_streaks
+      .map((t, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(t.name)}</td><td>${t.streak}</td></tr>`)
+      .join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.streaks}</h1>
@@ -422,9 +434,12 @@ export function generateAnalyticsPDF(
   // Onboarding Section
   if (sections.includes('onboarding') && data.onboarding) {
     const o = data.onboarding;
-    const stageRows = o.stages.map(s =>
-      `<tr><td>${escapeHtml(s.stage)}</td><td>${s.users}</td><td>${s.drop_off_rate}%</td><td>${s.avg_hours}h</td></tr>`
-    ).join('');
+    const stageRows = o.stages
+      .map(
+        (s) =>
+          `<tr><td>${escapeHtml(s.stage)}</td><td>${s.users}</td><td>${s.drop_off_rate}%</td><td>${s.avg_hours}h</td></tr>`,
+      )
+      .join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.onboarding}</h1>
@@ -440,9 +455,12 @@ export function generateAnalyticsPDF(
   // Re-engagement Section
   if (sections.includes('reEngagement') && data.reEngagement) {
     const r = data.reEngagement;
-    const recentRows = r.recent.map(s =>
-      `<tr><td>${escapeHtml(s.name)}</td><td>${s.gap_days} ${tr.days}</td><td>${escapeHtml(s.return_task)}</td></tr>`
-    ).join('');
+    const recentRows = r.recent
+      .map(
+        (s) =>
+          `<tr><td>${escapeHtml(s.name)}</td><td>${s.gap_days} ${tr.days}</td><td>${escapeHtml(s.return_task)}</td></tr>`,
+      )
+      .join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.reEngagement}</h1>
@@ -459,9 +477,12 @@ export function generateAnalyticsPDF(
   // Difficulty Calibration Section
   if (sections.includes('difficultyCalibration') && data.difficultyCalibration) {
     const d = data.difficultyCalibration;
-    const taskRows = d.tasks.map(t =>
-      `<tr><td>${escapeHtml(t.title)}</td><td>${t.intended}</td><td>${t.actual_attempts}</td><td>${t.recommended}</td></tr>`
-    ).join('');
+    const taskRows = d.tasks
+      .map(
+        (t) =>
+          `<tr><td>${escapeHtml(t.title)}</td><td>${t.intended}</td><td>${t.actual_attempts}</td><td>${t.recommended}</td></tr>`,
+      )
+      .join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.difficultyCalibration}</h1>
@@ -477,9 +498,10 @@ export function generateAnalyticsPDF(
   // Registrations Section
   if (sections.includes('registrations') && data.registrations) {
     const r = data.registrations;
-    const dailyRows = r.daily.slice(-14).map(d =>
-      `<tr><td>${escapeHtml(d.date)}</td><td>${d.count}</td></tr>`
-    ).join('');
+    const dailyRows = r.daily
+      .slice(-14)
+      .map((d) => `<tr><td>${escapeHtml(d.date)}</td><td>${d.count}</td></tr>`)
+      .join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.registrations}</h1>
@@ -514,9 +536,9 @@ export function generateAnalyticsPDF(
   // Hint Usage Section
   if (sections.includes('hintUsage') && data.hintUsage) {
     const h = data.hintUsage;
-    const userRows = h.top_hint_users.map(u =>
-      `<tr><td>${escapeHtml(u.name)}</td><td>${u.hints_used}</td><td>${u.completion_rate}%</td></tr>`
-    ).join('');
+    const userRows = h.top_hint_users
+      .map((u) => `<tr><td>${escapeHtml(u.name)}</td><td>${u.hints_used}</td><td>${u.completion_rate}%</td></tr>`)
+      .join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.hintUsage}</h1>
@@ -533,9 +555,13 @@ export function generateAnalyticsPDF(
   // Audit Section
   if (sections.includes('audit') && data.audit) {
     const a = data.audit;
-    const logRows = a.recent.slice(0, 50).map(l =>
-      `<tr><td>${escapeHtml(l.timestamp)}</td><td>${escapeHtml(l.action)}</td><td>${escapeHtml(l.user)}</td><td>${escapeHtml(l.target)}</td></tr>`
-    ).join('');
+    const logRows = a.recent
+      .slice(0, 50)
+      .map(
+        (l) =>
+          `<tr><td>${escapeHtml(l.timestamp)}</td><td>${escapeHtml(l.action)}</td><td>${escapeHtml(l.user)}</td><td>${escapeHtml(l.target)}</td></tr>`,
+      )
+      .join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.auditLog}</h1>
@@ -568,12 +594,12 @@ export function generateAnalyticsPDF(
   // Learning Plan Section
   if (sections.includes('learningPlan') && data.learningPlan) {
     const lp = data.learningPlan;
-    const taskRows = lp.next_tasks.map(t =>
-      `<tr><td>${escapeHtml(t.task)}</td><td>${t.difficulty}</td><td>${t.estimated_hours}h</td></tr>`
-    ).join('');
-    const milestoneRows = lp.milestones.map(m =>
-      `<tr><td>${escapeHtml(m.milestone)}</td><td>${m.target_date}</td></tr>`
-    ).join('');
+    const taskRows = lp.next_tasks
+      .map((t) => `<tr><td>${escapeHtml(t.task)}</td><td>${t.difficulty}</td><td>${t.estimated_hours}h</td></tr>`)
+      .join('');
+    const milestoneRows = lp.milestones
+      .map((m) => `<tr><td>${escapeHtml(m.milestone)}</td><td>${m.target_date}</td></tr>`)
+      .join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.learningPlan}</h1>
@@ -594,9 +620,12 @@ export function generateAnalyticsPDF(
   // A/B Test Section
   if (sections.includes('abTest') && data.abTest) {
     const ab = data.abTest;
-    const metricRows = ab.metrics.map(m =>
-      `<tr><td>${escapeHtml(m.metric)}</td><td>${m.group_a}</td><td>${m.group_b}</td><td>${m.significant ? tr.significant : tr.notSignificant}</td></tr>`
-    ).join('');
+    const metricRows = ab.metrics
+      .map(
+        (m) =>
+          `<tr><td>${escapeHtml(m.metric)}</td><td>${m.group_a}</td><td>${m.group_b}</td><td>${m.significant ? tr.significant : tr.notSignificant}</td></tr>`,
+      )
+      .join('');
     sectionsHTML += `
       <div class="section">
         <h1>${tr.abTestComparison}</h1>

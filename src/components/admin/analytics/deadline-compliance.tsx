@@ -8,9 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { AlertCircle, Calendar, Clock, Users } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { useDateRange } from '../analytics-dashboard';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import EmptyState from './empty-state';
 
 interface DeadlineEntry {
@@ -56,8 +54,8 @@ export default function DeadlineCompliance() {
     if (endDate) params.set('endDate', String(endDate));
 
     fetch(`/api/admin/analytics/deadline-compliance?${params}`)
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('Failed to fetch deadline compliance')))
-      .then(data => {
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch deadline compliance'))))
+      .then((data) => {
         setDeadlines(data.deadlines || []);
         setOverdueStudents(data.overdue_students || []);
         setOverallStats(data.overall_stats);
@@ -67,14 +65,40 @@ export default function DeadlineCompliance() {
   }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!overallStats) return <EmptyState />;
 
   const stats = [
-    { label: t('analytics.deadlineCompliance.overall'), value: `${overallStats.overall_compliance_rate}%`, icon: Calendar, color: 'text-blue-600' },
-    { label: t('analytics.deadlineCompliance.onTime'), value: overallStats.total_on_time, icon: Users, color: 'text-emerald-600' },
-    { label: t('analytics.deadlineCompliance.late'), value: overallStats.total_late, icon: Clock, color: 'text-amber-600' },
-    { label: t('analytics.deadlineCompliance.avgOverdue'), value: overallStats.avg_days_overdue, icon: AlertCircle, color: 'text-red-600' },
+    {
+      label: t('analytics.deadlineCompliance.overall'),
+      value: `${overallStats.overall_compliance_rate}%`,
+      icon: Calendar,
+      color: 'text-blue-600',
+    },
+    {
+      label: t('analytics.deadlineCompliance.onTime'),
+      value: overallStats.total_on_time,
+      icon: Users,
+      color: 'text-emerald-600',
+    },
+    {
+      label: t('analytics.deadlineCompliance.late'),
+      value: overallStats.total_late,
+      icon: Clock,
+      color: 'text-amber-600',
+    },
+    {
+      label: t('analytics.deadlineCompliance.avgOverdue'),
+      value: overallStats.avg_days_overdue,
+      icon: AlertCircle,
+      color: 'text-red-600',
+    },
   ];
 
   return (
@@ -82,7 +106,7 @@ export default function DeadlineCompliance() {
       <h2 className="text-2xl font-bold">{t('analytics.deadlineCompliance.title')}</h2>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map(stat => (
+        {stats.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="p-4 flex items-center gap-3">
               <stat.icon className={`h-8 w-8 ${stat.color}`} />
@@ -97,7 +121,9 @@ export default function DeadlineCompliance() {
 
       {deadlines.length > 0 && (
         <Card>
-          <CardHeader><CardTitle>{t('analytics.deadlineCompliance.title')}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>{t('analytics.deadlineCompliance.title')}</CardTitle>
+          </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
@@ -111,13 +137,19 @@ export default function DeadlineCompliance() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {deadlines.map(d => (
+                {deadlines.map((d) => (
                   <TableRow key={d.deadline_id}>
                     <TableCell className="font-medium">{d.title}</TableCell>
                     <TableCell>{new Date(d.due_at).toLocaleDateString()}</TableCell>
                     <TableCell>{d.targeted_students}</TableCell>
-                    <TableCell><Badge className="bg-emerald-100 text-emerald-800">{d.completed_on_time}</Badge></TableCell>
-                    <TableCell><Badge variant="outline" className="border-amber-500 text-amber-600">{d.completed_late}</Badge></TableCell>
+                    <TableCell>
+                      <Badge className="bg-emerald-100 text-emerald-800">{d.completed_on_time}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="border-amber-500 text-amber-600">
+                        {d.completed_late}
+                      </Badge>
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Progress value={d.compliance_rate} className="w-20" />
@@ -134,7 +166,9 @@ export default function DeadlineCompliance() {
 
       {overdueStudents.length > 0 && (
         <Card>
-          <CardHeader><CardTitle className="text-red-600">{t('analytics.deadlineCompliance.overdueStudents')}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-red-600">{t('analytics.deadlineCompliance.overdueStudents')}</CardTitle>
+          </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
@@ -150,8 +184,14 @@ export default function DeadlineCompliance() {
                   <TableRow key={`${s.user_id}-${s.deadline_title}`}>
                     <TableCell>{s.name}</TableCell>
                     <TableCell>{s.deadline_title}</TableCell>
-                    <TableCell><Badge variant="destructive">{s.days_overdue}</Badge></TableCell>
-                    <TableCell>{s.completed ? t('analytics.deadlineCompliance.completed') : t('analytics.deadlineCompliance.notCompleted')}</TableCell>
+                    <TableCell>
+                      <Badge variant="destructive">{s.days_overdue}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {s.completed
+                        ? t('analytics.deadlineCompliance.completed')
+                        : t('analytics.deadlineCompliance.notCompleted')}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

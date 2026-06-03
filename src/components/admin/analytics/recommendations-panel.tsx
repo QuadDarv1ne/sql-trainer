@@ -38,7 +38,13 @@ export default function RecommendationsPanel() {
   });
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
-  if (error) return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>;
+  if (error)
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
   if (!data || !data.length) return <EmptyState title={t('analytics.recommendations.noRecommendations')} />;
 
   return (
@@ -63,8 +69,8 @@ export default function RecommendationsPanel() {
                       rec.priority === 'high'
                         ? 'border-red-500 text-red-600'
                         : rec.priority === 'medium'
-                        ? 'border-amber-500 text-amber-600'
-                        : 'border-emerald-500 text-emerald-600'
+                          ? 'border-amber-500 text-amber-600'
+                          : 'border-emerald-500 text-emerald-600'
                     }
                   >
                     {t(`analytics.recommendations.priority.${rec.priority}`)}

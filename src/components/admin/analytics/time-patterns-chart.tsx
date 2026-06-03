@@ -58,11 +58,11 @@ export default function TimePatternsChart() {
 
   if (loading) return <div className="flex justify-center py-8">{t('analytics.loading')}</div>;
   if (error) return <div className="text-red-500 py-8">{error}</div>;
-  
+
   const totalCompletions = hourly.reduce((sum, h) => sum + h.completions, 0);
   if (totalCompletions === 0) return <EmptyState />;
 
-  const hourlyFormatted = hourly.map(h => ({
+  const hourlyFormatted = hourly.map((h) => ({
     ...h,
     hour_label: `${String(h.hour).padStart(2, '0')}:00`,
   }));
@@ -89,7 +89,7 @@ export default function TimePatternsChart() {
             </Card>
             <Card>
               <CardContent className="pt-4">
-                <div className="text-2xl font-bold">{daily.find(d => d.day === peakDay)?.day_name || '\u2014'}</div>
+                <div className="text-2xl font-bold">{daily.find((d) => d.day === peakDay)?.day_name || '\u2014'}</div>
                 <p className="text-xs text-muted-foreground">{t('analytics.timePatterns.peakDay')}</p>
               </CardContent>
             </Card>

@@ -21,11 +21,15 @@ export const GET = withAdminAuth(async () => {
     );
   `);
 
-  const reports = db.prepare(`
+  const reports = db
+    .prepare(
+      `
     SELECT id, user_id, report_type, format, schedule, email_recipients, active, created_at, last_run
     FROM scheduled_reports
     ORDER BY created_at DESC
-  `).all() as Array<{
+  `,
+    )
+    .all() as Array<{
     id: string;
     user_id: string;
     report_type: string;
@@ -38,9 +42,16 @@ export const GET = withAdminAuth(async () => {
   }>;
 
   return NextResponse.json({
-    scheduledReports: reports.map(r => ({
+    scheduledReports: reports.map((r) => ({
       ...r,
-      email_recipients: (() => { try { return JSON.parse(r.email_recipients); } catch (e) { logger.error('Failed to parse email_recipients JSON:', e); return []; } })(),
+      email_recipients: (() => {
+        try {
+          return JSON.parse(r.email_recipients);
+        } catch (e) {
+          logger.error('Failed to parse email_recipients JSON:', e);
+          return [];
+        }
+      })(),
     })),
   });
 });
@@ -82,18 +93,12 @@ export const POST = withAdminAuth(async ({ session, request }) => {
   const id = `sr_${Date.now()}_${globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 8)}`;
   const now = Date.now();
 
-  db.prepare(`
+  db.prepare(
+    `
     INSERT INTO scheduled_reports (id, user_id, report_type, format, schedule, email_recipients, active, created_at)
     VALUES (?, ?, ?, ?, ?, ?, 1, ?)
-  `).run(
-    id,
-    session.user.id,
-    reportType,
-    format,
-    schedule,
-    JSON.stringify(emailRecipients),
-    now,
-  );
+  `,
+  ).run(id, session.user.id, reportType, format, schedule, JSON.stringify(emailRecipients), now);
 
   return NextResponse.json({ id, message: 'Scheduled report created' }, { status: 201 });
 });

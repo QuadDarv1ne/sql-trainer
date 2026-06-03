@@ -29,10 +29,7 @@ function getLandingPage(role?: Role): string {
   }
 }
 
-export function evaluateRouteAccess(
-  session: Session,
-  pathname: string,
-): { action: 'allow' | 'redirect'; url: string } {
+export function evaluateRouteAccess(session: Session, pathname: string): { action: 'allow' | 'redirect'; url: string } {
   // Redirect authenticated users away from auth pages to their role landing
   if (authRoutes.includes(pathname) && session) {
     return { action: 'redirect', url: getLandingPage(session.user?.role) };

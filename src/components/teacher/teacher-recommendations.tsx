@@ -46,9 +46,15 @@ export default function TeacherRecommendations() {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((res) => { if (!controller.signal.aborted) setData(res.data); })
-      .catch(() => { if (!controller.signal.aborted) setError(t('teacher.error')); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+      .then((res) => {
+        if (!controller.signal.aborted) setData(res.data);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setError(t('teacher.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -67,7 +73,7 @@ export default function TeacherRecommendations() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="rounded-lg border p-4 space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <Skeleton className="h-5 w-40" />

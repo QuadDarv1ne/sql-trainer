@@ -21,14 +21,7 @@ interface DataCardProps {
  * Wrapper for data-fetching cards: shows skeleton while loading,
  * error alert with retry button on failure, or the actual content.
  */
-export default function DataCard({
-  title,
-  loading,
-  error,
-  hasData,
-  onRetry,
-  children,
-}: DataCardProps) {
+export default function DataCard({ title, loading, error, hasData, onRetry, children }: DataCardProps) {
   if (loading) {
     return (
       <Card>

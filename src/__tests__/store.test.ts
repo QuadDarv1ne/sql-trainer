@@ -207,9 +207,7 @@ describe('store — gamification slice', () => {
     useSQLTrainerStore.getState().markTaskCompleted('beginner-2', 1);
 
     const state = useSQLTrainerStore.getState();
-    const firstQueryCount = state.achievements.filter(
-      (a: string) => a === 'first_query'
-    ).length;
+    const firstQueryCount = state.achievements.filter((a: string) => a === 'first_query').length;
     expect(firstQueryCount).toBe(1);
   });
 

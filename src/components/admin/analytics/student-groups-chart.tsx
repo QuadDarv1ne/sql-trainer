@@ -42,7 +42,7 @@ export default function StudentGroupsChart() {
 
   if (loading) return <div className="flex justify-center py-8">{t('analytics.loading')}</div>;
   if (error) return <div className="text-red-500 py-8">{error}</div>;
-  
+
   const totalStudents = data.reduce((sum, g) => sum + g.student_count, 0);
   if (totalStudents === 0) return <EmptyState />;
 

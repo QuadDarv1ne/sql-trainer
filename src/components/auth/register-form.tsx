@@ -10,7 +10,19 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
-import { Loader2, Mail, Lock, User, Phone, AlertCircle, CheckCircle2, Users, GraduationCap, Eye, EyeOff } from 'lucide-react';
+import {
+  Loader2,
+  Mail,
+  Lock,
+  User,
+  Phone,
+  AlertCircle,
+  CheckCircle2,
+  Users,
+  GraduationCap,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { ROLE_LABELS } from '@/lib/rbac';
 import type { Role } from '@/lib/rbac';
@@ -92,9 +104,7 @@ export default function RegisterForm() {
             <CheckCircle2 className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
           </div>
           <h3 className="text-xl font-semibold mb-2">{t('auth.registerSuccess')}</h3>
-          <p className="text-sm text-muted-foreground text-center">
-            {t('auth.registerRedirect')}
-          </p>
+          <p className="text-sm text-muted-foreground text-center">{t('auth.registerRedirect')}</p>
         </CardContent>
       </Card>
     );
@@ -123,7 +133,9 @@ export default function RegisterForm() {
             {/* Name and Phone row */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium">{t('auth.name')}</Label>
+                <Label htmlFor="name" className="text-sm font-medium">
+                  {t('auth.name')}
+                </Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -138,7 +150,9 @@ export default function RegisterForm() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-sm font-medium">{t('auth.phone')} <span className="text-muted-foreground font-normal">{t('auth.optional')}</span></Label>
+                <Label htmlFor="phone" className="text-sm font-medium">
+                  {t('auth.phone')} <span className="text-muted-foreground font-normal">{t('auth.optional')}</span>
+                </Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -155,7 +169,9 @@ export default function RegisterForm() {
 
             {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">{t('auth.email')}</Label>
+              <Label htmlFor="email" className="text-sm font-medium">
+                {t('auth.email')}
+              </Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -172,7 +188,9 @@ export default function RegisterForm() {
 
             {/* Role selector */}
             <div className="space-y-2">
-              <Label htmlFor="role" className="text-sm font-medium">{t('auth.role')}</Label>
+              <Label htmlFor="role" className="text-sm font-medium">
+                {t('auth.role')}
+              </Label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -183,12 +201,18 @@ export default function RegisterForm() {
                       : 'border-border bg-muted/30 hover:bg-muted/50'
                   }`}
                 >
-                  <Users className={`h-5 w-5 flex-shrink-0 ${role === 'student' ? 'text-blue-600' : 'text-muted-foreground'}`} />
+                  <Users
+                    className={`h-5 w-5 flex-shrink-0 ${role === 'student' ? 'text-blue-600' : 'text-muted-foreground'}`}
+                  />
                   <div className="text-left">
-                    <div className={`text-sm font-medium ${role === 'student' ? 'text-blue-700 dark:text-blue-400' : ''}`}>
+                    <div
+                      className={`text-sm font-medium ${role === 'student' ? 'text-blue-700 dark:text-blue-400' : ''}`}
+                    >
                       {ROLE_LABELS.student}
                     </div>
-                    <div className="text-xs text-muted-foreground">{t('auth.role.studentDesc', { default: 'Практика SQL-запросов' })}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t('auth.role.studentDesc', { default: 'Практика SQL-запросов' })}
+                    </div>
                   </div>
                 </button>
                 <button
@@ -200,12 +224,18 @@ export default function RegisterForm() {
                       : 'border-border bg-muted/30 hover:bg-muted/50'
                   }`}
                 >
-                  <GraduationCap className={`h-5 w-5 flex-shrink-0 ${role === 'teacher' ? 'text-amber-600' : 'text-muted-foreground'}`} />
+                  <GraduationCap
+                    className={`h-5 w-5 flex-shrink-0 ${role === 'teacher' ? 'text-amber-600' : 'text-muted-foreground'}`}
+                  />
                   <div className="text-left">
-                    <div className={`text-sm font-medium ${role === 'teacher' ? 'text-amber-700 dark:text-amber-400' : ''}`}>
+                    <div
+                      className={`text-sm font-medium ${role === 'teacher' ? 'text-amber-700 dark:text-amber-400' : ''}`}
+                    >
                       {ROLE_LABELS.teacher}
                     </div>
-                    <div className="text-xs text-muted-foreground">{t('auth.role.teacherDesc', { default: 'Аналитика и прогресс студентов' })}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t('auth.role.teacherDesc', { default: 'Аналитика и прогресс студентов' })}
+                    </div>
                   </div>
                 </button>
               </div>
@@ -214,7 +244,9 @@ export default function RegisterForm() {
             {/* Password fields */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">{t('auth.password')}</Label>
+                <Label htmlFor="password" className="text-sm font-medium">
+                  {t('auth.password')}
+                </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -239,7 +271,9 @@ export default function RegisterForm() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-sm font-medium">{t('auth.confirmPassword')}</Label>
+                <Label htmlFor="confirmPassword" className="text-sm font-medium">
+                  {t('auth.confirmPassword')}
+                </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input

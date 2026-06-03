@@ -17,14 +17,7 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { t } from '@/lib/i18n';
 import EmptyState from './empty-state';
 
@@ -76,7 +69,7 @@ export default function SessionAnalysisChart() {
 
   // Time of day distribution
   const timeDist: Record<string, number> = {};
-  data.forEach(d => {
+  data.forEach((d) => {
     timeDist[d.preferred_time_of_day] = (timeDist[d.preferred_time_of_day] || 0) + 1;
   });
   const pieData = Object.entries(timeDist).map(([name, value]) => ({ name, value }));
@@ -86,7 +79,8 @@ export default function SessionAnalysisChart() {
   const topStudents = [...data].sort((a, b) => b.total_sessions - a.total_sessions).slice(0, 10);
 
   const avgSessions = Math.round(data.reduce((s, d) => s + d.total_sessions, 0) / data.length);
-  const avgTasksPerSession = Math.round(data.reduce((s, d) => s + d.avg_tasks_per_session, 0) / data.length * 10) / 10;
+  const avgTasksPerSession =
+    Math.round((data.reduce((s, d) => s + d.avg_tasks_per_session, 0) / data.length) * 10) / 10;
   const avgDuration = Math.round(data.reduce((s, d) => s + d.avg_session_duration_minutes, 0) / data.length);
 
   return (
@@ -107,7 +101,9 @@ export default function SessionAnalysisChart() {
           </div>
           <div className="p-4 rounded-lg border space-y-1">
             <div className="text-xs text-muted-foreground">{t('analytics.sessions.avgDuration')}</div>
-            <div className="text-2xl font-bold">{avgDuration} {t('analytics.sessions.minutes')}</div>
+            <div className="text-2xl font-bold">
+              {avgDuration} {t('analytics.sessions.minutes')}
+            </div>
           </div>
         </div>
 
@@ -169,11 +165,11 @@ export default function SessionAnalysisChart() {
                 <TableCell className="font-medium">{entry.name}</TableCell>
                 <TableCell>{entry.total_sessions}</TableCell>
                 <TableCell>{entry.avg_tasks_per_session}</TableCell>
-                <TableCell>{entry.avg_session_duration_minutes} {t('analytics.sessions.minutes')}</TableCell>
                 <TableCell>
-                  <Badge className={timeColors[entry.preferred_time_of_day] || ''}>
-                    {entry.preferred_time_of_day}
-                  </Badge>
+                  {entry.avg_session_duration_minutes} {t('analytics.sessions.minutes')}
+                </TableCell>
+                <TableCell>
+                  <Badge className={timeColors[entry.preferred_time_of_day] || ''}>{entry.preferred_time_of_day}</Badge>
                 </TableCell>
                 <TableCell>{Math.round(entry.weekend_session_ratio * 100)}%</TableCell>
               </TableRow>

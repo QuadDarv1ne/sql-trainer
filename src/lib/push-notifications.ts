@@ -11,11 +11,7 @@ function initVapid(): void {
   if (_initialized) return;
   if (!isPushConfigured()) return;
 
-  webpush.setVapidDetails(
-    vapidConfig.subject,
-    vapidConfig.publicKey,
-    vapidConfig.privateKey,
-  );
+  webpush.setVapidDetails(vapidConfig.subject, vapidConfig.publicKey, vapidConfig.privateKey);
   _initialized = true;
 }
 

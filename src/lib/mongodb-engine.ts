@@ -20,7 +20,9 @@ export interface MongoSchema {
  * Parse a MongoDB query string into a JSON object.
  * Supports find() and aggregate() syntax.
  */
-function parseMongoQuery(queryStr: string): { type: 'find' | 'aggregate'; collection: string; options?: unknown } | null {
+function parseMongoQuery(
+  queryStr: string,
+): { type: 'find' | 'aggregate'; collection: string; options?: unknown } | null {
   try {
     // Try parsing as JSON first (for aggregate pipelines)
     const parsed = JSON.parse(queryStr);
@@ -75,7 +77,7 @@ function compareValues(a: unknown, b: unknown): number {
 function executeFind(
   collection: string,
   schema: MongoSchema,
-  options: Record<string, unknown>
+  options: Record<string, unknown>,
 ): Record<string, unknown>[] {
   const data = schema[collection] || [];
   if (!data.length) return [];
@@ -85,7 +87,7 @@ function executeFind(
   let results = [...data];
 
   // Apply query filter
-  results = results.filter(doc => matchesQuery(doc, query as Record<string, unknown>));
+  results = results.filter((doc) => matchesQuery(doc, query as Record<string, unknown>));
 
   // Apply skip
   if (typeof skip === 'number') {
@@ -114,7 +116,7 @@ function executeFind(
 
   // Apply projection
   if (projection && Object.keys(projection).length > 0) {
-    results = results.map(doc => applyProjection(doc, projection as Record<string, number>));
+    results = results.map((doc) => applyProjection(doc, projection as Record<string, number>));
   }
 
   return results;
@@ -126,13 +128,13 @@ function executeFind(
 function executeAggregate(
   collection: string,
   schema: MongoSchema,
-  pipeline: Record<string, unknown>[]
+  pipeline: Record<string, unknown>[],
 ): Record<string, unknown>[] {
   let results = [...(schema[collection] || [])];
 
   for (const stage of pipeline) {
     if (stage.$match) {
-      results = results.filter(doc => matchesQuery(doc, stage.$match as Record<string, unknown>));
+      results = results.filter((doc) => matchesQuery(doc, stage.$match as Record<string, unknown>));
     } else if (stage.$group) {
       results = aggregateGroup(results, stage.$group as Record<string, unknown>);
     } else if (stage.$sort) {
@@ -152,20 +154,20 @@ function executeAggregate(
     } else if (stage.$skip) {
       results = results.slice(stage.$skip as number);
     } else if (stage.$project) {
-      results = results.map(doc => applyProjection(doc, stage.$project as Record<string, number>));
+      results = results.map((doc) => applyProjection(doc, stage.$project as Record<string, number>));
     } else if (stage.$unwind) {
       const field = typeof stage.$unwind === 'string' ? stage.$unwind.slice(1) : String(stage.$unwind);
-      results = results.flatMap(doc => {
+      results = results.flatMap((doc) => {
         const arr = getNestedValue(doc, field) as unknown[];
         if (!Array.isArray(arr)) return [doc];
-        return arr.map(item => ({ ...doc, [field]: item }));
+        return arr.map((item) => ({ ...doc, [field]: item }));
       });
     } else if (stage.$lookup) {
       const lookup = stage.$lookup as Record<string, string>;
       const foreignCollection = schema[lookup.from] || [];
-      results = results.map(doc => {
+      results = results.map((doc) => {
         const localVal = getNestedValue(doc, lookup.localField);
-        const matches = foreignCollection.filter(fDoc => fDoc[lookup.foreignField] === localVal);
+        const matches = foreignCollection.filter((fDoc) => fDoc[lookup.foreignField] === localVal);
         return { ...doc, [lookup.as]: matches };
       });
     } else if (stage.$count) {
@@ -202,15 +204,24 @@ function matchesQuery(doc: Record<string, unknown>, query: Record<string, unknow
  */
 function matchesOperator(docValue: unknown, op: string, expected: unknown): boolean {
   switch (op) {
-    case '$eq': return docValue === expected;
-    case '$ne': return docValue !== expected;
-    case '$gt': return (docValue as number) > (expected as number);
-    case '$gte': return (docValue as number) >= (expected as number);
-    case '$lt': return (docValue as number) < (expected as number);
-    case '$lte': return (docValue as number) <= (expected as number);
-    case '$in': return (expected as unknown[]).includes(docValue);
-    case '$nin': return !(expected as unknown[]).includes(docValue);
-    case '$exists': return expected ? docValue !== undefined : docValue === undefined;
+    case '$eq':
+      return docValue === expected;
+    case '$ne':
+      return docValue !== expected;
+    case '$gt':
+      return (docValue as number) > (expected as number);
+    case '$gte':
+      return (docValue as number) >= (expected as number);
+    case '$lt':
+      return (docValue as number) < (expected as number);
+    case '$lte':
+      return (docValue as number) <= (expected as number);
+    case '$in':
+      return (expected as unknown[]).includes(docValue);
+    case '$nin':
+      return !(expected as unknown[]).includes(docValue);
+    case '$exists':
+      return expected ? docValue !== undefined : docValue === undefined;
     case '$regex': {
       if (typeof docValue !== 'string') return false;
       try {
@@ -222,25 +233,22 @@ function matchesOperator(docValue: unknown, op: string, expected: unknown): bool
         return false; // Invalid regex — treat as no match
       }
     }
-    case '$size': return Array.isArray(docValue) && docValue.length === expected;
-    default: return docValue === expected;
+    case '$size':
+      return Array.isArray(docValue) && docValue.length === expected;
+    default:
+      return docValue === expected;
   }
 }
 
 /**
  * Execute $group aggregation stage.
  */
-function aggregateGroup(
-  docs: Record<string, unknown>[],
-  group: Record<string, unknown>
-): Record<string, unknown>[] {
+function aggregateGroup(docs: Record<string, unknown>[], group: Record<string, unknown>): Record<string, unknown>[] {
   const _id = group._id;
   const groups = new Map<string, Record<string, unknown>[]>();
 
   for (const doc of docs) {
-    const key = typeof _id === 'string'
-      ? String(getNestedValue(doc, _id.slice(1)) ?? 'null')
-      : JSON.stringify(_id);
+    const key = typeof _id === 'string' ? String(getNestedValue(doc, _id.slice(1)) ?? 'null') : JSON.stringify(_id);
     if (!groups.has(key)) groups.set(key, []);
     const group = groups.get(key);
     if (group) group.push(doc);
@@ -262,18 +270,19 @@ function aggregateGroup(
       const exprStr = typeof expr === 'object' ? JSON.stringify(expr) : '';
       if (exprStr.startsWith('{"$sum"')) {
         const fieldRef = (expr as Record<string, string>)['$sum'].slice(1);
-        result[field] = groupDocs.reduce((sum, d) => sum + (getNestedValue(d, fieldRef) as number || 0), 0);
+        result[field] = groupDocs.reduce((sum, d) => sum + ((getNestedValue(d, fieldRef) as number) || 0), 0);
       } else if (exprStr.startsWith('{"$avg"')) {
         const fieldRef = (expr as Record<string, string>)['$avg'].slice(1);
-        result[field] = groupDocs.reduce((sum, d) => sum + (getNestedValue(d, fieldRef) as number || 0), 0) / groupDocs.length;
+        result[field] =
+          groupDocs.reduce((sum, d) => sum + ((getNestedValue(d, fieldRef) as number) || 0), 0) / groupDocs.length;
       } else if (exprStr.startsWith('{"$count"') || exprStr.startsWith('{}')) {
         result[field] = groupDocs.length;
       } else if (exprStr.startsWith('{"$max"')) {
         const fieldRef = (expr as Record<string, string>)['$max'].slice(1);
-        result[field] = Math.max(...groupDocs.map(d => getNestedValue(d, fieldRef) as number));
+        result[field] = Math.max(...groupDocs.map((d) => getNestedValue(d, fieldRef) as number));
       } else if (exprStr.startsWith('{"$min"')) {
         const fieldRef = (expr as Record<string, string>)['$min'].slice(1);
-        result[field] = Math.min(...groupDocs.map(d => getNestedValue(d, fieldRef) as number));
+        result[field] = Math.min(...groupDocs.map((d) => getNestedValue(d, fieldRef) as number));
       }
     }
     results.push(result);
@@ -301,10 +310,7 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
 /**
  * Apply projection to document.
  */
-function applyProjection(
-  doc: Record<string, unknown>,
-  projection: Record<string, number>
-): Record<string, unknown> {
+function applyProjection(doc: Record<string, unknown>, projection: Record<string, number>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (const [field, include] of Object.entries(projection)) {
     if (Number(include) === 1) {
@@ -325,10 +331,7 @@ function arraysEqual(a: unknown[], b: unknown[]): boolean {
 /**
  * Execute a MongoDB query with schema (in-memory mode).
  */
-export function executeMongoQuery(
-  queryStr: string,
-  schema: MongoSchema
-): MongoResult {
+export function executeMongoQuery(queryStr: string, schema: MongoSchema): MongoResult {
   const startTime = Date.now();
 
   try {
@@ -345,7 +348,7 @@ export function executeMongoQuery(
     let rows: Record<string, unknown>[];
 
     if (parsed.type === 'find') {
-      const options = parsed.options as Record<string, unknown> || {};
+      const options = (parsed.options as Record<string, unknown>) || {};
       rows = executeFind(parsed.collection, schema, options);
     } else {
       rows = executeAggregate(parsed.collection, schema, parsed.options as Record<string, unknown>[]);
@@ -377,7 +380,7 @@ export function executeMongoQuery(
 export async function executeMongoQueryReal(
   queryStr: string,
   connectionString: string,
-  databaseName: string
+  databaseName: string,
 ): Promise<MongoResult> {
   const startTime = Date.now();
 
@@ -401,7 +404,7 @@ export async function executeMongoQueryReal(
     let rows: Record<string, unknown>[];
 
     if (parsed.type === 'find') {
-      const options = parsed.options as Record<string, unknown> || {};
+      const options = (parsed.options as Record<string, unknown>) || {};
       const { query = {}, projection = {}, sort = {}, limit, skip } = options;
       const cursor = db.collection(parsed.collection).find(query as Record<string, unknown>, {
         projection: projection as Record<string, number>,
