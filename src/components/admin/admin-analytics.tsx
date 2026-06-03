@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -89,7 +90,7 @@ export default function AdminAnalytics() {
         setMetrics(data.metrics);
       }
     } catch (error) {
-      console.error('Failed to fetch metrics:', error);
+      logger.error('Failed to fetch metrics:', error);
     }
   }, []);
 
@@ -101,7 +102,7 @@ export default function AdminAnalytics() {
         setUserActivity(data.users || []);
       }
     } catch (error) {
-      console.error('Failed to fetch user activity:', error);
+      logger.error('Failed to fetch user activity:', error);
     }
   }, []);
 
@@ -113,7 +114,7 @@ export default function AdminAnalytics() {
         setAuditLogs(data.logs || []);
       }
     } catch (error) {
-      console.error('Failed to fetch audit logs:', error);
+      logger.error('Failed to fetch audit logs:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -144,7 +145,7 @@ export default function AdminAnalytics() {
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Failed to export:', error);
+      logger.error('Failed to export:', error);
     }
   };
 

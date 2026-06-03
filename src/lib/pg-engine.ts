@@ -5,6 +5,7 @@
 
 import { adaptPostgreSQLToSQLite } from './postgresql-adapter';
 import { executeWithSchema as executeSQLite, executeQuery } from './sql-engine';
+import { logger } from './logger';
 
 export interface PgResult {
   success: boolean;
@@ -158,7 +159,7 @@ export async function explainPgQuery(
     if (schemaSql) {
       const statements = schemaSql.split(';').map(s => s.trim()).filter(s => s.length > 0);
       for (const stmt of statements) {
-        try { await client.query(stmt); } catch { /* ignore */ }
+        try { await client.query(stmt); } catch (e) { logger.error('Failed to execute schema statement:', e); }
       }
     }
 

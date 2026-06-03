@@ -44,10 +44,10 @@ import {
   GraduationCap,
   TrendingUp,
   AlertCircle,
-  CheckCircle2,
   X,
 } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
@@ -82,12 +82,10 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
   const { toast } = useToast();
   const [groups, setGroups] = useState<Group[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isAddStudentDialogOpen, setIsAddStudentDialogOpen] = useState(false);
-  const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
   const [newGroupName, setNewGroupName] = useState('');
   const [newGroupDescription, setNewGroupDescription] = useState('');
@@ -105,7 +103,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         }
       }
     } catch (error) {
-      console.error('Failed to fetch groups:', error);
+      logger.error('Failed to fetch groups:', error);
     }
   }, [groupId, selectedGroup]);
 
@@ -118,9 +116,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         setStudents(data.students || []);
       }
     } catch (error) {
-      console.error('Failed to fetch students:', error);
-    } finally {
-      setLoading(false);
+      logger.error('Failed to fetch students:', error);
     }
   }, []);
 
@@ -166,6 +162,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         fetchGroups();
       }
     } catch (error) {
+      logger.error('Failed to create group:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось создать группу',
@@ -207,6 +204,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         fetchStudents(selectedGroup.id);
       }
     } catch (error) {
+      logger.error('Failed to add students:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось добавить студентов',
@@ -234,6 +232,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         fetchStudents(selectedGroup.id);
       }
     } catch (error) {
+      logger.error('Failed to remove student:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось удалить студента',
@@ -262,6 +261,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         fetchStudents(selectedGroup.id);
       }
     } catch (error) {
+      logger.error('Failed to remove students:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось удалить студентов',
@@ -288,6 +288,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         description: 'Данные группы экспортированы в CSV',
       });
     } catch (error) {
+      logger.error('Failed to export group data:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось экспортировать данные',

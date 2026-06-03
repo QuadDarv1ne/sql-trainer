@@ -1,6 +1,7 @@
 import { withAdminAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db-users';
+import { logger } from '@/lib/logger';
 
 export const GET = withAdminAuth(async () => {
   const db = getDb();
@@ -39,7 +40,7 @@ export const GET = withAdminAuth(async () => {
   return NextResponse.json({
     scheduledReports: reports.map(r => ({
       ...r,
-      email_recipients: (() => { try { return JSON.parse(r.email_recipients); } catch { return []; } })(),
+      email_recipients: (() => { try { return JSON.parse(r.email_recipients); } catch (e) { logger.error('Failed to parse email_recipients JSON:', e); return []; } })(),
     })),
   });
 });
