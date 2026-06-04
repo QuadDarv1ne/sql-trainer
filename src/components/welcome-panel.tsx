@@ -88,7 +88,8 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
       targetDifficulty = intermediateCompleted >= intermediateTotal * 0.5 ? 'advanced' : 'intermediate';
     } else if (completedDifficulties.has('beginner')) {
       const beginnerCompleted = completedTasks.filter(
-        (ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'beginner',
+        (ct: import('@/lib/store').CompletedTask) =>
+          TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'beginner',
       ).length;
       const beginnerTotal = TRAINING_TASKS.filter((t) => t.difficulty === 'beginner').length;
       targetDifficulty = beginnerCompleted >= beginnerTotal * 0.5 ? 'intermediate' : 'beginner';
@@ -108,7 +109,9 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
     // Fallback: first incomplete task at target difficulty
     const fallback =
       TRAINING_TASKS.find(
-        (t) => t.difficulty === targetDifficulty && !completedTasks.some((ct) => ct.taskId === t.id),
+        (t) =>
+          t.difficulty === targetDifficulty &&
+          !completedTasks.some((ct: import('@/lib/store').CompletedTask) => ct.taskId === t.id),
       ) || firstIncompleteTask;
 
     return { recommendedTask: fallback, missingConceptLabel: null };
