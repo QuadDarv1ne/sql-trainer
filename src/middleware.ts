@@ -16,32 +16,36 @@ const csrfProtectedApiPrefixes = [
   '/api/sql',
 ];
 
-const securityHeaders = {
-  'X-DNS-Prefetch-Control': 'on',
-  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
-  'X-Frame-Options': 'SAMEORIGIN',
-  'X-Content-Type-Options': 'nosniff',
-  'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-  'Cross-Origin-Opener-Policy': 'same-origin',
-  'Cross-Origin-Resource-Policy': 'same-origin',
-  'Cross-Origin-Embedder-Policy': 'unsafe-none',
-  'Content-Security-Policy': [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
-    "font-src 'self' data:",
-    "connect-src 'self'",
-    "media-src 'none'",
-    "object-src 'none'",
-    "frame-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'none'",
-    'upgrade-insecure-requests',
-  ].join('; '),
-};
+function getSecurityHeaders(): Record<string, string> {
+  const isDev = process.env.NODE_ENV === 'development';
+
+  return {
+    'X-DNS-Prefetch-Control': 'on',
+    'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+    'X-Frame-Options': 'SAMEORIGIN',
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+    'Cross-Origin-Opener-Policy': 'same-origin',
+    'Cross-Origin-Resource-Policy': 'same-origin',
+    'Cross-Origin-Embedder-Policy': 'unsafe-none',
+    'Content-Security-Policy': [
+      "default-src 'self'",
+      `script-src${isDev ? " 'unsafe-eval'" : ''} 'self' 'unsafe-inline'`,
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob:",
+      "font-src 'self' data:",
+      "connect-src 'self'",
+      "media-src 'none'",
+      "object-src 'none'",
+      "frame-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+      'upgrade-insecure-requests',
+    ].join('; '),
+  };
+}
 
 function isCsrfProtectedRoute(pathname: string): boolean {
   return csrfProtectedApiPrefixes.some((prefix) => pathname.startsWith(prefix));
@@ -84,6 +88,7 @@ export default auth(async (request) => {
   }
 
   // Apply security headers to all responses
+  const securityHeaders = getSecurityHeaders();
   for (const [key, value] of Object.entries(securityHeaders)) {
     response.headers.set(key, value);
   }

@@ -173,6 +173,20 @@ export default function HomePage() {
     };
   }, [session?.user]);
 
+  // Confirmation dialog for destructive actions
+  const confirmAction = useCallback((message: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const handleConfirm = (e: MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const confirmed = window.confirm(message);
+        resolve(confirmed);
+        document.removeEventListener('click', handleConfirm);
+      };
+      document.addEventListener('click', handleConfirm);
+    });
+  }, []);
+
   // Get current task
   const currentTask = useMemo(() => (currentTaskId ? getTaskById(currentTaskId) : null), [currentTaskId]);
 
@@ -523,24 +537,37 @@ export default function HomePage() {
   ]);
 
   // Reset DB (re-init task)
-  const resetDb = () => {
-    if (currentTask) {
-      fetch('/api/sql/init-training', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ taskId: currentTask.id, dbType }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success && data.schema) {
-            setSchemaInfo(data.schema);
-          }
-        })
-        .catch((e) => logger.error('Failed to reset training schema', e));
+  const resetDb = async () => {
+    const confirmed = await confirmAction(
+      'Вы уверены, что хотите сбросить базу данных? Все несохранённые изменения будут потеряны.',
+    );
+    if (!confirmed) return;
+
+    setIsExecuting(true);
+    try {
+      if (currentTask) {
+        const res = await fetch('/api/sql/init-training', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ taskId: currentTask.id, dbType }),
+        });
+        const data = await res.json();
+        if (data.success && data.schema) {
+          setSchemaInfo(data.schema);
+        }
+      }
+      setEditorContent('');
+      setLastResult(null);
+      setVerification(null);
+      setExplainPlan(null);
+      setExplainSuggestions([]);
+      toast.success(t('results.ddlSuccess'));
+    } catch (e) {
+      logger.error('Failed to reset training schema', e);
+      toast.error(t('results.queryError'));
+    } finally {
+      setIsExecuting(false);
     }
-    setEditorContent('');
-    setLastResult(null);
-    setVerification(null);
   };
 
   // Compute next task info
@@ -663,20 +690,20 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background">
+    <div className="flex h-screen flex-col overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
       {/* Header */}
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
+      <header className="flex h-16 shrink-0 items-center justify-between border-b border-border/60 bg-background/80 backdrop-blur-md shadow-sm px-4 lg:px-6">
         <div className="flex items-center gap-4">
           {/* Mobile menu */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden h-9 w-9">
+              <Button variant="ghost" size="icon" className="md:hidden h-10 w-10 rounded-lg">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-80 p-0">
-              <SheetHeader className="border-b border-border px-5 py-4">
-                <SheetTitle className="text-base">{t('header.tasks')}</SheetTitle>
+              <SheetHeader className="border-b border-border px-5 py-4 bg-gradient-to-r from-muted/50 to-muted/30">
+                <SheetTitle className="text-base font-semibold">{t('header.tasks')}</SheetTitle>
               </SheetHeader>
               <Sidebar />
             </SheetContent>
@@ -686,32 +713,33 @@ export default function HomePage() {
           <Button
             variant="ghost"
             size="icon"
-            className="hidden md:flex h-9 w-9"
+            className="hidden md:flex h-10 w-10 rounded-lg hover:bg-muted/70 transition-all"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
             {sidebarOpen ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
           </Button>
 
           {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-500/25">
               <TableIcon className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-base font-semibold tracking-tight hidden sm:block">
-              SQL <span className="text-blue-600">Trainer</span>
+            <h1 className="text-lg font-bold tracking-tight hidden sm:block bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              SQL{' '}
+              <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">Trainer</span>
             </h1>
           </div>
 
           {/* Level badge */}
-          <div className="hidden sm:flex items-center gap-2.5 rounded-lg bg-muted/50 px-3 py-1.5 border border-border/50">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-sm">
+          <div className="hidden sm:flex items-center gap-3 rounded-xl bg-gradient-to-r from-muted/80 to-muted/50 px-4 py-2 border border-border/50 shadow-sm">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-xs font-bold text-white shadow-lg shadow-blue-500/25">
               {userStats.level}
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="text-xs font-medium text-muted-foreground">Ур. {userStats.level}</span>
-              <div className="h-1.5 w-20 rounded-full bg-muted-foreground/20 overflow-hidden mt-0.5">
+              <span className="text-xs font-semibold text-foreground">Ур. {userStats.level}</span>
+              <div className="h-1.5 w-24 rounded-full bg-muted-foreground/20 overflow-hidden mt-0.5">
                 <div
-                  className="h-full rounded-full bg-blue-500 transition-all duration-300"
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300"
                   style={{ width: `${userStats.levelProgress}%` }}
                 />
               </div>
@@ -736,7 +764,9 @@ export default function HomePage() {
           {/* Theme toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <ThemeToggle />
+              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg hover:bg-muted/70 transition-all">
+                <ThemeToggle />
+              </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="text-xs">
               {mounted && theme === 'dark'
@@ -757,10 +787,10 @@ export default function HomePage() {
         {/* Desktop Sidebar */}
         <aside
           className={`hidden md:flex shrink-0 border-r border-border/50 transition-all duration-300 ease-in-out ${
-            sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'
-          } bg-muted/10`}
+            sidebarOpen ? 'w-[340px]' : 'w-0 overflow-hidden'
+          } bg-gradient-to-r from-muted/40 to-muted/20`}
         >
-          <div className="w-64">
+          <div className="w-[340px]">
             <Sidebar />
           </div>
         </aside>
@@ -788,8 +818,8 @@ export default function HomePage() {
 
           {/* Editor + Results panels */}
           <ResizablePanelGroup direction="vertical" className="flex-1">
-            <ResizablePanel defaultSize={45} minSize={20}>
-              <div className="h-full">
+            <ResizablePanel defaultSize={52} minSize={35}>
+              <div className="h-full p-3">
                 <SQLEditor
                   ref={editorRef}
                   value={editorContent}
@@ -820,8 +850,8 @@ export default function HomePage() {
               </div>
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={55} minSize={20}>
-              <div className="h-full overflow-hidden">
+            <ResizablePanel defaultSize={48} minSize={35}>
+              <div className="h-full overflow-hidden p-3">
                 {explainPlan ? (
                   <ExplainPanel
                     plan={explainPlan}
@@ -849,11 +879,11 @@ export default function HomePage() {
         </div>
 
         {/* Right panel: Task info + Schema + Reference */}
-        <aside className="hidden lg:flex w-80 shrink-0 flex-col border-l border-border/50 bg-muted/10">
+        <aside className="hidden xl:flex w-[380px] shrink-0 flex-col border-l border-border/50 bg-gradient-to-l from-muted/40 to-muted/20">
           <ResizablePanelGroup direction="vertical">
-            <ResizablePanel defaultSize={45} minSize={20}>
+            <ResizablePanel defaultSize={50} minSize={30}>
               <ScrollArea className="h-full">
-                <div className="p-3">
+                <div className="p-3.5">
                   {currentTask ? (
                     <TaskPanel
                       task={currentTask}
@@ -893,32 +923,32 @@ export default function HomePage() {
               </ScrollArea>
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={30} minSize={15}>
-              <div className="p-3">
+            <ResizablePanel defaultSize={30} minSize={20}>
+              <div className="p-3.5">
                 <SchemaViewer schema={schemaInfo} onPreviewTable={handlePreviewTable} />
               </div>
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={25} minSize={15}>
+            <ResizablePanel defaultSize={20} minSize={15}>
               <div className="flex h-full flex-col">
                 {/* Tab switcher */}
-                <div className="flex border-b border-border/50">
+                <div className="flex border-b border-border/50 bg-muted/30">
                   <button
                     onClick={() => setReferenceTab('reference')}
-                    className={`flex-1 px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                    className={`flex-1 px-3 py-2 text-xs font-semibold transition-all ${
                       referenceTab === 'reference'
-                        ? 'bg-muted text-foreground border-b-2 border-blue-500'
-                        : 'text-muted-foreground hover:text-foreground'
+                        ? 'bg-gradient-to-b from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 text-blue-700 dark:text-blue-400 border-b-2 border-blue-500'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     }`}
                   >
                     {t('sqlRef.title')}
                   </button>
                   <button
                     onClick={() => setReferenceTab('glossary')}
-                    className={`flex-1 px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                    className={`flex-1 px-3 py-2 text-xs font-semibold transition-all ${
                       referenceTab === 'glossary'
-                        ? 'bg-muted text-foreground border-b-2 border-blue-500'
-                        : 'text-muted-foreground hover:text-foreground'
+                        ? 'bg-gradient-to-b from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 text-blue-700 dark:text-blue-400 border-b-2 border-blue-500'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     }`}
                   >
                     {t('glossary.title')}

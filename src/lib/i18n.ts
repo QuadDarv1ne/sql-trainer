@@ -1932,7 +1932,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.footer.community': 'Сообщество',
     'landing.footer.privacy': 'Конфиденциальность',
     'landing.footer.terms': 'Условия',
-    'landing.footer.copyright': '© 2025 SQL Trainer. Все права защищены.',
+    'landing.footer.copyright': 'Все права защищены.',
     'landing.hero.codeComment': '-- Извлеките данные о топ-5 сотрудниках по зарплате',
     'landing.hero.description':
       'Практикуйтесь в написании SQL-запросов с мгновенной проверкой, подробными объяснениями и пошаговым прогрессом от основ до продвинутых тем.',
@@ -4008,7 +4008,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.footer.community': 'Community',
     'landing.footer.privacy': 'Privacy',
     'landing.footer.terms': 'Terms',
-    'landing.footer.copyright': '© 2025 SQL Trainer. All rights reserved.',
+    'landing.footer.copyright': 'All rights reserved.',
     'landing.hero.codeComment': '-- Extract data about top 5 employees by salary',
     'landing.hero.description':
       'Practice writing SQL queries with instant feedback, detailed explanations, and step-by-step progress from basics to advanced topics.',
@@ -6048,7 +6048,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.footer.community': '社区',
     'landing.footer.privacy': '隐私政策',
     'landing.footer.terms': '使用条款',
-    'landing.footer.copyright': '© 2025 SQL Trainer。保留所有权利。',
+    'landing.footer.copyright': '保留所有权利。',
     'landing.hero.codeComment': '-- 提取薪资前 5 名员工的数据',
     'landing.hero.description': '通过即时反馈、详细解释和从基础到高级的逐步学习，练习编写 SQL 查询。',
     'landing.hero.codeQuery': '从员工表中选择姓名、部门和薪资，按薪资降序排序，限制 5 条结果',

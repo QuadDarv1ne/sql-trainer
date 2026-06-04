@@ -667,10 +667,12 @@ const SQLEditor = forwardRef<SQLEditorRef, SQLEditorProps>(function SQLEditor(
 
   return (
     <div
-      className={`relative h-full w-full overflow-hidden rounded-md border border-border ${isDark ? 'bg-[#282c34]' : 'bg-white'}`}
+      className={`relative h-full w-full overflow-hidden rounded-lg border ${isDark ? 'bg-[#282c34] border-white/10' : 'bg-white border-gray-200'}`}
     >
       {(!value || value.trim() === '') && (
-        <div className="pointer-events-none absolute left-12 top-3 z-10 text-muted-foreground/50 text-sm">
+        <div
+          className={`pointer-events-none absolute left-4 top-4 z-10 text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}
+        >
           {placeholder}
         </div>
       )}

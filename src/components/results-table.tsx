@@ -184,10 +184,10 @@ export default function ResultsTable({
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-card rounded-lg overflow-hidden border border-border/50 shadow-sm">
       {/* Loading state */}
       {isExecuting && (
-        <div className="flex flex-1 items-center justify-center border-b border-border px-4 py-8">
+        <div className="flex flex-1 items-center justify-center border-b border-border px-4 py-12">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <Clock className="h-4 w-4 animate-spin" />
             <span>{t('results.executing')}</span>
@@ -198,10 +198,10 @@ export default function ResultsTable({
       {/* Verification banner */}
       {verification && (
         <div
-          className={`px-4 py-2.5 flex items-center gap-2 border-b text-sm font-medium ${
+          className={`px-4 py-3 flex items-center gap-2 text-sm font-medium border-b ${
             verification.verified
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400'
-              : 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-400'
+              ? 'bg-emerald-50/80 border-emerald-200 text-emerald-700 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-400'
+              : 'bg-amber-50/80 border-amber-200 text-amber-700 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-400'
           }`}
         >
           {verification.verified ? (
@@ -214,44 +214,46 @@ export default function ResultsTable({
       )}
 
       {/* Result header */}
-      <div className="flex items-center justify-between border-b border-border px-4 py-2">
-        <div className="flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-          <span className="text-sm font-medium">
+      <div className="flex items-center justify-between border-b border-border bg-muted/30 px-4 py-2.5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <span className="text-sm font-semibold text-foreground">
             {rows.length} {plural(rows.length, 'строка', 'строки', 'строк')}
           </span>
           {columns.length > 0 && (
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary" className="text-xs px-2 py-0.5">
               {columns.length} {plural(columns.length, 'столбец', 'столбца', 'столбцов')}
             </Badge>
           )}
           {sortColumn && sortDirection && (
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-xs px-2 py-0.5">
               {t('results.sorting')}: {sortColumn} {sortDirection === 'asc' ? '↑' : '↓'}
             </Badge>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={copyResults}
-            className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="flex items-center justify-center h-8 w-8 rounded-lg text-muted-foreground transition-all hover:bg-muted hover:text-foreground hover:scale-105"
             title={t('results.copyAll')}
             aria-label={t('results.copyAll')}
           >
-            <Copy className="h-3 w-3" />
+            <Copy className="h-4 w-4" />
           </button>
           <button
             onClick={exportCSV}
-            className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="flex items-center justify-center h-8 w-8 rounded-lg text-muted-foreground transition-all hover:bg-muted hover:text-foreground hover:scale-105"
             title={t('results.exportCSV')}
             aria-label={t('results.exportCSV')}
           >
-            <Download className="h-3 w-3" />
+            <Download className="h-4 w-4" />
           </button>
           {columns.length >= 2 && (
             <button
               onClick={() => setChartView(!chartView)}
-              className={`flex items-center gap-1 rounded px-1.5 py-0.5 text-xs transition-colors ${
+              className={`flex items-center justify-center h-8 w-8 rounded-lg transition-all hover:scale-105 ${
                 chartView
                   ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
@@ -259,10 +261,10 @@ export default function ResultsTable({
               title={t('results.visualization')}
               aria-label={t('results.visualization')}
             >
-              <BarChart3 className="h-3 w-3" />
+              <BarChart3 className="h-4 w-4" />
             </button>
           )}
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 rounded bg-muted/50">
             <Clock className="h-3 w-3" />
             {executionTime.toFixed(1)} {t('results.ms')}
           </div>
@@ -270,21 +272,25 @@ export default function ResultsTable({
       </div>
 
       {/* Table or Chart */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto bg-card">
         {chartView ? (
           <QueryResultChart columns={columns} rows={sortedRows} onClose={() => setChartView(false)} />
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="w-12 text-center text-xs font-medium text-muted-foreground">#</TableHead>
+              <TableRow className="border-b-2 border-muted bg-muted/50 hover:bg-muted/50">
+                <TableHead className="w-12 text-center text-xs font-semibold text-muted-foreground">#</TableHead>
                 {columns.map((col) => {
                   const isSorted = sortColumn === col;
                   const dir = isSorted ? sortDirection : null;
                   return (
                     <TableHead
                       key={col}
-                      className="whitespace-nowrap text-xs font-medium text-emerald-600 dark:text-emerald-400 cursor-pointer hover:bg-muted/50 select-none"
+                      className={`whitespace-nowrap text-xs font-semibold cursor-pointer select-none transition-colors ${
+                        isSorted
+                          ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                      }`}
                       onClick={() => handleSort(col)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
@@ -327,13 +333,13 @@ export default function ResultsTable({
                 paginatedRows.map((row, idx) => (
                   <TableRow
                     key={`page-${currentPage}-row-${idx}-${JSON.stringify(Object.values(row)).slice(0, 20)}`}
-                    className="text-sm"
+                    className="text-sm hover:bg-muted/30 transition-colors"
                   >
-                    <TableCell className="text-center text-xs text-muted-foreground">
+                    <TableCell className="text-center text-xs font-medium text-muted-foreground">
                       {(currentPage - 1) * pageSize + idx + 1}
                     </TableCell>
                     {columns.map((col) => (
-                      <TableCell key={col} className="whitespace-nowrap font-mono text-xs">
+                      <TableCell key={col} className="whitespace-nowrap font-mono text-xs py-2.5">
                         {formatCellValue(row[col])}
                       </TableCell>
                     ))}
@@ -347,8 +353,8 @@ export default function ResultsTable({
 
       {/* Pagination */}
       {!chartView && totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-border px-4 py-2">
-          <span className="text-xs text-muted-foreground">
+        <div className="flex items-center justify-between border-t border-border bg-muted/30 px-4 py-2.5">
+          <span className="text-xs text-muted-foreground font-medium">
             {t('results.showing', {
               start: String((currentPage - 1) * pageSize + 1),
               end: String(Math.min(currentPage * pageSize, sortedRows.length)),
@@ -360,18 +366,18 @@ export default function ResultsTable({
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               aria-label={t('results.prev')}
-              className="rounded px-2 py-1 text-xs transition-colors disabled:opacity-50 hover:bg-muted disabled:hover:bg-transparent"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all disabled:opacity-40 hover:bg-background disabled:hover:bg-transparent border border-border"
             >
               {t('results.prev')}
             </button>
-            <span className="px-2 text-xs">
+            <span className="px-3 py-1.5 text-xs font-medium bg-background border border-border rounded-lg">
               {currentPage} / {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
               aria-label={t('results.next')}
-              className="rounded px-2 py-1 text-xs transition-colors disabled:opacity-50 hover:bg-muted disabled:hover:bg-transparent"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all disabled:opacity-40 hover:bg-background disabled:hover:bg-transparent border border-border"
             >
               {t('results.next')}
             </button>
@@ -381,7 +387,7 @@ export default function ResultsTable({
 
       {/* Footer message */}
       {message && (
-        <div className="border-t border-border px-4 py-2">
+        <div className="border-t border-border bg-muted/20 px-4 py-2">
           <p className="text-xs text-muted-foreground">{message}</p>
         </div>
       )}

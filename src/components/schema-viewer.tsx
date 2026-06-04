@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import {
@@ -76,18 +75,25 @@ export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerPro
   }
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="border-b border-border px-3 py-2.5">
+    <div className="flex h-full flex-col bg-gradient-to-br from-muted/30 to-muted/10">
+      <div className="border-b border-border/60 px-3.5 py-2.5 bg-gradient-to-b from-muted/50 to-muted/30">
         <div className="flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-sm font-medium">
-            <TableIcon className="h-4 w-4 text-emerald-500" />
-            {t('schemaViewer.title')}
-          </h3>
-          <div className="flex gap-1">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
+              <TableIcon className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">{t('schemaViewer.title')}</h3>
+              <p className="text-[10px] text-muted-foreground font-medium">
+                {schema.tables.length} {getTablePlural(schema.tables.length)}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-1 rounded-lg bg-muted/50 p-0.5">
             <Button
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
-              className="h-7 w-7 p-0"
+              className="h-7 w-7 p-0 rounded transition-all"
               onClick={() => setViewMode('list')}
             >
               <List className="h-4 w-4" />
@@ -95,16 +101,13 @@ export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerPro
             <Button
               variant={viewMode === 'diagram' ? 'default' : 'ghost'}
               size="sm"
-              className="h-7 w-7 p-0"
+              className="h-7 w-7 p-0 rounded transition-all"
               onClick={() => setViewMode('diagram')}
             >
               <GitBranch className="h-4 w-4" />
             </Button>
           </div>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {schema.tables.length} {getTablePlural(schema.tables.length)}
-        </p>
       </div>
       <ScrollArea className="flex-1">
         {viewMode === 'diagram' ? (
@@ -112,7 +115,7 @@ export default function SchemaViewer({ schema, onPreviewTable }: SchemaViewerPro
             <ERDiagram schema={schema} />
           </div>
         ) : (
-          <div className="space-y-3 p-3">
+          <div className="space-y-2.5 p-3">
             {schema.tables.map((table) => (
               <TableCard key={table.name} table={table} onPreview={onPreviewTable} />
             ))}
@@ -127,51 +130,67 @@ function TableCard({ table, onPreview }: { table: TableInfo; onPreview?: (tableN
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="px-3 py-2.5">
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <TableIcon className="h-4 w-4 text-emerald-500" />
-          {table.name}
-          <Badge variant="secondary" className="ml-auto text-xs px-2">
+    <div className="overflow-hidden rounded-xl border border-border/60 bg-gradient-to-br from-muted/60 to-muted/40 shadow-sm">
+      <div className="px-3.5 py-2.5 bg-muted/50">
+        <div className="flex items-center gap-2">
+          <div className="flex h-6 w-6 items-center justify-center rounded bg-emerald-100 dark:bg-emerald-900/30">
+            <TableIcon className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <span className="text-sm font-semibold text-foreground">{table.name}</span>
+          <Badge variant="secondary" className="ml-auto text-[10px] px-2 py-0.5 bg-muted/70 border-0 font-medium">
             {table.columns.length} {getColumnPlural(table.columns.length)}
           </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="px-3 pb-3 pt-0">
-        <div className="space-y-0.5">
+        </div>
+      </div>
+      <div className="px-3.5 pb-2.5 pt-1.5">
+        <div className="space-y-1">
           {table.columns.map((col) => {
             const Icon = getTypeIcon(col.type);
             return (
-              <div key={col.name} className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-muted/50">
+              <div
+                key={col.name}
+                className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs transition-all hover:bg-muted/60"
+              >
                 {col.primaryKey ? (
-                  <Key className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                  <div className="flex h-5 w-5 items-center justify-center rounded bg-amber-100 dark:bg-amber-900/30">
+                    <Key className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+                  </div>
                 ) : (
-                  <Icon className={`h-3.5 w-3.5 shrink-0 ${getTypeColor(col.type)}`} />
+                  <div className={`flex h-5 w-5 items-center justify-center rounded bg-muted/50`}>
+                    <Icon className={`h-3 w-3 shrink-0 ${getTypeColor(col.type)}`} />
+                  </div>
                 )}
-                <span className="font-mono text-xs">{col.name}</span>
-                {col.notNull && (
-                  <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">
-                    NN
-                  </Badge>
-                )}
-                <span className={`ml-auto font-mono text-[10px] ${getTypeColor(col.type)}`}>{col.type}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="font-mono text-xs font-medium text-foreground">{col.name}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {col.notNull && (
+                    <Badge
+                      variant="outline"
+                      className="text-[9px] px-1 py-0 h-4 border-amber-200 text-amber-700 dark:border-amber-700 dark:text-amber-400 font-bold"
+                    >
+                      NN
+                    </Badge>
+                  )}
+                  <span className={`font-mono text-[10px] font-medium ${getTypeColor(col.type)}`}>{col.type}</span>
+                </div>
               </div>
             );
           })}
         </div>
         {onPreview && (
-          <div className="mt-2 flex gap-1.5 border-t border-border pt-2">
+          <div className="mt-2.5 pt-2.5 border-t border-border/50">
             <Button
               variant="outline"
               size="sm"
-              className="h-8 flex-1 text-xs"
+              className="w-full h-9 hover:bg-muted/70 transition-all"
               onClick={() => {
                 setIsExpanded(!isExpanded);
                 onPreview(table.name);
               }}
             >
-              <Eye className="mr-1.5 h-3.5 w-3.5" />
-              {t('schemaViewer.preview')}
+              <Eye className="mr-2 h-3.5 w-3.5" />
+              <span className="text-xs font-medium">{t('schemaViewer.preview')}</span>
               {isExpanded ? (
                 <ChevronUp className="ml-1.5 h-3.5 w-3.5" />
               ) : (
@@ -180,7 +199,7 @@ function TableCard({ table, onPreview }: { table: TableInfo; onPreview?: (tableN
             </Button>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
