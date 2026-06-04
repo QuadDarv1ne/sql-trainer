@@ -71,7 +71,9 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
   const { recommendedTask, missingConceptLabel } = useMemo(() => {
     // Find the highest difficulty level the user has completed at least one task
     const completedDifficulties = new Set(
-      completedTasks.map((ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty).filter(Boolean),
+      completedTasks
+        .map((ct: import('@/lib/store').CompletedTask) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty)
+        .filter(Boolean),
     );
 
     let targetDifficulty: Difficulty | null = 'beginner';
@@ -79,7 +81,8 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
       targetDifficulty = 'advanced';
     } else if (completedDifficulties.has('intermediate')) {
       const intermediateCompleted = completedTasks.filter(
-        (ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'intermediate',
+        (ct: import('@/lib/store').CompletedTask) =>
+          TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'intermediate',
       ).length;
       const intermediateTotal = TRAINING_TASKS.filter((t) => t.difficulty === 'intermediate').length;
       targetDifficulty = intermediateCompleted >= intermediateTotal * 0.5 ? 'advanced' : 'intermediate';
