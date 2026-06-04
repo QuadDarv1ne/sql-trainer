@@ -42,7 +42,7 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
     const difficulties: Difficulty[] = ['beginner', 'intermediate', 'advanced'];
     return difficulties.map((d) => {
       const total = TRAINING_TASKS.filter((t) => t.difficulty === d).length;
-      const completed = completedTasks.filter((ct) => {
+      const completed = completedTasks.filter((ct: import('@/lib/store').CompletedTask) => {
         const task = TRAINING_TASKS.find((t) => t.id === ct.taskId);
         return task && task.difficulty === d;
       }).length;
@@ -62,7 +62,9 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
   }, [completedTasks]);
 
   const firstIncompleteTask = useMemo(() => {
-    return TRAINING_TASKS.find((t) => !completedTasks.some((ct) => ct.taskId === t.id));
+    return TRAINING_TASKS.find(
+      (t) => !completedTasks.some((ct: import('@/lib/store').CompletedTask) => ct.taskId === t.id),
+    );
   }, [completedTasks]);
 
   // Recommended task based on skill progression + concept gaps

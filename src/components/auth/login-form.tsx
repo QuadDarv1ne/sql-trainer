@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
-import { Loader2, Lock, AlertCircle, Eye, EyeOff, GraduationCap, Mail } from 'lucide-react';
+import { Loader2, Lock, AlertCircle, Eye, EyeOff, GraduationCap, Mail, ArrowLeft } from 'lucide-react';
 import { t } from '@/lib/i18n';
 
 export default function LoginForm() {
@@ -51,7 +51,16 @@ export default function LoginForm() {
   return (
     <Card className="w-full max-w-md shadow-lg border-border/80">
       <CardHeader className="space-y-3 pb-6">
-        <div className="flex flex-col items-center gap-3">
+        <div className="flex items-start w-full -ml-2">
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+            {t('action.back')}
+          </Link>
+        </div>
+        <div className="flex flex-col items-center gap-3 pt-2">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg ring-4 ring-blue-500/10 dark:ring-blue-500/20">
             <GraduationCap className="h-7 w-7 text-white" />
           </div>

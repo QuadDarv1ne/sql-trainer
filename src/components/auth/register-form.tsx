@@ -22,6 +22,7 @@ import {
   GraduationCap,
   Eye,
   EyeOff,
+  ArrowLeft,
 } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { ROLE_LABELS } from '@/lib/rbac';
@@ -113,7 +114,16 @@ export default function RegisterForm() {
   return (
     <Card className="w-full max-w-md shadow-lg border-border/80">
       <CardHeader className="space-y-2 pb-6">
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex items-start w-full -ml-2">
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+            {t('action.back')}
+          </Link>
+        </div>
+        <div className="flex flex-col items-center gap-2 pt-2">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
             <User className="h-6 w-6 text-white" />
           </div>

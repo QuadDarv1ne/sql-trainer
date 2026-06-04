@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
-import { Loader2, Mail, Lock, AlertCircle, CheckCircle2, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Mail, Lock, AlertCircle, CheckCircle2, KeyRound, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { t } from '@/lib/i18n';
 
 type Step = 'request' | 'verify' | 'done';
@@ -156,6 +156,15 @@ export default function ResetPasswordForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1">
+        <div className="flex items-start w-full -ml-2">
+          <Link
+            href="/login"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+            {t('action.back')}
+          </Link>
+        </div>
         <CardTitle className="text-2xl font-bold">{t('auth.resetPassword')}</CardTitle>
         <CardDescription>
           {step === 'request' && t('auth.resetPasswordDesc')}
