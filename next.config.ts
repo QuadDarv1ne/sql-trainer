@@ -3,7 +3,7 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   output: 'standalone',
   reactStrictMode: true,
-  serverExternalPackages: ['better-sqlite3'],
+  serverExternalPackages: ['better-sqlite3', 'ioredis'],
   // Force body size limit for API routes (1MB default)
   experimental: {
     serverActions: {
@@ -31,7 +31,6 @@ const nextConfig: NextConfig = {
   // Force webpack to resolve these packages to a single instance
   webpack: (config, { isServer }) => {
     if (!isServer && !process.env.TURBOPACK) {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- webpack config
       config.resolve = config.resolve || {};
       config.resolve.alias = {
         ...config.resolve.alias,

@@ -47,6 +47,10 @@ export class RedisRateLimiter implements RateLimiter {
     this.connectPromise = (async () => {
       try {
         const redisClient = createRedisClient(redisUrl);
+        if (!redisClient) {
+          this.isConnected = false;
+          return;
+        }
         await redisClient.connect();
         this.redis = redisClient;
         this.isConnected = true;
@@ -127,7 +131,7 @@ export class RedisRateLimiter implements RateLimiter {
         if (keys.length > 0) {
           const redis = this.redis;
           const counts = await Promise.all(keys.map((k: string) => redis.get(k)));
-          const totalCount = counts.reduce((sum, val) => sum + (parseInt(val || '0') || 0), 0);
+          const totalCount = counts.reduce((sum: number, val: string | null) => sum + (parseInt(val || '0') || 0), 0);
           return {
             success: totalCount < 100, // Default threshold
             remaining: Math.max(0, 100 - totalCount),
@@ -204,10 +208,17 @@ export function resetGlobalRateLimiter(): void {
   memoryStore.clear();
 }
 
-// Helper function to create Redis client (lazy-loaded)
-function createRedisClient(redisUrl?: string) {
-  // Dynamically import ioredis to avoid bundling issues
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const Redis = require('ioredis');
-  return new Redis(redisUrl || process.env.REDIS_URL || 'redis://localhost:6379');
+// Helper function to create Redis client (lazy-loaded, optional dependency)
+// The module name is constructed dynamically to prevent bundlers from
+// trying to resolve it at build time when ioredis is not installed.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createRedisClient(redisUrl?: string): any | null {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Redis = require(/* turbopackIgnore: true */ 'io' + 'redis');
+    return new Redis(redisUrl || process.env.REDIS_URL || 'redis://localhost:6379');
+  } catch {
+    logger.warn('ioredis is not installed — distributed rate limiting will use in-memory fallback');
+    return null;
+  }
 }
