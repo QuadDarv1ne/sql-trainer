@@ -12,6 +12,7 @@ import { plural } from '@/lib/utils';
 import { t } from '@/lib/i18n';
 import { getNextHintLevel, generateProgressiveHints, calculateHintPenalty } from '@/lib/progressive-hints';
 import { logger } from '@/lib/logger';
+import { TimerDisplay } from '@/components/timer-display';
 import ResultsTable from '@/components/results-table';
 import ActionBar from '@/components/action-bar';
 import ExplainPanel from '@/components/explain-panel';
@@ -692,17 +693,17 @@ export default function HomePage() {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
       {/* Header */}
-      <header className="flex h-16 shrink-0 items-center justify-between border-b border-border/60 bg-background/80 backdrop-blur-md shadow-sm px-4 lg:px-6">
-        <div className="flex items-center gap-4">
+      <header className="flex h-14 sm:h-16 shrink-0 items-center justify-between border-b border-border/60 bg-background/80 backdrop-blur-md shadow-sm px-3 sm:px-4 lg:px-6">
+        <div className="flex items-center gap-2 sm:gap-4">
           {/* Mobile menu */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden h-10 w-10 rounded-lg">
+              <Button variant="ghost" size="icon" className="md:hidden h-9 w-9 rounded-lg">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-80 p-0">
-              <SheetHeader className="border-b border-border px-5 py-4 bg-gradient-to-r from-muted/50 to-muted/30">
+            <SheetContent side="left" className="w-[300px] sm:w-[340px] p-0">
+              <SheetHeader className="border-b border-border px-4 sm:px-5 py-3 sm:py-4 bg-gradient-to-r from-muted/50 to-muted/30">
                 <SheetTitle className="text-base font-semibold">{t('header.tasks')}</SheetTitle>
               </SheetHeader>
               <Sidebar />
@@ -713,31 +714,30 @@ export default function HomePage() {
           <Button
             variant="ghost"
             size="icon"
-            className="hidden md:flex h-10 w-10 rounded-lg hover:bg-muted/70 transition-all"
+            className="hidden md:flex h-9 sm:h-10 w-9 sm:w-10 rounded-lg hover:bg-muted/70 transition-all"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
             {sidebarOpen ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
           </Button>
 
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-500/25">
-              <TableIcon className="h-5 w-5 text-white" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-500/25">
+              <TableIcon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
-            <h1 className="text-lg font-bold tracking-tight hidden sm:block bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              SQL{' '}
-              <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">Trainer</span>
+            <h1 className="text-base sm:text-lg font-bold tracking-tight hidden sm:block bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              SQL <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">Trainer</span>
             </h1>
           </div>
 
-          {/* Level badge */}
-          <div className="hidden sm:flex items-center gap-3 rounded-xl bg-gradient-to-r from-muted/80 to-muted/50 px-4 py-2 border border-border/50 shadow-sm">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-xs font-bold text-white shadow-lg shadow-blue-500/25">
+          {/* Level badge - hidden on very small screens */}
+          <div className="hidden xs:flex sm:flex items-center gap-2 sm:gap-3 rounded-xl bg-gradient-to-r from-muted/80 to-muted/50 px-2 sm:px-4 py-1.5 sm:py-2 border border-border/50 shadow-sm">
+            <div className="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-[10px] sm:text-xs font-bold text-white shadow-lg shadow-blue-500/25">
               {userStats.level}
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="text-xs font-semibold text-foreground">Ур. {userStats.level}</span>
-              <div className="h-1.5 w-24 rounded-full bg-muted-foreground/20 overflow-hidden mt-0.5">
+              <span className="text-[10px] sm:text-xs font-semibold text-foreground">Ур. {userStats.level}</span>
+              <div className="h-1 sm:h-1.5 w-16 sm:w-24 rounded-full bg-muted-foreground/20 overflow-hidden mt-0.5">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300"
                   style={{ width: `${userStats.levelProgress}%` }}
@@ -745,15 +745,20 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+
+          {/* Timer display - visible in practice mode */}
+          <div className="hidden lg:block">
+            <TimerDisplay />
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Locale Selector - hidden on very small screens */}
+        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3">
+          {/* Locale Selector - hidden on mobile */}
           <div className="hidden sm:block">
             <LocaleSelector />
           </div>
 
-          {/* DB Selector */}
+          {/* DB Selector - compact on mobile */}
           <DbSelector dbType={dbType} onChange={setDbType} />
 
           {/* Shortcuts help - hidden on mobile */}
@@ -764,7 +769,7 @@ export default function HomePage() {
           {/* Theme toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg hover:bg-muted/70 transition-all">
+              <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg hover:bg-muted/70 transition-all">
                 <ThemeToggle />
               </Button>
             </TooltipTrigger>
@@ -787,10 +792,10 @@ export default function HomePage() {
         {/* Desktop Sidebar */}
         <aside
           className={`hidden md:flex shrink-0 border-r border-border/50 transition-all duration-300 ease-in-out ${
-            sidebarOpen ? 'w-[340px]' : 'w-0 overflow-hidden'
+            sidebarOpen ? 'w-[280px]' : 'w-0 overflow-hidden'
           } bg-gradient-to-r from-muted/40 to-muted/20`}
         >
-          <div className="w-[340px]">
+          <div className="w-[280px]">
             <Sidebar />
           </div>
         </aside>
@@ -818,7 +823,7 @@ export default function HomePage() {
 
           {/* Editor + Results panels */}
           <ResizablePanelGroup direction="vertical" className="flex-1">
-            <ResizablePanel defaultSize={52} minSize={35}>
+            <ResizablePanel defaultSize={55} minSize={35}>
               <div className="h-full p-3">
                 <SQLEditor
                   ref={editorRef}
@@ -850,7 +855,7 @@ export default function HomePage() {
               </div>
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={48} minSize={35}>
+            <ResizablePanel defaultSize={45} minSize={30}>
               <div className="h-full overflow-hidden p-3">
                 {explainPlan ? (
                   <ExplainPanel
@@ -879,11 +884,11 @@ export default function HomePage() {
         </div>
 
         {/* Right panel: Task info + Schema + Reference */}
-        <aside className="hidden xl:flex w-[380px] shrink-0 flex-col border-l border-border/50 bg-gradient-to-l from-muted/40 to-muted/20">
+        <aside className="hidden lg:flex w-[280px] shrink-0 flex-col border-l border-border/50 bg-gradient-to-l from-muted/40 to-muted/20">
           <ResizablePanelGroup direction="vertical">
             <ResizablePanel defaultSize={50} minSize={30}>
               <ScrollArea className="h-full">
-                <div className="p-3.5">
+                <div className="p-3">
                   {currentTask ? (
                     <TaskPanel
                       task={currentTask}
@@ -924,7 +929,7 @@ export default function HomePage() {
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel defaultSize={30} minSize={20}>
-              <div className="p-3.5">
+              <div className="p-3">
                 <SchemaViewer schema={schemaInfo} onPreviewTable={handlePreviewTable} />
               </div>
             </ResizablePanel>

@@ -187,8 +187,8 @@ export default function ResultsTable({
     <div className="flex h-full flex-col bg-card rounded-lg overflow-hidden border border-border/50 shadow-sm">
       {/* Loading state */}
       {isExecuting && (
-        <div className="flex flex-1 items-center justify-center border-b border-border px-4 py-12">
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+        <div className="flex flex-1 items-center justify-center border-b border-border px-3 sm:px-4 py-8 sm:py-12">
+          <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
             <Clock className="h-4 w-4 animate-spin" />
             <span>{t('results.executing')}</span>
           </div>
@@ -198,7 +198,7 @@ export default function ResultsTable({
       {/* Verification banner */}
       {verification && (
         <div
-          className={`px-4 py-3 flex items-center gap-2 text-sm font-medium border-b ${
+          className={`px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 text-xs sm:text-sm font-medium border-b ${
             verification.verified
               ? 'bg-emerald-50/80 border-emerald-200 text-emerald-700 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-400'
               : 'bg-amber-50/80 border-amber-200 text-amber-700 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-400'
@@ -209,13 +209,13 @@ export default function ResultsTable({
           ) : (
             <AlertTriangle className="h-4 w-4 shrink-0" />
           )}
-          <span>{verification.message}</span>
+          <span className="line-clamp-2">{verification.message}</span>
         </div>
       )}
 
       {/* Result header */}
-      <div className="flex items-center justify-between border-b border-border bg-muted/30 px-4 py-2.5">
-        <div className="flex items-center gap-2.5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-border bg-muted/30 px-3 sm:px-4 py-2 gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
             <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
           </div>
@@ -233,7 +233,7 @@ export default function ResultsTable({
             </Badge>
           )}
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <button
             onClick={copyResults}
             className="flex items-center justify-center h-8 w-8 rounded-lg text-muted-foreground transition-all hover:bg-muted hover:text-foreground hover:scale-105"
@@ -276,108 +276,110 @@ export default function ResultsTable({
         {chartView ? (
           <QueryResultChart columns={columns} rows={sortedRows} onClose={() => setChartView(false)} />
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b-2 border-muted bg-muted/50 hover:bg-muted/50">
-                <TableHead className="w-12 text-center text-xs font-semibold text-muted-foreground">#</TableHead>
-                {columns.map((col) => {
-                  const isSorted = sortColumn === col;
-                  const dir = isSorted ? sortDirection : null;
-                  return (
-                    <TableHead
-                      key={col}
-                      className={`whitespace-nowrap text-xs font-semibold cursor-pointer select-none transition-colors ${
-                        isSorted
-                          ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                      }`}
-                      onClick={() => handleSort(col)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          handleSort(col);
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      title={t('results.sortClick')}
-                      aria-label={t('results.sortByColumn', {
-                        col,
-                        state:
-                          isSorted && dir === 'asc'
-                            ? t('results.sortAsc')
-                            : isSorted && dir === 'desc'
-                              ? t('results.sortDesc')
-                              : t('results.sortNone'),
-                      })}
-                    >
-                      <div className="flex items-center gap-1">
-                        {col}
-                        {dir === 'asc' && <ArrowUp className="h-3 w-3" />}
-                        {dir === 'desc' && <ArrowDown className="h-3 w-3" />}
-                        {!dir && <ArrowUpDown className="h-3 w-3 opacity-40" />}
-                      </div>
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedRows.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={columns.length + 1} className="h-24 text-center text-muted-foreground">
-                    {t('results.noData')}
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b-2 border-muted bg-muted/50 hover:bg-muted/50">
+                  <TableHead className="w-12 text-center text-xs font-semibold text-muted-foreground">#</TableHead>
+                  {columns.map((col) => {
+                    const isSorted = sortColumn === col;
+                    const dir = isSorted ? sortDirection : null;
+                    return (
+                      <TableHead
+                        key={col}
+                        className={`whitespace-nowrap text-xs sm:text-sm font-semibold cursor-pointer select-none transition-colors px-2 sm:px-3 py-2 ${
+                          isSorted
+                            ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                        }`}
+                        onClick={() => handleSort(col)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleSort(col);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        title={t('results.sortClick')}
+                        aria-label={t('results.sortByColumn', {
+                          col,
+                          state:
+                            isSorted && dir === 'asc'
+                              ? t('results.sortAsc')
+                              : isSorted && dir === 'desc'
+                                ? t('results.sortDesc')
+                                : t('results.sortNone'),
+                        })}
+                      >
+                        <div className="flex items-center gap-1">
+                          {col}
+                          {dir === 'asc' && <ArrowUp className="h-3 w-3" />}
+                          {dir === 'desc' && <ArrowDown className="h-3 w-3" />}
+                          {!dir && <ArrowUpDown className="h-3 w-3 opacity-40" />}
+                        </div>
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              ) : (
-                paginatedRows.map((row, idx) => (
-                  <TableRow
-                    key={`page-${currentPage}-row-${idx}-${JSON.stringify(Object.values(row)).slice(0, 20)}`}
-                    className="text-sm hover:bg-muted/30 transition-colors"
-                  >
-                    <TableCell className="text-center text-xs font-medium text-muted-foreground">
-                      {(currentPage - 1) * pageSize + idx + 1}
+              </TableHeader>
+              <TableBody>
+                {paginatedRows.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={columns.length + 1} className="h-24 text-center text-muted-foreground">
+                      {t('results.noData')}
                     </TableCell>
-                    {columns.map((col) => (
-                      <TableCell key={col} className="whitespace-nowrap font-mono text-xs py-2.5">
-                        {formatCellValue(row[col])}
-                      </TableCell>
-                    ))}
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  paginatedRows.map((row, idx) => (
+                    <TableRow
+                      key={`page-${currentPage}-row-${idx}-${JSON.stringify(Object.values(row)).slice(0, 20)}`}
+                      className="text-sm hover:bg-muted/30 transition-colors"
+                    >
+                      <TableCell className="text-center text-xs font-medium text-muted-foreground">
+                        {(currentPage - 1) * pageSize + idx + 1}
+                      </TableCell>
+                      {columns.map((col) => (
+                        <TableCell key={col} className="whitespace-nowrap font-mono text-xs sm:text-sm py-2.5 px-2 sm:px-3">
+                          {formatCellValue(row[col])}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </div>
 
       {/* Pagination */}
       {!chartView && totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-border bg-muted/30 px-4 py-2.5">
-          <span className="text-xs text-muted-foreground font-medium">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-border bg-muted/30 px-3 sm:px-4 py-2 gap-2">
+          <span className="text-xs sm:text-sm text-muted-foreground font-medium">
             {t('results.showing', {
               start: String((currentPage - 1) * pageSize + 1),
               end: String(Math.min(currentPage * pageSize, sortedRows.length)),
               total: String(sortedRows.length),
             })}
           </span>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               aria-label={t('results.prev')}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all disabled:opacity-40 hover:bg-background disabled:hover:bg-transparent border border-border"
+              className="rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition-all disabled:opacity-40 hover:bg-background disabled:hover:bg-transparent border border-border"
             >
               {t('results.prev')}
             </button>
-            <span className="px-3 py-1.5 text-xs font-medium bg-background border border-border rounded-lg">
+            <span className="px-3 py-1.5 text-xs sm:text-sm font-medium bg-background border border-border rounded-lg">
               {currentPage} / {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
               aria-label={t('results.next')}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all disabled:opacity-40 hover:bg-background disabled:hover:bg-transparent border border-border"
+              className="rounded-lg px-3 py-1.5 text-xs sm:text-sm font-medium transition-all disabled:opacity-40 hover:bg-background disabled:hover:bg-transparent border border-border"
             >
               {t('results.next')}
             </button>
@@ -387,7 +389,7 @@ export default function ResultsTable({
 
       {/* Footer message */}
       {message && (
-        <div className="border-t border-border bg-muted/20 px-4 py-2">
+        <div className="border-t border-border bg-muted/20 px-3 sm:px-4 py-2">
           <p className="text-xs text-muted-foreground">{message}</p>
         </div>
       )}

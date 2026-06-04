@@ -133,7 +133,7 @@ function SavedQueriesSection() {
 
   return (
     <div className="space-y-4">
-      {savedQueries.map((query) => (
+      {savedQueries.map((query: import('@/lib/store').SavedQuery) => (
         <Card key={query.id}>
           <CardContent className="p-4">
             <div className="flex items-start justify-between gap-3">

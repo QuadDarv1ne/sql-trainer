@@ -140,7 +140,7 @@ export default function Sidebar() {
   const totalCount = TRAINING_TASKS.length;
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
-  const completedIds = useMemo(() => new Set(completedTasks.map((t) => t.taskId)), [completedTasks]);
+  const completedIds = useMemo(() => new Set(completedTasks.map((t: import('@/lib/store').CompletedTask) => t.taskId)), [completedTasks]);
 
   const bookmarkedIds = useMemo(() => new Set(bookmarkedTasks), [bookmarkedTasks]);
 
@@ -247,7 +247,7 @@ export default function Sidebar() {
               →{' '}
               {(() => {
                 const allKeys = Object.keys(ACHIEVEMENTS);
-                const unlockedIds = new Set(unlockedAchievements.map((a) => a.id));
+                const unlockedIds = new Set(unlockedAchievements.map((a: import('@/lib/store').Achievement) => a.id));
                 const nextKey = allKeys.find((k) => !unlockedIds.has(ACHIEVEMENTS[k].id));
                 return nextKey ? `${ACHIEVEMENTS[nextKey].icon}` : '';
               })()}

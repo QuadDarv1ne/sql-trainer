@@ -15,17 +15,17 @@ export default function ProgressStats() {
   const totalTasks = TRAINING_TASKS.length;
   const completedCount = completedTasks.length;
   const progressPercent = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
-  const totalAttempts = completedTasks.reduce((sum, p) => sum + p.attempts, 0);
+  const totalAttempts = completedTasks.reduce((sum: number, p: import('@/lib/store').CompletedTask) => sum + p.attempts, 0);
   const avgAttempts = completedCount > 0 ? (totalAttempts / completedCount).toFixed(1) : '0';
 
   // Best result (fewest attempts)
-  const bestResult = completedCount > 0 ? Math.min(...completedTasks.map((p) => p.attempts)) : null;
+  const bestResult = completedCount > 0 ? Math.min(...completedTasks.map((p: import('@/lib/store').CompletedTask) => p.attempts)) : null;
 
   // Stats by difficulty
   const difficulties: Difficulty[] = ['beginner', 'intermediate', 'advanced'];
   const statsByDifficulty = difficulties.map((d) => {
     const total = TRAINING_TASKS.filter((t) => t.difficulty === d).length;
-    const completed = completedTasks.filter((ct) => {
+    const completed = completedTasks.filter((ct: import('@/lib/store').CompletedTask) => {
       const task = TRAINING_TASKS.find((t) => t.id === ct.taskId);
       return task && task.difficulty === d;
     }).length;

@@ -88,7 +88,7 @@ export default function SavedQueries({ onLoadQuery }: SavedQueriesProps) {
               </div>
             ) : (
               <ScrollArea className="max-h-64">
-                {savedQueries.map((query) => (
+                {savedQueries.map((query: import('@/lib/store').SavedQuery) => (
                   <DropdownMenuItem
                     key={query.id}
                     className="flex items-start gap-2 px-3 py-2 cursor-pointer"

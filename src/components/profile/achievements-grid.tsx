@@ -39,7 +39,7 @@ function StreakProgress() {
 
 export default function AchievementsGrid() {
   const { unlockedAchievements } = useSQLTrainerStore();
-  const unlockedIds = new Set(unlockedAchievements.map((a) => a.id));
+  const unlockedIds = new Set(unlockedAchievements.map((a: import('@/lib/store').Achievement) => a.id));
   const allAchievements = Object.values(ACHIEVEMENTS);
   const unlockedCount = unlockedIds.size;
   const totalCount = allAchievements.length;
@@ -61,7 +61,7 @@ export default function AchievementsGrid() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {allAchievements.map((a) => {
           const unlocked = unlockedIds.has(a.id);
-          const unlockedData = unlockedAchievements.find((u) => u.id === a.id);
+          const unlockedData = unlockedAchievements.find((u: import('@/lib/store').Achievement) => u.id === a.id);
 
           return (
             <Card
