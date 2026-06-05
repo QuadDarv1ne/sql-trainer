@@ -159,6 +159,9 @@ export function checkUnsupportedFeatures(sql: string, fromDialect: SQLDialect, t
 
   if (!ast) return [];
 
+  // Avoid unused variable warning
+  const _ = toDialect;
+
   // For now, return empty - AST analysis can be added later
   // node-sql-parser already validates syntax for the source dialect
   return [];
