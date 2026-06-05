@@ -1,5 +1,7 @@
 import { StateCreator } from 'zustand';
-import { TimerSlice } from './timer-slice-types';
+import type { TimerSlice } from './timer-slice-types';
+
+export type { TimerSlice };
 
 export interface TimerSliceTypes {
   timer: {

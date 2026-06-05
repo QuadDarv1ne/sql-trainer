@@ -42,7 +42,7 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
     const difficulties: Difficulty[] = ['beginner', 'intermediate', 'advanced'];
     return difficulties.map((d) => {
       const total = TRAINING_TASKS.filter((t) => t.difficulty === d).length;
-      const completed = completedTasks.filter((ct: import('@/lib/store').CompletedTask) => {
+      const completed = completedTasks.filter((ct) => {
         const task = TRAINING_TASKS.find((t) => t.id === ct.taskId);
         return task && task.difficulty === d;
       }).length;
@@ -62,18 +62,14 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
   }, [completedTasks]);
 
   const firstIncompleteTask = useMemo(() => {
-    return TRAINING_TASKS.find(
-      (t) => !completedTasks.some((ct: import('@/lib/store').CompletedTask) => ct.taskId === t.id),
-    );
+    return TRAINING_TASKS.find((t) => !completedTasks.some((ct) => ct.taskId === t.id));
   }, [completedTasks]);
 
   // Recommended task based on skill progression + concept gaps
   const { recommendedTask, missingConceptLabel } = useMemo(() => {
     // Find the highest difficulty level the user has completed at least one task
     const completedDifficulties = new Set(
-      completedTasks
-        .map((ct: import('@/lib/store').CompletedTask) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty)
-        .filter(Boolean),
+      completedTasks.map((ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty).filter(Boolean),
     );
 
     let targetDifficulty: Difficulty | null = 'beginner';
@@ -81,15 +77,13 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
       targetDifficulty = 'advanced';
     } else if (completedDifficulties.has('intermediate')) {
       const intermediateCompleted = completedTasks.filter(
-        (ct: import('@/lib/store').CompletedTask) =>
-          TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'intermediate',
+        (ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'intermediate',
       ).length;
       const intermediateTotal = TRAINING_TASKS.filter((t) => t.difficulty === 'intermediate').length;
       targetDifficulty = intermediateCompleted >= intermediateTotal * 0.5 ? 'advanced' : 'intermediate';
     } else if (completedDifficulties.has('beginner')) {
       const beginnerCompleted = completedTasks.filter(
-        (ct: import('@/lib/store').CompletedTask) =>
-          TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'beginner',
+        (ct) => TRAINING_TASKS.find((t) => t.id === ct.taskId)?.difficulty === 'beginner',
       ).length;
       const beginnerTotal = TRAINING_TASKS.filter((t) => t.difficulty === 'beginner').length;
       targetDifficulty = beginnerCompleted >= beginnerTotal * 0.5 ? 'intermediate' : 'beginner';
@@ -109,9 +103,7 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
     // Fallback: first incomplete task at target difficulty
     const fallback =
       TRAINING_TASKS.find(
-        (t) =>
-          t.difficulty === targetDifficulty &&
-          !completedTasks.some((ct: import('@/lib/store').CompletedTask) => ct.taskId === t.id),
+        (t) => t.difficulty === targetDifficulty && !completedTasks.some((ct) => ct.taskId === t.id),
       ) || firstIncompleteTask;
 
     return { recommendedTask: fallback, missingConceptLabel: null };

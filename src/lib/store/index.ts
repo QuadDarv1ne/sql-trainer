@@ -17,7 +17,8 @@ import { createGamificationSlice, type GamificationSlice, type Achievement } fro
 import { createPracticeModeSlice, type PracticeModeSlice } from './practice-mode-slice';
 import { createUISlice, type UISlice } from './ui-slice';
 import { createOnboardingSlice, type OnboardingSlice } from './onboarding-slice';
-import { createTimerSlice, type TimerSlice } from './timer-slice';
+import { createTimerSlice } from './timer-slice';
+import type { TimerSlice } from './timer-slice-types';
 import { TRAINING_TASKS, getTaskById } from '@/lib/training-tasks';
 import { calculateLevel } from './level-calculator';
 
@@ -133,7 +134,7 @@ export const useSQLTrainerStore = create<CombinedState>()(
       ...createOnboardingSlice(set as SliceSet, get as SliceGet, store as SliceStore),
 
       // Timer slice
-      ...createTimerSlice(set as SliceSet, get as SliceGet, store as SliceStore),
+      ...(createTimerSlice(set as SliceSet, get as SliceGet, store as SliceStore) as TimerSlice),
 
       // Override setCurrentTaskId to also clear UI state
       setCurrentTaskId: (id: string | null) => {

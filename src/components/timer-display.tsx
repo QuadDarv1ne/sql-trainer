@@ -28,14 +28,11 @@ export function TimerDisplay() {
     }
   }, [timer.timeRemaining, timer.isActive, stopTimer]);
 
-  const formatTime = useCallback(
-    (seconds: number) => {
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    },
-    []
-  );
+  const formatTime = useCallback((seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }, []);
 
   const getWarningColor = () => {
     if (!timer.isActive || timer.isPaused) return '';
@@ -53,19 +50,12 @@ export function TimerDisplay() {
     return 'bg-blue-500';
   };
 
-  const { timerSettings } = useSQLTrainerStore();
-
   if (!timer.isActive) {
     return (
       <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 border border-border">
         <Clock className="h-4 w-4 text-muted-foreground" />
         <span className="text-xs text-muted-foreground">Таймер не активен</span>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-7 text-xs gap-1"
-          onClick={() => startTimer()}
-        >
+        <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => startTimer()}>
           <Play className="h-3 w-3" />
           Старт
         </Button>
