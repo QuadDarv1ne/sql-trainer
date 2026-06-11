@@ -9,11 +9,8 @@ import { logger } from '@/lib/logger';
 import type { MongoSchema } from '@/lib/mongodb-engine';
 
 const sqlVerifySchema = z.object({
-  sql: z
-    .string()
-    .min(1, { message: 'SQL запрос не может быть пустым' })
-    .max(10000, { message: 'Запрос слишком длинный' }),
-  taskId: z.string().min(1, { message: 'taskId обязателен' }),
+  sql: z.string().min(1, { message: 'SQL query cannot be empty' }).max(10000, { message: 'Query is too long' }),
+  taskId: z.string().min(1, { message: 'taskId is required' }),
   dbType: z.string().optional(),
 });
 
@@ -54,7 +51,7 @@ export async function POST(request: NextRequest) {
     const limitResult = await rateLimit(`verify:${ip}`, { max: 20, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json(
-        { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Слишком много попыток. Попробуйте позже' },
+        { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Too many attempts. Try again later' },
         { status: 429 },
       );
     }
@@ -68,7 +65,7 @@ export async function POST(request: NextRequest) {
     const task = getTaskById(taskId);
     if (!task) {
       return NextResponse.json(
-        { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Задание не найдено' },
+        { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Task not found' },
         { status: 404 },
       );
     }
@@ -94,7 +91,7 @@ export async function POST(request: NextRequest) {
   } catch (err: unknown) {
     logger.error('SQL verify error:', err);
     return NextResponse.json(
-      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Произошла внутренняя ошибка' },
+      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Internal server error' },
       { status: 500 },
     );
   }
@@ -130,7 +127,7 @@ function verifyWithSharedDb(userSql: string, task: ReturnType<typeof getTaskById
       verified: false,
       userRowCount: 0,
       expectedRowCount: 0,
-      message: userResult.error || 'Ошибка выполнения запроса',
+      message: userResult.error || 'Query execution error',
     });
   }
 
@@ -147,7 +144,7 @@ function verifyWithSharedDb(userSql: string, task: ReturnType<typeof getTaskById
         verified: false,
         userRowCount: 0,
         expectedRowCount: 0,
-        message: applyUserDml.error || 'Ошибка выполнения запроса',
+        message: applyUserDml.error || 'Query execution error',
       });
     }
 
@@ -162,8 +159,8 @@ function verifyWithSharedDb(userSql: string, task: ReturnType<typeof getTaskById
       userRowCount: expectedRowCount,
       expectedRowCount,
       message: verified
-        ? `✅ Задание выполнено верно! (${expectedRowCount} строк)`
-        : `⚠️ Результат не совпадает с ожидаемым: ${expectedRowCount} строк`,
+        ? `✅ Task completed correctly! (${expectedRowCount} rows)`
+        : `⚠️ Result does not match expected: ${expectedRowCount} rows`,
     });
   }
 
@@ -176,7 +173,7 @@ function verifyWithSharedDb(userSql: string, task: ReturnType<typeof getTaskById
 function verifySelectOnly(sql: string, task: ReturnType<typeof getTaskById>, dbType: string): NextResponse {
   if (!task) {
     return NextResponse.json(
-      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Задание не найдено' },
+      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Task not found' },
       { status: 404 },
     );
   }
@@ -189,7 +186,7 @@ function verifySelectOnly(sql: string, task: ReturnType<typeof getTaskById>, dbT
       verified: false,
       userRowCount: 0,
       expectedRowCount: 0,
-      message: userResult.error || 'Ошибка выполнения запроса',
+      message: userResult.error || 'Query execution error',
     });
   }
 
@@ -219,8 +216,8 @@ function verifySelectOnly(sql: string, task: ReturnType<typeof getTaskById>, dbT
       userRowCount,
       expectedRowCount,
       message: verified
-        ? `✅ Задание выполнено верно! (${userRowCount} строк)`
-        : `⚠️ Результат не совпадает с ожидаемым: ${userRowCount} строк вместо ${expectedRowCount}`,
+        ? `✅ Task completed correctly! (${userRowCount} rows)`
+        : `⚠️ Result does not match expected: ${userRowCount} rows instead of ${expectedRowCount}`,
     });
   }
 
@@ -241,17 +238,17 @@ function compareResults(
   if (userRowCount !== expectedRowCount) {
     let detail = '';
     if (userRowCount === 0) {
-      detail = `Запрос вернул 0 строк. Ожидается: ${expectedRowCount}. Проверьте условие WHERE и JOIN.`;
+      detail = `Query returned 0 rows. Expected: ${expectedRowCount}. Check WHERE condition and JOIN.`;
     } else if (userRowCount > expectedRowCount) {
-      detail = `Запрос вернул ${userRowCount} строк, ожидается ${expectedRowCount}. Возможно, дублируются строки из-за JOIN или недостаточно строгих условий.`;
+      detail = `Query returned ${userRowCount} rows, expected ${expectedRowCount}. Possibly duplicate rows from JOIN or not restrictive enough conditions.`;
     } else {
-      detail = `Запрос вернул ${userRowCount} строк, ожидается ${expectedRowCount}. Возможно, пропущены некоторые строки в условии WHERE.`;
+      detail = `Query returned ${userRowCount} rows, expected ${expectedRowCount}. Possibly some rows missing in WHERE condition.`;
     }
     return NextResponse.json({
       verified: false,
       userRowCount,
       expectedRowCount,
-      message: `⚠️ Количество строк не совпадает: ${detail}`,
+      message: `⚠️ Row count mismatch: ${detail}`,
     });
   }
 
@@ -260,7 +257,7 @@ function compareResults(
       verified: false,
       userRowCount: 0,
       expectedRowCount: 0,
-      message: '⚠️ Запрос вернул 0 строк. Проверьте, что данные существуют в таблицах.',
+      message: '⚠️ Query returned 0 rows. Check that data exists in the tables.',
     });
   }
 
@@ -276,19 +273,19 @@ function compareResults(
     const extraCols = userColumns.filter((c) => !expectedColumns.includes(c));
     let colDetail = '';
     if (missingCols.length > 0) {
-      colDetail += ` Не хватает столбцов: ${missingCols.join(', ')}.`;
+      colDetail += ` Missing columns: ${missingCols.join(', ')}.`;
     }
     if (extraCols.length > 0) {
-      colDetail += ` Лишние столбцы: ${extraCols.join(', ')}.`;
+      colDetail += ` Extra columns: ${extraCols.join(', ')}.`;
     }
     if (userResult.columns.length !== solutionResult.columns.length) {
-      colDetail += ` Ожидается ${expectedColumns.length} столбцов, получено ${userColumns.length}.`;
+      colDetail += ` Expected ${expectedColumns.length} columns, got ${userColumns.length}.`;
     }
     return NextResponse.json({
       verified: false,
       userRowCount,
       expectedRowCount,
-      message: `⚠️ Столбцы не совпадают.${colDetail} Проверьте SELECT clause.`,
+      message: `⚠️ Columns do not match.${colDetail} Check SELECT clause.`,
     });
   }
 
@@ -303,7 +300,7 @@ function compareResults(
       verified: true,
       userRowCount,
       expectedRowCount,
-      message: `✅ Задание выполнено верно! (${userRowCount} строк)`,
+      message: `✅ Task completed correctly! (${userRowCount} rows)`,
     });
   }
 
@@ -323,19 +320,19 @@ function compareResults(
         const uVal = normalizeValue(userRow[col]);
         const eVal = normalizeValue(expectedRow[col]);
         if (uVal !== eVal) {
-          diffCols.push(`${col}: получено "${uVal}", ожидается "${eVal}"`);
+          diffCols.push(`${col}: got "${uVal}", expected "${eVal}"`);
         }
       }
-      diffDetail = ` Строка ${i + 1}: ${diffCols.slice(0, 3).join('; ')}.`;
+      diffDetail = ` Row ${i + 1}: ${diffCols.slice(0, 3).join('; ')}.`;
       break;
     }
   }
 
-  let message = `⚠️ Количество строк совпадает (${userRowCount}), но `;
+  let message = `⚠️ Row count matches (${userRowCount}), but `;
   if (diffDetail) {
-    message += `данные отличаются.${diffDetail} Проверьте вычисления, агрегации и JOIN.`;
+    message += `data differs.${diffDetail} Check calculations, aggregations and JOIN.`;
   } else {
-    message += 'порядок или данные не совпадают. Проверьте SORT ORDER и значения.';
+    message += 'order or data does not match. Check SORT ORDER and values.';
   }
 
   return NextResponse.json({
@@ -353,7 +350,7 @@ function compareResults(
 function verifyMongoDb(userQuery: string, task: ReturnType<typeof getTaskById>): NextResponse {
   if (!task) {
     return NextResponse.json(
-      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Задание не найдено' },
+      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Task not found' },
       { status: 404 },
     );
   }
@@ -363,7 +360,7 @@ function verifyMongoDb(userQuery: string, task: ReturnType<typeof getTaskById>):
     schema = task.schema ? (JSON.parse(task.schema) as MongoSchema) : {};
   } catch {
     return NextResponse.json(
-      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Ошибка схемы данных задания' },
+      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Task schema error' },
       { status: 500 },
     );
   }
@@ -375,7 +372,7 @@ function verifyMongoDb(userQuery: string, task: ReturnType<typeof getTaskById>):
       verified: false,
       userRowCount: 0,
       expectedRowCount: 0,
-      message: userResult.error || 'Ошибка выполнения запроса',
+      message: userResult.error || 'Query execution error',
     });
   }
 
@@ -386,7 +383,7 @@ function verifyMongoDb(userQuery: string, task: ReturnType<typeof getTaskById>):
       verified: false,
       userRowCount: 0,
       expectedRowCount: 0,
-      message: 'Ошибка в решении задания',
+      message: 'Solution query error',
     });
   }
 
@@ -398,7 +395,7 @@ function verifyMongoDb(userQuery: string, task: ReturnType<typeof getTaskById>):
       verified: false,
       userRowCount,
       expectedRowCount,
-      message: `⚠️ Количество документов не совпадает: получено ${userRowCount}, ожидается ${expectedRowCount}`,
+      message: `⚠️ Document count mismatch: got ${userRowCount}, expected ${expectedRowCount}`,
     });
   }
 
@@ -411,7 +408,7 @@ function verifyMongoDb(userQuery: string, task: ReturnType<typeof getTaskById>):
       verified: true,
       userRowCount,
       expectedRowCount,
-      message: `✅ Задание выполнено верно! (${userRowCount} документов)`,
+      message: `✅ Task completed correctly! (${userRowCount} documents)`,
     });
   }
 
@@ -419,6 +416,6 @@ function verifyMongoDb(userQuery: string, task: ReturnType<typeof getTaskById>):
     verified: false,
     userRowCount,
     expectedRowCount,
-    message: `⚠️ Количество документов совпадает (${userRowCount}), но данные отличаются. Проверьте запрос.`,
+    message: `⚠️ Document count matches (${userRowCount}), but data differs. Check your query.`,
   });
 }

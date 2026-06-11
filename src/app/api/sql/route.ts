@@ -22,10 +22,7 @@ function getIpFromRequest(request: NextRequest): string {
 }
 
 const sqlExecuteSchema = z.object({
-  sql: z
-    .string()
-    .min(1, { message: 'SQL запрос не может быть пустым' })
-    .max(10000, { message: 'Запрос слишком длинный' }),
+  sql: z.string().min(1, { message: 'SQL query cannot be empty' }).max(10000, { message: 'Query is too long' }),
   dbType: z.enum(['sqlite', 'postgresql', 'clickhouse', 'mongodb']).optional(),
   taskId: z.string().optional(),
 });
@@ -161,7 +158,7 @@ export async function POST(request: NextRequest) {
     const limitResult = await rateLimit(rateKey, { max: maxQueries, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json(
-        { success: false, error: 'Слишком много запросов. Подождите немного', columns: [], rows: [], executionTime: 0 },
+        { success: false, error: 'Too many requests. Please wait', columns: [], rows: [], executionTime: 0 },
         { status: 429 },
       );
     }
@@ -188,7 +185,7 @@ export async function POST(request: NextRequest) {
       const task = taskId ? getTaskById(taskId) : null;
       if (!task || task.dbType !== 'mongodb') {
         return NextResponse.json(
-          { success: false, error: 'Задание не поддерживает MongoDB', columns: [], rows: [], executionTime: 0 },
+          { success: false, error: 'Task does not support MongoDB', columns: [], rows: [], executionTime: 0 },
           { status: 400 },
         );
       }
@@ -197,7 +194,7 @@ export async function POST(request: NextRequest) {
         schema = JSON.parse(task.schema) as MongoSchema;
       } catch {
         return NextResponse.json(
-          { success: false, error: 'Ошибка схемы данных задания', columns: [], rows: [], executionTime: 0 },
+          { success: false, error: 'Task schema error', columns: [], rows: [], executionTime: 0 },
           { status: 500 },
         );
       }
@@ -218,7 +215,7 @@ export async function POST(request: NextRequest) {
   } catch (err: unknown) {
     logger.error('SQL execute error:', err);
     return NextResponse.json(
-      { success: false, error: 'Произошла внутренняя ошибка', columns: [], rows: [], executionTime: 0 },
+      { success: false, error: 'Internal server error', columns: [], rows: [], executionTime: 0 },
       { status: 500 },
     );
   }

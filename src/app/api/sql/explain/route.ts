@@ -7,12 +7,9 @@ import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 
 const sqlExplainSchema = z.object({
-  sql: z
-    .string()
-    .min(1, { message: 'SQL запрос не может быть пустым' })
-    .max(10000, { message: 'Запрос слишком длинный' }),
+  sql: z.string().min(1, { message: 'SQL query cannot be empty' }).max(10000, { message: 'Query is too long' }),
   dbType: z.enum(['sqlite', 'postgresql', 'mongodb']).optional(),
-  taskId: z.string().min(1, { message: 'taskId обязателен для EXPLAIN' }),
+  taskId: z.string().min(1, { message: 'taskId is required for EXPLAIN' }),
 });
 
 const VALID_DB_TYPES = ['sqlite', 'postgresql', 'mongodb'] as const;
@@ -27,34 +24,34 @@ function analyzePlan(plan: string, sql: string): string[] {
 
   // Full table scan detection
   if (planLower.includes('scan') && !planLower.includes('index')) {
-    suggestions.push('Полное сканирование таблицы. Рассмотрите добавление индекса для ускорения запроса.');
+    suggestions.push('Full table scan detected. Consider adding an index to speed up the query.');
   }
 
   // JOIN without index
   if (planLower.includes('join') && planLower.includes('scan')) {
-    suggestions.push('JOIN без индекса может быть медленным. Добавьте индексы на поля соединения.');
+    suggestions.push('JOIN without index may be slow. Add indexes on join columns.');
   }
 
   // DISTINCT or GROUP BY might be slow
   if (sqlUpper.includes('DISTINCT') || sqlUpper.includes('GROUP BY')) {
     if (planLower.includes('scan')) {
-      suggestions.push('DISTINCT/GROUP BY с полным сканированием может быть медленным. Рассмотрите индексы.');
+      suggestions.push('DISTINCT/GROUP BY with full scan may be slow. Consider indexes.');
     }
   }
 
   // ORDER BY without index
   if (sqlUpper.includes('ORDER BY') && !planLower.includes('index')) {
-    suggestions.push('ORDER BY может использовать filesort. Индекс на сортируемых полях ускорит запрос.');
+    suggestions.push('ORDER BY may use filesort. An index on sorted columns will speed it up.');
   }
 
   // Subquery detected
   if (sqlUpper.includes('SELECT') && sqlUpper.indexOf('SELECT') !== sqlUpper.lastIndexOf('SELECT')) {
-    suggestions.push('Подзапрос обнаружен. Рассмотрите использование JOIN для потенциального ускорения.');
+    suggestions.push('Subquery detected. Consider using JOIN for potential performance improvement.');
   }
 
   // LIKE with leading wildcard
   if (sqlUpper.match(/LIKE\s+['"]%/)) {
-    suggestions.push('LIKE с ведущим символом % не использует индексы. Попробуйте полнотекстовый поиск.');
+    suggestions.push('LIKE with leading wildcard % does not use indexes. Try full-text search instead.');
   }
 
   return suggestions;
@@ -66,7 +63,7 @@ export async function POST(request: NextRequest) {
     const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
     const limitResult = await rateLimit(`explain:${ip}`, { max: 15, windowMs: 60_000 });
     if (!limitResult.success) {
-      return NextResponse.json({ success: false, error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
+      return NextResponse.json({ success: false, error: 'Too many requests. Please wait' }, { status: 429 });
     }
 
     const body = await request.json();
@@ -77,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     const task = getTaskById(taskId);
     if (!task) {
-      return NextResponse.json({ success: false, error: 'Задание не найдено' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Task not found' }, { status: 404 });
     }
 
     const effectiveDbType = VALID_DB_TYPES.includes(dbType as (typeof VALID_DB_TYPES)[number]) ? dbType : 'sqlite';
@@ -91,6 +88,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result);
   } catch (err: unknown) {
     logger.error('SQL explain error:', err);
-    return NextResponse.json({ success: false, error: 'Произошла внутренняя ошибка' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { validateBody } from '@/lib/validation';
 
 const unsubscribeSchema = z.object({
-  endpoint: z.string().url('Неверный формат endpoint'),
+  endpoint: z.string().url('Invalid endpoint format'),
 });
 
 export async function POST(request: NextRequest) {

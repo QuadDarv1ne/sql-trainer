@@ -154,15 +154,12 @@ export function extractTables(sql: string, dialect: SQLDialect): string[] {
 /**
  * Check if SQL contains unsupported features for target dialect.
  */
-export function checkUnsupportedFeatures(sql: string, fromDialect: SQLDialect, toDialect: SQLDialect): string[] {
+export function checkUnsupportedFeatures(sql: string, fromDialect: SQLDialect, _toDialect?: SQLDialect): string[] {
   const { ast } = parseSQL(sql, fromDialect);
 
   if (!ast) return [];
 
-  // Avoid unused variable warning
-  const _ = toDialect;
+  void _toDialect;
 
-  // For now, return empty - AST analysis can be added later
-  // node-sql-parser already validates syntax for the source dialect
   return [];
 }

@@ -4720,7 +4720,7 @@ export function getSystemHealth(): SystemHealth {
       last24h.push(hourMap.get(h) || { hour: h, completions: 0, users: 0 });
     }
 
-    const dbPath = path.join(process.cwd(), 'data', 'users.db');
+    const dbPath = path.join(/* turbopackIgnore: true */ process.cwd(), 'data', 'users.db');
     const walPath = dbPath + '-wal';
     let walSize = 0;
     try {

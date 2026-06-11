@@ -10,12 +10,12 @@ import { validateBody } from '@/lib/validation';
 const ALLOWED_SELF_ROLES: UserRole[] = ['student', 'teacher'];
 
 const registerSchema = z.object({
-  name: z.string().min(1, 'Имя обязательно').max(100, 'Имя слишком длинное'),
-  email: z.string().email('Некорректный email'),
+  name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
+  email: z.string().email('Invalid email'),
   password: z
     .string()
-    .min(8, 'Пароль должен содержать минимум 8 символов')
-    .max(128, 'Пароль слишком длинный (максимум 128 символов)'),
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password is too long (max 128 characters)'),
   phone: z.string().optional().or(z.literal('')),
   role: z.enum(ALLOWED_SELF_ROLES as [string, ...string[]]).optional(),
 });
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const limitResult = await rateLimit(`register:${ip}`, { max: 5, windowMs: 10 * 60 * 1000 });
     if (!limitResult.success) {
       return NextResponse.json(
-        { success: false, error: 'Слишком много попыток регистрации. Попробуйте позже' },
+        { success: false, error: 'Too many registration attempts. Please try later' },
         { status: 429 },
       );
     }
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     const user = await createUser(email, sanitizedName.value, password, sanitizedPhone.value || undefined, userRole);
     if (!user) {
-      return NextResponse.json({ success: false, error: 'Пользователь с таким email уже существует' }, { status: 409 });
+      return NextResponse.json({ success: false, error: 'A user with this email already exists' }, { status: 409 });
     }
 
     return NextResponse.json({
@@ -62,6 +62,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (err: unknown) {
     logger.error('Registration error:', err);
-    return NextResponse.json({ success: false, error: 'Внутренняя ошибка сервера' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }

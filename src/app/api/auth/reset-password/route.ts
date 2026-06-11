@@ -15,15 +15,15 @@ import { validateBody } from '@/lib/validation';
 import { validateCsrfTokenEdge, csrfErrorResponse } from '@/lib/csrf';
 
 const resetRequestSchema = z.object({
-  email: z.string().email('Некорректный email'),
+  email: z.string().email('Invalid email'),
 });
 
 const resetConfirmSchema = z.object({
-  code: z.string().min(1, 'Код обязателен'),
+  code: z.string().min(1, 'Code is required'),
   newPassword: z
     .string()
-    .min(8, 'Пароль должен содержать минимум 8 символов')
-    .max(128, 'Пароль слишком длинный (максимум 128 символов)'),
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password is too long (max 128 characters)'),
 });
 
 // Request password reset code
@@ -44,13 +44,13 @@ export async function POST(request: NextRequest) {
     const rateLimitKey = `reset:${email}`;
     const limitResult = await rateLimit(rateLimitKey, { max: 3, windowMs: 15 * 60 * 1000 });
     if (!limitResult.success) {
-      return NextResponse.json({ success: false, error: 'Слишком много запросов. Попробуйте позже' }, { status: 429 });
+      return NextResponse.json({ success: false, error: 'Too many requests. Try again later' }, { status: 429 });
     }
 
     const user = await findUserByEmail(email);
     if (!user) {
       // Don't reveal whether email exists
-      return NextResponse.json({ success: true, message: 'Если email зарегистрирован, код отправлен' });
+      return NextResponse.json({ success: true, message: 'If the email is registered, a code has been sent' });
     }
 
     const code = await createResetCode(user.id, 'email');
@@ -68,27 +68,27 @@ export async function POST(request: NextRequest) {
             <h1 style="margin: 0; font-size: 24px;">SQL Trainer</h1>
           </div>
           <div style="background: #f8f9fa; padding: 24px; border-radius: 0 0 12px 12px;">
-            <p>Ваш код для сброса пароля:</p>
+            <p>Your password reset code:</p>
             <div style="background: #fff; border: 2px solid #667eea; border-radius: 8px; padding: 16px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 4px; margin: 16px 0;">
               ${escapeHtml(code)}
             </div>
-            <p>Или перейдите по ссылке: <a href="${escapeHtml(resetUrl)}" style="color: #667eea;">Сбросить пароль</a></p>
-            <p style="color: #6b7280; font-size: 14px;">Если вы не запрашивали сброс пароля, проигнорируйте это письмо.</p>
+            <p>Or click the link: <a href="${escapeHtml(resetUrl)}" style="color: #667eea;">Reset Password</a></p>
+            <p style="color: #6b7280; font-size: 14px;">If you did not request a password reset, please ignore this email.</p>
           </div>
         </body>
         </html>
       `;
-      queueEmail(user.id, 'Сброс пароля — SQL Trainer', html);
+      queueEmail(user.id, 'Password Reset — SQL Trainer', html);
       logger.info('Password reset code queued', { userId: user.id, email: userEmail });
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Если email зарегистрирован, код восстановления отправлен',
+      message: 'If the email is registered, a recovery code has been sent',
     });
   } catch (err: unknown) {
     logger.error('Reset password POST error:', err);
-    return NextResponse.json({ success: false, error: 'Внутренняя ошибка сервера' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -110,27 +110,27 @@ export async function PUT(request: NextRequest) {
     const rateLimitKey = `reset-verify:${code.substring(0, 3)}`;
     const limitResult = await rateLimit(rateLimitKey, { max: 5, windowMs: 15 * 60 * 1000 });
     if (!limitResult.success) {
-      return NextResponse.json({ success: false, error: 'Слишком много попыток. Попробуйте позже' }, { status: 429 });
+      return NextResponse.json({ success: false, error: 'Too many attempts. Try again later' }, { status: 429 });
     }
 
     const verifyResult = await verifyResetCode(code);
     if (!verifyResult) {
-      return NextResponse.json({ success: false, error: 'Неверный или просроченный код' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Invalid or expired code' }, { status: 400 });
     }
 
     const updated = await updatePassword(verifyResult.userId, newPassword);
     if (!updated) {
-      return NextResponse.json({ success: false, error: 'Не удалось обновить пароль' }, { status: 500 });
+      return NextResponse.json({ success: false, error: 'Failed to update password' }, { status: 500 });
     }
 
     const user = await getUserById(verifyResult.userId);
     return NextResponse.json({
       success: true,
-      message: 'Пароль успешно изменён',
+      message: 'Password changed successfully',
       user: user ? { id: user.id, name: user.name, email: user.email } : null,
     });
   } catch (err: unknown) {
     logger.error('Reset password PUT error:', err);
-    return NextResponse.json({ success: false, error: 'Внутренняя ошибка сервера' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }
