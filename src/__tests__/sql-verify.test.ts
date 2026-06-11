@@ -202,7 +202,7 @@ describeIf('POST /api/sql/verify', () => {
 
       expect(response.status).toBe(404);
       expect(data.verified).toBe(false);
-      expect(data.message).toContain('не найдено');
+      expect(data.message).toContain('not found');
     });
   });
 
@@ -307,7 +307,7 @@ describeIf('POST /api/sql/verify', () => {
 
       expect(response.status).toBe(200);
       expect(data.verified).toBe(false);
-      expect(data.message).toContain('Столбцы не совпадают');
+      expect(data.message).toContain('Columns do not match');
     });
 
     it('should reject query returning 0 rows', async () => {
@@ -328,7 +328,7 @@ describeIf('POST /api/sql/verify', () => {
       expect(response.status).toBe(200);
       expect(data.verified).toBe(false);
       expect(data.userRowCount).toBe(0);
-      expect(data.message).toContain('0 строк');
+      expect(data.message).toContain('0 rows');
     });
   });
 

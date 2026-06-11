@@ -133,14 +133,15 @@ export function transformSQL(sql: string, fromDialect: SQLDialect, toDialect: SQ
 export function validateSQL(sql: string, dialect: SQLDialect): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
-  try {
-    parseSQL(sql, dialect);
-    return { valid: true, errors };
-  } catch (err: unknown) {
-    const error = err instanceof Error ? err.message : String(err);
-    errors.push(error);
+  const result = parseSQL(sql, dialect);
+
+  if (result.ast === null) {
+    errors.push(...result.warnings.map((w) => w.replace(/^Parse error: /, '')));
+    if (errors.length === 0) errors.push('Invalid SQL syntax');
     return { valid: false, errors };
   }
+
+  return { valid: true, errors };
 }
 
 /**
