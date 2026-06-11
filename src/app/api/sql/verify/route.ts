@@ -3,16 +3,10 @@ import { executeWithSchema, executeWithSchemaMulti, splitStatements } from '@/li
 import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
 import { validateBody } from '@/lib/validation';
-import { z } from 'zod';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { logger } from '@/lib/logger';
 import type { MongoSchema } from '@/lib/mongodb-engine';
-
-const sqlVerifySchema = z.object({
-  sql: z.string().min(1, { message: 'SQL query cannot be empty' }).max(10000, { message: 'Query is too long' }),
-  taskId: z.string().min(1, { message: 'taskId is required' }),
-  dbType: z.string().optional(),
-});
+import { sqlVerifySchema } from '@/lib/sql-schema';
 
 function normalizeValue(val: unknown): string {
   if (val === null || val === undefined) return 'NULL';

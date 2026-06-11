@@ -2,15 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { explainQuery } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { validateBody } from '@/lib/validation';
-import { z } from 'zod';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
-
-const sqlExplainSchema = z.object({
-  sql: z.string().min(1, { message: 'SQL query cannot be empty' }).max(10000, { message: 'Query is too long' }),
-  dbType: z.enum(['sqlite', 'postgresql', 'mongodb']).optional(),
-  taskId: z.string().min(1, { message: 'taskId is required for EXPLAIN' }),
-});
+import { sqlExplainSchema } from '@/lib/sql-schema';
 
 const VALID_DB_TYPES = ['sqlite', 'postgresql', 'mongodb'] as const;
 

@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery, executeWithSchema } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
-import { z } from 'zod';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { logger } from '@/lib/logger';
 import { auth } from '@/lib/auth';
 import type { MongoSchema } from '@/lib/mongodb-engine';
 import { validateBody } from '@/lib/validation';
+import { sqlExecuteSchema, VALID_DB_TYPES } from '@/lib/sql-schema';
 
 /**
  * Extract client IP from request using x-forwarded-for header for proxy reliability.
@@ -20,14 +20,6 @@ function getIpFromRequest(request: NextRequest): string {
   }
   return 'unknown';
 }
-
-const sqlExecuteSchema = z.object({
-  sql: z.string().min(1, { message: 'SQL query cannot be empty' }).max(10000, { message: 'Query is too long' }),
-  dbType: z.enum(['sqlite', 'postgresql', 'clickhouse', 'mongodb']).optional(),
-  taskId: z.string().optional(),
-});
-
-const VALID_DB_TYPES = ['sqlite', 'postgresql', 'clickhouse', 'mongodb'] as const;
 
 /**
  * Allowed SQL statement prefixes for training mode.

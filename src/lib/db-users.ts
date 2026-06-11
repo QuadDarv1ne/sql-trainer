@@ -63,12 +63,16 @@ function initDatabase(): void {
     );
   `);
 
-  // Soft delete migration — wrap in try-catch since SQLite doesn't support ADD COLUMN IF NOT EXISTS
-  try {
-    db.exec(`ALTER TABLE users ADD COLUMN deleted_at INTEGER DEFAULT NULL`);
-  } catch {
-    // Column already exists — safe to ignore
-    logger.debug('users.deleted_at column already exists');
+  // Soft delete migration — only attempt if column doesn't exist
+  const hasDeletedAt = db
+    .prepare("SELECT COUNT(*) as c FROM pragma_table_info('users') WHERE name = 'deleted_at'")
+    .get() as { c: number };
+  if (hasDeletedAt.c === 0) {
+    try {
+      db.exec(`ALTER TABLE users ADD COLUMN deleted_at INTEGER DEFAULT NULL`);
+    } catch (err: unknown) {
+      logger.error('Failed to add deleted_at column:', err);
+    }
   }
 
   db.exec(`
