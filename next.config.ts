@@ -49,6 +49,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   turbopack: {
+    root: process.cwd(),
     resolveAlias: {
       '@codemirror/state': '@codemirror/state',
       '@codemirror/view': '@codemirror/view',

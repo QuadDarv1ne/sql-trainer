@@ -21,7 +21,15 @@ export interface TimeRangeFilters {
   end_date?: number;
 }
 
-const DB_PATH = process.env.DATABASE_PATH || path.join(/* turbopackIgnore: true */ process.cwd(), 'data', 'users.db');
+function getDbPath(): string {
+  return process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'users.db');
+}
+
+let _dbPath: string | null = null;
+function DB_PATH(): string {
+  if (!_dbPath) _dbPath = getDbPath();
+  return _dbPath;
+}
 
 // Singleton connection — reused across all calls to avoid SQLITE_BUSY
 let _db: Database.Database | null = null;
@@ -29,12 +37,12 @@ let _db: Database.Database | null = null;
 function getDb(): Database.Database {
   if (_db) return _db;
 
-  const dir = path.dirname(DB_PATH);
+  const dir = path.dirname(DB_PATH());
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  _db = new Database(DB_PATH, {
+  _db = new Database(DB_PATH(), {
     timeout: 5000, // Wait up to 5s if DB is locked
   });
   _db.pragma('journal_mode = WAL');
@@ -1408,7 +1416,7 @@ export function getDBStats(): DBStats {
 
   let dbSizeBytes = 0;
   try {
-    dbSizeBytes = fs.statSync(DB_PATH).size;
+    dbSizeBytes = fs.statSync(DB_PATH()).size;
   } catch (_err: unknown) {
     // File doesn't exist yet
     logger.debug('Database file does not exist yet, size is 0');
@@ -4724,7 +4732,7 @@ export function getSystemHealth(): SystemHealth {
       last24h.push(hourMap.get(h) || { hour: h, completions: 0, users: 0 });
     }
 
-    const dbPath = path.join(/* turbopackIgnore: true */ process.cwd(), 'data', 'users.db');
+    const dbPath = DB_PATH();
     const walPath = dbPath + '-wal';
     let walSize = 0;
     try {
