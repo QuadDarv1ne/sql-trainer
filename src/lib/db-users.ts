@@ -294,80 +294,80 @@ function initDatabase(): void {
 const ACHIEVEMENTS = [
   {
     id: 'first-query',
-    title: 'Первый запрос',
-    description: 'Выполните первое задание',
+    title: 'First Query',
+    description: 'Complete your first task',
     icon: 'Play',
     conditionType: 'tasks_completed',
     conditionValue: 1,
   },
   {
     id: 'beginner-done',
-    title: 'Основы SQL',
-    description: 'Выполните все задания уровня «Начальный»',
+    title: 'SQL Basics',
+    description: 'Complete all Beginner level tasks',
     icon: 'Award',
     conditionType: 'difficulty_completed',
     conditionValue: 8,
   },
   {
     id: 'intermediate-done',
-    title: 'Продвинутые запросы',
-    description: 'Выполните все задания уровня «Средний»',
+    title: 'Advanced Queries',
+    description: 'Complete all Intermediate level tasks',
     icon: 'Star',
     conditionType: 'difficulty_completed',
     conditionValue: 23,
   },
   {
     id: 'advanced-done',
-    title: 'Мастер SQL',
-    description: 'Выполните все задания уровня «Продвинутый»',
+    title: 'SQL Master',
+    description: 'Complete all Advanced level tasks',
     icon: 'Crown',
     conditionType: 'difficulty_completed',
     conditionValue: 25,
   },
   {
     id: 'all-complete',
-    title: 'Все задания',
-    description: 'Выполните все 56 заданий',
+    title: 'All Tasks',
+    description: 'Complete all 56 tasks',
     icon: 'Trophy',
     conditionType: 'tasks_completed',
     conditionValue: 56,
   },
   {
     id: 'speed-demon',
-    title: 'Быстрый ум',
-    description: 'Выполните задание с первой попытки',
+    title: 'Quick Mind',
+    description: 'Complete a task on the first attempt',
     icon: 'Zap',
     conditionType: 'single_attempt',
     conditionValue: 1,
   },
   {
     id: 'persistent',
-    title: 'Упорство',
-    description: 'Выполните 10 заданий',
+    title: 'Persistent',
+    description: 'Complete 10 tasks',
     icon: 'Flame',
     conditionType: 'tasks_completed',
     conditionValue: 10,
   },
   {
     id: 'streak-3',
-    title: 'Серия 3',
-    description: 'Выполните 3 задания подряд с первой попытки',
+    title: 'Streak 3',
+    description: 'Complete 3 tasks in a row on first attempt',
     icon: 'Target',
     conditionType: 'streak_perfect',
     conditionValue: 3,
   },
   {
     id: 'streak-5',
-    title: 'Серия 5',
-    description: 'Выполните 5 заданий подряд с первой попытки',
+    title: 'Streak 5',
+    description: 'Complete 5 tasks in a row on first attempt',
     icon: 'Shield',
     conditionType: 'streak_perfect',
     conditionValue: 5,
   },
   {
     id: 'explorer',
-    title: 'Исследователь',
-    description: 'Попробуйте и SQLite, и PostgreSQL',
+    title: 'Explorer',
+    description: 'Try both SQLite and PostgreSQL',
     icon: 'Compass',
     conditionType: 'db_types_used',
     conditionValue: 2,
@@ -423,9 +423,7 @@ export async function createUser(
   return { id, email, name, phone: phone || null, role };
 }
 
-export async function findUserByEmail(
-  email: string,
-): Promise<{
+export async function findUserByEmail(email: string): Promise<{
   id: string;
   email: string;
   name: string;
@@ -483,9 +481,7 @@ export async function verifyPassword(
   };
 }
 
-export async function getUserById(
-  userId: string,
-): Promise<{
+export async function getUserById(userId: string): Promise<{
   id: string;
   email: string;
   name: string;
@@ -511,9 +507,7 @@ export async function getUserById(
   return user || null;
 }
 
-export async function findUserByIdWithHash(
-  userId: string,
-): Promise<{
+export async function findUserByIdWithHash(userId: string): Promise<{
   id: string;
   email: string;
   name: string;
@@ -2335,7 +2329,7 @@ export function generateStudentAlerts(filters?: TimeRangeFilters): StudentAlert[
         email: student.email,
         alert_type: 'inactive',
         severity: daysInactive > 14 ? 'high' : 'medium',
-        message: `Неактивен ${daysInactive} дней`,
+        message: `Inactive for ${daysInactive} days`,
         created_at: now,
         metadata: { daysInactive, lastActive: student.last_active },
       });
@@ -2349,7 +2343,7 @@ export function generateStudentAlerts(filters?: TimeRangeFilters): StudentAlert[
         email: student.email,
         alert_type: 'struggling',
         severity: student.avg_attempts > 5 ? 'high' : 'medium',
-        message: `Высокое число попыток (ср. ${student.avg_attempts})`,
+        message: `High attempt count (avg ${student.avg_attempts})`,
         created_at: now,
         metadata: { tasksCompleted: student.tasks_completed, avgAttempts: student.avg_attempts },
       });
@@ -2473,11 +2467,11 @@ export function generateRecommendations(filters?: TimeRangeFilters): Recommendat
         name: student.name,
         recommendation_type: 'practice_more',
         priority: 'high',
-        description: 'Необходимо увеличить практику',
+        description: 'Need to increase practice',
         action_items: [
-          'Выполнять минимум 2-3 задания в неделю',
-          'Начать с заданий уровня "Начальный"',
-          'Использовать подсказки при затруднении',
+          'Complete at least 2-3 tasks per week',
+          'Start with Beginner level tasks',
+          'Use hints when stuck',
         ],
       });
     }
@@ -2489,12 +2483,8 @@ export function generateRecommendations(filters?: TimeRangeFilters): Recommendat
         name: student.name,
         recommendation_type: 'review_basics',
         priority: 'high',
-        description: 'Рекомендуется повторить основы SQL',
-        action_items: [
-          'Повторить SELECT, WHERE, ORDER BY',
-          'Изучить JOIN на простых примерах',
-          'Практиковать базовые запросы',
-        ],
+        description: 'Recommended to review SQL basics',
+        action_items: ['Review SELECT, WHERE, ORDER BY', 'Study JOIN with simple examples', 'Practice basic queries'],
       });
     }
 
@@ -2505,12 +2495,8 @@ export function generateRecommendations(filters?: TimeRangeFilters): Recommendat
         name: student.name,
         recommendation_type: 'advance_level',
         priority: 'medium',
-        description: 'Готов к продвинутому уровню',
-        action_items: [
-          'Перейти к заданиям "Продвинутый"',
-          'Изучить подзапросы и оконные функции',
-          'Попробовать режим практики',
-        ],
+        description: 'Ready for advanced level',
+        action_items: ['Move to Advanced tasks', 'Study subqueries and window functions', 'Try practice mode'],
       });
     }
 
@@ -2521,8 +2507,8 @@ export function generateRecommendations(filters?: TimeRangeFilters): Recommendat
         name: student.name,
         recommendation_type: 'seek_help',
         priority: 'high',
-        description: 'Рекомендуется обратиться за помощью',
-        action_items: ['Обратиться к преподавателю', 'Изучить справочник SQL', 'Разобрать примеры решений'],
+        description: 'Recommended to seek help',
+        action_items: ['Contact the teacher', 'Study the SQL reference', 'Review example solutions'],
       });
     }
 
@@ -2533,8 +2519,8 @@ export function generateRecommendations(filters?: TimeRangeFilters): Recommendat
         name: student.name,
         recommendation_type: 'maintain_pace',
         priority: 'low',
-        description: 'Хороший прогресс, продолжайте в том же духе',
-        action_items: ['Поддерживать текущий темп', 'Помогать другим студентам', 'Изучать дополнительные материалы'],
+        description: 'Good progress, keep it up',
+        action_items: ['Maintain current pace', 'Help other students', 'Study additional materials'],
       });
     }
   }
@@ -3043,23 +3029,23 @@ export function getChurnPredictions(limit: number = 50, filters?: TimeRangeFilte
     let inactivityScore = 0;
     if (daysSinceActive > 30) {
       inactivityScore = 35;
-      riskFactors.push('Неактивен более 30 дней');
+      riskFactors.push('Inactive for over 30 days');
     } else if (daysSinceActive > 14) {
       inactivityScore = 25;
-      riskFactors.push('Неактивен более 14 дней');
+      riskFactors.push('Inactive for over 14 days');
     } else if (daysSinceActive > 7) {
       inactivityScore = 10;
-      riskFactors.push('Неактивен более 7 дней');
+      riskFactors.push('Inactive for over 7 days');
     }
 
     // Factor 2: Low completion rate (0-25 points)
     let completionScore = 0;
     if (completionRate < 10) {
       completionScore = 25;
-      riskFactors.push('Крайне низкий прогресс');
+      riskFactors.push('Very low progress');
     } else if (completionRate < 25) {
       completionScore = 18;
-      riskFactors.push('Низкий прогресс');
+      riskFactors.push('Low progress');
     } else if (completionRate < 50) {
       completionScore = 8;
     }
@@ -3081,17 +3067,17 @@ export function getChurnPredictions(limit: number = 50, filters?: TimeRangeFilte
 
     if (velocityTrend === 'declining') {
       velocityScore = 20;
-      riskFactors.push('Снижение активности');
+      riskFactors.push('Declining activity');
     } else if (student.recent_completions === 0 && student.previous_completions === 0 && daysSinceCreated > 14) {
       velocityScore = 15;
-      riskFactors.push('Нет прогресса');
+      riskFactors.push('No progress');
     }
 
     // Factor 4: High attempts (frustration indicator) (0-10 points)
     let frustrationScore = 0;
     if (student.avg_attempts && student.avg_attempts > 5 && student.tasks_completed > 3) {
       frustrationScore = 10;
-      riskFactors.push('Высокое число попыток (фрустрация)');
+      riskFactors.push('High attempt count (frustration)');
     } else if (student.avg_attempts && student.avg_attempts > 3.5) {
       frustrationScore = 5;
     }
@@ -3100,7 +3086,7 @@ export function getChurnPredictions(limit: number = 50, filters?: TimeRangeFilte
     let newStudentScore = 0;
     if (daysSinceCreated < 7 && student.tasks_completed < 2) {
       newStudentScore = 10;
-      riskFactors.push('Новый студент без прогресса');
+      riskFactors.push('New student with no progress');
     } else if (daysSinceCreated < 14 && student.tasks_completed < 5) {
       newStudentScore = 5;
     }
@@ -3120,13 +3106,13 @@ export function getChurnPredictions(limit: number = 50, filters?: TimeRangeFilte
     // Generate predicted action
     let predictedAction = '';
     if (riskLevel === 'critical') {
-      predictedAction = 'Срочное вмешательство: персональное обращение';
+      predictedAction = 'Urgent intervention: personal contact';
     } else if (riskLevel === 'high') {
-      predictedAction = 'Рекомендовать повторение основ, предложить помощь';
+      predictedAction = 'Recommend reviewing basics, offer help';
     } else if (riskLevel === 'medium') {
-      predictedAction = 'Мониторинг, мотивационные уведомления';
+      predictedAction = 'Monitor, send motivational notifications';
     } else {
-      predictedAction = 'Продолжать наблюдение';
+      predictedAction = 'Continue observation';
     }
 
     return {
@@ -5411,7 +5397,7 @@ export function getLearningTimePatterns(
     });
   }
 
-  const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const dayNamesEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   const dailyRaw = db
@@ -6158,10 +6144,10 @@ export function getTaskCategoryPerformance(filters?: TimeRangeFilters): Category
   const totalTasks = TRAINING_TASKS.length;
 
   const categories = [
-    { key: 'company', label: 'Компания', prefixes: ['beginner-', 'intermediate-', 'advanced-'], count: 8 + 15 + 25 },
-    { key: 'analytics', label: 'Аналитика', prefixes: ['analytics-b-', 'analytics-i-', 'analytics-a-'], count: 15 },
-    { key: 'shop', label: 'Магазин', prefixes: ['shop-b-', 'shop-i-', 'shop-a-'], count: 19 },
-    { key: 'exam', label: 'Экзамен', prefixes: ['exam-b-', 'exam-i-', 'exam-a-'], count: 15 },
+    { key: 'company', label: 'Company', prefixes: ['beginner-', 'intermediate-', 'advanced-'], count: 8 + 15 + 25 },
+    { key: 'analytics', label: 'Analytics', prefixes: ['analytics-b-', 'analytics-i-', 'analytics-a-'], count: 15 },
+    { key: 'shop', label: 'Shop', prefixes: ['shop-b-', 'shop-i-', 'shop-a-'], count: 19 },
+    { key: 'exam', label: 'Exam', prefixes: ['exam-b-', 'exam-i-', 'exam-a-'], count: 15 },
   ];
 
   // Filter out categories that have no tasks in TRAINING_TASKS
@@ -6333,7 +6319,12 @@ export function getSessionAnalysis(): SessionEntry[] {
     const preferredTime = Object.entries(timeSlots).reduce((a, b) => (a[1] > b[1] ? a : b))[0];
 
     // Translate time of day
-    const timeLabels: Record<string, string> = { morning: 'Утро', afternoon: 'День', evening: 'Вечер', night: 'Ночь' };
+    const timeLabels: Record<string, string> = {
+      morning: 'Morning',
+      afternoon: 'Afternoon',
+      evening: 'Evening',
+      night: 'Night',
+    };
 
     return {
       user_id: student.id,
@@ -9439,10 +9430,10 @@ export function getSkillGapAnalysis(limit = 30): SkillGapEntry[] {
   const db = getDb();
 
   const categories = [
-    { key: 'company', label: 'Компания', prefixes: ['beginner-', 'intermediate-', 'advanced-'] },
-    { key: 'analytics', label: 'Аналитика', prefixes: ['analytics-b-', 'analytics-i-', 'analytics-a-'] },
-    { key: 'shop', label: 'Магазин', prefixes: ['shop-b-', 'shop-i-', 'shop-a-'] },
-    { key: 'exam', label: 'Экзамен', prefixes: ['exam-b-', 'exam-i-', 'exam-a-'] },
+    { key: 'company', label: 'Company', prefixes: ['beginner-', 'intermediate-', 'advanced-'] },
+    { key: 'analytics', label: 'Analytics', prefixes: ['analytics-b-', 'analytics-i-', 'analytics-a-'] },
+    { key: 'shop', label: 'Shop', prefixes: ['shop-b-', 'shop-i-', 'shop-a-'] },
+    { key: 'exam', label: 'Exam', prefixes: ['exam-b-', 'exam-i-', 'exam-a-'] },
   ];
 
   const activeCategories = categories.filter((cat) =>
@@ -9569,10 +9560,10 @@ export function getAcademicTimeline(userId: string): TimelineEvent[] {
 
   // Category completion milestones
   const categories = [
-    { key: 'company', label: 'Компания', prefixes: ['beginner-', 'intermediate-', 'advanced-'] },
-    { key: 'analytics', label: 'Аналитика', prefixes: ['analytics-b-', 'analytics-i-', 'analytics-a-'] },
-    { key: 'shop', label: 'Магазин', prefixes: ['shop-b-', 'shop-i-', 'shop-a-'] },
-    { key: 'exam', label: 'Экзамен', prefixes: ['exam-b-', 'exam-i-', 'exam-a-'] },
+    { key: 'company', label: 'Company', prefixes: ['beginner-', 'intermediate-', 'advanced-'] },
+    { key: 'analytics', label: 'Analytics', prefixes: ['analytics-b-', 'analytics-i-', 'analytics-a-'] },
+    { key: 'shop', label: 'Shop', prefixes: ['shop-b-', 'shop-i-', 'shop-a-'] },
+    { key: 'exam', label: 'Exam', prefixes: ['exam-b-', 'exam-i-', 'exam-a-'] },
   ];
 
   for (const cat of categories) {
@@ -9638,7 +9629,7 @@ export function getStudyPatterns(): StudyPatternSummary {
     )
     .all() as Array<{ hour: number; sessions: number }>;
 
-  const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const dayData = db
     .prepare(
       `
@@ -9730,7 +9721,7 @@ export function getStudyPatterns(): StudyPatternSummary {
   return {
     avg_sessions_per_week: avgSessionsPerWeek,
     preferred_hour: preferredHour.hour,
-    preferred_day: dayNames[preferredDayData.day] || 'Пн',
+    preferred_day: dayNames[preferredDayData.day] || 'Mon',
     consistency_score: consistencyScore,
     hourly_distribution: hourlyDistribution,
     weekly_distribution: weeklyDistribution,
@@ -9982,10 +9973,10 @@ export function getStudentAcademicSummary(userId: string): StudentAcademicSummar
 
   // Skill breakdown
   const categories = [
-    { key: 'company', label: 'Компания', prefixes: ['beginner-', 'intermediate-', 'advanced-'] },
-    { key: 'analytics', label: 'Аналитика', prefixes: ['analytics-b-', 'analytics-i-', 'analytics-a-'] },
-    { key: 'shop', label: 'Магазин', prefixes: ['shop-b-', 'shop-i-', 'shop-a-'] },
-    { key: 'exam', label: 'Экзамен', prefixes: ['exam-b-', 'exam-i-', 'exam-a-'] },
+    { key: 'company', label: 'Company', prefixes: ['beginner-', 'intermediate-', 'advanced-'] },
+    { key: 'analytics', label: 'Analytics', prefixes: ['analytics-b-', 'analytics-i-', 'analytics-a-'] },
+    { key: 'shop', label: 'Shop', prefixes: ['shop-b-', 'shop-i-', 'shop-a-'] },
+    { key: 'exam', label: 'Exam', prefixes: ['exam-b-', 'exam-i-', 'exam-a-'] },
   ];
 
   const skillBreakdown = categories.map((cat) => {

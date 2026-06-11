@@ -29,21 +29,23 @@ function getSecurityHeaders(): Record<string, string> {
     'Cross-Origin-Opener-Policy': 'same-origin',
     'Cross-Origin-Resource-Policy': 'same-origin',
     'Cross-Origin-Embedder-Policy': 'unsafe-none',
-    'Content-Security-Policy': [
-      "default-src 'self'",
-      `script-src${isDev ? " 'unsafe-eval'" : ''} 'self' 'unsafe-inline'`,
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob:",
-      "font-src 'self' data:",
-      "connect-src 'self'",
-      "media-src 'none'",
-      "object-src 'none'",
-      "frame-src 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-      "frame-ancestors 'none'",
-      'upgrade-insecure-requests',
-    ].join('; '),
+    'Content-Security-Policy': isDev
+      ? "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src *; media-src *; object-src *; frame-src *; base-uri *; form-action *; frame-ancestors *"
+      : [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-inline'",
+          "style-src 'self' 'unsafe-inline'",
+          "img-src 'self' data: blob:",
+          "font-src 'self' data:",
+          "connect-src 'self'",
+          "media-src 'none'",
+          "object-src 'none'",
+          "frame-src 'none'",
+          "base-uri 'self'",
+          "form-action 'self'",
+          "frame-ancestors 'none'",
+          'upgrade-insecure-requests',
+        ].join('; '),
   };
 }
 
