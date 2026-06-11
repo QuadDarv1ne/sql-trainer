@@ -2370,7 +2370,7 @@ export function generateStudentAlerts(filters?: TimeRangeFilters): StudentAlert[
         email: student.email,
         alert_type: 'at_risk',
         severity: 'high',
-        message: `Критически низкий прогресс (${student.tasks_completed}/${totalTasks} заданий)`,
+        message: `Critically low progress (${student.tasks_completed}/${totalTasks} tasks)`,
         created_at: now,
         metadata: { daysSinceRegistration, tasksCompleted: student.tasks_completed },
       });
@@ -2385,7 +2385,7 @@ export function generateStudentAlerts(filters?: TimeRangeFilters): StudentAlert[
         email: student.email,
         alert_type: 'excelling',
         severity: 'low',
-        message: `Отличная успеваемость (${student.tasks_completed}/${totalTasks}, ср. ${student.avg_attempts} попыток)`,
+        message: `Excellent performance (${student.tasks_completed}/${totalTasks}, avg ${student.avg_attempts} attempts)`,
         created_at: now,
         metadata: { tasksCompleted: student.tasks_completed, avgAttempts: student.avg_attempts },
       });
@@ -2399,7 +2399,7 @@ export function generateStudentAlerts(filters?: TimeRangeFilters): StudentAlert[
         email: student.email,
         alert_type: 'milestone',
         severity: 'low',
-        message: `Достигнута веха: ${student.tasks_completed} заданий выполнено`,
+        message: `Milestone reached: ${student.tasks_completed} tasks completed`,
         created_at: now,
         metadata: { tasksCompleted: student.tasks_completed },
       });

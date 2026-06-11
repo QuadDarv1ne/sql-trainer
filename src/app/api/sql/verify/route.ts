@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
 function verifyWithSharedDb(userSql: string, task: ReturnType<typeof getTaskById>, dbType: string): NextResponse {
   if (!task) {
     return NextResponse.json(
-      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Задание не найдено' },
+      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Task not found' },
       { status: 404 },
     );
   }

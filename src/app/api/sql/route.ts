@@ -122,7 +122,7 @@ function validateTrainingSql(sql: string): string | null {
     // Check against blocked prefixes first (more specific)
     for (const blocked of BLOCKED_PREFIXES) {
       if (stmt === blocked || stmt.startsWith(blocked + ' ')) {
-        return `Запрос содержит заблокированные команды (${stmt}). В режиме обучения разрешены только SELECT, WITH, EXPLAIN, PRAGMA.`;
+        return `Request contains blocked commands (${stmt}). In learning mode, only SELECT, WITH, EXPLAIN, PRAGMA are allowed.`;
       }
     }
 
@@ -130,7 +130,7 @@ function validateTrainingSql(sql: string): string | null {
     const isAllowed = ALLOWED_PREFIXES.some((allowed) => stmt === allowed || stmt.startsWith(allowed + ' '));
 
     if (!isAllowed && stmt.length > 0) {
-      return `Неизвестная команда SQL (${stmt}). В режиме обучения разрешены только SELECT, WITH, EXPLAIN, PRAGMA.`;
+      return `Unknown SQL command (${stmt}). In learning mode, only SELECT, WITH, EXPLAIN, PRAGMA are allowed.`;
     }
   }
 

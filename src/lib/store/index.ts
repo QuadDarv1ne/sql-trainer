@@ -272,10 +272,10 @@ export const useSQLTrainerStore = create<CombinedState>()(
       },
       importProgress: (data: ExportData) => {
         if (!data || typeof data !== 'object') {
-          return { success: false, error: 'Неверный формат данных' };
+          return { success: false, error: 'Invalid data format' };
         }
         if (data.version !== 1) {
-          return { success: false, error: 'Несовместимая версия' };
+          return { success: false, error: 'Incompatible version' };
         }
 
         set({

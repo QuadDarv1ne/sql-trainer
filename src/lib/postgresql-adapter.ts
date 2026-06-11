@@ -190,14 +190,14 @@ export function adaptWithWarnings(sql: string): AdaptResult {
   // Also detect dropped functions with regex (for better warnings)
   const dropped = detectDroppedFunctions(sql);
   const droppedWarnings = dropped.map(
-    (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`,
+    (func) => `Function "${func}" is not supported in SQLite mode and will be skipped. Results may differ.`,
   );
 
   // Combine warnings
   const allWarnings = [
     ...astResult.warnings,
     ...droppedWarnings,
-    ...astResult.errors.map((e) => `Ошибка трансформации: ${e}`),
+    ...astResult.errors.map((e) => `Transform error: ${e}`),
   ];
 
   // If AST transformation failed, fall back to regex-based approach
