@@ -66,7 +66,7 @@ export default function OnboardingFunnel() {
     },
     {
       label: t('analytics.onboarding.avgTimeFirst'),
-      value: `${summary.avg_time_to_first_completion_hours}ч`,
+      value: `${summary.avg_time_to_first_completion_hours}h`,
       icon: Clock,
       color: 'text-amber-600',
     },

@@ -63,9 +63,9 @@ const priorityColors = {
 };
 
 const priorityLabels: Record<string, string> = {
-  high: 'Высокий',
-  medium: 'Средний',
-  low: 'Низкий',
+  high: 'High',
+  medium: 'Medium',
+  low: 'Low',
 };
 
 export default function StudentDashboard() {
@@ -227,7 +227,9 @@ export default function StudentDashboard() {
                   <CardDescription>
                     {nextTask
                       ? t('dashboard.nextTask', { default: 'Next Task' }) + `: ${nextTask.title}`
-                      : t('dashboard.allDone', { default: 'Вы完成了 все задачи! Перейдите в редактор для практики.' })}
+                      : t('dashboard.allDone', {
+                          default: "You've completed all tasks! Go to the editor to practice.",
+                        })}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -458,7 +460,7 @@ export default function StudentDashboard() {
                                     ? t('dashboard.overdue', { default: 'Overdue' })
                                     : daysLeft === 1
                                       ? t('dashboard.tomorrow', { default: 'Tomorrow' })
-                                      : t('dashboard.daysLeft', { default: `Осталось ${daysLeft} дн.` })}
+                                      : t('dashboard.daysLeft', { default: `${daysLeft} day(s) left` })}
                                 </div>
                               </div>
                             </div>
@@ -506,7 +508,7 @@ export default function StudentDashboard() {
                     <div>
                       <p className="font-medium">{t('dashboard.achievements', { default: 'Achievements' })}</p>
                       <p className="text-xs text-muted-foreground">
-                        {t('dashboard.achievementsDesc', { default: `${stats.unlockedAchievements.length} получено` })}
+                        {t('dashboard.achievementsDesc', { default: `${stats.unlockedAchievements.length} unlocked` })}
                       </p>
                     </div>
                   </CardContent>

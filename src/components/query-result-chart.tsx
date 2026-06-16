@@ -80,9 +80,11 @@ export default function QueryResultChart({ columns, rows, onClose }: QueryResult
       <div className="flex h-full items-center justify-center p-6 text-center">
         <div>
           <BarChart3 className="mx-auto h-10 w-10 text-muted-foreground/30" />
-          <p className="mt-2 text-sm text-muted-foreground">Нет числовых данных для визуализации</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {t('chart.noNumericData', { default: 'No numeric data for visualization' })}
+          </p>
           <p className="mt-1 text-xs text-muted-foreground/70">
-            Для построения графика нужен хотя бы один числовой столбец
+            {t('chart.needNumericColumn', { default: 'At least one numeric column is required for charting' })}
           </p>
         </div>
       </div>
@@ -96,10 +98,13 @@ export default function QueryResultChart({ columns, rows, onClose }: QueryResult
         <div className="flex items-center gap-2">
           <BarChart3 className="h-4 w-4 text-emerald-500" />
           <span className="text-sm font-medium">
-            Визуализация: {labelColumn} → {valueColumn}
+            {t('chart.visualization', { default: 'Chart' })}: {labelColumn} → {valueColumn}
           </span>
           <Badge variant="secondary" className="text-xs">
-            {chartData.length} {chartData.length === 1 ? 'запись' : 'записей'}
+            {chartData.length}{' '}
+            {chartData.length === 1
+              ? t('chart.record', { default: 'record' })
+              : t('chart.records', { default: 'records' })}
           </Badge>
         </div>
         <div className="flex items-center gap-2">

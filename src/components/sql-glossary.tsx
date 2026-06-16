@@ -59,7 +59,7 @@ const GLOSSARY_ENTRIES: GlossaryEntry[] = [
     category: 'basic',
   },
   {
-    term: 'Алиас (AS)',
+    term: 'Alias (AS)',
     defKey: 'glossary.defs.alias',
     example: 'SELECT first_name AS name, salary AS pay FROM employees e',
     category: 'basic',
@@ -97,7 +97,7 @@ const GLOSSARY_ENTRIES: GlossaryEntry[] = [
     category: 'intermediate',
   },
   {
-    term: 'Подзапрос (Subquery)',
+    term: 'Subquery',
     defKey: 'glossary.defs.subquery',
     example: 'SELECT * FROM employees WHERE salary > (SELECT AVG(salary) FROM employees)',
     category: 'intermediate',
@@ -105,13 +105,13 @@ const GLOSSARY_ENTRIES: GlossaryEntry[] = [
   {
     term: 'CASE WHEN',
     defKey: 'glossary.defs.caseWhen',
-    example: "SELECT name, CASE WHEN salary > 100000 THEN 'Высокая' ELSE 'Обычная' END FROM employees",
+    example: "SELECT name, CASE WHEN salary > 100000 THEN 'High' ELSE 'Standard' END FROM employees",
     category: 'intermediate',
   },
   {
     term: 'COALESCE',
     defKey: 'glossary.defs.coalesce',
-    example: "SELECT COALESCE(email, 'нет email') FROM employees",
+    example: "SELECT COALESCE(email, 'no email') FROM employees",
     category: 'intermediate',
   },
   {
@@ -136,14 +136,14 @@ const GLOSSARY_ENTRIES: GlossaryEntry[] = [
     category: 'advanced',
   },
   {
-    term: 'Рекурсивный CTE',
+    term: 'Recursive CTE',
     defKey: 'glossary.defs.recursiveCte',
     example:
       'WITH RECURSIVE tree AS (SELECT * FROM cats WHERE parent_id IS NULL UNION ALL SELECT c.* FROM cats c JOIN tree t ON c.parent_id = t.id) SELECT * FROM tree',
     category: 'advanced',
   },
   {
-    term: 'Оконные функции',
+    term: 'Window Functions',
     defKey: 'glossary.defs.windowFunctions',
     example: 'SELECT name, salary, ROW_NUMBER() OVER (PARTITION BY dept_id ORDER BY salary DESC) FROM employees',
     category: 'advanced',
@@ -174,20 +174,20 @@ const GLOSSARY_ENTRIES: GlossaryEntry[] = [
     category: 'advanced',
   },
   {
-    term: 'Транзакция',
+    term: 'Transaction',
     defKey: 'glossary.defs.transaction',
     example:
       'BEGIN; UPDATE accounts SET balance = balance - 100 WHERE id = 1; UPDATE accounts SET balance = balance + 100 WHERE id = 2; COMMIT;',
     category: 'advanced',
   },
   {
-    term: 'Индекс',
+    term: 'Index',
     defKey: 'glossary.defs.index',
     example: 'CREATE INDEX idx_employees_dept ON employees(department_id)',
     category: 'advanced',
   },
   {
-    term: 'Представление (VIEW)',
+    term: 'View',
     defKey: 'glossary.defs.view',
     example: 'CREATE VIEW active_employees AS SELECT * FROM employees WHERE is_active = 1',
     category: 'advanced',

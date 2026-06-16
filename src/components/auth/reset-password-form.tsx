@@ -242,7 +242,7 @@ export default function ResetPasswordForm() {
                     onClick={handleResendCode}
                     disabled={cooldown > 0}
                   >
-                    {cooldown > 0 ? `${t('auth.sendCode')} ${cooldown}с` : t('auth.sendCode')}
+                    {cooldown > 0 ? `${t('auth.sendCode')} ${cooldown}s` : t('auth.sendCode')}
                   </Button>
                 )}
               </div>

@@ -126,8 +126,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
   const handleCreateGroup = async () => {
     if (!newGroupName.trim()) {
       toast({
-        title: 'Ошибка',
-        description: 'Введите название группы',
+        title: 'Error',
+        description: 'Enter a group name',
         variant: 'destructive',
       });
       return;
@@ -146,8 +146,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       const data = await res.json();
       if (data.success) {
         toast({
-          title: 'Группа создана',
-          description: `Группа "${newGroupName}" успешно создана`,
+          title: 'Group Created',
+          description: `Group "${newGroupName}" created successfully`,
         });
         setNewGroupName('');
         setNewGroupDescription('');
@@ -157,8 +157,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     } catch (error) {
       logger.error('Failed to create group:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось создать группу',
+        title: 'Error',
+        description: 'Failed to create group',
         variant: 'destructive',
       });
     }
@@ -167,8 +167,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
   const handleAddStudents = async () => {
     if (!selectedGroup || !studentEmails.trim()) {
       toast({
-        title: 'Ошибка',
-        description: 'Введите email адреса студентов',
+        title: 'Error',
+        description: 'Enter student email addresses',
         variant: 'destructive',
       });
       return;
@@ -189,8 +189,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       const data = await res.json();
       if (data.success) {
         toast({
-          title: 'Студенты добавлены',
-          description: `${emails.length} студент(а) добавлено в группу`,
+          title: 'Students Added',
+          description: `${emails.length} student(s) added to group`,
         });
         setStudentEmails('');
         setIsAddStudentDialogOpen(false);
@@ -199,8 +199,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     } catch (error) {
       logger.error('Failed to add students:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось добавить студентов',
+        title: 'Error',
+        description: 'Failed to add students',
         variant: 'destructive',
       });
     }
@@ -219,16 +219,16 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       const data = await res.json();
       if (data.success) {
         toast({
-          title: 'Студент удалён',
-          description: 'Студент удалён из группы',
+          title: 'Student Removed',
+          description: 'Student removed from group',
         });
         fetchStudents(selectedGroup.id);
       }
     } catch (error) {
       logger.error('Failed to remove student:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось удалить студента',
+        title: 'Error',
+        description: 'Failed to remove student',
         variant: 'destructive',
       });
     }
@@ -247,8 +247,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       const data = await res.json();
       if (data.success) {
         toast({
-          title: 'Студенты удалены',
-          description: `${selectedStudents.size} студент(а) удалено из группы`,
+          title: 'Students Removed',
+          description: `${selectedStudents.size} student(s) removed from group`,
         });
         setSelectedStudents(new Set());
         fetchStudents(selectedGroup.id);
@@ -256,8 +256,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     } catch (error) {
       logger.error('Failed to remove students:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось удалить студентов',
+        title: 'Error',
+        description: 'Failed to remove students',
         variant: 'destructive',
       });
     }
@@ -277,14 +277,14 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       window.URL.revokeObjectURL(url);
 
       toast({
-        title: 'Экспорт завершён',
-        description: 'Данные группы экспортированы в CSV',
+        title: 'Export Complete',
+        description: 'Group data exported to CSV',
       });
     } catch (error) {
       logger.error('Failed to export group data:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось экспортировать данные',
+        title: 'Error',
+        description: 'Failed to export data',
         variant: 'destructive',
       });
     }
@@ -437,7 +437,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                   {selectedStudents.size > 0 && (
                     <Button variant="destructive" size="sm" onClick={handleBulkRemove}>
                       <Trash2 className="h-4 w-4 mr-2" />
-                      {t('groups.removeSelected', { default: `Удалить ${selectedStudents.size}` })}
+                      {t('groups.removeSelected', { default: `Remove ${selectedStudents.size}` })}
                     </Button>
                   )}
                 </div>
@@ -593,9 +593,9 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddStudentDialogOpen(false)}>
-              {t('common.cancel', { default: 'Отмена' })}
+              {t('common.cancel', { default: 'Cancel' })}
             </Button>
-            <Button onClick={handleAddStudents}>{t('groups.add', { default: 'Добавить' })}</Button>
+            <Button onClick={handleAddStudents}>{t('groups.add', { default: 'Add' })}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

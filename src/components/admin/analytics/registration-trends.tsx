@@ -89,7 +89,7 @@ export default function RegistrationTrends() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>{t('analytics.registrations.daily')} (30 дней)</CardTitle>
+            <CardTitle>{t('analytics.registrations.daily')} (30 days)</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>

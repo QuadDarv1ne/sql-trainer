@@ -7,7 +7,7 @@ import { t } from '@/lib/i18n';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { AnalyticsCard } from './analytics-card';
 
-const DAY_NAMES_RU = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 interface AggregatePerformanceData {
   level_distribution: { beginner: number; intermediate: number; advanced: number };
@@ -120,7 +120,7 @@ export default function AggregatePerformance() {
               {/* Day labels */}
               <div className="flex flex-col gap-0.5 pr-2">
                 <div className="h-6" /> {/* Header spacer */}
-                {DAY_NAMES_RU.map((day) => (
+                {DAY_NAMES.map((day) => (
                   <div key={day} className="h-6 flex items-center text-xs text-muted-foreground w-8">
                     {day}
                   </div>

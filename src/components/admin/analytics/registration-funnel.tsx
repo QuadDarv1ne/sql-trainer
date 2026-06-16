@@ -57,9 +57,9 @@ function FunnelStage({
 
 function formatDuration(ms: number): string {
   const hours = ms / (1000 * 60 * 60);
-  if (hours < 24) return `${Math.round(hours)}ч`;
+  if (hours < 24) return `${Math.round(hours)}h`;
   const days = hours / 24;
-  return `${Math.round(days)}д`;
+  return `${Math.round(days)}d`;
 }
 
 export default function RegistrationFunnel() {

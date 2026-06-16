@@ -158,9 +158,9 @@ export default function AdminAnalytics() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="24h">24 часа</SelectItem>
-              <SelectItem value="7d">7 дней</SelectItem>
-              <SelectItem value="30d">30 дней</SelectItem>
+              <SelectItem value="24h">{t('admin.timeRange.24h', { default: '24 hours' })}</SelectItem>
+              <SelectItem value="7d">{t('admin.timeRange.7d', { default: '7 days' })}</SelectItem>
+              <SelectItem value="30d">{t('admin.timeRange.30d', { default: '30 days' })}</SelectItem>
             </SelectContent>
           </Select>
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
@@ -188,7 +188,7 @@ export default function AdminAnalytics() {
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <UserCheck className="h-3 w-3 text-emerald-600" />
               <span className="text-emerald-600">{metrics?.activeUsers ?? 0}</span>
-              <span>активных сейчас</span>
+              <span>{t('admin.metrics.activeNowSuffix', { default: 'active now' })}</span>
             </div>
           </CardContent>
         </Card>
@@ -205,7 +205,9 @@ export default function AdminAnalytics() {
             <div className="flex items-center gap-1 text-xs">
               <TrendingUp className="h-3 w-3 text-emerald-600" />
               <span className="text-emerald-600">+12%</span>
-              <span className="text-muted-foreground">к вчера</span>
+              <span className="text-muted-foreground">
+                {t('admin.metrics.vsYesterday', { default: 'vs yesterday' })}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -219,7 +221,9 @@ export default function AdminAnalytics() {
             <div className="text-2xl font-bold">{metrics?.totalQueries ?? 0}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Clock className="h-3 w-3" />
-              <span>{metrics?.avgResponseTime ?? 0} мс среднее время</span>
+              <span>
+                {metrics?.avgResponseTime ?? 0} {t('admin.metrics.ms', { default: 'ms' })} avg response
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -235,12 +239,12 @@ export default function AdminAnalytics() {
               {metrics?.errorRate && metrics.errorRate < 1 ? (
                 <>
                   <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                  <span className="text-emerald-600">В норме</span>
+                  <span className="text-emerald-600">{t('admin.metrics.normal', { default: 'Normal' })}</span>
                 </>
               ) : (
                 <>
                   <AlertTriangle className="h-3 w-3 text-amber-600" />
-                  <span className="text-amber-600">Внимание</span>
+                  <span className="text-amber-600">{t('admin.metrics.attention', { default: 'Attention' })}</span>
                 </>
               )}
             </div>
@@ -255,7 +259,7 @@ export default function AdminAnalytics() {
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{((metrics?.databaseSize ?? 0) / 1024 / 1024).toFixed(2)} МБ</div>
+            <div className="text-2xl font-bold">{((metrics?.databaseSize ?? 0) / 1024 / 1024).toFixed(2)} MB</div>
             <div className="text-xs text-muted-foreground">{t('admin.metrics.dbSize', { default: 'DB Size' })}</div>
           </CardContent>
         </Card>
@@ -292,11 +296,13 @@ export default function AdminAnalytics() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics?.avgResponseTime ?? 0} мс</div>
+            <div className="text-2xl font-bold">{metrics?.avgResponseTime ?? 0} ms</div>
             <div className="flex items-center gap-1 text-xs">
               <TrendingDown className="h-3 w-3 text-emerald-600" />
               <span className="text-emerald-600">-5%</span>
-              <span className="text-muted-foreground">к вчера</span>
+              <span className="text-muted-foreground">
+                {t('admin.metrics.vsYesterday', { default: 'vs yesterday' })}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -404,7 +410,7 @@ export default function AdminAnalytics() {
             <TableHeader>
               <TableRow>
                 <TableHead>{t('admin.timestamp', { default: 'Time' })}</TableHead>
-                <TableHead>{t('admin.user', { default: 'Пользователь' })}</TableHead>
+                <TableHead>{t('admin.user', { default: 'User' })}</TableHead>
                 <TableHead>{t('admin.action', { default: 'Action' })}</TableHead>
                 <TableHead>{t('admin.resource', { default: 'Resource' })}</TableHead>
                 <TableHead>{t('admin.ip', { default: 'IP' })}</TableHead>

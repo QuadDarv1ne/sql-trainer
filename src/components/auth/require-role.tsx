@@ -35,7 +35,7 @@ export default function RequireRole({ role: requiredRole, children, fallback, si
       <ShieldAlert className="h-4 w-4" />
       <AlertDescription>
         {t('access.denied', {
-          default: `Доступ ограничен. Требуется роль: ${ROLE_LABELS[requiredRole]}`,
+          default: `Access denied. Required role: ${ROLE_LABELS[requiredRole]}`,
         })}
       </AlertDescription>
     </Alert>

@@ -135,7 +135,7 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
       icon: <AlertCircle className="h-3.5 w-3.5" />,
       title: 'DISTINCT',
       content:
-        'DISTINCT убирает дубликаты из результата. DISTINCT применяется ко всем столбцам в SELECT одновременно — уникальность определяется комбинацией всех значений. DISTINCT может быть медленным на больших данных.',
+        'DISTINCT removes duplicates from the result. DISTINCT applies to all columns in SELECT simultaneously — uniqueness is determined by the combination of all values. DISTINCT can be slow on large data.',
       color: 'text-yellow-600 dark:text-yellow-400',
     });
   }
@@ -149,9 +149,9 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <BookOpen className="h-3.5 w-3.5" />,
-      title: 'Даты и время',
+      title: 'Dates and Time',
       content:
-        "Функции работы с датами различаются в разных СУБД. SQLite: strftime('%Y-%m', date). PostgreSQL: DATE_TRUNC('month', date). MySQL: DATE_FORMAT(date, '%Y-%m'). ClickHouse: toYYYYMM(date).",
+        "Date/time functions differ across DBMS. SQLite: strftime('%Y-%m', date). PostgreSQL: DATE_TRUNC('month', date). MySQL: DATE_FORMAT(date, '%Y-%m'). ClickHouse: toYYYYMM(date).",
       color: 'text-cyan-600 dark:text-cyan-400',
     });
   }
@@ -167,9 +167,9 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <Code className="h-3.5 w-3.5" />,
-      title: 'Строки',
+      title: 'Strings',
       content:
-        "LIKE с % — поиск по шаблону ('%test%' содержит «test»). CONCAT() объединяет строки. SUBSTR(str, start, len) извлекает подстроку. Обратите внимание: индексация строк начинается с 1 в большинстве СУБД.",
+        "LIKE with % — pattern matching ('%test%' contains 'test'). CONCAT() joins strings. SUBSTR(str, start, len) extracts a substring. Note: string indexing starts at 1 in most DBMS.",
       color: 'text-pink-600 dark:text-pink-400',
     });
   }
@@ -180,7 +180,7 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
       icon: <Lightbulb className="h-3.5 w-3.5" />,
       title: 'HAVING',
       content:
-        'HAVING фильтрует результаты после GROUP BY, а WHERE — до. Используйте HAVING для условий с агрегатными функциями: HAVING COUNT(*) > 1. WHERE нельзя использовать с агрегатами.',
+        'HAVING filters results after GROUP BY, while WHERE filters before. Use HAVING for conditions with aggregate functions: HAVING COUNT(*) > 1. WHERE cannot be used with aggregates.',
       color: 'text-lime-600 dark:text-lime-400',
     });
   }
@@ -189,9 +189,9 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   if (combined.includes('limit') || combined.includes('top ') || combined.includes('fetch first')) {
     tips.push({
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      title: 'Ограничение строк',
+      title: 'Row Limiting',
       content:
-        'Синтаксис различается: SQLite/PostgreSQL/MySQL — LIMIT n. SQL Server — SELECT TOP n. Oracle — FETCH FIRST n ROWS ONLY или ROWNUM. Всегда используйте ORDER BY с LIMIT для предсказуемого результата.',
+        'Syntax varies: SQLite/PostgreSQL/MySQL — LIMIT n. SQL Server — SELECT TOP n. Oracle — FETCH FIRST n ROWS ONLY or ROWNUM. Always use ORDER BY with LIMIT for predictable results.',
       color: 'text-rose-600 dark:text-rose-400',
     });
   }
@@ -204,9 +204,9 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <Lightbulb className="h-3.5 w-3.5" />,
-      title: 'Самосоединение',
+      title: 'Self-Join',
       content:
-        'Самосоединение (self-join) позволяет соединить таблицу с самой собой. Необходимо использовать разные алиасы: FROM employees e1 JOIN employees e2 ON e1.manager_id = e2.id. Полезно для иерархий.',
+        'A self-join allows joining a table with itself. Use different aliases: FROM employees e1 JOIN employees e2 ON e1.manager_id = e2.id. Useful for hierarchies.',
       color: 'text-sky-600 dark:text-sky-400',
     });
   }
@@ -217,7 +217,7 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
       icon: <AlertCircle className="h-3.5 w-3.5" />,
       title: 'ClickHouse',
       content:
-        'ClickHouse оптимизирован для аналитических запросов на больших данных. Особенности: toYYYYMM() для группировки по месяцам, groupArray() для сбора значений в массив, arrayJoin() для раскрытия массивов.',
+        'ClickHouse is optimized for analytical queries on big data. Features: toYYYYMM() for monthly grouping, groupArray() for collecting values into arrays, arrayJoin() for expanding arrays.',
       color: 'text-fuchsia-600 dark:text-fuchsia-400',
     });
   }
@@ -228,7 +228,7 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
       icon: <AlertCircle className="h-3.5 w-3.5" />,
       title: 'MySQL',
       content:
-        'MySQL-специфичные функции: GROUP_CONCAT() для объединения строк, IF() для условной логики, FIELD() для сортировки по заданному порядку, ON DUPLICATE KEY UPDATE для upsert-операций.',
+        'MySQL-specific functions: GROUP_CONCAT() for string concatenation, IF() for conditional logic, FIELD() for custom sort order, ON DUPLICATE KEY UPDATE for upsert operations.',
       color: 'text-amber-600 dark:text-amber-400',
     });
   }

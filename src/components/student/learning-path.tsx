@@ -135,7 +135,9 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
             <div className="flex items-center gap-2">
               <Star className="h-5 w-5 text-purple-500" />
               <div>
-                <p className="text-lg font-bold">Уровень {userLevel}</p>
+                <p className="text-lg font-bold">
+                  {t('learning.path.levelLabel', { default: 'Level' })} {userLevel}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {t('learning.path.level', { default: 'Current level' })}
                 </p>

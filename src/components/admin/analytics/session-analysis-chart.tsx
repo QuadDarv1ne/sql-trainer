@@ -34,10 +34,10 @@ interface SessionEntry {
 }
 
 const timeColors: Record<string, string> = {
-  Утро: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-  День: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  Вечер: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  Ночь: 'bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200',
+  Morning: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+  Afternoon: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  Evening: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+  Night: 'bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200',
 };
 
 export default function SessionAnalysisChart() {

@@ -307,7 +307,7 @@ export default function UserTable() {
   };
 
   const handleBan = async (userId: string, userName: string) => {
-    const reason = prompt(`Введите причину бана для ${userName} (опционально):`);
+    const reason = prompt(`Enter ban reason for ${userName} (optional):`);
     if (reason === null) return;
     setError('');
     setSuccess('');
@@ -321,16 +321,16 @@ export default function UserTable() {
         const data = await res.json();
         throw new Error(data.error || 'Failed to ban user');
       }
-      setSuccess(`Пользователь ${userName} заблокирован`);
+      setSuccess(`User ${userName} banned`);
       fetchUsers();
     } catch (e) {
       logger.error('Failed to ban user:', e);
-      setError(e instanceof Error ? e.message : 'Ошибка при блокировке пользователя');
+      setError(e instanceof Error ? e.message : t('admin.users.banError', { default: 'Error banning user' }));
     }
   };
 
   const handleUnban = async (userId: string, userName: string) => {
-    if (!confirm(`Разблокировать пользователя ${userName}?`)) return;
+    if (!confirm(`Unban user ${userName}?`)) return;
     setError('');
     setSuccess('');
     try {
@@ -339,11 +339,11 @@ export default function UserTable() {
         const data = await res.json();
         throw new Error(data.error || 'Failed to unban user');
       }
-      setSuccess(`Пользователь ${userName} разблокирован`);
+      setSuccess(`User ${userName} unbanned`);
       fetchUsers();
     } catch (e) {
       logger.error('Failed to unban user:', e);
-      setError(e instanceof Error ? e.message : 'Ошибка при разблокировке пользователя');
+      setError(e instanceof Error ? e.message : t('admin.users.unbanError', { default: 'Error unbanning user' }));
     }
   };
 
@@ -596,8 +596,8 @@ export default function UserTable() {
                               size="sm"
                               onClick={() => handleUnban(user.id, user.name)}
                               className="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950"
-                              aria-label="Разблокировать"
-                              title={`Заблокирован: ${user.ban_reason || 'без причины'}`}
+                              aria-label="Unban"
+                              title={`Banned: ${user.ban_reason || 'no reason'}`}
                             >
                               <Ban className="h-4 w-4" />
                             </Button>
@@ -607,7 +607,7 @@ export default function UserTable() {
                               size="sm"
                               onClick={() => handleBan(user.id, user.name)}
                               className="text-slate-600 dark:text-slate-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950"
-                              aria-label="Заблокировать"
+                              aria-label="Ban"
                             >
                               <Ban className="h-4 w-4" />
                             </Button>
@@ -663,7 +663,7 @@ export default function UserTable() {
         {activeTab === 'banned' && (
           <>
             {bannedUsers.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">Нет заблокированных пользователей</p>
+              <p className="text-center text-muted-foreground py-8">No banned users</p>
             ) : (
               <div className="rounded-md border">
                 <Table>
@@ -671,9 +671,9 @@ export default function UserTable() {
                     <TableRow>
                       <TableHead>{t('admin.users.name')}</TableHead>
                       <TableHead>{t('admin.users.email')}</TableHead>
-                      <TableHead>Причина бана</TableHead>
-                      <TableHead>Кем заблокирован</TableHead>
-                      <TableHead>Дата блокировки</TableHead>
+                      <TableHead>Ban Reason</TableHead>
+                      <TableHead>Banned By</TableHead>
+                      <TableHead>Ban Date</TableHead>
                       <TableHead>{t('admin.users.actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -695,7 +695,7 @@ export default function UserTable() {
                             className="text-emerald-600"
                           >
                             <CheckCircle className="h-4 w-4 mr-1" />
-                            Разблокировать
+                            Unban
                           </Button>
                         </TableCell>
                       </TableRow>

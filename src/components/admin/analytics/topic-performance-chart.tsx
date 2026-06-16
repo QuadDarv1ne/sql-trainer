@@ -27,10 +27,10 @@ interface TopicPerformanceEntry {
 const topicLabels: Record<string, string> = {
   select: 'SELECT',
   joins: 'JOINs',
-  aggregation: 'Агрегация',
-  subqueries: 'Подзапросы',
+  aggregation: 'Aggregation',
+  subqueries: 'Subqueries',
   dml: 'DML',
-  advanced: 'Продвинутый',
+  advanced: 'Advanced',
 };
 
 export default function TopicPerformanceChart() {
