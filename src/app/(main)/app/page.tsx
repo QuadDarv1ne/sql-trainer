@@ -334,7 +334,7 @@ export default function HomePage() {
         } catch (e) {
           // Verification failed — still show results but notify user
           logger.error('Task verification failed', e);
-          toast.error(t('task.verificationError', { default: 'Не удалось проверить результат запроса' }));
+          toast.error(t('task.verificationError', { default: 'Failed to verify query result' }));
         }
       }
     } catch (e) {

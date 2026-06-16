@@ -245,7 +245,7 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
                   variant="outline"
                   className="text-[10px] border-amber-300/60 text-amber-700 dark:border-amber-700/60 dark:text-amber-400"
                 >
-                  {t('welcome.needPractice', { default: 'Нужно practice' })}: {missingConceptLabel}
+                  {t('welcome.needPractice', { default: 'Need practice' })}: {missingConceptLabel}
                 </Badge>
               )}
             </div>

@@ -275,7 +275,7 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      "Для каждого клиента выведите полное имя (first_name и last_name через пробел) и email. Используйте CONCAT_WS(' ', first_name, last_name) для объединения с разделителем. Выведите full_name и email. Отсортируйте по full_name.",
+      "For each customer display full name (first_name and last_name separated by space) and email. Use CONCAT_WS(' ', first_name, last_name) for concatenation with separator. Display full_name and email. Sort by full_name.",
     hint: 'CONCAT_WS(separator, str1, str2, ...) joins strings with a separator, automatically skipping NULL values.',
     sampleSolution:
       "SELECT CONCAT_WS(' ', first_name, last_name) AS full_name, email FROM customers ORDER BY full_name;",
@@ -440,8 +440,8 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
     taskText:
-      "Найдите все события с устройства 'mobile'. Выведите event_id, user_id, event_type и event_time. Отсортируйте по event_time.",
-    hint: "Используйте WHERE device = 'mobile' и ORDER BY event_time.",
+      "Find all events from 'mobile' device. Display event_id, user_id, event_type and event_time. Sort by event_time.",
+    hint: "Use WHERE device = 'mobile' and ORDER BY event_time.",
     sampleSolution:
       "SELECT event_id, user_id, event_type, event_time FROM events WHERE device = 'mobile' ORDER BY event_time;",
     verificationQuery: "SELECT COUNT(*) as count FROM events WHERE device = 'mobile';",
@@ -564,7 +564,7 @@ export const BEGINNER_TASKS: TrainingTask[] = [
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
     taskText: 'Find all events with device = "mobile". Display event_id, user_id, event_type.',
-    hint: "Используйте WHERE device = 'mobile'.",
+    hint: "Use WHERE device = 'mobile'.",
     sampleSolution: "SELECT event_id, user_id, event_type FROM events WHERE device = 'mobile';",
     verificationQuery: "SELECT COUNT(*) as count FROM events WHERE device = 'mobile';",
   },

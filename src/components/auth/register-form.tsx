@@ -221,7 +221,7 @@ export default function RegisterForm() {
                       {ROLE_LABELS.student}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {t('auth.role.studentDesc', { default: 'Практика SQL-запросов' })}
+                      {t('auth.role.studentDesc', { default: 'Practice SQL queries' })}
                     </div>
                   </div>
                 </button>
@@ -244,7 +244,7 @@ export default function RegisterForm() {
                       {ROLE_LABELS.teacher}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {t('auth.role.teacherDesc', { default: 'Аналитика и прогресс студентов' })}
+                      {t('auth.role.teacherDesc', { default: 'Student analytics and progress' })}
                     </div>
                   </div>
                 </button>

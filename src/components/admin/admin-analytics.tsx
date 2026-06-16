@@ -150,7 +150,7 @@ export default function AdminAnalytics() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Shield className="h-6 w-6 text-red-600" />
-          <h2 className="text-2xl font-bold">{t('admin.analytics.title', { default: 'Административная панель' })}</h2>
+          <h2 className="text-2xl font-bold">{t('admin.analytics.title', { default: 'Admin Dashboard' })}</h2>
         </div>
         <div className="flex items-center gap-2">
           <Select value={timeRange} onValueChange={(v: string) => setTimeRange(v as typeof timeRange)}>
@@ -165,11 +165,11 @@ export default function AdminAnalytics() {
           </Select>
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            {t('common.refresh', { default: 'Обновить' })}
+            {t('common.refresh', { default: 'Refresh' })}
           </Button>
           <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
-            {t('admin.export', { default: 'Экспорт' })}
+            {t('admin.export', { default: 'Export' })}
           </Button>
         </div>
       </div>
@@ -179,7 +179,7 @@ export default function AdminAnalytics() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t('admin.metrics.totalUsers', { default: 'Всего пользователей' })}
+              {t('admin.metrics.totalUsers', { default: 'Total Users' })}
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -196,7 +196,7 @@ export default function AdminAnalytics() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t('admin.metrics.newUsers', { default: 'Новых за сегодня' })}
+              {t('admin.metrics.newUsers', { default: 'New Today' })}
             </CardTitle>
             <UserPlus className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -212,7 +212,7 @@ export default function AdminAnalytics() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('admin.metrics.queries', { default: 'Запросов' })}</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.metrics.queries', { default: 'Requests' })}</CardTitle>
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -226,7 +226,7 @@ export default function AdminAnalytics() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('admin.metrics.errors', { default: 'Ошибки' })}</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.metrics.errors', { default: 'Errors' })}</CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -250,13 +250,13 @@ export default function AdminAnalytics() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t('admin.metrics.database', { default: 'База данных' })}
+              {t('admin.metrics.database', { default: 'Database' })}
             </CardTitle>
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{((metrics?.databaseSize ?? 0) / 1024 / 1024).toFixed(2)} МБ</div>
-            <div className="text-xs text-muted-foreground">{t('admin.metrics.dbSize', { default: 'Размер БД' })}</div>
+            <div className="text-xs text-muted-foreground">{t('admin.metrics.dbSize', { default: 'DB Size' })}</div>
           </CardContent>
         </Card>
 
@@ -268,28 +268,26 @@ export default function AdminAnalytics() {
           <CardContent>
             <div className="text-2xl font-bold">{metrics?.uptime ?? 99.9}%</div>
             <div className="text-xs text-muted-foreground">
-              {t('admin.metrics.last30Days', { default: 'за 30 дней' })}
+              {t('admin.metrics.last30Days', { default: 'over 30 days' })}
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('admin.metrics.activeNow', { default: 'Онлайн' })}</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('admin.metrics.activeNow', { default: 'Online' })}</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics?.activeUsers ?? 0}</div>
-            <div className="text-xs text-muted-foreground">
-              {t('admin.metrics.usersOnline', { default: 'пользователей' })}
-            </div>
+            <div className="text-xs text-muted-foreground">{t('admin.metrics.usersOnline', { default: 'users' })}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {t('admin.metrics.responseTime', { default: 'Время ответа' })}
+              {t('admin.metrics.responseTime', { default: 'Response Time' })}
             </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -311,14 +309,12 @@ export default function AdminAnalytics() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="h-5 w-5" />
-                {t('admin.activity.title', { default: 'Активность пользователей' })}
+                {t('admin.activity.title', { default: 'User Activity' })}
               </CardTitle>
-              <CardDescription>
-                {t('admin.activity.subtitle', { default: 'Последние активные пользователи' })}
-              </CardDescription>
+              <CardDescription>{t('admin.activity.subtitle', { default: 'Recently Active Users' })}</CardDescription>
             </div>
             <Button variant="outline" size="sm">
-              {t('admin.viewAll', { default: 'Все пользователи' })}
+              {t('admin.viewAll', { default: 'All Users' })}
             </Button>
           </div>
         </CardHeader>
@@ -326,11 +322,11 @@ export default function AdminAnalytics() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t('admin.user', { default: 'Пользователь' })}</TableHead>
-                <TableHead>{t('admin.role', { default: 'Роль' })}</TableHead>
-                <TableHead>{t('admin.queries', { default: 'Запросов сегодня' })}</TableHead>
-                <TableHead>{t('admin.lastActive', { default: 'Был(а)' })}</TableHead>
-                <TableHead>{t('admin.status', { default: 'Статус' })}</TableHead>
+                <TableHead>{t('admin.user', { default: 'User' })}</TableHead>
+                <TableHead>{t('admin.role', { default: 'Role' })}</TableHead>
+                <TableHead>{t('admin.queries', { default: 'Queries Today' })}</TableHead>
+                <TableHead>{t('admin.lastActive', { default: 'Last Seen' })}</TableHead>
+                <TableHead>{t('admin.status', { default: 'Status' })}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -349,10 +345,10 @@ export default function AdminAnalytics() {
                       }
                     >
                       {user.role === 'admin'
-                        ? t('role.admin', { default: 'Админ' })
+                        ? t('role.admin', { default: 'Admin' })
                         : user.role === 'teacher'
-                          ? t('role.teacher', { default: 'Преподаватель' })
-                          : t('role.student', { default: 'Студент' })}
+                          ? t('role.teacher', { default: 'Teacher' })
+                          : t('role.student', { default: 'Student' })}
                     </Badge>
                   </TableCell>
                   <TableCell>{user.queriesToday}</TableCell>
@@ -374,10 +370,10 @@ export default function AdminAnalytics() {
                       {user.status === 'active' && <CheckCircle2 className="h-3 w-3" />}
                       {user.status === 'banned' && <UserX className="h-3 w-3" />}
                       {user.status === 'active'
-                        ? t('status.active', { default: 'Активен' })
+                        ? t('status.active', { default: 'Active' })
                         : user.status === 'banned'
-                          ? t('status.banned', { default: 'Заблокирован' })
-                          : t('status.inactive', { default: 'Не активен' })}
+                          ? t('status.banned', { default: 'Banned' })
+                          : t('status.inactive', { default: 'Inactive' })}
                     </Badge>
                   </TableCell>
                 </TableRow>
@@ -394,14 +390,12 @@ export default function AdminAnalytics() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5" />
-                {t('admin.audit.title', { default: 'Журнал аудита' })}
+                {t('admin.audit.title', { default: 'Audit Log' })}
               </CardTitle>
-              <CardDescription>
-                {t('admin.audit.subtitle', { default: 'Последние действия в системе' })}
-              </CardDescription>
+              <CardDescription>{t('admin.audit.subtitle', { default: 'Latest system actions' })}</CardDescription>
             </div>
             <Button variant="outline" size="sm">
-              {t('admin.viewAll', { default: 'Все логи' })}
+              {t('admin.viewAll', { default: 'All Logs' })}
             </Button>
           </div>
         </CardHeader>
@@ -409,10 +403,10 @@ export default function AdminAnalytics() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t('admin.timestamp', { default: 'Время' })}</TableHead>
+                <TableHead>{t('admin.timestamp', { default: 'Time' })}</TableHead>
                 <TableHead>{t('admin.user', { default: 'Пользователь' })}</TableHead>
-                <TableHead>{t('admin.action', { default: 'Действие' })}</TableHead>
-                <TableHead>{t('admin.resource', { default: 'Ресурс' })}</TableHead>
+                <TableHead>{t('admin.action', { default: 'Action' })}</TableHead>
+                <TableHead>{t('admin.resource', { default: 'Resource' })}</TableHead>
                 <TableHead>{t('admin.ip', { default: 'IP' })}</TableHead>
               </TableRow>
             </TableHeader>
@@ -441,7 +435,7 @@ export default function AdminAnalytics() {
           {auditLogs.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
               <Shield className="h-12 w-12 mx-auto mb-2 opacity-20" />
-              <p>{t('admin.noLogs', { default: 'Журнал аудита пуст' })}</p>
+              <p>{t('admin.noLogs', { default: 'Audit log is empty' })}</p>
             </div>
           )}
         </CardContent>

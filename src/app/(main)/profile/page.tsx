@@ -104,12 +104,12 @@ function SavedQueriesSection() {
   const handleResetAll = () => {
     resetAllProgress();
     toast.success(t('profile.resetSuccess'), {
-      description: t('profile.resetUndoDesc', { default: 'Прогресс сброшен. Можно отменить в течение 30 секунд.' }),
+      description: t('profile.resetUndoDesc', { default: 'Progress reset. Can undo within 30 seconds.' }),
       action: {
-        label: t('profile.resetUndo', { default: 'Отменить' }),
+        label: t('profile.resetUndo', { default: 'Undo' }),
         onClick: () => {
           undoReset();
-          toast.success(t('profile.resetUndone', { default: 'Прогресс восстановлен' }));
+          toast.success(t('profile.resetUndone', { default: 'Progress restored' }));
         },
       },
       duration: 30000,
@@ -441,9 +441,9 @@ export default function ProfilePage() {
       <div className="mx-auto max-w-5xl space-y-6 p-6">
         {/* Page Header */}
         <div className="mb-2">
-          <h1 className="text-2xl font-bold tracking-tight">{t('profile.title', { default: 'Профиль' })}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('profile.title', { default: 'Profile' })}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {t('profile.subtitle', { default: 'Управляйте своим профилем и отслеживайте прогресс' })}
+            {t('profile.subtitle', { default: 'Manage your profile and track progress' })}
           </p>
         </div>
 

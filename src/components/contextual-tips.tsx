@@ -26,7 +26,7 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
       icon: <BookOpen className="h-3.5 w-3.5" />,
       title: 'JOIN',
       content:
-        'INNER JOIN возвращает только совпадающие строки из обеих таблиц. LEFT JOIN — все строки из левой таблицы + совпадения из правой (или NULL). RIGHT JOIN — наоборот.',
+        'INNER JOIN returns only matching rows from both tables. LEFT JOIN returns all rows from the left table + matches from the right (or NULL). RIGHT JOIN is the opposite.',
       color: 'text-blue-600 dark:text-blue-400',
     });
   }
@@ -42,7 +42,7 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
       icon: <BookOpen className="h-3.5 w-3.5" />,
       title: 'GROUP BY',
       content:
-        'После GROUP BY в SELECT можно использовать только столбцы из GROUP BY и агрегатные функции (COUNT, SUM, AVG, MIN, MAX). Для фильтрации агрегатов используйте HAVING, а не WHERE.',
+        'After GROUP BY, SELECT can only use columns from GROUP BY and aggregate functions (COUNT, SUM, AVG, MIN, MAX). To filter aggregates use HAVING, not WHERE.',
       color: 'text-emerald-600 dark:text-emerald-400',
     });
   }
@@ -51,9 +51,9 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   if (combined.includes('over') && combined.includes('partition')) {
     tips.push({
       icon: <BookOpen className="h-3.5 w-3.5" />,
-      title: 'Оконные функции',
+      title: 'Window Functions',
       content:
-        'OVER (PARTITION BY ...) делит данные на группы, внутри которых применяется функция. В отличие от GROUP BY, оконные функции не «схлопывают» строки — каждая строка сохраняется.',
+        'OVER (PARTITION BY ...) divides data into groups, within which the function is applied. Unlike GROUP BY, window functions do not collapse rows — each row is preserved.',
       color: 'text-violet-600 dark:text-violet-400',
     });
   }
@@ -64,7 +64,7 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
       icon: <Code className="h-3.5 w-3.5" />,
       title: 'ROW_NUMBER / RANK',
       content:
-        'ROW_NUMBER() даёт уникальный номер каждой строке. RANK() пропускает номера при одинаковых значениях (1,2,2,4). DENSE_RANK() не пропускает (1,2,2,3). Всегда используйте ORDER BY внутри OVER().',
+        'ROW_NUMBER() assigns a unique number to each row. RANK() skips numbers on equal values (1,2,2,4). DENSE_RANK() does not skip (1,2,2,3). Always use ORDER BY inside OVER().',
       color: 'text-purple-600 dark:text-purple-400',
     });
   }
@@ -75,7 +75,7 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
       icon: <Lightbulb className="h-3.5 w-3.5" />,
       title: 'CTE (WITH)',
       content:
-        'CTE (Common Table Expression) — именованный подзапрос, который можно использовать несколько раз. Делает сложный запрос читаемым. Несколько CTE разделяются запятой: WITH cte1 AS (...), cte2 AS (...)',
+        'CTE (Common Table Expression) — a named subquery that can be used multiple times. Makes complex queries readable. Multiple CTEs are separated by commas: WITH cte1 AS (...), cte2 AS (...).',
       color: 'text-amber-600 dark:text-amber-400',
     });
   }
@@ -84,9 +84,9 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   if (combined.includes('select') && combined.split('select').length > 2 && !combined.includes('with ')) {
     tips.push({
       icon: <Code className="h-3.5 w-3.5" />,
-      title: 'Подзапросы',
+      title: 'Subqueries',
       content:
-        'Подзапрос в WHERE (IN, EXISTS) выполняется для каждой строки внешнего запроса. EXISTS эффективнее IN, т.к. останавливается на первом совпадении. Подзапросы в SELECT вычисляются для каждой строки.',
+        'A subquery in WHERE (IN, EXISTS) executes for each row of the outer query. EXISTS is more efficient than IN because it stops on the first match. Subqueries in SELECT are computed for each row.',
       color: 'text-orange-600 dark:text-orange-400',
     });
   }
@@ -100,9 +100,9 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      title: 'Работа с NULL',
+      title: 'Working with NULL',
       content:
-        'NULL — это «отсутствие значения», он не равен ничему, даже другому NULL. Используйте COALESCE(col, default) для подстановки значения по умолчанию. Для сравнения: col IS NULL, а не col = NULL.',
+        'NULL means "absence of value" — it is not equal to anything, not even another NULL. Use COALESCE(col, default) to substitute a default value. For comparison: col IS NULL, not col = NULL.',
       color: 'text-red-600 dark:text-red-400',
     });
   }
@@ -113,7 +113,7 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
       icon: <Code className="h-3.5 w-3.5" />,
       title: 'CASE',
       content:
-        'CASE позволяет ветвление в SQL: CASE WHEN condition THEN result [ELSE default] END. Можно использовать в SELECT, ORDER BY и даже GROUP BY. Всегда заканчивайте END!',
+        'CASE enables branching in SQL: CASE WHEN condition THEN result [ELSE default] END. Can be used in SELECT, ORDER BY and even GROUP BY. Always end with END!',
       color: 'text-indigo-600 dark:text-indigo-400',
     });
   }
@@ -124,7 +124,7 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
       icon: <Lightbulb className="h-3.5 w-3.5" />,
       title: 'EXISTS',
       content:
-        'EXISTS проверяет наличие хотя бы одной строки в подзапросе. Обычно быстрее IN, т.к. останавливается на первом совпадении. Часто используется с коррелированным подзапросом, ссылающимся на внешний запрос.',
+        'EXISTS checks for at least one row in a subquery. Usually faster than IN because it stops on the first match. Often used with correlated subqueries referencing the outer query.',
       color: 'text-teal-600 dark:text-teal-400',
     });
   }

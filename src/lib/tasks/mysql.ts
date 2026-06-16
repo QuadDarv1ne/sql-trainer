@@ -10,15 +10,15 @@ export const MYSQL_TASKS: TrainingTask[] = [
   // ==================== MySQL BEGINNER TASKS ====================
   {
     id: 'mysql-1',
-    title: 'MySQL: LIMIT с OFFSET',
-    description: 'Пагинация результатов запроса',
+    title: 'MySQL: LIMIT with OFFSET',
+    description: 'Query result pagination',
     difficulty: 'beginner',
     dbType: 'mysql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Выведите сотрудников (first_name, last_name, salary), отсортированных по зарплате DESC, пропустив первые 5 и взяв следующие 10. Используйте LIMIT 10 OFFSET 5.',
-    hint: 'В MySQL синтаксис: LIMIT количество OFFSET смещение. Это используется для пагинации.',
+      'Display employees (first_name, last_name, salary), sorted by salary DESC, skipping the first 5 and taking the next 10. Use LIMIT 10 OFFSET 5.',
+    hint: 'In MySQL syntax: LIMIT count OFFSET offset. This is used for pagination.',
     sampleSolution: 'SELECT first_name, last_name, salary FROM employees ORDER BY salary DESC LIMIT 10 OFFSET 5;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
   },
@@ -26,14 +26,14 @@ export const MYSQL_TASKS: TrainingTask[] = [
   {
     id: 'mysql-2',
     title: 'MySQL: STRAIGHT_JOIN',
-    description: 'Принудительный порядок соединения таблиц',
+    description: 'Forced table join order',
     difficulty: 'beginner',
     dbType: 'mysql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Выведите имена сотрудников и названия отделов, используя STRAIGHT_JOIN (MySQL-специфичный аналог INNER JOIN, который принудительно читает левую таблицу первой).',
-    hint: 'STRAIGHT_JOIN работает как INNER JOIN, но гарантирует порядок чтения: левая таблица всегда читается первой.',
+      'Display employee names and department names using STRAIGHT_JOIN (a MySQL-specific analog of INNER JOIN that forces reading the left table first).',
+    hint: 'STRAIGHT_JOIN works like INNER JOIN but guarantees read order: the left table is always read first.',
     sampleSolution:
       'SELECT e.first_name, e.last_name, d.name as department_name FROM employees e STRAIGHT_JOIN departments d ON e.department_id = d.id;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees e JOIN departments d ON e.department_id = d.id;',
@@ -42,15 +42,15 @@ export const MYSQL_TASKS: TrainingTask[] = [
   // ==================== MySQL INTERMEDIATE TASKS ====================
   {
     id: 'mysql-3',
-    title: 'MySQL: IF() функция',
-    description: 'Условное выражение IF в MySQL',
+    title: 'MySQL: IF() function',
+    description: 'Conditional expression IF in MySQL',
     difficulty: 'intermediate',
     dbType: 'mysql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Для каждого сотрудника выведите first_name, salary и категорию: "Высокая" если salary > 130000, иначе "Обычная". Используйте функцию IF(salary > 130000, "Высокая", "Обычная").',
-    hint: 'MySQL IF(condition, true_val, false_val) — компактная форма CASE WHEN для двух вариантов.',
+      'For each employee display first_name, salary and category: "High" if salary > 130000, otherwise "Regular". Use IF(salary > 130000, "High", "Regular").',
+    hint: 'MySQL IF(condition, true_val, false_val) — compact form of CASE WHEN for two options.',
     sampleSolution:
       "SELECT first_name, salary, IF(salary > 130000, 'Высокая', 'Обычная') as salary_category FROM employees ORDER BY salary DESC;",
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
@@ -58,15 +58,15 @@ export const MYSQL_TASKS: TrainingTask[] = [
 
   {
     id: 'mysql-4',
-    title: 'MySQL: FIELD() для сортировки',
-    description: 'Сортировка в произвольном порядке',
+    title: 'MySQL: FIELD() for sorting',
+    description: 'Custom order sorting',
     difficulty: 'intermediate',
     dbType: 'mysql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Выведите сотрудников из отделов "Разработка" (id=1), "Маркетинг" (id=2), "HR" (id=4) в именно этом порядке (не по алфавиту!). Используйте ORDER BY FIELD(department_id, 1, 2, 4).',
-    hint: 'FIELD(val, v1, v2, v3...) возвращает позицию val в списке (1, 2, 3...). Используется для кастомной сортировки.',
+      'Display employees from departments "Development" (id=1), "Marketing" (id=2), "HR" (id=4) in exactly this order (not alphabetically!). Use ORDER BY FIELD(department_id, 1, 2, 4).',
+    hint: 'FIELD(val, v1, v2, v3...) returns the position of val in the list (1, 2, 3...). Used for custom sorting.',
     sampleSolution:
       'SELECT first_name, last_name, department_id FROM employees WHERE department_id IN (1, 2, 4) ORDER BY FIELD(department_id, 1, 2, 4), last_name;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees WHERE department_id IN (1, 2, 4);',
@@ -75,14 +75,14 @@ export const MYSQL_TASKS: TrainingTask[] = [
   {
     id: 'mysql-5',
     title: 'MySQL: GROUP_CONCAT',
-    description: 'Объединение значений в строку при группировке',
+    description: 'Concatenate values into string when grouping',
     difficulty: 'intermediate',
     dbType: 'mysql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Для каждого отдела выведите название и список имён сотрудников через запятую (отсортированный по алфавиту). Используйте GROUP_CONCAT(first_name ORDER BY first_name SEPARATOR ", ").',
-    hint: 'GROUP_CONCAT(expr [ORDER BY ...] [SEPARATOR sep]) — MySQL функция для объединения строк в группе.',
+      'For each department display the name and a comma-separated list of employee names (sorted alphabetically). Use GROUP_CONCAT(first_name ORDER BY first_name SEPARATOR ", ").',
+    hint: 'GROUP_CONCAT(expr [ORDER BY ...] [SEPARATOR sep]) — MySQL function for concatenating strings in a group.',
     sampleSolution:
       "SELECT d.name, GROUP_CONCAT(e.first_name ORDER BY e.first_name SEPARATOR ', ') as employee_names FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name ORDER BY d.name;",
     verificationQuery: 'SELECT COUNT(*) as count FROM departments;',
@@ -91,14 +91,14 @@ export const MYSQL_TASKS: TrainingTask[] = [
   {
     id: 'mysql-6',
     title: 'MySQL: DATE_FORMAT',
-    description: 'Форматирование дат в MySQL',
+    description: 'Date formatting in MySQL',
     difficulty: 'intermediate',
     dbType: 'mysql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Выведите сотрудников: first_name, hire_date и formatted_hire_date в формате "DD.MM.YYYY" (например "15.03.2020"). Используйте DATE_FORMAT(hire_date, "%d.%m.%Y").',
-    hint: 'DATE_FORMAT(date, format) форматирует дату по шаблону: %d — день, %m — месяц, %Y — 4-значный год.',
+      'Display employees: first_name, hire_date and formatted_hire_date in "DD.MM.YYYY" format (e.g. "15.03.2020"). Use DATE_FORMAT(hire_date, "%d.%m.%Y").',
+    hint: 'DATE_FORMAT(date, format) formats a date: %d — day, %m — month, %Y — 4-digit year.',
     sampleSolution:
       "SELECT first_name, hire_date, DATE_FORMAT(hire_date, '%d.%m.%Y') as formatted_hire_date FROM employees ORDER BY hire_date;",
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
@@ -107,14 +107,14 @@ export const MYSQL_TASKS: TrainingTask[] = [
   {
     id: 'mysql-7',
     title: 'MySQL: DATEDIFF',
-    description: 'Разница между датами в днях',
+    description: 'Difference between dates in days',
     difficulty: 'intermediate',
     dbType: 'mysql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Вычислите стаж каждого сотрудника в днях на дату "2024-01-01". Выведите first_name и days_worked = DATEDIFF("2024-01-01", hire_date).',
-    hint: 'DATEDIFF(date1, date2) возвращает разницу в днях между двумя датами.',
+      'Calculate each employee\'s tenure in days as of "2024-01-01". Display first_name and days_worked = DATEDIFF("2024-01-01", hire_date).',
+    hint: 'DATEDIFF(date1, date2) returns the difference in days between two dates.',
     sampleSolution:
       'SELECT first_name, DATEDIFF("2024-01-01", hire_date) as days_worked FROM employees ORDER BY days_worked DESC;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
@@ -123,14 +123,14 @@ export const MYSQL_TASKS: TrainingTask[] = [
   {
     id: 'mysql-8',
     title: 'MySQL: INSERT ... ON DUPLICATE KEY UPDATE',
-    description: 'UPSERT в MySQL — вставка или обновление',
+    description: 'UPSERT in MySQL — insert or update',
     difficulty: 'intermediate',
     dbType: 'mysql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Вставьте нового сотрудника: first_name="Тест", last_name="Тестов", email="test@company.ru", department_id=1, salary=100000, hire_date="2024-01-01". Если email уже существует, обновите salary на 150000. Используйте ON DUPLICATE KEY UPDATE.',
-    hint: 'INSERT INTO ... VALUES (...) ON DUPLICATE KEY UPDATE salary=150000 — MySQL аналог PostgreSQL UPSERT.',
+      'Insert a new employee: first_name="Test", last_name="Testov", email="test@company.ru", department_id=1, salary=100000, hire_date="2024-01-01". If the email already exists, update salary to 150000. Use ON DUPLICATE KEY UPDATE.',
+    hint: 'INSERT INTO ... VALUES (...) ON DUPLICATE KEY UPDATE salary=150000 — MySQL equivalent of PostgreSQL UPSERT.',
     sampleSolution:
       "INSERT INTO employees (first_name, last_name, email, department_id, salary, hire_date) VALUES ('Тест', 'Тестов', 'test@company.ru', 1, 100000, '2024-01-01') ON DUPLICATE KEY UPDATE salary = 150000;",
     verificationQuery: "SELECT COUNT(*) as count FROM employees WHERE email = 'test@company.ru';",
@@ -138,15 +138,15 @@ export const MYSQL_TASKS: TrainingTask[] = [
 
   {
     id: 'mysql-9',
-    title: 'MySQL: VALUES() в ON DUPLICATE KEY UPDATE',
-    description: 'Использование VALUES() для ссылки на новые значения',
+    title: 'MySQL: VALUES() in ON DUPLICATE KEY UPDATE',
+    description: 'Using VALUES() to reference new values',
     difficulty: 'intermediate',
     dbType: 'mysql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Вставьте сотрудника с email="test@company.ru". При конфликте обновите salary на значение, которое пытались вставить. Используйте VALUES(salary) для ссылки на новое значение.',
-    hint: 'VALUES(col) внутри ON DUPLICATE KEY UPDATE возвращает значение, которое пытались вставить.',
+      'Insert an employee with email="test@company.ru". On conflict, update salary to the value you tried to insert. Use VALUES(salary) to reference the new value.',
+    hint: 'VALUES(col) inside ON DUPLICATE KEY UPDATE returns the value that was attempted to be inserted.',
     sampleSolution:
       "INSERT INTO employees (first_name, last_name, email, department_id, salary, hire_date) VALUES ('Новый', 'Сотрудник', 'test@company.ru', 1, 120000, '2024-06-01') ON DUPLICATE KEY UPDATE salary = VALUES(salary);",
     verificationQuery: "SELECT COUNT(*) as count FROM employees WHERE email = 'test@company.ru';",
@@ -155,14 +155,14 @@ export const MYSQL_TASKS: TrainingTask[] = [
   {
     id: 'mysql-10',
     title: 'MySQL: REPLACE INTO',
-    description: 'Замена существующей строки или вставка новой',
+    description: 'Replace existing row or insert new',
     difficulty: 'intermediate',
     dbType: 'mysql',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Используйте REPLACE INTO для вставки категории: name="Игрушки", description="Детские товары". Если категория с таким уникальным ключом существует, она будет удалена и вставлена заново.',
-    hint: 'REPLACE INTO работает как INSERT, но при конфликте уникального ключа удаляет старую строку и вставляет новую.',
+      'Use REPLACE INTO to insert a category: name="Toys", description="Kids products". If a category with this unique key exists, it will be deleted and re-inserted.',
+    hint: 'REPLACE INTO works like INSERT, but on unique key conflict it deletes the old row and inserts a new one.',
     sampleSolution: "REPLACE INTO categories (name, description) VALUES ('Игрушки', 'Детские товары');",
     verificationQuery: 'SELECT COUNT(*) as count FROM categories;',
   },
@@ -170,14 +170,14 @@ export const MYSQL_TASKS: TrainingTask[] = [
   {
     id: 'mysql-11',
     title: 'MySQL: FIND_IN_SET',
-    description: 'Поиск значения в строке, разделённой запятыми',
+    description: 'Search in comma-separated string',
     difficulty: 'intermediate',
     dbType: 'mysql',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Представьте, что в таблице orders есть столбец shipping_city со значениями через запятую. Найдите все заказы, где shipping_city содержит "Москва". Используйте FIND_IN_SET("Москва", shipping_city).',
-    hint: 'FIND_IN_SET(str, str_list) возвращает позицию str в списке через запятую, или 0 если не найдено.',
+      'Imagine the orders table has a shipping_city column with comma-separated values. Find all orders where shipping_city contains "Moscow". Use FIND_IN_SET("Moscow", shipping_city).',
+    hint: 'FIND_IN_SET(str, str_list) returns the position of str in a comma-separated list, or 0 if not found.',
     sampleSolution:
       "SELECT id, shipping_city FROM orders WHERE FIND_IN_SET(shipping_city, 'Москва,Санкт-Петербург') > 0;",
     verificationQuery: 'SELECT COUNT(*) as count FROM orders;',
@@ -186,30 +186,30 @@ export const MYSQL_TASKS: TrainingTask[] = [
   // ==================== MySQL ADVANCED TASKS ====================
   {
     id: 'mysql-12',
-    title: 'MySQL: JSON_EXTRACT и оператор ->>',
-    description: 'Работа с JSON в MySQL',
+    title: 'MySQL: JSON_EXTRACT and ->> operator',
+    description: 'Working with JSON in MySQL',
     difficulty: 'advanced',
     dbType: 'mysql',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Представьте, что в таблице products есть JSON столбец metadata. Найдите товары, где metadata->>"$.brand" = "Samsung". Выведите name и brand. Используйте оператор ->> для извлечения JSON значения как текста.',
-    hint: 'MySQL поддерживает JSON тип. col->>"$.key" извлекает значение как текст, col->"$.key" — как JSON.',
+      'Imagine the products table has a JSON column metadata. Find products where metadata->>"$.brand" = "Samsung". Display name and brand. Use the ->> operator to extract JSON value as text.',
+    hint: 'MySQL supports JSON type. col->>"$.key" extracts value as text, col->"$.key" as JSON.',
     sampleSolution: "SELECT name, metadata->>'$.brand' as brand FROM products WHERE metadata->>'$.brand' = 'Samsung';",
     verificationQuery: 'SELECT COUNT(*) as count FROM products;',
   },
 
   {
     id: 'mysql-13',
-    title: 'MySQL: JSON_ARRAYAGG и JSON_OBJECTAGG',
-    description: 'Агрегация данных в JSON формат',
+    title: 'MySQL: JSON_ARRAYAGG and JSON_OBJECTAGG',
+    description: 'Aggregating data into JSON format',
     difficulty: 'advanced',
     dbType: 'mysql',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Для каждой категории соберите названия товаров в JSON массив. Используйте JSON_ARRAYAGG(p.name). Выведите category_id и products_json.',
-    hint: 'JSON_ARRAYAGG(expr) создаёт JSON массив из значений группы. JSON_OBJECTAGG(key, value) — JSON объект.',
+      'For each category collect product names into a JSON array. Use JSON_ARRAYAGG(p.name). Display category_id and products_json.',
+    hint: 'JSON_ARRAYAGG(expr) creates a JSON array from group values. JSON_OBJECTAGG(key, value) — JSON object.',
     sampleSolution:
       'SELECT c.id as category_id, c.name, JSON_ARRAYAGG(p.name) as products_json FROM categories c LEFT JOIN products p ON c.id = p.category_id GROUP BY c.id, c.name;',
     verificationQuery: 'SELECT COUNT(*) as count FROM categories;',
@@ -217,15 +217,15 @@ export const MYSQL_TASKS: TrainingTask[] = [
 
   {
     id: 'mysql-14',
-    title: 'MySQL: WINDOW функции с WINDOW clause',
-    description: 'Именованные окна для переиспользования',
+    title: 'MySQL: WINDOW functions with WINDOW clause',
+    description: 'Named windows for reuse',
     difficulty: 'advanced',
     dbType: 'mysql',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Выведите заказы с рангом по сумме (total_amount) внутри каждого города доставки и нарастающей суммой. Используйте WINDOW w AS (PARTITION BY shipping_city ORDER BY order_date) для переиспользования определения окна.',
-    hint: 'MySQL позволяет определить окно один раз: WINDOW name AS (...), затем использовать: ROW_NUMBER() OVER w, SUM() OVER w.',
+      'Display orders with rank by amount (total_amount) within each shipping city and a running total. Use WINDOW w AS (PARTITION BY shipping_city ORDER BY order_date) to reuse the window definition.',
+    hint: 'MySQL allows defining a window once: WINDOW name AS (...), then using: ROW_NUMBER() OVER w, SUM() OVER w.',
     sampleSolution:
       'SELECT id, shipping_city, order_date, total_amount, ROW_NUMBER() OVER w as rn, SUM(total_amount) OVER w as running_total FROM orders WINDOW w AS (PARTITION BY shipping_city ORDER BY order_date) ORDER BY shipping_city, order_date;',
     verificationQuery: 'SELECT COUNT(*) as count FROM orders;',
@@ -233,15 +233,15 @@ export const MYSQL_TASKS: TrainingTask[] = [
 
   {
     id: 'mysql-15',
-    title: 'MySQL: CAST и CONVERT',
-    description: 'Преобразование типов данных',
+    title: 'MySQL: CAST and CONVERT',
+    description: 'Data type conversion',
     difficulty: 'advanced',
     dbType: 'mysql',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Выведите товары: name, price и price_as_char — цену, преобразованную в CHAR с помощью CAST(price AS CHAR). Также выведите price_dec = CAST(price AS DECIMAL(10,2)).',
-    hint: 'MySQL: CAST(expr AS type) и CONVERT(expr, type) преобразуют типы данных.',
+      'Display products: name, price and price_as_char — price converted to CHAR using CAST(price AS CHAR). Also display price_dec = CAST(price AS DECIMAL(10,2)).',
+    hint: 'MySQL: CAST(expr AS type) and CONVERT(expr, type) convert data types.',
     sampleSolution:
       'SELECT name, price, CAST(price AS CHAR) as price_as_char, CAST(price AS DECIMAL(10,2)) as price_dec FROM products ORDER BY price DESC;',
     verificationQuery: 'SELECT COUNT(*) as count FROM products;',
@@ -250,14 +250,13 @@ export const MYSQL_TASKS: TrainingTask[] = [
   {
     id: 'mysql-16',
     title: 'MySQL: REGEXP_LIKE',
-    description: 'Поиск по регулярным выражениям',
+    description: 'Search with regular expressions',
     difficulty: 'advanced',
     dbType: 'mysql',
     category: 'shop',
     schema: SHOP_SCHEMA,
-    taskText:
-      'Найдите товары, название которых начинается на гласную букву (A, E, I, O, U, А, Е, Ё, И, О, У, Ы, Э, Ю, Я). Используйте REGEXP_LIKE(name, "^[AEIOUАЕЁИОУЫЭЮЯaeiouаеёиоуыэюя]").',
-    hint: 'MySQL REGEXP_LIKE(string, pattern) проверяет соответствие регулярному выражению. ^ — начало строки, [...] — набор символов.',
+    taskText: 'Find products whose name starts with a vowel (A, E, I, O, U). Use REGEXP_LIKE(name, "^[AEIOUaeiou]").',
+    hint: 'MySQL REGEXP_LIKE(string, pattern) checks matching a regular expression. ^ — start of string, [...] — character set.',
     sampleSolution:
       "SELECT name FROM products WHERE REGEXP_LIKE(name, '^[AEIOUАЕЁИОУЫЭЮЯaeiouаеёиоуыэюя]') ORDER BY name;",
     verificationQuery: 'SELECT COUNT(*) as count FROM products;',
@@ -266,14 +265,14 @@ export const MYSQL_TASKS: TrainingTask[] = [
   {
     id: 'mysql-17',
     title: 'MySQL: WITH ROLLUP',
-    description: 'Добавление итоговых строк при группировке',
+    description: 'Adding summary rows with grouping',
     difficulty: 'advanced',
     dbType: 'mysql',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Выведите количество заказов и общую сумму по каждому городу доставки, добавив строку итого (WITH ROLLUP). Для итоговой строки shipping_city будет NULL.',
-    hint: 'GROUP BY col WITH ROLLUP добавляет дополнительную строку с агрегатами по всей таблице.',
+      'Display order count and total amount by shipping city, adding a grand total row (WITH ROLLUP). The total row will have NULL for shipping_city.',
+    hint: 'GROUP BY col WITH ROLLUP adds an extra row with aggregates across the entire table.',
     sampleSolution:
       'SELECT shipping_city, COUNT(*) as order_count, SUM(total_amount) as total FROM orders GROUP BY shipping_city WITH ROLLUP;',
     verificationQuery: 'SELECT COUNT(*) as count FROM orders;',
@@ -281,15 +280,14 @@ export const MYSQL_TASKS: TrainingTask[] = [
 
   {
     id: 'mysql-18',
-    title: 'MySQL: COALESCE в UPDATE',
-    description: 'Обновление с обработкой NULL',
+    title: 'MySQL: COALESCE in UPDATE',
+    description: 'Update with NULL handling',
     difficulty: 'advanced',
     dbType: 'mysql',
     category: 'shop',
     schema: SHOP_SCHEMA,
-    taskText:
-      'Обновите все заказы без статуса (NULL): установите status = "Не указан". Используйте WHERE status IS NULL.',
-    hint: 'WHERE status IS NULL находит строки с NULL значением.',
+    taskText: 'Update all orders without a status (NULL): set status = "Not specified". Use WHERE status IS NULL.',
+    hint: 'WHERE status IS NULL finds rows with NULL value.',
     sampleSolution: "UPDATE orders SET status = 'Не указан' WHERE status IS NULL;",
     verificationQuery: 'SELECT COUNT(*) as count FROM orders WHERE status = "Не указан";',
   },

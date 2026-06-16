@@ -51,7 +51,7 @@ export default function AdminPage() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{t('admin.title')}</h1>
             <p className="text-sm text-muted-foreground">
-              {t('admin.subtitle', { default: 'Управление пользователями, аналитика и мониторинг системы' })}
+              {t('admin.subtitle', { default: 'User management, analytics and system monitoring' })}
             </p>
           </div>
           <DropdownMenu>
@@ -92,7 +92,7 @@ export default function AdminPage() {
             <TabsTrigger value="leaderboard">{t('admin.tabs.leaderboard')}</TabsTrigger>
             <TabsTrigger value="health">{t('admin.tabs.health')}</TabsTrigger>
             <TabsTrigger value="audit">{t('admin.tabs.audit')}</TabsTrigger>
-            <TabsTrigger value="metrics">{t('admin.tabs.metrics', { default: 'Метрики' })}</TabsTrigger>
+            <TabsTrigger value="metrics">{t('admin.tabs.metrics', { default: 'Metrics' })}</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-6">
             <DBStats />

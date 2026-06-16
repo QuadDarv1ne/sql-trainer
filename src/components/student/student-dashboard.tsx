@@ -112,7 +112,7 @@ export default function StudentDashboard() {
         setReminders(remindersData.reminders || []);
       }
     } catch {
-      setError(t('dashboard.loadError', { default: 'Не удалось загрузить данные' }));
+      setError(t('dashboard.loadError', { default: 'Failed to load data' }));
     } finally {
       setLoading(false);
     }
@@ -196,10 +196,10 @@ export default function StudentDashboard() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {t('dashboard.welcome', { default: 'Добро пожаловать' })}, {session?.user?.name}!
+              {t('dashboard.welcome', { default: 'Welcome' })}, {session?.user?.name}!
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {t('dashboard.subtitle', { default: 'Ваш прогресс и рекомендации по обучению' })}
+              {t('dashboard.subtitle', { default: 'Your progress and learning recommendations' })}
             </p>
           </div>
           <RoleBadge role={(session?.user as { role?: Role })?.role || 'student'} />
@@ -208,8 +208,8 @@ export default function StudentDashboard() {
         {/* Tabs for Dashboard and Learning Path */}
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="overview">{t('dashboard.overview', { default: 'Обзор' })}</TabsTrigger>
-            <TabsTrigger value="path">{t('dashboard.learningPath', { default: 'Учебный план' })}</TabsTrigger>
+            <TabsTrigger value="overview">{t('dashboard.overview', { default: 'Overview' })}</TabsTrigger>
+            <TabsTrigger value="path">{t('dashboard.learningPath', { default: 'Learning Path' })}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -221,12 +221,12 @@ export default function StudentDashboard() {
                   <CardTitle className="flex items-center gap-2">
                     <BookOpen className="h-5 w-5 text-emerald-600" />
                     {nextTask
-                      ? t('dashboard.continue', { default: 'Продолжить обучение' })
-                      : t('dashboard.completed', { default: 'Все задачи выполнены!' })}
+                      ? t('dashboard.continue', { default: 'Continue Learning' })
+                      : t('dashboard.completed', { default: 'All tasks completed!' })}
                   </CardTitle>
                   <CardDescription>
                     {nextTask
-                      ? t('dashboard.nextTask', { default: 'Следующая задача' }) + `: ${nextTask.title}`
+                      ? t('dashboard.nextTask', { default: 'Next Task' }) + `: ${nextTask.title}`
                       : t('dashboard.allDone', { default: 'Вы完成了 все задачи! Перейдите в редактор для практики.' })}
                   </CardDescription>
                 </CardHeader>
@@ -235,7 +235,7 @@ export default function StudentDashboard() {
                     <Progress value={progressPercent} className="h-3" />
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">
-                        {completedCount} / {totalTasks} {t('dashboard.tasksDone', { default: 'задач выполнено' })}
+                        {completedCount} / {totalTasks} {t('dashboard.tasksDone', { default: 'tasks completed' })}
                       </span>
                       <span className="font-medium text-emerald-600">{Math.round(progressPercent)}%</span>
                     </div>
@@ -243,12 +243,12 @@ export default function StudentDashboard() {
                       {nextTask ? (
                         <>
                           <ArrowRight className="mr-2 h-4 w-4" />
-                          {t('dashboard.startTask', { default: 'Начать задачу' })}
+                          {t('dashboard.startTask', { default: 'Start Task' })}
                         </>
                       ) : (
                         <>
                           <Trophy className="mr-2 h-4 w-4" />
-                          {t('dashboard.practice', { default: 'Перейти к практике' })}
+                          {t('dashboard.practice', { default: 'Go to Practice' })}
                         </>
                       )}
                     </Button>
@@ -261,7 +261,7 @@ export default function StudentDashboard() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Flame className="h-5 w-5 text-amber-600" />
-                    {t('dashboard.streak', { default: 'Серия' })}
+                    {t('dashboard.streak', { default: 'Streak' })}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -270,20 +270,20 @@ export default function StudentDashboard() {
                     <p className="text-xs text-muted-foreground">
                       {plural(
                         stats.streak.currentStreak,
-                        t('dashboard.streakDay', { default: 'день подряд' }),
-                        t('dashboard.streakDaysFew', { default: 'дня подряд' }),
-                        t('dashboard.streakDaysMany', { default: 'дней подряд' }),
+                        t('dashboard.streakDay', { default: 'day streak' }),
+                        t('dashboard.streakDaysFew', { default: 'day streak' }),
+                        t('dashboard.streakDaysMany', { default: 'day streak' }),
                       )}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-center text-xs">
                     <div className="rounded bg-muted/50 p-2">
                       <p className="font-bold">{stats.streak.longestStreak}</p>
-                      <p className="text-muted-foreground">{t('dashboard.bestStreak', { default: 'Рекорд' })}</p>
+                      <p className="text-muted-foreground">{t('dashboard.bestStreak', { default: 'Record' })}</p>
                     </div>
                     <div className="rounded bg-muted/50 p-2">
                       <p className="font-bold">{stats.streak.totalPracticeDays}</p>
-                      <p className="text-muted-foreground">{t('dashboard.totalDays', { default: 'Всего дней' })}</p>
+                      <p className="text-muted-foreground">{t('dashboard.totalDays', { default: 'Total Days' })}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -327,7 +327,7 @@ export default function StudentDashboard() {
                   <div>
                     <p className="text-2xl font-bold">{stats.userStats.level}</p>
                     <p className="text-xs text-muted-foreground">
-                      {t('dashboard.level', { default: 'Уровень' })} ({stats.userStats.xp} XP)
+                      {t('dashboard.level', { default: 'Level' })} ({stats.userStats.xp} XP)
                     </p>
                   </div>
                 </CardContent>
@@ -339,7 +339,7 @@ export default function StudentDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <GraduationCap className="h-5 w-5" />
-                  {t('dashboard.byDifficulty', { default: 'Прогресс по сложности' })}
+                  {t('dashboard.byDifficulty', { default: 'Progress by Difficulty' })}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -371,7 +371,7 @@ export default function StudentDashboard() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Lightbulb className="h-5 w-5 text-amber-600" />
-                    {t('dashboard.recommendations', { default: 'Рекомендации' })}
+                    {t('dashboard.recommendations', { default: 'Recommendations' })}
                     {recommendations.length > 0 && (
                       <Badge variant="secondary" className="ml-auto">
                         {recommendations.length}
@@ -379,13 +379,13 @@ export default function StudentDashboard() {
                     )}
                   </CardTitle>
                   <CardDescription>
-                    {t('dashboard.recDesc', { default: 'Персонализированные рекомендации по обучению' })}
+                    {t('dashboard.recDesc', { default: 'Personalized learning recommendations' })}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {recommendations.length === 0 ? (
                     <p className="text-center py-6 text-sm text-muted-foreground">
-                      {t('dashboard.noRecs', { default: 'Выполните несколько задач для получения рекомендаций' })}
+                      {t('dashboard.noRecs', { default: 'Complete a few tasks to get recommendations' })}
                     </p>
                   ) : (
                     <div className="space-y-3">
@@ -426,7 +426,7 @@ export default function StudentDashboard() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Calendar className="h-5 w-5 text-blue-600" />
-                    {t('dashboard.reminders', { default: 'Напоминания' })}
+                    {t('dashboard.reminders', { default: 'Reminders' })}
                     {activeReminders.length > 0 && (
                       <Badge variant="secondary" className="ml-auto">
                         {activeReminders.length}
@@ -434,13 +434,13 @@ export default function StudentDashboard() {
                     )}
                   </CardTitle>
                   <CardDescription>
-                    {t('dashboard.remDesc', { default: 'Предстоящие дедлайны и напоминания' })}
+                    {t('dashboard.remDesc', { default: 'Upcoming deadlines and reminders' })}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {activeReminders.length === 0 ? (
                     <p className="text-center py-6 text-sm text-muted-foreground">
-                      {t('dashboard.noReminders', { default: 'Нет предстоящих напоминаний' })}
+                      {t('dashboard.noReminders', { default: 'No upcoming reminders' })}
                     </p>
                   ) : (
                     <div className="space-y-3">
@@ -455,9 +455,9 @@ export default function StudentDashboard() {
                                 <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                                   <Clock className="h-3 w-3" />
                                   {daysLeft <= 0
-                                    ? t('dashboard.overdue', { default: 'Просрочено' })
+                                    ? t('dashboard.overdue', { default: 'Overdue' })
                                     : daysLeft === 1
-                                      ? t('dashboard.tomorrow', { default: 'Завтра' })
+                                      ? t('dashboard.tomorrow', { default: 'Tomorrow' })
                                       : t('dashboard.daysLeft', { default: `Осталось ${daysLeft} дн.` })}
                                 </div>
                               </div>
@@ -478,9 +478,9 @@ export default function StudentDashboard() {
                   <CardContent className="p-4 flex items-center gap-3">
                     <BookOpen className="h-8 w-8 text-emerald-600" />
                     <div>
-                      <p className="font-medium">{t('dashboard.sqlEditor', { default: 'SQL Редактор' })}</p>
+                      <p className="font-medium">{t('dashboard.sqlEditor', { default: 'SQL Editor' })}</p>
                       <p className="text-xs text-muted-foreground">
-                        {t('dashboard.sqlEditorDesc', { default: 'Практика SQL-запросов' })}
+                        {t('dashboard.sqlEditorDesc', { default: 'Practice SQL Queries' })}
                       </p>
                     </div>
                   </CardContent>
@@ -491,9 +491,9 @@ export default function StudentDashboard() {
                   <CardContent className="p-4 flex items-center gap-3">
                     <TrendingUp className="h-8 w-8 text-blue-600" />
                     <div>
-                      <p className="font-medium">{t('dashboard.profile', { default: 'Профиль' })}</p>
+                      <p className="font-medium">{t('dashboard.profile', { default: 'Profile' })}</p>
                       <p className="text-xs text-muted-foreground">
-                        {t('dashboard.profileDesc', { default: 'Достижения и статистика' })}
+                        {t('dashboard.profileDesc', { default: 'Achievements and Statistics' })}
                       </p>
                     </div>
                   </CardContent>
@@ -504,7 +504,7 @@ export default function StudentDashboard() {
                   <CardContent className="p-4 flex items-center gap-3">
                     <Trophy className="h-8 w-8 text-purple-600" />
                     <div>
-                      <p className="font-medium">{t('dashboard.achievements', { default: 'Достижения' })}</p>
+                      <p className="font-medium">{t('dashboard.achievements', { default: 'Achievements' })}</p>
                       <p className="text-xs text-muted-foreground">
                         {t('dashboard.achievementsDesc', { default: `${stats.unlockedAchievements.length} получено` })}
                       </p>

@@ -433,7 +433,7 @@ export default function UserTable() {
               {t('admin.users.tabs.active')} ({users.length})
             </TabsTrigger>
             <TabsTrigger value="banned">
-              {t('admin.users.tabs.banned', { default: 'Заблокированные' })} ({bannedUsers.length})
+              {t('admin.users.tabs.banned', { default: 'Banned' })} ({bannedUsers.length})
             </TabsTrigger>
             <TabsTrigger value="deleted">
               {t('admin.users.tabs.deleted')} ({deletedUsers.length})
