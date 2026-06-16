@@ -143,7 +143,7 @@ function SavedQueriesSection() {
                   <h4 className="font-medium truncate">{query.title}</h4>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {new Date(query.createdAt).toLocaleDateString('ru-RU', {
+                  {new Date(query.createdAt).toLocaleDateString(undefined, {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric',
@@ -428,7 +428,7 @@ export default function ProfilePage() {
     .toUpperCase()
     .slice(0, 2);
 
-  const createdDate = new Date(profile.created_at).toLocaleDateString('ru-RU', {
+  const createdDate = new Date(profile.created_at).toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

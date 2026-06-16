@@ -323,7 +323,7 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
                       {task.title}
                     </p>
                     <p className="text-[10px] text-muted-foreground">
-                      {new Date(task.completedAt).toLocaleDateString('ru-RU', {
+                      {new Date(task.completedAt).toLocaleDateString(undefined, {
                         day: 'numeric',
                         month: 'short',
                         hour: '2-digit',

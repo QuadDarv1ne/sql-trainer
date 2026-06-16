@@ -99,7 +99,7 @@ export default function AchievementAnalytics() {
                             <Clock className="h-3 w-3" />
                             <span>{earner.name}</span>
                             <span className="text-muted-foreground">
-                              {new Date(earner.earned_at).toLocaleDateString('ru-RU')}
+                              {new Date(earner.earned_at).toLocaleDateString(undefined)}
                             </span>
                           </div>
                         ))}

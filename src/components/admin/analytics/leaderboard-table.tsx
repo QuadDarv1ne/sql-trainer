@@ -87,7 +87,7 @@ export default function LeaderboardTable() {
       if (typeof aVal === 'number' && typeof bVal === 'number') return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
       const aStr = String(aVal ?? '');
       const bStr = String(bVal ?? '');
-      return sortDir === 'asc' ? aStr.localeCompare(bStr, 'ru') : bStr.localeCompare(aStr, 'ru');
+      return sortDir === 'asc' ? aStr.localeCompare(bStr, undefined) : bStr.localeCompare(aStr, undefined);
     });
     return result;
   }, [data, search, sortKey, sortDir]);

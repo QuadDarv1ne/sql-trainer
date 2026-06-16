@@ -161,7 +161,7 @@ export default function UserTable() {
       if (typeof aVal === 'number' && typeof bVal === 'number') return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
       const aStr = String(aVal ?? '');
       const bStr = String(bVal ?? '');
-      return sortDir === 'asc' ? aStr.localeCompare(bStr, 'ru') : bStr.localeCompare(aStr, 'ru');
+      return sortDir === 'asc' ? aStr.localeCompare(bStr, undefined) : bStr.localeCompare(aStr, undefined);
     });
     return result;
   }, [users, search, sortKey, sortDir]);

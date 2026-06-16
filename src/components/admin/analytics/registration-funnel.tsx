@@ -82,7 +82,7 @@ export default function RegistrationFunnel() {
 
   const f = data.funnel;
   const chartData = data.daily_registrations.map((d) => ({
-    date: new Date(d.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }),
+    date: new Date(d.date).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' }),
     count: d.count,
   }));
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { t } from '@/lib/i18n';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +19,6 @@ import AnalyticsDashboard from '@/components/admin/analytics-dashboard';
 import LeaderboardTable from '@/components/admin/analytics/leaderboard-table';
 import { DeadlineManager } from '@/components/admin/deadline-manager';
 import AuditLog from '@/components/admin/audit-log';
-import { t } from '@/lib/i18n';
 import type { Role } from '@/lib/rbac';
 import AdminAnalytics from '@/components/admin/admin-analytics';
 import { Download } from 'lucide-react';
@@ -58,16 +58,28 @@ export default function AdminPage() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <Download className="h-4 w-4 mr-1" />
-                Экспорт
+                {t('admin.export', { default: 'Export' })}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleExport('users')}>Пользователи (CSV)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('leaderboard')}>Рейтинг (CSV)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('banned')}>Заблокированные (CSV)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('deleted')}>Удалённые (CSV)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('deadlines')}>Дедлайны (CSV)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('audit')}>Аудит (CSV)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('users')}>
+                {t('admin.exportUsers', { default: 'Users (CSV)' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('leaderboard')}>
+                {t('admin.exportLeaderboard', { default: 'Leaderboard (CSV)' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('banned')}>
+                {t('admin.exportBanned', { default: 'Banned (CSV)' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('deleted')}>
+                {t('admin.exportDeleted', { default: 'Deleted (CSV)' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('deadlines')}>
+                {t('admin.exportDeadlines', { default: 'Deadlines (CSV)' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('audit')}>
+                {t('admin.exportAudit', { default: 'Audit (CSV)' })}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

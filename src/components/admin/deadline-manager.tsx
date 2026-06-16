@@ -35,7 +35,7 @@ const targetLabels: Record<Deadline['target_type'], string> = {
 };
 
 function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString('ru-RU', {
+  return new Date(ts).toLocaleDateString(undefined, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

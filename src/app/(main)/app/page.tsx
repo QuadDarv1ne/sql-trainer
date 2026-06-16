@@ -540,7 +540,9 @@ export default function HomePage() {
   // Reset DB (re-init task)
   const resetDb = async () => {
     const confirmed = await confirmAction(
-      'Вы уверены, что хотите сбросить базу данных? Все несохранённые изменения будут потеряны.',
+      t('app.resetDbConfirm', {
+        default: 'Are you sure you want to reset the database? All unsaved changes will be lost.',
+      }),
     );
     if (!confirmed) return;
 
@@ -726,7 +728,8 @@ export default function HomePage() {
               <TableIcon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
             <h1 className="text-base sm:text-lg font-bold tracking-tight hidden sm:block bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              SQL <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">Trainer</span>
+              SQL{' '}
+              <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">Trainer</span>
             </h1>
           </div>
 
@@ -736,7 +739,9 @@ export default function HomePage() {
               {userStats.level}
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="text-[10px] sm:text-xs font-semibold text-foreground">Ур. {userStats.level}</span>
+              <span className="text-[10px] sm:text-xs font-semibold text-foreground">
+                {t('app.level', { default: 'Lvl' })}. {userStats.level}
+              </span>
               <div className="h-1 sm:h-1.5 w-16 sm:w-24 rounded-full bg-muted-foreground/20 overflow-hidden mt-0.5">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300"
@@ -769,7 +774,11 @@ export default function HomePage() {
           {/* Theme toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg hover:bg-muted/70 transition-all">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg hover:bg-muted/70 transition-all"
+              >
                 <ThemeToggle />
               </Button>
             </TooltipTrigger>

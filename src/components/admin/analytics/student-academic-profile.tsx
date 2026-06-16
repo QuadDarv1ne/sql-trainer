@@ -274,7 +274,7 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                           <div>
                             <p className="font-medium text-sm">{activity.task_title}</p>
                             <p className="text-xs text-muted-foreground">
-                              {new Date(activity.completed_at).toLocaleDateString('ru-RU', {
+                              {new Date(activity.completed_at).toLocaleDateString(undefined, {
                                 month: 'short',
                                 day: 'numeric',
                                 hour: '2-digit',
@@ -316,7 +316,7 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                           <div>
                             <p className="text-sm font-medium">{achievement.title}</p>
                             <p className="text-xs text-muted-foreground">
-                              {new Date(achievement.earned_at).toLocaleDateString('ru-RU')}
+                              {new Date(achievement.earned_at).toLocaleDateString(undefined)}
                             </p>
                           </div>
                         </div>

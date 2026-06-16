@@ -24,7 +24,7 @@ export default function QueryHistory({ onRestoreQuery }: QueryHistoryProps) {
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString('ru-RU', {
+    return date.toLocaleTimeString(undefined, {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
@@ -89,7 +89,7 @@ export default function QueryHistory({ onRestoreQuery }: QueryHistoryProps) {
                 </span>
                 {entry.rowCount !== undefined && (
                   <span>
-                    • {entry.rowCount} {plural(entry.rowCount, 'строка', 'строки', 'строк')}
+                    • {entry.rowCount} {plural(entry.rowCount, 'row', 'rows', 'rows')}
                   </span>
                 )}
               </div>

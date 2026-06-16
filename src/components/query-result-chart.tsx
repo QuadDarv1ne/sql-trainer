@@ -138,7 +138,7 @@ export default function QueryResultChart({ columns, rows, onClose }: QueryResult
                   <span className="text-[10px] font-mono text-muted-foreground">
                     {typeof d.value === 'number' && d.value % 1 !== 0
                       ? d.value.toFixed(1)
-                      : d.value.toLocaleString('ru-RU')}
+                      : d.value.toLocaleString(undefined)}
                   </span>
                   <div
                     className={`w-full rounded-t ${d.color} transition-all`}
@@ -174,7 +174,7 @@ export default function QueryResultChart({ columns, rows, onClose }: QueryResult
                   <span className="w-16 shrink-0 text-xs font-mono text-muted-foreground">
                     {typeof d.value === 'number' && d.value % 1 !== 0
                       ? d.value.toFixed(1)
-                      : d.value.toLocaleString('ru-RU')}
+                      : d.value.toLocaleString(undefined)}
                   </span>
                 </div>
               );

@@ -56,7 +56,7 @@ export default function AcademicTimeline() {
   };
 
   const formatDate = (ts: number) => {
-    return new Date(ts).toLocaleDateString('ru-RU', {
+    return new Date(ts).toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

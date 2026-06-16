@@ -94,7 +94,8 @@ export function exportToJSON(data: Record<string, unknown>[], filename: string):
 }
 
 export function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('ru-RU');
+  const d = new Date(timestamp);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 export function formatPercent(value: number): string {

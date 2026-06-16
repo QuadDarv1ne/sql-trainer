@@ -5,6 +5,7 @@ import { useSQLTrainerStore } from '@/lib/store';
 import { Clock, Play, Pause, Square, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { t } from '@/lib/i18n';
 
 export function TimerDisplay() {
   const { timer, startTimer, pauseTimer, resumeTimer, stopTimer, tickTimer } = useSQLTrainerStore();
@@ -54,10 +55,10 @@ export function TimerDisplay() {
     return (
       <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 border border-border">
         <Clock className="h-4 w-4 text-muted-foreground" />
-        <span className="text-xs text-muted-foreground">Таймер не активен</span>
+        <span className="text-xs text-muted-foreground">{t('timer.notActive', { default: 'Timer not active' })}</span>
         <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => startTimer()}>
           <Play className="h-3 w-3" />
-          Старт
+          {t('timer.start', { default: 'Start' })}
         </Button>
       </div>
     );
@@ -101,7 +102,7 @@ export function TimerDisplay() {
                 <Play className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Продолжить</TooltipContent>
+            <TooltipContent>{t('timer.resume', { default: 'Resume' })}</TooltipContent>
           </Tooltip>
         ) : (
           <Tooltip>
@@ -115,7 +116,7 @@ export function TimerDisplay() {
                 <Pause className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Пауза</TooltipContent>
+            <TooltipContent>{t('timer.pause', { default: 'Pause' })}</TooltipContent>
           </Tooltip>
         )}
 
@@ -130,7 +131,7 @@ export function TimerDisplay() {
               <Square className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Остановить</TooltipContent>
+          <TooltipContent>{t('timer.stop', { default: 'Stop' })}</TooltipContent>
         </Tooltip>
       </div>
     </div>
@@ -141,16 +142,16 @@ export function TimerSettings() {
   const { timerSettings, setTimerSettings } = useSQLTrainerStore();
 
   const presets = [
-    { label: '15 мин', minutes: 15 },
-    { label: '30 мин', minutes: 30 },
-    { label: '45 мин', minutes: 45 },
-    { label: '60 мин', minutes: 60 },
+    { label: t('timer.preset15', { default: '15 min' }), minutes: 15 },
+    { label: t('timer.preset30', { default: '30 min' }), minutes: 30 },
+    { label: t('timer.preset45', { default: '45 min' }), minutes: 45 },
+    { label: t('timer.preset60', { default: '60 min' }), minutes: 60 },
   ];
 
   return (
     <div className="p-4 space-y-4">
       <div>
-        <h3 className="text-sm font-semibold mb-2">Длительность сессии</h3>
+        <h3 className="text-sm font-semibold mb-2">{t('timer.sessionDuration', { default: 'Session duration' })}</h3>
         <div className="flex flex-wrap gap-2">
           {presets.map((preset) => (
             <button
@@ -169,7 +170,7 @@ export function TimerSettings() {
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold mb-2">Предупреждение (минут)</h3>
+        <h3 className="text-sm font-semibold mb-2">{t('timer.warningMinutes', { default: 'Warning (minutes)' })}</h3>
         <input
           type="number"
           min="1"

@@ -187,7 +187,7 @@ export default function StudentDetailDialog({ studentId, open, onOpenChange }: S
                   <div>
                     <p className="text-sm font-bold">
                       {data.student.last_active
-                        ? new Date(data.student.last_active).toLocaleDateString('ru-RU')
+                        ? new Date(data.student.last_active).toLocaleDateString(undefined)
                         : t('analytics.student.neverActive')}
                     </p>
                     <p className="text-xs text-muted-foreground">{t('analytics.student.lastActive')}</p>
@@ -269,7 +269,7 @@ export default function StudentDetailDialog({ studentId, open, onOpenChange }: S
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{achievement.title}</p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(achievement.earned_at).toLocaleDateString('ru-RU')}
+                          {new Date(achievement.earned_at).toLocaleDateString(undefined)}
                         </p>
                       </div>
                     </div>

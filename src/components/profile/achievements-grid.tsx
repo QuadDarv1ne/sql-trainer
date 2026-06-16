@@ -5,6 +5,7 @@ import { useSQLTrainerStore, ACHIEVEMENTS } from '@/lib/store';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { t } from '@/lib/i18n';
 
 const STREAK_MILESTONES = [3, 5, 7, 14, 30] as const;
 
@@ -25,9 +26,17 @@ function StreakProgress() {
           <div className="flex-1">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium">
-                Серия практики: <span className="text-amber-600">{currentStreak} дн.</span>
+                {t('achievements.streak', { default: 'Practice streak:' })}{' '}
+                <span className="text-amber-600">
+                  {currentStreak} {t('achievements.days', { default: 'days' })}
+                </span>
               </p>
-              {nextMilestone && <p className="text-xs text-muted-foreground">До следующего: {nextMilestone} дн.</p>}
+              {nextMilestone && (
+                <p className="text-xs text-muted-foreground">
+                  {t('achievements.untilNext', { default: 'Until next:' })} {nextMilestone}{' '}
+                  {t('achievements.days', { default: 'days' })}
+                </p>
+              )}
             </div>
             <Progress value={progress} className="mt-2 h-2" />
           </div>
@@ -49,7 +58,9 @@ export default function AchievementsGrid() {
       <StreakProgress />
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Разблокировано: <span className="font-medium text-emerald-600">{unlockedCount}</span> из {totalCount}
+          {t('achievements.unlocked', { default: 'Unlocked:' })}{' '}
+          <span className="font-medium text-emerald-600">{unlockedCount}</span>{' '}
+          {t('achievements.of', { default: 'of' })} {totalCount}
         </p>
         <div className="h-2 w-32 rounded-full bg-muted overflow-hidden">
           <div
@@ -83,7 +94,7 @@ export default function AchievementsGrid() {
                     </h4>
                     {unlocked && unlockedData?.unlockedAt && (
                       <Badge variant="secondary" className="text-[10px] px-1.5 shrink-0">
-                        {new Date(unlockedData.unlockedAt).toLocaleDateString('ru-RU', {
+                        {new Date(unlockedData.unlockedAt).toLocaleDateString(undefined, {
                           day: 'numeric',
                           month: 'short',
                         })}
@@ -91,7 +102,11 @@ export default function AchievementsGrid() {
                     )}
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">{a.description}</p>
-                  {!unlocked && <p className="mt-1 text-[10px] text-muted-foreground/60">🔒 Заблокировано</p>}
+                  {!unlocked && (
+                    <p className="mt-1 text-[10px] text-muted-foreground/60">
+                      {t('achievements.locked', { default: '🔒 Locked' })}
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>

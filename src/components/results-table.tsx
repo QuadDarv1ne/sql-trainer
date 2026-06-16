@@ -90,7 +90,7 @@ export default function ResultsTable({
       if (typeof aVal === 'number' && typeof bVal === 'number') {
         comparison = aVal - bVal;
       } else {
-        comparison = String(aVal).localeCompare(String(bVal), 'ru');
+        comparison = String(aVal).localeCompare(String(bVal), undefined);
       }
       return sortDirection === 'asc' ? comparison : -comparison;
     });
@@ -220,11 +220,11 @@ export default function ResultsTable({
             <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
           </div>
           <span className="text-sm font-semibold text-foreground">
-            {rows.length} {plural(rows.length, 'строка', 'строки', 'строк')}
+            {rows.length} {plural(rows.length, 'row', 'rows', 'rows')}
           </span>
           {columns.length > 0 && (
             <Badge variant="secondary" className="text-xs px-2 py-0.5">
-              {columns.length} {plural(columns.length, 'столбец', 'столбца', 'столбцов')}
+              {columns.length} {plural(columns.length, 'column', 'columns', 'columns')}
             </Badge>
           )}
           {sortColumn && sortDirection && (
@@ -340,7 +340,10 @@ export default function ResultsTable({
                         {(currentPage - 1) * pageSize + idx + 1}
                       </TableCell>
                       {columns.map((col) => (
-                        <TableCell key={col} className="whitespace-nowrap font-mono text-xs sm:text-sm py-2.5 px-2 sm:px-3">
+                        <TableCell
+                          key={col}
+                          className="whitespace-nowrap font-mono text-xs sm:text-sm py-2.5 px-2 sm:px-3"
+                        >
                           {formatCellValue(row[col])}
                         </TableCell>
                       ))}
@@ -399,7 +402,7 @@ export default function ResultsTable({
 
 function formatCellValue(value: unknown): string {
   if (value === null || value === undefined) return 'NULL';
-  if (typeof value === 'number') return value.toLocaleString('ru-RU');
+  if (typeof value === 'number') return value.toLocaleString(undefined);
   if (typeof value === 'boolean') return value ? 'true' : 'false';
   if (typeof value === 'object') return JSON.stringify(value);
   return String(value);
