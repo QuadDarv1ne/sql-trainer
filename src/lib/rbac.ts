@@ -22,9 +22,9 @@ const ROUTE_MIN_ROLES: [string, number][] = Object.entries(ROLE_PERMISSIONS).map
 ]);
 
 export const ROLE_LABELS: Record<Role, string> = {
-  student: 'Студент',
-  teacher: 'Преподаватель',
-  admin: 'Администратор',
+  student: 'Student',
+  teacher: 'Teacher',
+  admin: 'Administrator',
 };
 
 export const ROLE_COLORS: Record<Role, string> = {

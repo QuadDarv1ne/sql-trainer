@@ -25,9 +25,9 @@ export interface TrainingTask {
 }
 
 export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
-  beginner: 'Начальный',
-  intermediate: 'Средний',
-  advanced: 'Продвинутый',
+  beginner: 'Beginner',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
 };
 
 export const DIFFICULTY_COLORS: Record<Difficulty, string> = {

@@ -6,26 +6,26 @@ export type { TimerSlice };
 export interface TimerSliceTypes {
   timer: {
     isActive: boolean;
-    timeRemaining: number; // в секундах
+    timeRemaining: number; // seconds
     totalDuration: number;
     isPaused: boolean;
   };
   timerSettings: {
-    defaultDuration: number; // по умолчанию 15 минут
-    warningThreshold: number; // предупреждение за 1 минуту
+    defaultDuration: number; // 15 minutes by default
+    warningThreshold: number; // warn 1 minute before
   };
 }
 
 export const createTimerSlice: StateCreator<TimerSlice, [], [], TimerSliceTypes> = (set, get) => ({
   timer: {
     isActive: false,
-    timeRemaining: 900, // 15 минут по умолчанию
+    timeRemaining: 900, // 15 minutes default
     totalDuration: 900,
     isPaused: false,
   },
   timerSettings: {
-    defaultDuration: 900, // 15 минут
-    warningThreshold: 60, // 1 минута
+    defaultDuration: 900, // 15 minutes
+    warningThreshold: 60, // 1 minute
   },
 
   startTimer: (durationInSeconds?: number) => {

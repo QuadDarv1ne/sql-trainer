@@ -319,7 +319,7 @@ export function adaptMySQLWithWarnings(sql: string): { sql: string; warnings: st
 
   const warnings: string[] = [];
   if (droppedFunctions.length > 0) {
-    warnings.push(`Следующие функции MySQL не поддерживаются в SQLite: ${droppedFunctions.join(', ')}`);
+    warnings.push(`The following MySQL functions are not supported in SQLite: ${droppedFunctions.join(', ')}`);
   }
 
   return { sql: adaptedSql, warnings };

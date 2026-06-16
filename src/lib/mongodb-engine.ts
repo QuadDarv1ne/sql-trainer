@@ -341,7 +341,7 @@ export function executeMongoQuery(queryStr: string, schema: MongoSchema): MongoR
         success: false,
         columns: [],
         rows: [],
-        error: 'Не удалось распознать MongoDB запрос. Используйте db.collection.find() или db.collection.aggregate()',
+        error: 'Failed to parse MongoDB query. Use db.collection.find() or db.collection.aggregate()',
       };
     }
 
@@ -396,7 +396,7 @@ export async function executeMongoQueryReal(
         success: false,
         columns: [],
         rows: [],
-        error: 'Не удалось распознать MongoDB запрос',
+        error: 'Failed to parse MongoDB query',
       };
     }
 

@@ -134,10 +134,10 @@ function processDueReminders(): number {
             const isOverdue = deadline.due_at < now;
             const hoursLeft = Math.round((deadline.due_at - now) / 3600000);
             const body = isOverdue
-              ? 'Просрочено'
+              ? 'Overdue'
               : hoursLeft < 24
-                ? `Осталось ${hoursLeft} ч`
-                : `Осталось ${Math.round(hoursLeft / 24)} дн.`;
+                ? `${hoursLeft} hour(s) left`
+                : `${Math.round(hoursLeft / 24)} day(s) left`;
 
             sendPushToUser(reminder.user_id, deadline.title, body, {
               deadlineId: reminder.deadline_id,

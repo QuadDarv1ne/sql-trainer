@@ -181,7 +181,7 @@ function isEmptyOrComment(sql: string): boolean {
 }
 
 const UNSUPPORTED_FUNC_WARNING = (func: string) =>
-  `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`;
+  `Function "${func}" is not supported in SQLite mode and will be skipped. Results may vary.`;
 
 /**
  * Adapt SQL from PostgreSQL/ClickHouse/MySQL to SQLite.

@@ -61,16 +61,19 @@ export function generateProgressiveHints(
 function generateLevel1Hint(taskText: string): string {
   // Extract the main action from the task
   const keywords = [
-    'найдите',
-    'выведите',
-    'посчитайте',
-    'определите',
-    'сгруппируйте',
-    'отсортируйте',
-    'объедините',
-    'фильтруйте',
-    'вычислите',
-    'покажите',
+    'find',
+    'show',
+    'display',
+    'list',
+    'calculate',
+    'group',
+    'sort',
+    'order',
+    'join',
+    'filter',
+    'get',
+    'count',
+    'determine',
   ];
 
   for (const keyword of keywords) {
@@ -78,11 +81,11 @@ function generateLevel1Hint(taskText: string): string {
     if (idx !== -1) {
       const end = taskText.indexOf('.', idx);
       const sentence = end !== -1 ? taskText.slice(idx, end + 1) : taskText.slice(idx);
-      return `Подумайте, какие SQL-конструкции нужны, чтобы ${sentence.toLowerCase()}`;
+      return `Think about which SQL constructs you need to ${sentence.toLowerCase()}`;
     }
   }
 
-  return 'Внимательно прочитайте условие и определите, какие таблицы и столбцы вам понадобятся';
+  return 'Read the task carefully and identify which tables and columns you need';
 }
 
 /**
@@ -95,11 +98,11 @@ function generateLevel2Hint(oldHint: string): string {
 
   for (const keyword of sqlKeywords) {
     if (oldHint.toUpperCase().includes(keyword)) {
-      return `Обратите внимание на использование ${keyword.toLowerCase()} в этом запросе`;
+      return `Pay attention to the use of ${keyword.toLowerCase()} in this query`;
     }
   }
 
-  return 'Определите, какие SQL-конструкции (JOIN, WHERE, GROUP BY и т.д.) подходят для решения этой задачи';
+  return 'Identify which SQL clauses (JOIN, WHERE, GROUP BY, etc.) are suitable for solving this task';
 }
 
 /**
