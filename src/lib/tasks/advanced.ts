@@ -17,13 +17,13 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   // ==================== ADVANCED TASKS ====================
   {
     id: 'advanced-1',
-    title: 'Оконные функции — ROW_NUMBER',
-    description: 'Нумерация строк с помощью ROW_NUMBER',
+    title: 'Window Functions - ROW_NUMBER',
+    description: 'Number rows with ROW_NUMBER',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Присвойте каждому сотруднику ранг по зарплате внутри своего отдела (1 — самая высокая зарплата). Выведите: department_id, first_name, last_name, salary, rank.',
+      'Присвойте каждому сотруднику ранг по зарплате внутри своего отдела (1 — самая high зарплата). Выведите: department_id, first_name, last_name, salary, rank.',
     hint: 'Оконные функции вычисляют значение для каждой строки, не "схлопывая" группы как GROUP BY. PARTITION BY делит строки на группы (как GROUP BY), ORDER BY внутри окна определяет порядок. ROW_NUMBER() присваивает уникальный номер 1, 2, 3... каждой строке внутри партиции.',
     sampleSolution:
       'SELECT department_id, first_name, last_name, salary, ROW_NUMBER() OVER (PARTITION BY department_id ORDER BY salary DESC) as rank FROM employees WHERE department_id IS NOT NULL ORDER BY department_id, rank;',
@@ -32,8 +32,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-2',
-    title: 'Оконные функции — RANK и DENSE_RANK',
-    description: 'Ранжирование с пропусками и без',
+    title: 'Window Functions - RANK and DENSE_RANK',
+    description: 'Ranking with and without gaps',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -49,7 +49,7 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   {
     id: 'advanced-3',
     title: 'CTE (WITH clause)',
-    description: 'Общие табличные выражения',
+    description: 'Common table expressions',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -64,8 +64,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-4',
-    title: 'Рекурсивный CTE',
-    description: 'Рекурсивные запросы для иерархических данных',
+    title: 'Recursive CTE',
+    description: 'Recursive queries for hierarchical data',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -79,8 +79,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-5',
-    title: 'Самосоединение (Self Join)',
-    description: 'Соединение таблицы с самой собой',
+    title: 'Self Join',
+    description: 'Join a table with itself',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -95,8 +95,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-6',
-    title: 'Сложный запрос с подзапросами',
-    description: 'Комбинация подзапросов и JOIN',
+    title: 'Complex Query with Subqueries',
+    description: 'Combine subqueries and JOIN',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -111,13 +111,13 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-7',
-    title: 'Несколько CTE и аналитика',
-    description: 'Многоуровневые CTE с оконными функциями',
+    title: 'Multiple CTEs and Analytics',
+    description: 'Multi-level CTEs with window functions',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Для каждого отдела выведите: название, кол-во сотрудников, среднюю зарплату, сотрудника с максимальной зарплатой и общее количество часов по проектам отдела.',
+      'Для каждого отдела выведите: название, кол-во сотрудников, medium зарплату, сотрудника с максимальной зарплатой и общее количество часов по проектам отдела.',
     hint: 'Используйте несколько CTE: один для статистики по сотрудникам, другой для часов по проектам.',
     sampleSolution:
       "WITH emp_stats AS (SELECT department_id, COUNT(*) as emp_count, AVG(salary) as avg_salary, MAX(salary) as max_salary FROM employees WHERE department_id IS NOT NULL GROUP BY department_id), top_earners AS (SELECT e.department_id, e.first_name, e.last_name, e.salary, ROW_NUMBER() OVER (PARTITION BY e.department_id ORDER BY e.salary DESC) as rn FROM employees e WHERE e.department_id IS NOT NULL), project_hours AS (SELECT p.department_id, SUM(a.hours_worked) as total_hours FROM projects p JOIN assignments a ON p.id = a.project_id GROUP BY p.department_id) SELECT d.name as department, es.emp_count, ROUND(es.avg_salary) as avg_salary, te.first_name || ' ' || te.last_name as top_earner, te.salary as top_salary, COALESCE(ph.total_hours, 0) as total_project_hours FROM departments d LEFT JOIN emp_stats es ON d.id = es.department_id LEFT JOIN top_earners te ON d.id = te.department_id AND te.rn = 1 LEFT JOIN project_hours ph ON d.id = ph.department_id ORDER BY es.emp_count DESC;",
@@ -126,8 +126,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-8',
-    title: 'HAVING vs WHERE и NULL обработка',
-    description: 'Фильтрация NULL значений и сложная агрегация',
+    title: 'HAVING vs WHERE and NULL Handling',
+    description: 'Filter NULL values and complex aggregation',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -142,8 +142,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   // ==================== NEW TOPIC TASKS ====================
   {
     id: 'advanced-9',
-    title: 'Представления (VIEW)',
-    description: 'Создание и использование VIEW',
+    title: 'Views (VIEW)',
+    description: 'Create and use VIEW',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -157,8 +157,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-10',
-    title: 'Индексы (INDEX)',
-    description: 'Создание и использование индексов',
+    title: 'Indexes (INDEX)',
+    description: 'Create and use indexes',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: INDEX_DEMO_SCHEMA,
@@ -172,8 +172,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-11',
-    title: 'Коррелированный подзапрос с EXISTS',
-    description: 'Подзапрос, зависящий от внешнего запроса',
+    title: 'Correlated Subquery with EXISTS',
+    description: 'Subquery depending on outer query',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -189,8 +189,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   // ==================== SUBQUERIES IN SELECT/FROM ====================
   {
     id: 'advanced-12',
-    title: 'Скалярный подзапрос в SELECT',
-    description: 'Подзапрос, возвращающий одно значение в SELECT',
+    title: 'Scalar Subquery in SELECT',
+    description: 'Subquery returning a single value in SELECT',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -204,8 +204,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-13',
-    title: 'Табличный подзапрос в FROM',
-    description: 'Использование подзапроса как таблицы',
+    title: 'Table Subquery in FROM',
+    description: 'Use a subquery as a table',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -220,8 +220,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-14',
-    title: 'Подзапрос в WHERE с IN',
-    description: 'Фильтрация по списку значений из подзапроса',
+    title: 'Subquery in WHERE with IN',
+    description: 'Filter by a list of values from a subquery',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -236,8 +236,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   // ==================== WINDOW FUNCTIONS LAG/LEAD ====================
   {
     id: 'advanced-15',
-    title: 'LAG — доступ к предыдущей строке',
-    description: 'Получение значения из предыдущей строки',
+    title: 'LAG - Access Previous Row',
+    description: 'Get value from previous row',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -251,8 +251,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-16',
-    title: 'LEAD — доступ к следующей строке',
-    description: 'Получение значения из следующей строки',
+    title: 'LEAD - Access Next Row',
+    description: 'Get value from next row',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -266,8 +266,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-17',
-    title: 'FIRST_VALUE и LAST_VALUE',
-    description: 'Первое и последнее значение в окне',
+    title: 'FIRST_VALUE and LAST_VALUE',
+    description: 'First and last value in window',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -282,8 +282,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   // ==================== TRIGGERS ====================
   {
     id: 'advanced-18',
-    title: 'Триггер AFTER INSERT',
-    description: 'Автоматическое действие после вставки',
+    title: 'Trigger AFTER INSERT',
+    description: 'Automatic action after insert',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPTY_ORDERS_SCHEMA,
@@ -297,8 +297,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-19',
-    title: 'Триггер BEFORE UPDATE',
-    description: 'Проверка данных перед обновлением',
+    title: 'Trigger BEFORE UPDATE',
+    description: 'Validate data before update',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPTY_ORDERS_SCHEMA,
@@ -313,8 +313,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   // ==================== FULL-TEXT SEARCH ====================
   {
     id: 'advanced-20',
-    title: 'FTS5 — полнотекстовый поиск',
-    description: 'Создание FTS5 таблицы и поиск по тексту',
+    title: 'FTS5 - Full-Text Search',
+    description: 'Create FTS5 table and text search',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: '',
@@ -328,8 +328,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-21',
-    title: 'FTS5 — расширенный поиск',
-    description: 'Поиск с префиксами и логическими операторами',
+    title: 'FTS5 - Advanced Search',
+    description: 'Search with prefixes and logical operators',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: '',
@@ -343,8 +343,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   // ==================== JSON FUNCTIONS ====================
   {
     id: 'advanced-22',
-    title: 'JSON — извлечение данных',
-    description: 'json_extract для получения значений из JSON',
+    title: 'JSON - Data Extraction',
+    description: 'json_extract for JSON values',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: '',
@@ -358,8 +358,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-23',
-    title: 'JSON — фильтрация и агрегация',
-    description: 'Фильтрация по JSON полям и создание JSON',
+    title: 'JSON - Filtering and Aggregation',
+    description: 'Filter by JSON fields and create JSON',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: '',
@@ -373,8 +373,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-24',
-    title: 'JSON — массивы',
-    description: 'Работа с JSON массивами',
+    title: 'JSON - Arrays',
+    description: 'Working with JSON arrays',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: '',
@@ -389,8 +389,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   // ==================== STORED PROCEDURES (SQLite doesn't support them, so we use a simulation) ====================
   {
     id: 'advanced-25',
-    title: 'Имитация хранимых процедур',
-    description: 'Использование CTE и сложных запросов вместо процедур',
+    title: 'Stored Procedure Simulation',
+    description: 'Use CTEs and complex queries instead of procedures',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPTY_ORDERS_SCHEMA,
@@ -405,8 +405,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   // ==================== SHOP TASKS ====================
   {
     id: 'pg-28',
-    title: 'PostgreSQL: оператор @> (containment)',
-    description: 'Проверка вхождения элементов в массив',
+    title: 'PostgreSQL: @> (Containment) Operator',
+    description: 'Check element containment in array',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'shop',
@@ -421,8 +421,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-32',
-    title: 'PostgreSQL: коррелированный подзапрос',
-    description: 'Подзапрос, зависящий от строки внешнего запроса',
+    title: 'PostgreSQL: Correlated Subquery',
+    description: 'Subquery depending on outer row',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'shop',
@@ -439,7 +439,7 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   {
     id: 'pg-8',
     title: 'PostgreSQL: DISTINCT ON',
-    description: 'Выбор первой строки для каждой группы',
+    description: 'Select first row for each group',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'shop',
@@ -455,14 +455,14 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-adv-3',
-    title: 'PostgreSQL: FILTER в агрегации',
-    description: 'Условная агрегация с помощью FILTER (WHERE)',
+    title: 'PostgreSQL: FILTER in Aggregation',
+    description: 'Conditional aggregation with FILTER (WHERE)',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Для каждого города доставки (shipping_city) из orders выведите: общее количество заказов, количество доставленных заказов и среднюю сумму только доставленных заказов. Используйте FILTER (WHERE ...).',
+      'Для каждого города доставки (shipping_city) из orders выведите: общее количество заказов, количество доставленных заказов и medium сумму только доставленных заказов. Используйте FILTER (WHERE ...).',
     hint: 'COUNT(*) FILTER (WHERE condition) считает строки только удовлетворяющие условию. AVG(col) FILTER (WHERE cond) считает среднее по условию.',
     sampleSolution:
       "SELECT shipping_city, COUNT(*) AS total_orders, COUNT(*) FILTER (WHERE status = 'delivered') AS delivered_orders, AVG(total_amount) FILTER (WHERE status = 'delivered') AS avg_delivered_amount FROM orders GROUP BY shipping_city ORDER BY total_orders DESC;",
@@ -471,8 +471,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-a1',
-    title: 'Рейтинг продаж товаров',
-    description: 'ROW_NUMBER для ранжирования продаж',
+    title: 'Product Sales Ranking',
+    description: 'ROW_NUMBER for sales ranking',
     difficulty: 'advanced',
     dbType: 'sqlite',
     category: 'shop',
@@ -487,8 +487,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-a2',
-    title: 'Помесячная выручка',
-    description: 'CTE + GROUP BY по месяцам',
+    title: 'Monthly Revenue',
+    description: 'CTE + GROUP BY by month',
     difficulty: 'advanced',
     dbType: 'sqlite',
     category: 'shop',
@@ -504,8 +504,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-a3',
-    title: 'Аналитика по клиентам',
-    description: 'Несколько CTE для отчёта LTV',
+    title: 'Customer Analytics',
+    description: 'Multiple CTEs for LTV report',
     difficulty: 'advanced',
     dbType: 'sqlite',
     category: 'shop',
@@ -520,8 +520,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-a4',
-    title: 'Сравнение товаров в категории',
-    description: 'Self-join для сравнения цен',
+    title: 'Comparing Products in Category',
+    description: 'Self-join for price comparison',
     difficulty: 'advanced',
     dbType: 'sqlite',
     category: 'shop',
@@ -537,14 +537,14 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-a5',
-    title: 'Полный отчёт по категориям',
-    description: 'Множественные CTE + оконные функции',
+    title: 'Full Category Report',
+    description: 'Multiple CTEs + window functions',
     difficulty: 'advanced',
     dbType: 'sqlite',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Для каждой категории выведите: название, количество товаров, среднюю цену, суммарную выручку, количество отзывов и средний рейтинг. Отсортируйте по убыванию выручки.',
+      'Для каждой категории выведите: название, количество товаров, medium цену, суммарную выручку, количество отзывов и средний рейтинг. Отсортируйте по убыванию выручки.',
     hint: '3 CTE: статы товаров, статы выручки, статы отзывов. JOIN по category_id.',
     sampleSolution:
       'WITH prod_stats AS (SELECT category_id, COUNT(*) as product_count, ROUND(AVG(price)) as avg_price FROM products GROUP BY category_id), revenue_stats AS (SELECT p.category_id, SUM(oi.unit_price * oi.quantity) as total_revenue FROM order_items oi JOIN products p ON oi.product_id = p.id GROUP BY p.category_id), review_stats AS (SELECT p.category_id, COUNT(r.id) as review_count, ROUND(AVG(r.rating), 1) as avg_rating FROM reviews r JOIN products p ON r.product_id = p.id GROUP BY p.category_id) SELECT c.name as category, ps.product_count, ps.avg_price, COALESCE(rs.total_revenue, 0) as total_revenue, COALESCE(rv.review_count, 0) as review_count, COALESCE(rv.avg_rating, 0) as avg_rating FROM categories c LEFT JOIN prod_stats ps ON c.id = ps.category_id LEFT JOIN revenue_stats rs ON c.id = rs.category_id LEFT JOIN review_stats rv ON c.id = rv.category_id ORDER BY total_revenue DESC;',
@@ -553,8 +553,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-a6',
-    title: 'Динамика заказов (LAG)',
-    description: 'Оконная функция LAG для сравнения',
+    title: 'Order Dynamics (LAG)',
+    description: 'Window function LAG for comparison',
     difficulty: 'advanced',
     dbType: 'sqlite',
     category: 'shop',
@@ -571,7 +571,7 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   {
     id: 'pg-18',
     title: 'PostgreSQL: LATERAL JOIN',
-    description: 'Подзапрос в FROM, зависящий от внешней таблицы',
+    description: 'Subquery in FROM depending on outer table',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'company',
@@ -587,15 +587,15 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-20',
-    title: 'PostgreSQL: оконные функции — RANGE',
-    description: 'Разница зарплаты от средней по отделу',
+    title: 'PostgreSQL: Window Functions - RANGE',
+    description: 'Salary difference from department average',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
       'Для каждого сотрудника вычислите разницу между его зарплатой и средней зарплатой по отделу. Используйте оконную функцию AVG(salary) OVER (PARTITION BY department_id). Выведите first_name, last_name, department, salary и salary_diff (округлите до 2 знаков). Отсортируйте по отделу и разнице.',
-    hint: 'AVG(salary) OVER (PARTITION BY department_id) вычисляет среднюю зарплату по отделу для каждой строки. Вычтите её из текущей зарплаты.',
+    hint: 'AVG(salary) OVER (PARTITION BY department_id) вычисляет medium зарплату по отделу для каждой строки. Вычтите её из текущей зарплаты.',
     sampleSolution:
       'SELECT e.first_name, e.last_name, d.name AS department, e.salary, ROUND(e.salary - AVG(e.salary) OVER (PARTITION BY e.department_id), 2) AS salary_diff FROM employees e JOIN departments d ON e.department_id = d.id ORDER BY d.name, salary_diff;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees e JOIN departments d ON e.department_id = d.id;',
@@ -603,15 +603,15 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-31',
-    title: 'PostgreSQL: HAVING с подзапросом',
-    description: 'Фильтрация групп по результату подзапроса',
+    title: 'PostgreSQL: HAVING with Subquery',
+    description: 'Filter groups by subquery result',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Найдите отделы, где средняя зарплата сотрудников выше общей средней зарплаты по всей компании. Используйте скалярный подзапрос внутри HAVING. Выведите name отдела и avg_salary (округлите до 2 знаков). Отсортируйте по avg_salary DESC.',
-    hint: 'HAVING AVG(e.salary) > (SELECT AVG(salary) FROM employees) — подзапрос вычисляет общую среднюю, а HAVING фильтрует отделы, чья средняя выше.',
+      'Найдите отделы, где medium зарплата сотрудников выше общей средней зарплаты по всей компании. Используйте скалярный подзапрос внутри HAVING. Выведите name отдела и avg_salary (округлите до 2 знаков). Отсортируйте по avg_salary DESC.',
+    hint: 'HAVING AVG(e.salary) > (SELECT AVG(salary) FROM employees) — подзапрос вычисляет общую medium, а HAVING фильтрует отделы, чья medium выше.',
     sampleSolution:
       'SELECT d.name, ROUND(AVG(e.salary), 2) AS avg_salary FROM employees e JOIN departments d ON e.department_id = d.id GROUP BY d.name HAVING AVG(e.salary) > (SELECT AVG(salary) FROM employees) ORDER BY avg_salary DESC;',
     verificationQuery:
@@ -621,7 +621,7 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   {
     id: 'pg-6',
     title: 'PostgreSQL: RETURNING',
-    description: 'Использование RETURNING для получения данных после INSERT',
+    description: 'Use RETURNING to get data after INSERT',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'company',
@@ -636,8 +636,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-adv-1',
-    title: 'PostgreSQL: DISTINCT ON — уникальные строки',
-    description: 'Использование DISTINCT ON для выбора первой строки в группе',
+    title: 'PostgreSQL: DISTINCT ON - Unique Rows',
+    description: 'Use DISTINCT ON to select first row in group',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'company',
@@ -652,8 +652,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-adv-2',
-    title: 'PostgreSQL: UPSERT с ON CONFLICT',
-    description: 'Вставка или обновление с помощью ON CONFLICT',
+    title: 'PostgreSQL: UPSERT with ON CONFLICT',
+    description: 'Insert or update with ON CONFLICT',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'company',
@@ -669,7 +669,7 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   {
     id: 'pg-adv-4',
     title: 'PostgreSQL: GENERATE_SERIES + CROSS JOIN LATERAL',
-    description: 'Генерация рядов и латеральное соединение',
+    description: 'Row generation and lateral join',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'company',
@@ -685,8 +685,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   // ==================== SQL CONSTRAINTS & DATA TYPES ====================
   {
     id: 'advanced-constraints-1',
-    title: 'Ограничения: PRIMARY KEY и NOT NULL',
-    description: 'Создание таблицы с первичным ключом и обязательными полями',
+    title: 'Constraints: PRIMARY KEY and NOT NULL',
+    description: 'Create table with primary key and required fields',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: '',
@@ -700,8 +700,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-constraints-2',
-    title: 'Ограничение UNIQUE',
-    description: 'Запрет дубликатов в столбце',
+    title: 'UNIQUE Constraint',
+    description: 'Prevent duplicates in a column',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: '',
@@ -715,8 +715,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-constraints-3',
-    title: 'Ограничение CHECK',
-    description: 'Проверка допустимых значений при вставке',
+    title: 'CHECK Constraint',
+    description: 'Validate allowed values on insert',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: '',
@@ -730,8 +730,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-constraints-4',
-    title: 'FOREIGN KEY — внешние ключи',
-    description: 'Связь между таблицами с проверкой целостности',
+    title: 'FOREIGN KEY',
+    description: 'Link tables with referential integrity',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: '',
@@ -745,8 +745,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-datatypes-1',
-    title: 'Типы данных: INTEGER vs REAL vs TEXT',
-    description: 'Понимание различий типов данных в SQLite',
+    title: 'Data Types: INTEGER vs REAL vs TEXT',
+    description: 'Understand SQLite data type differences',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: '',
@@ -760,8 +760,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-datatypes-2',
-    title: 'Типы данных: BOOLEAN и DATE в SQLite',
-    description: 'Как SQLite хранит логические значения и даты',
+    title: 'Data Types: BOOLEAN and DATE in SQLite',
+    description: 'How SQLite stores booleans and dates',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: '',
@@ -775,8 +775,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-explain-1',
-    title: 'Чтение плана выполнения (EXPLAIN)',
-    description: 'Как понять, как СУБД выполняет запрос',
+    title: 'Reading Execution Plan (EXPLAIN)',
+    description: 'Understand how DBMS executes a query',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -789,8 +789,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'advanced-explain-2',
-    title: 'Влияние индекса на план выполнения',
-    description: 'Сравнение EXPLAIN до и после создания индекса',
+    title: 'Index Impact on Execution Plan',
+    description: 'Compare EXPLAIN before and after index creation',
     difficulty: 'advanced',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -805,8 +805,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   // ==================== ANALYTICS TASKS (ClickHouse) ====================
   {
     id: 'analytics-a1',
-    title: 'countIf и sumIf — условные агрегаты',
-    description: 'ClickHouse-функции countIf() и sumIf()',
+    title: 'countIf and sumIf - Conditional Aggregates',
+    description: 'ClickHouse countIf() and sumIf() functions',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -821,8 +821,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'analytics-a2',
-    title: 'sumIf для завершённых покупок',
-    description: 'JOIN + sumIf для фильтрации по статусу',
+    title: 'sumIf for Completed Purchases',
+    description: 'JOIN + sumIf for status filtering',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -837,8 +837,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'analytics-a3',
-    title: 'groupArray — массивы в ClickHouse',
-    description: 'ClickHouse-функция groupArray()',
+    title: 'groupArray - Arrays in ClickHouse',
+    description: 'ClickHouse groupArray() function',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -853,8 +853,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'analytics-a4',
-    title: 'Оконная функция ROW_NUMBER',
-    description: 'ROW_NUMBER() OVER для ранжирования',
+    title: 'Window Function ROW_NUMBER',
+    description: 'ROW_NUMBER() OVER for ranking',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -869,8 +869,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'analytics-a5',
-    title: 'CTE + ClickHouse-функции',
-    description: 'WITH (CTE) + countIf для комплексного анализа',
+    title: 'CTE + ClickHouse Functions',
+    description: 'WITH (CTE) + countIf for complex analysis',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -887,7 +887,7 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   {
     id: 'ch-42',
     title: 'ClickHouse: sumIf + toStartOfDay',
-    description: 'Ежедневная аналитика просмотров страниц',
+    description: 'Daily page view analytics',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -902,8 +902,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-45',
-    title: 'ClickHouse: условная агрегация countIf',
-    description: 'Отношение кликов к просмотрам (CTR) по дням',
+    title: 'ClickHouse: Conditional Aggregation countIf',
+    description: 'Click-Through Rate (CTR) by day',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -918,8 +918,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-advanced-1',
-    title: 'Вложенные подзапросы',
-    description: 'Подзапросы с агрегацией',
+    title: 'Nested Subqueries',
+    description: 'Subqueries with aggregation',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -935,8 +935,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-advanced-2',
-    title: 'uniqExact и toYYYYMM',
-    description: 'Уникальные значения и форматирование дат',
+    title: 'uniqExact and toYYYYMM',
+    description: 'Unique values and date formatting',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -952,8 +952,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-advanced-3',
-    title: 'if и условные выражения',
-    description: 'Функция if в SELECT',
+    title: 'if and Conditional Expressions',
+    description: 'if function in SELECT',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -968,8 +968,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-analytics-adv-1',
-    title: 'ClickHouse: Воронка конверсии по страницам',
-    description: 'Анализ воронки событий: от просмотра курсов до покупки',
+    title: 'ClickHouse: Conversion Funnel by Pages',
+    description: 'Event funnel: from course views to purchase',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -984,8 +984,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-analytics-adv-2',
-    title: 'ClickHouse: Выручка с применением multiIf',
-    description: 'Классификация заказов по сумме с помощью multiIf',
+    title: 'ClickHouse: Revenue with multiIf',
+    description: 'Classify orders by amount with multiIf',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -1000,8 +1000,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-analytics-adv-3',
-    title: 'ClickHouse: Топ-N с bar-визуализацией',
-    description: 'Текстовая визуализация данных с помощью bar()',
+    title: 'ClickHouse: Top-N with bar Visualization',
+    description: 'Text data visualization with bar()',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -1015,8 +1015,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-analytics-adv-4',
-    title: 'ClickHouse: Агрегация по неделям',
-    description: 'Группировка данных по неделям',
+    title: 'ClickHouse: Weekly Aggregation',
+    description: 'Group data by weeks',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -1031,7 +1031,7 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-15',
-    title: 'ARRAY_AGG и ORDER BY внутри агрегации',
+    title: 'ARRAY_AGG with ORDER BY in Aggregation',
     description: 'Collect values into arrays with ordering',
     difficulty: 'advanced',
     dbType: 'postgresql',
@@ -1047,7 +1047,7 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-16',
-    title: 'RETURNING — возврат данных при INSERT',
+    title: 'RETURNING - Return Data from INSERT',
     description: 'Return inserted data with RETURNING clause',
     difficulty: 'advanced',
     dbType: 'postgresql',
@@ -1064,7 +1064,7 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   {
     id: 'pg-26',
     title: 'PostgreSQL: GENERATE_SERIES',
-    description: 'Генерация числового ряда с GENERATE_SERIES',
+    description: 'Generate number series with GENERATE_SERIES',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'analytics',
@@ -1079,8 +1079,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-33',
-    title: 'PostgreSQL: рекурсивный CTE (WITH RECURSIVE)',
-    description: 'Иерархический запрос с рекурсивным CTE',
+    title: 'PostgreSQL: Recursive CTE (WITH RECURSIVE)',
+    description: 'Hierarchical query with recursive CTE',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'analytics',
@@ -1096,8 +1096,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
   // ==================== EXAM TASKS ====================
   {
     id: 'ch-exam-7',
-    title: 'Экзамен ClickHouse: countIf + avgIf для отзывов',
-    description: 'Анализ отзывов по категориям товаров',
+    title: 'Exam: ClickHouse countIf + avgIf for Reviews',
+    description: 'Analyze reviews by product categories',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'exam',
@@ -1114,8 +1114,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-exam-8',
-    title: 'Экзамен ClickHouse: toStartOfDay + countIf',
-    description: 'Ежедневный анализ заказов',
+    title: 'Exam: ClickHouse toStartOfDay + countIf',
+    description: 'Daily order analysis',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'exam',
@@ -1131,8 +1131,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-exam-9',
-    title: 'Экзамен ClickHouse: uniqExact + groupUniqArray',
-    description: 'Уникальные клиенты по городам доставки',
+    title: 'Exam: ClickHouse uniqExact + groupUniqArray',
+    description: 'Unique customers by shipping city',
     difficulty: 'advanced',
     dbType: 'clickhouse',
     category: 'exam',
@@ -1148,8 +1148,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-a1',
-    title: 'Экзамен: Оконные функции',
-    description: 'Проверочная работа — ROW_NUMBER, RANK, LEAD',
+    title: 'Exam: Window Functions',
+    description: 'Test - ROW_NUMBER, RANK, LEAD',
     difficulty: 'advanced',
     dbType: 'sqlite',
     category: 'exam',
@@ -1166,8 +1166,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-a2',
-    title: 'Экзамен: Множественные CTE',
-    description: 'Проверочная работа — CTE + JOIN + агрегация',
+    title: 'Exam: Multiple CTEs',
+    description: 'Test - CTE + JOIN + aggregation',
     difficulty: 'advanced',
     dbType: 'sqlite',
     category: 'exam',
@@ -1184,8 +1184,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-a3',
-    title: 'Экзамен: Рекурсивный CTE на практике',
-    description: 'Проверочная работа — рекурсия с бизнес-логикой',
+    title: 'Exam: Recursive CTE in Practice',
+    description: 'Test - recursion with business logic',
     difficulty: 'advanced',
     dbType: 'sqlite',
     category: 'exam',
@@ -1201,15 +1201,15 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-a4',
-    title: 'Экзамен: Полный аналитический отчёт',
-    description: 'Проверочная работа — сложный запрос на все знания',
+    title: 'Exam: Full Analytics Report',
+    description: 'Test - complex query using all knowledge',
     difficulty: 'advanced',
     dbType: 'sqlite',
     category: 'exam',
     examGroup: 'exam-advanced',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Создайте отчёт по отделам: название, количество активных/неактивных, средняя зарплата активных, бюджет отдела, отношение бюджета к сумме зарплат (в %). Только отделы с 3+ сотрудниками.',
+      'Создайте отчёт по отделам: название, количество активных/неактивных, medium зарплата активных, бюджет отдела, отношение бюджета к сумме зарплат (в %). Только отделы с 3+ сотрудниками.',
     hint: 'CTE для подсчёта active/inactive, затем JOIN с departments. HAVING COUNT(*) >= 3. ROUND для процентов.',
     sampleSolution:
       'WITH dept_emp AS (SELECT department_id, SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active_count, SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END) as inactive_count, AVG(CASE WHEN is_active = 1 THEN salary END) as active_avg_salary, SUM(salary) as total_salary FROM employees GROUP BY department_id HAVING COUNT(*) >= 3) SELECT d.name, de.active_count, de.inactive_count, ROUND(de.active_avg_salary) as active_avg_salary, d.budget, ROUND(CAST(d.budget AS REAL) / de.total_salary * 100, 1) as budget_ratio_pct FROM departments d JOIN dept_emp de ON d.id = de.department_id ORDER BY budget_ratio_pct DESC;',
@@ -1219,8 +1219,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-a5',
-    title: 'Экзамен: Комплексная бизнес-задача',
-    description: 'Проверочная работа — реальный сценарий',
+    title: 'Exam: Complex Business Problem',
+    description: 'Test - real-world scenario',
     difficulty: 'advanced',
     dbType: 'sqlite',
     category: 'exam',
@@ -1237,8 +1237,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-exam-7',
-    title: 'Экзамен PostgreSQL: DISTINCT ON',
-    description: 'Последний отзыв для каждого товара',
+    title: 'Exam: PostgreSQL DISTINCT ON',
+    description: 'Latest review for each product',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'exam',
@@ -1254,8 +1254,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-exam-8',
-    title: 'Экзамен PostgreSQL: RETURNING',
-    description: 'Вставка с возвратом результата',
+    title: 'Exam: PostgreSQL RETURNING',
+    description: 'Insert with result return',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'exam',
@@ -1271,8 +1271,8 @@ export const ADVANCED_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-exam-9',
-    title: 'Экзамен PostgreSQL: LATERAL JOIN',
-    description: 'Товар-лидер в каждой категории',
+    title: 'Exam: PostgreSQL LATERAL JOIN',
+    description: 'Top product in each category',
     difficulty: 'advanced',
     dbType: 'postgresql',
     category: 'exam',

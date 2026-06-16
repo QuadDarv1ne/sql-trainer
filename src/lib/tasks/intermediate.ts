@@ -17,7 +17,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'intermediate-1',
     title: 'INNER JOIN',
-    description: 'Соединить две таблицы с INNER JOIN',
+    description: 'Join two tables with INNER JOIN',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -32,7 +32,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'intermediate-2',
     title: 'LEFT JOIN',
-    description: 'Соединить таблицы с LEFT JOIN',
+    description: 'Join tables with LEFT JOIN',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -46,12 +46,12 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-3',
-    title: 'GROUP BY с HAVING',
-    description: 'Фильтрация сгруппированных данных',
+    title: 'GROUP BY with HAVING',
+    description: 'Filter grouped data',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Найдите отделы, в которых средняя зарплата больше 125000. Выведите название отдела и среднюю зарплату.',
+    taskText: 'Найдите отделы, в которых medium зарплата больше 125000. Выведите название отдела и medium зарплату.',
     hint: 'GROUP BY + HAVING позволяет фильтровать по результатам агрегатных функций.',
     sampleSolution:
       'SELECT d.name, AVG(e.salary) as avg_salary FROM employees e JOIN departments d ON e.department_id = d.id GROUP BY d.id, d.name HAVING AVG(e.salary) > 125000;',
@@ -61,8 +61,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-4',
-    title: 'Подзапросы',
-    description: 'Использовать подзапрос в WHERE',
+    title: 'Subqueries',
+    description: 'Use a subquery in WHERE',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -76,7 +76,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'intermediate-5',
     title: 'CASE WHEN',
-    description: 'Условное выражение в SELECT',
+    description: 'Conditional expression in SELECT',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -90,8 +90,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-6',
-    title: 'Функции работы со строками',
-    description: 'Конкатенация и преобразование строк',
+    title: 'String Functions',
+    description: 'String concatenation and transformation',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -104,8 +104,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-7',
-    title: 'Множественные условия WHERE',
-    description: 'Комбинирование условий с AND, OR, IN, BETWEEN',
+    title: 'Multiple WHERE Conditions',
+    description: 'Combine conditions with AND, OR, IN, BETWEEN',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -120,8 +120,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-8',
-    title: 'Множественный JOIN',
-    description: 'Соединение трёх и более таблиц',
+    title: 'Multiple JOINs',
+    description: 'Join three or more tables',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -136,8 +136,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   // ==================== NEW TOPIC TASKS ====================
   {
     id: 'intermediate-9',
-    title: 'Объединение UNION',
-    description: 'Объединить результаты двух запросов с UNION',
+    title: 'UNION',
+    description: 'Combine two query results with UNION',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -151,8 +151,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-10',
-    title: 'INTERSECT и EXCEPT',
-    description: 'Найти пересечение и разность множеств',
+    title: 'INTERSECT and EXCEPT',
+    description: 'Find set intersection and difference',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -167,7 +167,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'intermediate-11',
     title: 'INSERT, UPDATE, DELETE',
-    description: 'Вставка, обновление и удаление данных',
+    description: 'Insert, update, and delete data',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPTY_ORDERS_SCHEMA,
@@ -182,7 +182,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'intermediate-12',
     title: 'FULL OUTER JOIN',
-    description: 'Полное внешнее соединение таблиц',
+    description: 'Full outer join of tables',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -197,7 +197,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'intermediate-13',
     title: 'CROSS JOIN',
-    description: 'Декартово произведение таблиц',
+    description: 'Cartesian product of tables',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -212,8 +212,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   // ==================== COALESCE AND NULL FUNCTIONS ====================
   {
     id: 'intermediate-14',
-    title: 'COALESCE — замена NULL',
-    description: 'Использование COALESCE для обработки NULL значений',
+    title: 'COALESCE - NULL Replacement',
+    description: 'Use COALESCE for NULL handling',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -227,12 +227,12 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-15',
-    title: 'NULLIF — условный NULL',
-    description: 'Возврат NULL при совпадении значений',
+    title: 'NULLIF - Conditional NULL',
+    description: 'Return NULL when values match',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Посчитайте среднюю зарплату, исключив сотрудников с зарплатой ровно 100000. Используйте NULLIF.',
+    taskText: 'Посчитайте medium зарплату, исключив сотрудников с зарплатой ровно 100000. Используйте NULLIF.',
     hint: 'NULLIF(salary, 100000) вернет NULL для зарплаты 100000, и AVG проигнорирует эти строки.',
     sampleSolution: 'SELECT AVG(NULLIF(salary, 100000)) as avg_salary_excluding_100k FROM employees;',
     verificationQuery: 'SELECT AVG(salary) as avg_all FROM employees WHERE salary != 100000;',
@@ -240,8 +240,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-16',
-    title: 'Комбинация COALESCE и агрегатных функций',
-    description: 'Обработка NULL в агрегатных результатах',
+    title: 'Combining COALESCE with Aggregate Functions',
+    description: 'Handle NULL in aggregate results',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -256,8 +256,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   // ==================== TRANSACTIONS ====================
   {
     id: 'intermediate-17',
-    title: 'Транзакции — BEGIN и COMMIT',
-    description: 'Атомарное выполнение нескольких операций',
+    title: 'Transactions - BEGIN and COMMIT',
+    description: 'Atomic execution of multiple operations',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPTY_ORDERS_SCHEMA,
@@ -271,8 +271,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-18',
-    title: 'Транзакции — ROLLBACK',
-    description: 'Откат изменений при ошибке',
+    title: 'Transactions - ROLLBACK',
+    description: 'Rollback changes on error',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPTY_ORDERS_SCHEMA,
@@ -286,8 +286,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-19',
-    title: 'Транзакции с проверкой условий',
-    description: 'Проверка бизнес-правил внутри транзакции',
+    title: 'Transactions with Condition Checks',
+    description: 'Check business rules inside a transaction',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPTY_ORDERS_SCHEMA,
@@ -302,7 +302,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   // ==================== DATE/TIME FUNCTIONS ====================
   {
     id: 'intermediate-20',
-    title: 'Функции работы с датами',
+    title: 'Date Functions',
     description: 'DATE, strftime и форматирование дат',
     difficulty: 'intermediate',
     dbType: 'sqlite',
@@ -315,8 +315,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-21',
-    title: 'Разница между датами',
-    description: 'Вычисление интервалов между датами',
+    title: 'Date Difference',
+    description: 'Calculate intervals between dates',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -330,8 +330,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-22',
-    title: 'Фильтрация по дате',
-    description: 'Поиск записей в диапазоне дат',
+    title: 'Filtering by Date',
+    description: 'Find records in a date range',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -343,8 +343,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'intermediate-23',
-    title: 'Даты в проектах',
-    description: 'Анализ длительности проектов',
+    title: 'Dates in Projects',
+    description: 'Analyze project durations',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
@@ -360,7 +360,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'ch-35',
     title: 'ClickHouse: groupArray + arrayJoin',
-    description: 'Сбор товаров в массивы по категориям и раскрытие массивов',
+    description: 'Collect products into arrays by category and unnest',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'shop',
@@ -376,14 +376,14 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-36',
-    title: 'ClickHouse: avgIf для фильтрованной аналитики',
-    description: 'Средняя цена только активных товаров',
+    title: 'ClickHouse: avgIf for Filtered Analytics',
+    description: 'Average price of active products only',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Для каждой категории вычислите среднюю цену только активных товаров (is_active = 1). Используйте avgIf(price, is_active = 1). Выведите name категории и avg_active_price (округлите до 2 знаков). Отсортируйте по avg_active_price DESC.',
+      'Для каждой категории вычислите medium цену только активных товаров (is_active = 1). Используйте avgIf(price, is_active = 1). Выведите name категории и avg_active_price (округлите до 2 знаков). Отсортируйте по avg_active_price DESC.',
     hint: 'avgIf(expr, condition) вычисляет среднее только по строкам, удовлетворяющим условию. Аналоги: sumIf, countIf, minIf, maxIf.',
     sampleSolution:
       'SELECT c.name, ROUND(avgIf(p.price, p.is_active = 1), 2) AS avg_active_price FROM products p JOIN categories c ON p.category_id = c.id GROUP BY c.name ORDER BY avg_active_price DESC;',
@@ -393,7 +393,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'ch-41',
     title: 'ClickHouse: having + countIf',
-    description: 'Категории с более чем 3 товарами',
+    description: 'Categories with more than 3 products',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'shop',
@@ -409,8 +409,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-43',
-    title: 'ClickHouse: groupUniqArray для уникальных списков',
-    description: 'Уникальные города доставки по клиентам',
+    title: 'ClickHouse: groupUniqArray for Unique Lists',
+    description: 'Unique shipping cities by customer',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'shop',
@@ -426,7 +426,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'pg-10',
     title: 'PostgreSQL: EXTRACT',
-    description: 'Извлечение компонентов даты через EXTRACT',
+    description: 'Extract date parts using EXTRACT',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'shop',
@@ -442,8 +442,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-21',
-    title: 'PostgreSQL: множественные CTE',
-    description: 'Несколько обобщённых табличных выражений в одном запросе',
+    title: 'PostgreSQL: Multiple CTEs',
+    description: 'Multiple CTEs in one query',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'shop',
@@ -459,8 +459,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-25',
-    title: 'PostgreSQL: FILTER в агрегатах',
-    description: 'Условная агрегация с предложением FILTER',
+    title: 'PostgreSQL: FILTER in Aggregates',
+    description: 'Conditional aggregation with FILTER clause',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'shop',
@@ -476,8 +476,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-27',
-    title: 'PostgreSQL: ARRAY и оператор ANY',
-    description: 'Проверка вхождения в массив через ANY',
+    title: 'PostgreSQL: ARRAY and ANY Operator',
+    description: 'Check array membership with ANY',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'shop',
@@ -491,8 +491,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-30',
-    title: 'PostgreSQL: CASE в ORDER BY',
-    description: 'Условная сортировка с CASE',
+    title: 'PostgreSQL: CASE in ORDER BY',
+    description: 'Conditional sorting with CASE',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'shop',
@@ -508,7 +508,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'pg-9',
     title: 'PostgreSQL: COALESCE',
-    description: 'Обработка NULL-значений через COALESCE',
+    description: 'Handle NULL values with COALESCE',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'shop',
@@ -523,7 +523,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-i1',
-    title: 'Товары с категориями',
+    title: 'Products with Categories',
     description: 'JOIN products + categories',
     difficulty: 'intermediate',
     dbType: 'sqlite',
@@ -539,7 +539,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-i2',
-    title: 'Клиенты и их заказы',
+    title: 'Customers and Their Orders',
     description: 'JOIN orders + customers',
     difficulty: 'intermediate',
     dbType: 'sqlite',
@@ -556,8 +556,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-i3',
-    title: 'Постоянные клиенты',
-    description: 'GROUP BY + HAVING для клиентов',
+    title: 'Loyal Customers',
+    description: 'GROUP BY + HAVING for customers',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     category: 'shop',
@@ -572,8 +572,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-i4',
-    title: 'Популярные товары',
-    description: 'Подзапрос для среднего количества',
+    title: 'Popular Products',
+    description: 'Subquery for average quantity',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     category: 'shop',
@@ -589,8 +589,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-i5',
-    title: 'Сегментация клиентов',
-    description: 'CASE WHEN для классификации',
+    title: 'Customer Segmentation',
+    description: 'CASE WHEN for classification',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     category: 'shop',
@@ -606,8 +606,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-i6',
-    title: 'Товары с отзывами',
-    description: 'JOIN с агрегацией',
+    title: 'Products with Reviews',
+    description: 'JOIN with aggregation',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     category: 'shop',
@@ -623,24 +623,24 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   // ==================== COMPANY TASKS (PostgreSQL/ClickHouse) ====================
   {
     id: 'ch-37',
-    title: 'ClickHouse: multiIf для категоризации',
-    description: 'Категоризация зарплат по диапазонам',
+    title: 'ClickHouse: multiIf for Categorization',
+    description: 'Categorize salaries by ranges',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Для каждого сотрудника определите диапазон зарплаты: «низкая» (< 100000), «средняя» (100000–120000), «высокая» (120000–150000), «очень высокая» (> 150000). Используйте multiIf(). Выведите first_name, last_name, salary и salary_range. Отсортируйте по salary DESC.',
+      'Для каждого сотрудника определите диапазон зарплаты: «low» (< 100000), «medium» (100000–120000), «high» (120000–150000), «очень high» (> 150000). Используйте multiIf(). Выведите first_name, last_name, salary и salary_range. Отсортируйте по salary DESC.',
     hint: 'multiIf(cond1, val1, cond2, val2, ..., elseVal) — цепочка условий, аналогичная CASE WHEN в SQL. Условия проверяются по порядку.',
     sampleSolution:
-      "SELECT first_name, last_name, salary, multiIf(salary < 100000, 'низкая', salary < 120000, 'средняя', salary < 150000, 'высокая', 'очень высокая') AS salary_range FROM employees ORDER BY salary DESC;",
+      "SELECT first_name, last_name, salary, multiIf(salary < 100000, 'low', salary < 120000, 'medium', salary < 150000, 'high', 'очень high') AS salary_range FROM employees ORDER BY salary DESC;",
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
   },
 
   {
     id: 'ch-44',
-    title: 'ClickHouse: toYear + toMonth для анализа',
-    description: 'Сотрудники по году и месяцу найма',
+    title: 'ClickHouse: toYear + toMonth for Analysis',
+    description: 'Employees by hire year and month',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'company',
@@ -656,7 +656,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'pg-1',
     title: 'PostgreSQL: ILIKE',
-    description: 'Регистронезависимый поиск по шаблону',
+    description: 'Case-insensitive pattern search',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'company',
@@ -671,7 +671,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'pg-17',
     title: 'PostgreSQL: ON CONFLICT DO UPDATE (UPSERT)',
-    description: 'Вставка или обновление при конфликте уникального ключа',
+    description: 'Insert or update on unique key conflict',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'company',
@@ -687,7 +687,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'pg-19',
     title: 'PostgreSQL: FULL OUTER JOIN',
-    description: 'Полное внешнее соединение двух таблиц',
+    description: 'Full outer join of two tables',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'company',
@@ -703,7 +703,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'pg-2',
     title: 'PostgreSQL: STRING_AGG',
-    description: 'Агрегация строк через STRING_AGG',
+    description: 'String aggregation with STRING_AGG',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'company',
@@ -720,7 +720,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'pg-24',
     title: 'PostgreSQL: DATE_TRUNC',
-    description: 'Усечение даты до квартала с DATE_TRUNC',
+    description: 'Truncate date to quarter with DATE_TRUNC',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'company',
@@ -736,7 +736,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'pg-29',
     title: 'PostgreSQL: INTERVAL',
-    description: 'Арифметика интервалов времени',
+    description: 'Time interval arithmetic',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'company',
@@ -752,7 +752,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'pg-3',
     title: 'PostgreSQL: ARRAY_AGG',
-    description: 'Создание массива через ARRAY_AGG',
+    description: 'Create array with ARRAY_AGG',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'company',
@@ -768,8 +768,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-34',
-    title: 'PostgreSQL: BOOL_AND и BOOL_OR',
-    description: 'Агрегатные булевы функции',
+    title: 'PostgreSQL: BOOL_AND and BOOL_OR',
+    description: 'Aggregate boolean functions',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'company',
@@ -786,7 +786,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'pg-4',
     title: 'PostgreSQL: TRUE/FALSE',
-    description: 'Использование логических литералов TRUE и FALSE',
+    description: 'Use boolean literals TRUE and FALSE',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'company',
@@ -800,8 +800,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-5',
-    title: 'PostgreSQL: Приведение типов (::)',
-    description: 'Синтаксис приведения типов через ::',
+    title: 'PostgreSQL: Type Casting (::)',
+    description: 'Type casting syntax with ::',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'company',
@@ -817,7 +817,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'pg-7',
     title: 'PostgreSQL: IS TRUE / IS FALSE',
-    description: 'Проверка булевых значений через IS TRUE и IS FALSE',
+    description: 'Check boolean values with IS TRUE and IS FALSE',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'company',
@@ -833,8 +833,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   // ==================== ANALYTICS TASKS (ClickHouse) ====================
   {
     id: 'analytics-i1',
-    title: 'JOIN пользователей и событий',
-    description: 'LEFT JOIN users с events',
+    title: 'JOIN Users and Events',
+    description: 'LEFT JOIN users with events',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -849,8 +849,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'analytics-i2',
-    title: 'HAVING — фильтрация групп',
-    description: 'GROUP BY + HAVING для фильтрации агрегатов',
+    title: 'HAVING - Group Filtering',
+    description: 'GROUP BY + HAVING for aggregate filtering',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -865,8 +865,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'analytics-i3',
-    title: 'toStartOfDay — группировка по дням',
-    description: 'ClickHouse-функция toStartOfDay()',
+    title: 'toStartOfDay - Daily Grouping',
+    description: 'ClickHouse toStartOfDay() function',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -881,8 +881,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'analytics-i4',
-    title: 'toStartOfMonth — аналитика покупок',
-    description: 'Группировка покупок по месяцам',
+    title: 'toStartOfMonth - Purchase Analytics',
+    description: 'Group purchases by month',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -897,8 +897,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'analytics-i5',
-    title: 'multiIf — множественное условие',
-    description: 'ClickHouse-функция multiIf() для классификации',
+    title: 'multiIf - Multiple Conditions',
+    description: 'ClickHouse multiIf() for classification',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -913,7 +913,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-1',
-    title: 'sumIf — условная сумма',
+    title: 'sumIf - Conditional Sum',
     description: 'Conditional sum with sumIf',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
@@ -928,7 +928,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-2',
-    title: 'countIf — условный подсчёт',
+    title: 'countIf - Conditional Count',
     description: 'Conditional count with countIf',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
@@ -943,7 +943,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-3',
-    title: 'toStartOfMonth — группировка по месяцам',
+    title: 'toStartOfMonth - Monthly Grouping',
     description: 'Group by month with toStartOfMonth',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
@@ -959,8 +959,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-33',
-    title: 'ClickHouse: dateDiff с INTERVAL',
-    description: 'Количество дней между первым и последним событием для каждого пользователя',
+    title: 'ClickHouse: dateDiff with INTERVAL',
+    description: 'Days between first and last event per user',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -976,7 +976,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'ch-39',
     title: 'ClickHouse: uniqExact vs COUNT DISTINCT',
-    description: 'Подсчёт уникальных пользователей за день',
+    description: 'Count unique users per day',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -991,7 +991,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-4',
-    title: 'groupArray — массивы из групп',
+    title: 'groupArray - Arrays from Groups',
     description: 'Create arrays from groups with groupArray',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
@@ -1007,8 +1007,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-46',
-    title: 'ClickHouse: has() для поиска в массиве',
-    description: 'Пользователи, посещавшие определённую страницу',
+    title: 'ClickHouse: has() for Array Search',
+    description: 'Users who visited a specific page',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -1023,7 +1023,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-5',
-    title: 'multiIf — множественное условие',
+    title: 'multiIf - Multiple Conditions',
     description: 'Multiple conditions with multiIf',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
@@ -1039,7 +1039,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-6',
-    title: 'formatDateTime — форматирование дат',
+    title: 'formatDateTime - Date Formatting',
     description: 'Date formatting with formatDateTime',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
@@ -1055,8 +1055,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-intermediate-1',
-    title: 'sumIf и countIf',
-    description: 'Условные агрегации',
+    title: 'sumIf and countIf',
+    description: 'Conditional aggregations',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -1072,7 +1072,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'ch-intermediate-2',
     title: 'toStartOfMonth',
-    description: 'Группировка по месяцам',
+    description: 'Monthly grouping',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -1087,12 +1087,12 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'ch-intermediate-3',
     title: 'avgIf',
-    description: 'Условное среднее',
+    description: 'Conditional average',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText: 'Найдите среднюю длительность (duration) только для событий page_view, сгруппированных по device.',
+    taskText: 'Найдите medium длительность (duration) только для событий page_view, сгруппированных по device.',
     hint: "avgIf(duration, event_type = 'page_view')",
     sampleSolution:
       "SELECT device, avgIf(duration, event_type = 'page_view') as avg_duration FROM events WHERE event_type = 'page_view' GROUP BY device ORDER BY avg_duration DESC;",
@@ -1102,7 +1102,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   {
     id: 'ch-intermediate-4',
     title: 'multiIf',
-    description: 'Множественное условие',
+    description: 'Multiple conditions',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'analytics',
@@ -1117,7 +1117,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-11',
-    title: 'ILIKE — регистронезависимый поиск',
+    title: 'ILIKE - Case-Insensitive Search',
     description: 'Case-insensitive pattern matching',
     difficulty: 'intermediate',
     dbType: 'postgresql',
@@ -1133,7 +1133,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-12',
-    title: 'EXTRACT — извлечение части даты',
+    title: 'EXTRACT - Date Part Extraction',
     description: 'Extract date components with EXTRACT',
     difficulty: 'intermediate',
     dbType: 'postgresql',
@@ -1149,7 +1149,7 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-13',
-    title: 'STRING_AGG — объединение строк',
+    title: 'STRING_AGG - String Aggregation',
     description: 'String aggregation with STRING_AGG',
     difficulty: 'intermediate',
     dbType: 'postgresql',
@@ -1166,8 +1166,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
   // ==================== EXAM TASKS ====================
   {
     id: 'ch-exam-4',
-    title: 'Экзамен ClickHouse: sumIf для проектных часов',
-    description: 'Часы ведущих разработчиков по проектам',
+    title: 'Exam: ClickHouse sumIf for Project Hours',
+    description: 'Lead developer hours by project',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'exam',
@@ -1183,8 +1183,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-exam-5',
-    title: 'Экзамен ClickHouse: groupArray',
-    description: 'Список сотрудников по отделам',
+    title: 'Exam: ClickHouse groupArray',
+    description: 'Employee list by department',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'exam',
@@ -1200,8 +1200,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-exam-6',
-    title: 'Экзамен ClickHouse: multiIf для зарплатных групп',
-    description: 'Зарплатные группы с помощью multiIf',
+    title: 'Exam: ClickHouse multiIf for Salary Groups',
+    description: 'Salary groups with multiIf',
     difficulty: 'intermediate',
     dbType: 'clickhouse',
     category: 'exam',
@@ -1217,8 +1217,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-i1',
-    title: 'Экзамен: Многотабличный JOIN',
-    description: 'Проверочная работа — JOIN трёх таблиц',
+    title: 'Exam: Multi-Table JOIN',
+    description: 'Test - JOIN of three tables',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     category: 'exam',
@@ -1235,8 +1235,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-i2',
-    title: 'Экзамен: Подзапрос с EXISTS',
-    description: 'Проверочная работа — коррелированный подзапрос',
+    title: 'Exam: Subquery with EXISTS',
+    description: 'Test - correlated subquery',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     category: 'exam',
@@ -1252,8 +1252,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-i3',
-    title: 'Экзамен: Сложный CASE WHEN',
-    description: 'Проверочная работа — CASE в SELECT + GROUP BY',
+    title: 'Exam: Complex CASE WHEN',
+    description: 'Test - CASE in SELECT + GROUP BY',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     category: 'exam',
@@ -1269,8 +1269,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-i4',
-    title: 'Экзамен: IN подзапрос',
-    description: 'Проверочная работа — WHERE IN с подзапросом',
+    title: 'Exam: IN Subquery',
+    description: 'Test - WHERE IN with subquery',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     category: 'exam',
@@ -1287,8 +1287,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-i5',
-    title: 'Экзамен: Сложная агрегация',
-    description: 'Проверочная работа — GROUP BY + HAVING + JOIN',
+    title: 'Exam: Complex Aggregation',
+    description: 'Test - GROUP BY + HAVING + JOIN',
     difficulty: 'intermediate',
     dbType: 'sqlite',
     category: 'exam',
@@ -1305,8 +1305,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-exam-4',
-    title: 'Экзамен PostgreSQL: STRING_AGG для объединения строк',
-    description: 'Список сотрудников по отделам',
+    title: 'Exam: PostgreSQL STRING_AGG',
+    description: 'Employee list by department',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'exam',
@@ -1322,8 +1322,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-exam-5',
-    title: 'Экзамен PostgreSQL: EXTRACT для группировки по году',
-    description: 'Анализ найма по годам',
+    title: 'Exam: PostgreSQL EXTRACT for Year Grouping',
+    description: 'Hire analysis by year',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'exam',
@@ -1339,8 +1339,8 @@ export const INTERMEDIATE_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-exam-6',
-    title: 'Экзамен PostgreSQL: ARRAY_AGG для массивов',
-    description: 'Сбор названий проектов по отделам',
+    title: 'Exam: PostgreSQL ARRAY_AGG for Arrays',
+    description: 'Collect project names by department',
     difficulty: 'intermediate',
     dbType: 'postgresql',
     category: 'exam',
