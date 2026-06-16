@@ -412,27 +412,32 @@ export async function createUser(
   role: UserRole = 'student',
   actorId?: string,
 ): Promise<{ id: string; email: string; name: string; phone: string | null; role: UserRole } | null> {
-  const db = getDb();
-  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
-  if (existing) return null;
+  try {
+    const db = getDb();
+    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+    if (existing) return null;
 
-  if (!VALID_ROLES.includes(role)) {
-    throw new Error(`Invalid role: ${role}`);
+    if (!VALID_ROLES.includes(role)) {
+      throw new Error(`Invalid role: ${role}`);
+    }
+
+    const id = crypto.randomUUID();
+    const now = Date.now();
+    const hash = await bcrypt.hash(password, 12);
+
+    db.prepare(
+      'INSERT INTO users (id, email, name, password_hash, phone, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    ).run(id, email, name, hash, phone || null, role, now, now);
+
+    if (actorId) {
+      logAudit(actorId, 'user_created', 'user', id, JSON.stringify({ email, name, role }));
+    }
+
+    return { id, email, name, phone: phone || null, role };
+  } catch (error) {
+    logger.error('createUser failed:', error);
+    return null;
   }
-
-  const id = crypto.randomUUID();
-  const now = Date.now();
-  const hash = await bcrypt.hash(password, 12);
-
-  db.prepare(
-    'INSERT INTO users (id, email, name, password_hash, phone, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-  ).run(id, email, name, hash, phone || null, role, now, now);
-
-  if (actorId) {
-    logAudit(actorId, 'user_created', 'user', id, JSON.stringify({ email, name, role }));
-  }
-
-  return { id, email, name, phone: phone || null, role };
 }
 
 export async function findUserByEmail(email: string): Promise<{
@@ -445,24 +450,29 @@ export async function findUserByEmail(email: string): Promise<{
   role_changed_at: number | null;
   banned_at: number | null;
 } | null> {
-  const db = getDb();
-  const user = db
-    .prepare(
-      'SELECT id, email, name, phone, password_hash, role, role_changed_at, banned_at FROM users WHERE email = ?',
-    )
-    .get(email) as
-    | {
-        id: string;
-        email: string;
-        name: string;
-        phone: string | null;
-        password_hash: string;
-        role: UserRole;
-        role_changed_at: number | null;
-        banned_at: number | null;
-      }
-    | undefined;
-  return user || null;
+  try {
+    const db = getDb();
+    const user = db
+      .prepare(
+        'SELECT id, email, name, phone, password_hash, role, role_changed_at, banned_at FROM users WHERE email = ?',
+      )
+      .get(email) as
+      | {
+          id: string;
+          email: string;
+          name: string;
+          phone: string | null;
+          password_hash: string;
+          role: UserRole;
+          role_changed_at: number | null;
+          banned_at: number | null;
+        }
+      | undefined;
+    return user || null;
+  } catch (error) {
+    logger.error('findUserByEmail failed:', error);
+    return null;
+  }
 }
 
 export async function verifyPassword(
@@ -477,20 +487,25 @@ export async function verifyPassword(
   role_changed_at: number | null;
   banned_at: number | null;
 } | null> {
-  const user = await findUserByEmail(email);
-  if (!user) return null;
-  if (user.banned_at) return null;
-  const valid = await bcrypt.compare(password, user.password_hash);
-  if (!valid) return null;
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    phone: user.phone,
-    role: user.role,
-    role_changed_at: user.role_changed_at,
-    banned_at: user.banned_at,
-  };
+  try {
+    const user = await findUserByEmail(email);
+    if (!user) return null;
+    if (user.banned_at) return null;
+    const valid = await bcrypt.compare(password, user.password_hash);
+    if (!valid) return null;
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      role_changed_at: user.role_changed_at,
+      banned_at: user.banned_at,
+    };
+  } catch (error) {
+    logger.error('verifyPassword failed:', error);
+    return null;
+  }
 }
 
 export async function getUserById(userId: string): Promise<{
@@ -502,21 +517,26 @@ export async function getUserById(userId: string): Promise<{
   role: UserRole;
   created_at: number;
 } | null> {
-  const db = getDb();
-  const user = db
-    .prepare('SELECT id, email, name, phone, avatar_url, role, created_at FROM users WHERE id = ?')
-    .get(userId) as
-    | {
-        id: string;
-        email: string;
-        name: string;
-        phone: string | null;
-        avatar_url: string | null;
-        role: UserRole;
-        created_at: number;
-      }
-    | undefined;
-  return user || null;
+  try {
+    const db = getDb();
+    const user = db
+      .prepare('SELECT id, email, name, phone, avatar_url, role, created_at FROM users WHERE id = ?')
+      .get(userId) as
+      | {
+          id: string;
+          email: string;
+          name: string;
+          phone: string | null;
+          avatar_url: string | null;
+          role: UserRole;
+          created_at: number;
+        }
+      | undefined;
+    return user || null;
+  } catch (error) {
+    logger.error('getUserById failed:', error);
+    return null;
+  }
 }
 
 export async function findUserByIdWithHash(userId: string): Promise<{
@@ -527,264 +547,304 @@ export async function findUserByIdWithHash(userId: string): Promise<{
   password_hash: string;
   role: UserRole;
 } | null> {
-  const db = getDb();
-  const user = db.prepare('SELECT id, email, name, phone, password_hash, role FROM users WHERE id = ?').get(userId) as
-    | { id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole }
-    | undefined;
-  return user || null;
+  try {
+    const db = getDb();
+    const user = db
+      .prepare('SELECT id, email, name, phone, password_hash, role FROM users WHERE id = ?')
+      .get(userId) as
+      | { id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole }
+      | undefined;
+    return user || null;
+  } catch (error) {
+    logger.error('findUserByIdWithHash failed:', error);
+    return null;
+  }
 }
 
 export async function updateUser(
   userId: string,
   data: { name?: string; phone?: string; avatar_url?: string; email?: string },
 ): Promise<boolean> {
-  const db = getDb();
-  const fields: string[] = [];
-  const values: unknown[] = [];
+  try {
+    const db = getDb();
+    const fields: string[] = [];
+    const values: unknown[] = [];
 
-  if (data.name !== undefined) {
-    fields.push('name = ?');
-    values.push(data.name);
-  }
-  if (data.phone !== undefined) {
-    fields.push('phone = ?');
-    values.push(data.phone);
-  }
-  if (data.avatar_url !== undefined) {
-    fields.push('avatar_url = ?');
-    values.push(data.avatar_url);
-  }
-  if (data.email !== undefined) {
-    fields.push('email = ?');
-    values.push(data.email);
-  }
+    if (data.name !== undefined) {
+      fields.push('name = ?');
+      values.push(data.name);
+    }
+    if (data.phone !== undefined) {
+      fields.push('phone = ?');
+      values.push(data.phone);
+    }
+    if (data.avatar_url !== undefined) {
+      fields.push('avatar_url = ?');
+      values.push(data.avatar_url);
+    }
+    if (data.email !== undefined) {
+      fields.push('email = ?');
+      values.push(data.email);
+    }
 
-  if (fields.length === 0) return false;
+    if (fields.length === 0) return false;
 
-  fields.push('updated_at = ?');
-  values.push(Date.now());
-  values.push(userId);
+    fields.push('updated_at = ?');
+    values.push(Date.now());
+    values.push(userId);
 
-  const result = db.prepare(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`).run(...values);
-  return result.changes > 0;
+    const result = db.prepare(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+    return result.changes > 0;
+  } catch (error) {
+    logger.error('updateUser failed:', error);
+    return false;
+  }
 }
 
 export async function updatePassword(userId: string, newPassword: string): Promise<boolean> {
-  const db = getDb();
-  const hash = await bcrypt.hash(newPassword, 12);
-  const result = db
-    .prepare('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?')
-    .run(hash, Date.now(), userId);
-  return result.changes > 0;
+  try {
+    const db = getDb();
+    const hash = await bcrypt.hash(newPassword, 12);
+    const result = db
+      .prepare('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?')
+      .run(hash, Date.now(), userId);
+    return result.changes > 0;
+  } catch (error) {
+    logger.error('updatePassword failed:', error);
+    return false;
+  }
 }
 
 // Reset codes
 export async function createResetCode(userId: string, type: 'email' | 'phone'): Promise<string> {
-  const db = getDb();
-  const cryptoArray = new Uint32Array(1);
-  crypto.getRandomValues(cryptoArray);
-  const code = (100000 + (cryptoArray[0] % 900000)).toString();
-  const id = crypto.randomUUID();
-  const expiresAt = Date.now() + 15 * 60 * 1000;
+  try {
+    const db = getDb();
+    const cryptoArray = new Uint32Array(1);
+    crypto.getRandomValues(cryptoArray);
+    const code = (100000 + (cryptoArray[0] % 900000)).toString();
+    const id = crypto.randomUUID();
+    const expiresAt = Date.now() + 15 * 60 * 1000;
 
-  db.prepare('INSERT INTO reset_codes (id, user_id, code, type, expires_at, used) VALUES (?, ?, ?, ?, ?, 0)').run(
-    id,
-    userId,
-    code,
-    type,
-    expiresAt,
-  );
+    db.prepare('INSERT INTO reset_codes (id, user_id, code, type, expires_at, used) VALUES (?, ?, ?, ?, ?, 0)').run(
+      id,
+      userId,
+      code,
+      type,
+      expiresAt,
+    );
 
-  return code;
+    return code;
+  } catch (error) {
+    logger.error('createResetCode failed:', error);
+    throw error;
+  }
 }
 
 export async function verifyResetCode(code: string): Promise<{ userId: string; type: string } | null> {
-  const db = getDb();
-  const now = Date.now();
+  try {
+    const db = getDb();
+    const now = Date.now();
 
-  // Atomic UPDATE with WHERE clause prevents race condition where concurrent requests could both pass the used===0 check
-  const result = db
-    .prepare('UPDATE reset_codes SET used = 1 WHERE code = ? AND used = 0 AND expires_at > ?')
-    .run(code, now);
+    const result = db
+      .prepare('UPDATE reset_codes SET used = 1 WHERE code = ? AND used = 0 AND expires_at > ?')
+      .run(code, now);
 
-  if (result.changes === 0) return null;
+    if (result.changes === 0) return null;
 
-  const record = db.prepare('SELECT user_id, type FROM reset_codes WHERE code = ?').get(code) as
-    | { user_id: string; type: string }
-    | undefined;
+    const record = db.prepare('SELECT user_id, type FROM reset_codes WHERE code = ?').get(code) as
+      | { user_id: string; type: string }
+      | undefined;
 
-  return record ? { userId: record.user_id, type: record.type } : null;
+    return record ? { userId: record.user_id, type: record.type } : null;
+  } catch (error) {
+    logger.error('verifyResetCode failed:', error);
+    return null;
+  }
 }
 
 // Progress
 export async function saveUserProgress(userId: string, taskId: string, attempts: number): Promise<void> {
-  const db = getDb();
-  const saveProgress = db.transaction(() => {
-    const now = Date.now();
-    db.prepare(
-      'INSERT INTO user_progress (user_id, task_id, completed_at, attempts) VALUES (?, ?, ?, ?) ON CONFLICT(user_id, task_id) DO UPDATE SET completed_at = ?, attempts = ?',
-    ).run(userId, taskId, now, attempts, now, attempts);
+  try {
+    const db = getDb();
+    const saveProgress = db.transaction(() => {
+      const now = Date.now();
+      db.prepare(
+        'INSERT INTO user_progress (user_id, task_id, completed_at, attempts) VALUES (?, ?, ?, ?) ON CONFLICT(user_id, task_id) DO UPDATE SET completed_at = ?, attempts = ?',
+      ).run(userId, taskId, now, attempts, now, attempts);
 
-    // Calculate daily streak
-    const user = db
-      .prepare('SELECT streak_current, streak_longest, last_practice_date FROM users WHERE id = ?')
-      .get(userId) as { streak_current: number; streak_longest: number; last_practice_date: number | null } | undefined;
+      const user = db
+        .prepare('SELECT streak_current, streak_longest, last_practice_date FROM users WHERE id = ?')
+        .get(userId) as
+        | { streak_current: number; streak_longest: number; last_practice_date: number | null }
+        | undefined;
 
-    const todayStart = new Date(now);
-    todayStart.setHours(0, 0, 0, 0);
-    const todayTs = todayStart.getTime();
+      const todayStart = new Date(now);
+      todayStart.setHours(0, 0, 0, 0);
+      const todayTs = todayStart.getTime();
 
-    let newStreak = 1;
-    if (user?.last_practice_date) {
-      const lastPracticeDay = new Date(user.last_practice_date);
-      lastPracticeDay.setHours(0, 0, 0, 0);
-      const dayDiff = (todayTs - lastPracticeDay.getTime()) / (1000 * 60 * 60 * 24);
+      let newStreak = 1;
+      if (user?.last_practice_date) {
+        const lastPracticeDay = new Date(user.last_practice_date);
+        lastPracticeDay.setHours(0, 0, 0, 0);
+        const dayDiff = (todayTs - lastPracticeDay.getTime()) / (1000 * 60 * 60 * 24);
 
-      if (dayDiff === 0) {
-        // Same day — keep current streak
-        newStreak = user.streak_current || 1;
-      } else if (dayDiff === 1) {
-        // Consecutive day — increment streak
-        newStreak = (user.streak_current || 0) + 1;
+        if (dayDiff === 0) {
+          newStreak = user.streak_current || 1;
+        } else if (dayDiff === 1) {
+          newStreak = (user.streak_current || 0) + 1;
+        }
       }
-      // else: gap > 1 day, reset to 1
-    }
 
-    const newLongest = Math.max(newStreak, user?.streak_longest || 0);
+      const newLongest = Math.max(newStreak, user?.streak_longest || 0);
 
-    db.prepare(
-      'UPDATE users SET last_active = ?, last_practice_date = ?, streak_current = ?, streak_longest = ? WHERE id = ?',
-    ).run(todayTs, todayTs, newStreak, newLongest, userId);
-  });
+      db.prepare(
+        'UPDATE users SET last_active = ?, last_practice_date = ?, streak_current = ?, streak_longest = ? WHERE id = ?',
+      ).run(todayTs, todayTs, newStreak, newLongest, userId);
+    });
 
-  saveProgress();
+    saveProgress();
+  } catch (error) {
+    logger.error('saveUserProgress failed:', error);
+  }
 }
 
 export async function getUserProgress(
   userId: string,
 ): Promise<{ task_id: string; completed_at: number; attempts: number }[]> {
-  const db = getDb();
-  return db
-    .prepare('SELECT task_id, completed_at, attempts FROM user_progress WHERE user_id = ? ORDER BY completed_at DESC')
-    .all(userId) as { task_id: string; completed_at: number; attempts: number }[];
+  try {
+    const db = getDb();
+    return db
+      .prepare('SELECT task_id, completed_at, attempts FROM user_progress WHERE user_id = ? ORDER BY completed_at DESC')
+      .all(userId) as { task_id: string; completed_at: number; attempts: number }[];
+  } catch (error) {
+    logger.error('getUserProgress failed:', error);
+    return [];
+  }
 }
 
-// Achievements
 export async function getUserAchievements(
   userId: string,
 ): Promise<{ id: string; title: string; description: string; icon: string; earned_at: number }[]> {
-  const db = getDb();
-  return db
-    .prepare(
-      `
-    SELECT a.id, a.title, a.description, a.icon, ua.earned_at
+  try {
+    const db = getDb();
+    return db
+      .prepare(
+        `SELECT a.id, a.title, a.description, a.icon, ua.earned_at
     FROM user_achievements ua
     JOIN achievements a ON ua.achievement_id = a.id
     WHERE ua.user_id = ?
-    ORDER BY ua.earned_at DESC
-  `,
-    )
-    .all(userId) as { id: string; title: string; description: string; icon: string; earned_at: number }[];
+    ORDER BY ua.earned_at DESC`,
+      )
+      .all(userId) as { id: string; title: string; description: string; icon: string; earned_at: number }[];
+  } catch (error) {
+    logger.error('getUserAchievements failed:', error);
+    return [];
+  }
 }
 
 export async function getAchievementDetails(achievementIds: string[]) {
-  const db = getDb();
-  const details: { id: string; title: string; description: string; icon: string }[] = [];
-  for (const id of achievementIds) {
-    const row = db.prepare('SELECT id, title, description, icon FROM achievements WHERE id = ?').get(id) as
-      | { id: string; title: string; description: string; icon: string }
-      | undefined;
-    if (row) details.push(row);
+  try {
+    const db = getDb();
+    const details: { id: string; title: string; description: string; icon: string }[] = [];
+    for (const id of achievementIds) {
+      const row = db.prepare('SELECT id, title, description, icon FROM achievements WHERE id = ?').get(id) as
+        | { id: string; title: string; description: string; icon: string }
+        | undefined;
+      if (row) details.push(row);
+    }
+    return details;
+  } catch (error) {
+    logger.error('getAchievementDetails failed:', error);
+    return [];
   }
-  return details;
 }
 
 export async function checkAndAwardAchievements(userId: string): Promise<string[]> {
-  const db = getDb();
-  const achievements = db.prepare('SELECT id, condition_type, condition_value FROM achievements').all() as {
-    id: string;
-    condition_type: string;
-    condition_value: number;
-  }[];
-  const earned: string[] = [];
-  const existing = db.prepare('SELECT achievement_id FROM user_achievements WHERE user_id = ?').all(userId) as {
-    achievement_id: string;
-  }[];
-  const existingIds = new Set(existing.map((e) => e.achievement_id));
+  try {
+    const db = getDb();
+    const achievements = db.prepare('SELECT id, condition_type, condition_value FROM achievements').all() as {
+      id: string;
+      condition_type: string;
+      condition_value: number;
+    }[];
+    const earned: string[] = [];
+    const existing = db.prepare('SELECT achievement_id FROM user_achievements WHERE user_id = ?').all(userId) as {
+      achievement_id: string;
+    }[];
+    const existingIds = new Set(existing.map((e) => e.achievement_id));
 
-  const progress = db.prepare('SELECT COUNT(*) as count FROM user_progress WHERE user_id = ?').get(userId) as {
-    count: number;
-  };
-  const progressWithOneAttempt = db
-    .prepare('SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND attempts = 1')
-    .get(userId) as { count: number };
-  const beginnerCount = db
-    .prepare("SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND task_id LIKE 'beginner-%'")
-    .get(userId) as { count: number };
-  const intermediateCount = db
-    .prepare("SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND task_id LIKE 'intermediate-%'")
-    .get(userId) as { count: number };
-  const advancedCount = db
-    .prepare("SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND task_id LIKE 'advanced-%'")
-    .get(userId) as { count: number };
+    const progress = db.prepare('SELECT COUNT(*) as count FROM user_progress WHERE user_id = ?').get(userId) as {
+      count: number;
+    };
+    const progressWithOneAttempt = db
+      .prepare('SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND attempts = 1')
+      .get(userId) as { count: number };
+    const beginnerCount = db
+      .prepare("SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND task_id LIKE 'beginner-%'")
+      .get(userId) as { count: number };
+    const intermediateCount = db
+      .prepare("SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND task_id LIKE 'intermediate-%'")
+      .get(userId) as { count: number };
+    const advancedCount = db
+      .prepare("SELECT COUNT(*) as count FROM user_progress WHERE user_id = ? AND task_id LIKE 'advanced-%'")
+      .get(userId) as { count: number };
 
-  // Calculate max streak of first-attempt completions
-  const allProgress = db
-    .prepare('SELECT attempts FROM user_progress WHERE user_id = ? ORDER BY completed_at ASC')
-    .all(userId) as { attempts: number }[];
-  let maxStreak = 0;
-  let currentStreak = 0;
-  for (const row of allProgress) {
-    if (row.attempts === 1) {
-      currentStreak++;
-      maxStreak = Math.max(maxStreak, currentStreak);
-    } else {
-      currentStreak = 0;
+    const allProgress = db
+      .prepare('SELECT attempts FROM user_progress WHERE user_id = ? ORDER BY completed_at ASC')
+      .all(userId) as { attempts: number }[];
+    let maxStreak = 0;
+    let currentStreak = 0;
+    for (const row of allProgress) {
+      if (row.attempts === 1) {
+        currentStreak++;
+        maxStreak = Math.max(maxStreak, currentStreak);
+      } else {
+        currentStreak = 0;
+      }
     }
+
+    const dbTypesUsed = progress.count >= 20 ? 2 : 1;
+
+    for (const achievement of achievements) {
+      if (existingIds.has(achievement.id)) continue;
+
+      let shouldAward = false;
+      switch (achievement.condition_type) {
+        case 'tasks_completed':
+          shouldAward = progress.count >= achievement.condition_value;
+          break;
+        case 'difficulty_completed':
+          if (achievement.id === 'beginner-done') shouldAward = beginnerCount.count >= achievement.condition_value;
+          else if (achievement.id === 'intermediate-done')
+            shouldAward = intermediateCount.count >= achievement.condition_value;
+          else if (achievement.id === 'advanced-done') shouldAward = advancedCount.count >= achievement.condition_value;
+          break;
+        case 'single_attempt':
+          shouldAward = progressWithOneAttempt.count >= 1;
+          break;
+        case 'streak_perfect':
+          shouldAward = maxStreak >= achievement.condition_value;
+          break;
+        case 'db_types_used':
+          shouldAward = dbTypesUsed >= achievement.condition_value;
+          break;
+      }
+
+      if (shouldAward) {
+        db.prepare('INSERT INTO user_achievements (user_id, achievement_id, earned_at) VALUES (?, ?, ?)').run(
+          userId,
+          achievement.id,
+          Date.now(),
+        );
+        earned.push(achievement.id);
+      }
+    }
+
+    return earned;
+  } catch (error) {
+    logger.error('checkAndAwardAchievements failed:', error);
+    return [];
   }
-
-  // Count distinct DB types used.
-  // Note: All training tasks are SQLite; the DB type toggle is client-side (Zustand store).
-  // Until client-side DB type usage is synced to the server, use a task-count proxy.
-  const dbTypesUsed = progress.count >= 20 ? 2 : 1;
-
-  for (const achievement of achievements) {
-    if (existingIds.has(achievement.id)) continue;
-
-    let shouldAward = false;
-    switch (achievement.condition_type) {
-      case 'tasks_completed':
-        shouldAward = progress.count >= achievement.condition_value;
-        break;
-      case 'difficulty_completed':
-        // Map condition_value to actual difficulty counts
-        if (achievement.id === 'beginner-done') shouldAward = beginnerCount.count >= achievement.condition_value;
-        else if (achievement.id === 'intermediate-done')
-          shouldAward = intermediateCount.count >= achievement.condition_value;
-        else if (achievement.id === 'advanced-done') shouldAward = advancedCount.count >= achievement.condition_value;
-        break;
-      case 'single_attempt':
-        shouldAward = progressWithOneAttempt.count >= 1;
-        break;
-      case 'streak_perfect':
-        shouldAward = maxStreak >= achievement.condition_value;
-        break;
-      case 'db_types_used':
-        shouldAward = dbTypesUsed >= achievement.condition_value;
-        break;
-    }
-
-    if (shouldAward) {
-      db.prepare('INSERT INTO user_achievements (user_id, achievement_id, earned_at) VALUES (?, ?, ?)').run(
-        userId,
-        achievement.id,
-        Date.now(),
-      );
-      earned.push(achievement.id);
-    }
-  }
-
-  return earned;
 }
 
 // Leaderboard
