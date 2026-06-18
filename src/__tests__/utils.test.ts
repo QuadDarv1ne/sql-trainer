@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { plural } from '@/lib/utils';
 
 describe('plural', () => {
-  describe('Russian plural rules', () => {
+  describe('Russian-style plural rules (one/few/many)', () => {
     const forms = { one: 'задача', few: 'задачи', many: 'задач' };
 
     it('should use "one" form for numbers ending in 1 (except 11)', () => {
