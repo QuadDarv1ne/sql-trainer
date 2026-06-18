@@ -7,7 +7,7 @@
 - [x] 1. Remove blanket `eslint-disable` from `db-users.ts`, fix all hidden warnings
 - [ ] 2. Split `db-users.ts` (10K+ lines) into focused modules under `src/lib/db/`
 - [ ] 3. Split `i18n.ts` (327KB) into `src/locales/{ru,en}.json` with lazy loading
-- [ ] 4. Add `act()` wrappers to `student-dashboard.test.tsx` and `use-analytics-query.test.ts` to eliminate React warnings
+- [x] 4. Add `act()` wrappers to `student-dashboard.test.tsx` and `use-analytics-query.test.ts` to eliminate React warnings
 - [ ] 5. Add unit tests for `db/` modules after split (target: +50 tests)
 - [ ] 6. Create `CONTRIBUTING.md` with setup, code style, and PR guidelines
 - [ ] 7. Add Zod validation to all unprotected API routes (currently ~100+ endpoints)
@@ -22,7 +22,7 @@
 | 1 | Remove blanket eslint-disable | Done | 2026-06-18 |
 | 2 | Split db-users.ts | Pending | |
 | 3 | Split i18n.ts | Pending | |
-| 4 | Fix React act() warnings in tests | Pending | |
+| 4 | Fix React act() warnings in tests | Done | 2026-06-18 |
 | 5 | Add db/ module tests | Pending | |
 | 6 | CONTRIBUTING.md | Pending | |
 | 7 | Zod validation for API routes | Pending | |
