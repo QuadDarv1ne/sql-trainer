@@ -3,7 +3,6 @@
  * Separate from the in-memory training database.
  * Uses a singleton connection to avoid SQLITE_BUSY during concurrent access.
  */
-/* eslint-disable @typescript-eslint/no-unused-vars -- catch blocks for expected errors */
 import Database from 'better-sqlite3';
 import bcrypt from 'bcryptjs';
 import path from 'path';

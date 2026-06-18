@@ -139,7 +139,7 @@ describe('StudentDashboard', () => {
     render(<StudentDashboard />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Добро пожаловать/i)).toBeTruthy();
+      expect(screen.getByText(/Welcome/i)).toBeTruthy();
     });
 
     // Welcome text includes the user name
@@ -155,8 +155,8 @@ describe('StudentDashboard', () => {
     render(<StudentDashboard />);
 
     await waitFor(() => {
-      // Use getAllByText since "Рекомендации" appears in subtitle and card title
-      const recElements = screen.getAllByText(/Рекомендации/i);
+      // Use getAllByText since "Recommendations" appears in subtitle and card title
+      const recElements = screen.getAllByText(/Recommendations/i);
       expect(recElements.length).toBeGreaterThan(0);
     });
 
@@ -168,7 +168,7 @@ describe('StudentDashboard', () => {
     render(<StudentDashboard />);
 
     await waitFor(() => {
-      const reminderCards = screen.getAllByText(/Напоминания/i);
+      const reminderCards = screen.getAllByText(/Reminders/i);
       expect(reminderCards.length).toBeGreaterThan(0);
     });
 
@@ -193,7 +193,7 @@ describe('StudentDashboard', () => {
     render(<StudentDashboard />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Не удалось загрузить данные/i)).toBeTruthy();
+      expect(screen.getByText(/Failed to load data/i)).toBeTruthy();
     });
   });
 
@@ -201,11 +201,11 @@ describe('StudentDashboard', () => {
     render(<StudentDashboard />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Добро пожаловать/i)).toBeTruthy();
+      expect(screen.getByText(/Welcome/i)).toBeTruthy();
     });
 
     // The "Start task" button should be present
-    const startButton = screen.getByRole('button', { name: /Начать задачу/i });
+    const startButton = screen.getByRole('button', { name: /Start task/i });
     expect(startButton).toBeTruthy();
   });
 });

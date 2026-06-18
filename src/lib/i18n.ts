@@ -6194,7 +6194,7 @@ export const translations: Record<Locale, Record<string, string>> = {
 };
 
 // Current locale (can be persisted in localStorage)
-let currentLocale: Locale = 'ru';
+let currentLocale: Locale = 'en';
 
 export function setLocale(locale: Locale) {
   currentLocale = locale;
@@ -6216,7 +6216,7 @@ export function getLocale(): Locale {
 
 export function t(key: string, params?: Record<string, string> & { default?: string }): string {
   const { default: defaultVal, ...restParams } = params || {};
-  let value = translations[currentLocale]?.[key] || translations.ru[key] || defaultVal || key;
+  let value = translations[currentLocale]?.[key] || defaultVal || translations.ru[key] || key;
   if (restParams) {
     Object.entries(restParams).forEach(([k, v]) => {
       value = value.replace(`{${k}}`, v);
@@ -6235,7 +6235,7 @@ export function tWithLocale(
   params?: Record<string, string> & { default?: string },
 ): string {
   const { default: defaultVal, ...restParams } = params || {};
-  let value = translations[locale]?.[key] || translations.ru[key] || defaultVal || key;
+  let value = translations[locale]?.[key] || defaultVal || translations.ru[key] || key;
   if (restParams) {
     Object.entries(restParams).forEach(([k, v]) => {
       value = value.replace(`{${k}}`, v);
