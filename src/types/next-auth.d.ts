@@ -1,5 +1,4 @@
 import type { UserRole } from '@/lib/db-users';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Module augmentation requires the import
 import type _NextAuth from 'next-auth';
 
 declare module 'next-auth' {

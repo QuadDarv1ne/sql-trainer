@@ -396,7 +396,7 @@ function seedAchievements(db: Database.Database): void {
   });
   try {
     insertMany(ACHIEVEMENTS);
-  } catch (_err: unknown) {
+  } catch {
     // Race condition during parallel build — achievements already seeded
     logger.debug('Achievements already seeded, skipping');
   }
@@ -1476,7 +1476,7 @@ export function getDBStats(): DBStats {
   let dbSizeBytes = 0;
   try {
     dbSizeBytes = fs.statSync(DB_PATH()).size;
-  } catch (_err: unknown) {
+  } catch {
     // File doesn't exist yet
     logger.debug('Database file does not exist yet, size is 0');
   }
@@ -2222,7 +2222,7 @@ export interface DifficultyComparisonEntry {
 export function getDifficultyComparison(filters?: TimeRangeFilters): DifficultyComparisonEntry[] {
   const db = getDb();
   const difficulties = ['beginner', 'intermediate', 'advanced'];
-  const totalTasksByDifficulty: Record<string, number> = {
+  const _totalTasksByDifficulty: Record<string, number> = {
     beginner: 8,
     intermediate: 15,
     advanced: 25,
@@ -2351,7 +2351,7 @@ export function generateStudentAlerts(filters?: TimeRangeFilters): StudentAlert[
   const alerts: StudentAlert[] = [];
   const now = Date.now();
   const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
-  const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+  const _thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
   const totalTasks = TRAINING_TASKS.length;
 
   // Single query: fetch all student data with progress and last activity
@@ -3470,22 +3470,22 @@ export interface FunnelStage {
 
 export function getTaskCompletionFunnel(filters?: TimeRangeFilters): FunnelStage[] {
   const db = getDb();
-  const difficulties = [
+  const _difficulties = [
     { key: 'beginner', tasks: 8 },
     { key: 'intermediate', tasks: 23 },
     { key: 'advanced', tasks: 25 },
   ];
-  const analyticsDifficulties = [
+  const _analyticsDifficulties = [
     { prefix: 'analytics-b', tasks: 5 },
     { prefix: 'analytics-i', tasks: 5 },
     { prefix: 'analytics-a', tasks: 5 },
   ];
-  const shopDifficulties = [
+  const _shopDifficulties = [
     { prefix: 'shop-b', tasks: 7 },
     { prefix: 'shop-i', tasks: 6 },
     { prefix: 'shop-a', tasks: 6 },
   ];
-  const examDifficulties = [
+  const _examDifficulties = [
     { prefix: 'exam-b', tasks: 5 },
     { prefix: 'exam-i', tasks: 5 },
     { prefix: 'exam-a', tasks: 5 },
@@ -3961,7 +3961,7 @@ export function notifyGroupMembers(
   channel: 'email' | 'in_app',
   actorId: string,
 ): GroupNotificationResult {
-  const db = getDb();
+  const _db = getDb();
   const members = getGroupMembers(groupId);
   const result: GroupNotificationResult = { total: members.length, queued: 0, failed: 0, errors: [] };
 
@@ -4796,7 +4796,7 @@ export function getSystemHealth(): SystemHealth {
     let walSize = 0;
     try {
       walSize = fs.statSync(walPath).size;
-    } catch (_err: unknown) {
+    } catch {
       walSize = 0;
       logger.debug('WAL file does not exist, size is 0');
     }
@@ -5417,7 +5417,7 @@ export interface DailyPatternEntry {
 }
 
 export function getLearningTimePatterns(
-  days: number = 30,
+  _days: number = 30,
   filters?: TimeRangeFilters,
 ): {
   hourly: HourlyActivityEntry[];
@@ -6005,7 +6005,7 @@ export function getBottleneckAnalysis(filters?: TimeRangeFilters): BottleneckEnt
   }[];
 
   // For drop-off: for each task, find how many completed prior tasks but not this one
-  const totalStudents = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'student'").get() as {
+  const _totalStudents = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'student'").get() as {
     count: number;
   };
 
@@ -6019,10 +6019,10 @@ export function getBottleneckAnalysis(filters?: TimeRangeFilters): BottleneckEnt
         : task.task_id.startsWith('intermediate-')
           ? 'intermediate'
           : 'advanced';
-      const diffLevel = difficultyOrder[difficulty];
+      const _diffLevel = difficultyOrder[difficulty];
 
       // Students who completed at least one task of same or lower difficulty but not this one
-      const priorPattern =
+      const _priorPattern =
         difficulty === 'beginner'
           ? 'beginner-%'
           : difficulty === 'intermediate'
@@ -6047,7 +6047,7 @@ export function getBottleneckAnalysis(filters?: TimeRangeFilters): BottleneckEnt
           : 0;
 
       // Subsequent task completion: % of students who completed this task and also completed at least one harder task
-      const subsequentPattern =
+      const _subsequentPattern =
         difficulty === 'beginner'
           ? '(intermediate-% OR advanced-%)'
           : difficulty === 'intermediate'
@@ -6117,7 +6117,7 @@ export interface PeerComparisonEntry {
   velocity: number;
 }
 
-export function getPeerComparisonMatrix(filters?: TimeRangeFilters): PeerComparisonEntry[] {
+export function getPeerComparisonMatrix(_filters?: TimeRangeFilters): PeerComparisonEntry[] {
   const db = getDb();
   const now = Date.now();
   const dayMs = 24 * 60 * 60 * 1000;
@@ -6212,7 +6212,7 @@ export interface CategoryPerformanceEntry {
 
 export function getTaskCategoryPerformance(filters?: TimeRangeFilters): CategoryPerformanceEntry[] {
   const db = getDb();
-  const totalTasks = TRAINING_TASKS.length;
+  const _totalTasks = TRAINING_TASKS.length;
 
   const categories = [
     { key: 'company', label: 'Company', prefixes: ['beginner-', 'intermediate-', 'advanced-'], count: 8 + 15 + 25 },
@@ -6429,7 +6429,7 @@ export function getHintImpactAnalysis(filters?: TimeRangeFilters): HintImpactEnt
 
   // Check if hint_usage table exists
   const tables = db.pragma('table_list') as { name: string }[];
-  const hasHintTable = tables.some((t) => t.name === 'hint_usage');
+  const _hasHintTable = tables.some((t) => t.name === 'hint_usage');
 
   let baseDateCondition = '';
   const baseDateParams: unknown[] = [];
@@ -6941,7 +6941,7 @@ export interface StreakAnalyticsReport {
   };
 }
 
-export function getStreakAnalytics(filters?: TimeRangeFilters): StreakAnalyticsReport {
+export function getStreakAnalytics(_filters?: TimeRangeFilters): StreakAnalyticsReport {
   const db = getDb();
 
   const students = db
@@ -8336,7 +8336,7 @@ export function generateLearningPlan(userId: string): {
 
   const velocity = recentProgress.count || 1; // At least 1 task/week estimate
   const remainingTasks = remainingByDiff.length;
-  const estimatedWeeks = Math.ceil(remainingTasks / velocity);
+  const _estimatedWeeks = Math.ceil(remainingTasks / velocity);
 
   // Recommend next 5 tasks based on weak areas
   const nextTasks: Array<{ task_id: string; task_title: string; difficulty: string; estimated_hours: number }> = [];
@@ -8972,8 +8972,8 @@ export function getTopicMastery(): {
 export function getExecutiveSummary(filters?: TimeRangeFilters) {
   const db = getDb();
   const hasDateFilters = !!(filters?.start_date && filters?.end_date);
-  const dateFilter = hasDateFilters ? 'WHERE created_at >= ? AND created_at <= ?' : '';
-  const progressDateFilter = hasDateFilters ? 'WHERE completed_at >= ? AND completed_at <= ?' : '';
+  const _dateFilter = hasDateFilters ? 'WHERE created_at >= ? AND created_at <= ?' : '';
+  const _progressDateFilter = hasDateFilters ? 'WHERE completed_at >= ? AND completed_at <= ?' : '';
   const prevStart =
     hasDateFilters && filters
       ? (() => {
@@ -9029,7 +9029,7 @@ export function getExecutiveSummary(filters?: TimeRangeFilters) {
   }
 
   // Grade distribution
-  const totalTasks = db.prepare(`SELECT COUNT(*) as count FROM user_progress`).get() as { count: number };
+  const _totalTasks = db.prepare(`SELECT COUNT(*) as count FROM user_progress`).get() as { count: number };
   const studentsWithProgress = db.prepare(`SELECT COUNT(DISTINCT user_id) as count FROM user_progress`).get() as {
     count: number;
   };
