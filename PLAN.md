@@ -12,7 +12,7 @@
 - [x] 6. Create `CONTRIBUTING.md` with setup, code style, and PR guidelines
 - [x] 7. Add Zod validation to all unprotected API routes (currently ~100+ endpoints)
 - [ ] 8. Implement Redis-backed rate limiting for auth endpoints (replace in-memory)
-- [ ] 9. Add OpenAPI/Swagger docs for core API endpoints (`/api/sql/verify`, `/api/user/progress`)
+- [x] 9. Add OpenAPI/Swagger docs for core API endpoints (`/api/sql/verify`, `/api/user/progress`)
 - [x] 10. Add Firefox + WebKit to Playwright config, write 3 new E2E scenarios
 
 ## Progress
@@ -27,5 +27,5 @@
 | 6 | CONTRIBUTING.md | Done | 2026-06-18 |
 | 7 | Zod validation for API routes | Done | 2026-06-18 |
 | 8 | Redis rate limiter integration | Pending | |
-| 9 | OpenAPI docs | Pending | |
+| 9 | OpenAPI docs | Done | 2026-06-18 |
 | 10 | Multi-browser E2E | Done | 2026-06-18 |
