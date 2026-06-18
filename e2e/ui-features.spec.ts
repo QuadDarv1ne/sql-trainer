@@ -4,7 +4,7 @@ test.describe('Navigation and theme', () => {
   test('landing page shows main UI elements', async ({ page }) => {
     await page.goto('/');
     // Welcome text or app title
-    await expect(page.getByText(/SQL|Тренажёр|Trainer/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/SQL|Trainer/i)).toBeVisible({ timeout: 10000 });
     // CodeMirror editor should be present
     await expect(page.locator('.cm-content').first()).toBeVisible();
   });
@@ -12,7 +12,7 @@ test.describe('Navigation and theme', () => {
   test('dark/light theme toggle works', async ({ page }) => {
     await page.goto('/');
     // Find theme toggle button (sun/moon icon or "theme" text)
-    const themeButton = page.getByRole('button', { name: /theme|тема/i });
+    const themeButton = page.getByRole('button', { name: /theme/i });
     if (await themeButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       const htmlBefore = await page.locator('html').getAttribute('class');
       await themeButton.click();
@@ -58,7 +58,7 @@ test.describe('Export functionality', () => {
     await expect(page.getByText('1')).toBeVisible({ timeout: 10000 });
 
     // Look for export button
-    const exportButton = page.getByRole('button', { name: /export|экспорт/i });
+    const exportButton = page.getByRole('button', { name: /export/i });
     if (await exportButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await exportButton.click();
       // CSV or JSON option should appear
