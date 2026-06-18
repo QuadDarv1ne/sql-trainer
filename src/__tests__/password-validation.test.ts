@@ -8,18 +8,18 @@ describe('Password validation constraints', () => {
   // Recreate schemas to test validation rules
   const registerPasswordSchema = z
     .string()
-    .min(8, 'Пароль должен содержать минимум 8 символов')
-    .max(128, 'Пароль слишком длинный (максимум 128 символов)');
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password is too long (max 128 characters)');
 
   const resetPasswordSchema = z
     .string()
-    .min(8, 'Пароль должен содержать минимум 8 символов')
-    .max(128, 'Пароль слишком длинный (максимум 128 символов)');
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password is too long (max 128 characters)');
 
   const changePasswordSchema = z
     .string()
-    .min(8, 'Пароль должен содержать минимум 8 символов')
-    .max(128, 'Пароль слишком длинный (максимум 128 символов)');
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password is too long (max 128 characters)');
 
   const adminPasswordSchema = z
     .string()
@@ -86,15 +86,15 @@ describe('Password validation constraints', () => {
   });
 
   describe('error messages', () => {
-    it('returns Russian error message for register schema', () => {
+    it('returns correct min-length error message', () => {
       const shortResult = registerPasswordSchema.safeParse('short');
       expect(shortResult.success).toBe(false);
       if (!shortResult.success) {
-        expect(shortResult.error.issues[0].message).toContain('8 символов');
+        expect(shortResult.error.issues[0].message).toContain('8 characters');
       }
     });
 
-    it('returns English error message for admin schema', () => {
+    it('returns consistent error messages across schemas', () => {
       const shortResult = adminPasswordSchema.safeParse('short');
       expect(shortResult.success).toBe(false);
       if (!shortResult.success) {
