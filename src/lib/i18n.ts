@@ -593,6 +593,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'error.description': 'Произошла ошибка при загрузке страницы. Попробуйте обновить страницу.',
     'error.retry': 'Попробовать снова',
 
+    'notFound.title': 'Страница не найдена',
+    'notFound.description': 'Запрашиваемая страница не существует или была перемещена.',
+    'notFound.home': 'На главную',
+
     // Admin
     'admin.title': 'Панель администратора',
     'admin.tabs.overview': 'Обзор',
@@ -2668,6 +2672,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'error.description': 'An error occurred loading the page. Try refreshing.',
     'error.retry': 'Try again',
 
+    'notFound.title': 'Page not found',
+    'notFound.description': 'The requested page does not exist or has been moved.',
+    'notFound.home': 'Go home',
+
     // Admin
     'admin.title': 'Admin Panel',
     'admin.tabs.overview': 'Overview',
@@ -4719,6 +4727,10 @@ export const translations: Record<Locale, Record<string, string>> = {
     'error.title': '出了点问题',
     'error.description': '页面加载时发生错误。请尝试刷新。',
     'error.retry': '重试',
+
+    'notFound.title': '页面未找到',
+    'notFound.description': '请求的页面不存在或已被移动。',
+    'notFound.home': '返回首页',
 
     // Admin
     'admin.title': '管理面板',
