@@ -13,7 +13,7 @@
 - [ ] 7. Add Zod validation to all unprotected API routes (currently ~100+ endpoints)
 - [ ] 8. Implement Redis-backed rate limiting for auth endpoints (replace in-memory)
 - [ ] 9. Add OpenAPI/Swagger docs for core API endpoints (`/api/sql/verify`, `/api/user/progress`)
-- [ ] 10. Add Firefox + WebKit to Playwright config, write 3 new E2E scenarios
+- [x] 10. Add Firefox + WebKit to Playwright config, write 3 new E2E scenarios
 
 ## Progress
 
@@ -28,4 +28,4 @@
 | 7 | Zod validation for API routes | Pending | |
 | 8 | Redis rate limiter integration | Pending | |
 | 9 | OpenAPI docs | Pending | |
-| 10 | Multi-browser E2E | Pending | |
+| 10 | Multi-browser E2E | Done | 2026-06-18 |
