@@ -1,6 +1,6 @@
 import type { Mock } from 'vitest';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
 import StudentDashboard from '@/components/student/student-dashboard';
 import { useSQLTrainerStore } from '@/lib/store';
@@ -128,7 +128,9 @@ describe('StudentDashboard', () => {
     // Make fetch pending to show loading
     mockFetch.mockReturnValue(new Promise(() => {}));
 
-    render(<StudentDashboard />);
+    act(() => {
+      render(<StudentDashboard />);
+    });
 
     // Spinner element with animate-spin class
     const spinner = document.querySelector('.animate-spin');
