@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Check if better-sqlite3 native bindings are available before test collection
 const sqliteAvailable = vi.hoisted(() => {
@@ -128,9 +128,12 @@ vi.mock('@/lib/training-tasks', () => ({
 
 describeIf('POST /api/sql/verify', () => {
   let mockRequest: NextRequest;
+  let POST: (req: NextRequest) => Promise<NextResponse>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    const mod = await import('@/app/api/sql/verify/route');
+    POST = mod.POST;
   });
 
   afterEach(() => {
@@ -139,8 +142,6 @@ describeIf('POST /api/sql/verify', () => {
 
   describe('Validation', () => {
     it('should reject empty SQL', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({ sql: '', taskId: 'task-001' }),
@@ -155,8 +156,6 @@ describeIf('POST /api/sql/verify', () => {
     });
 
     it('should reject missing taskId', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({ sql: 'SELECT 1' }),
@@ -171,8 +170,6 @@ describeIf('POST /api/sql/verify', () => {
     });
 
     it('should reject SQL that is too long', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({ sql: 'SELECT '.repeat(2000), taskId: 'task-001' }),
@@ -189,8 +186,6 @@ describeIf('POST /api/sql/verify', () => {
 
   describe('Task not found', () => {
     it('should return 404 for non-existent task', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({ sql: 'SELECT 1', taskId: 'non-existent-task' }),
@@ -208,8 +203,6 @@ describeIf('POST /api/sql/verify', () => {
 
   describe('Successful verification', () => {
     it('should verify correct SELECT query', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -230,8 +223,6 @@ describeIf('POST /api/sql/verify', () => {
     });
 
     it('should verify SELECT with different column order', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -249,8 +240,6 @@ describeIf('POST /api/sql/verify', () => {
     });
 
     it('should verify SELECT with ORDER BY', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -270,8 +259,6 @@ describeIf('POST /api/sql/verify', () => {
 
   describe('Failed verification', () => {
     it('should reject incorrect WHERE clause', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -291,8 +278,6 @@ describeIf('POST /api/sql/verify', () => {
     });
 
     it('should reject query with wrong columns', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -311,8 +296,6 @@ describeIf('POST /api/sql/verify', () => {
     });
 
     it('should reject query returning 0 rows', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -334,8 +317,6 @@ describeIf('POST /api/sql/verify', () => {
 
   describe('SQL error handling', () => {
     it('should handle SQL syntax errors', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -354,8 +335,6 @@ describeIf('POST /api/sql/verify', () => {
     });
 
     it('should handle invalid table name', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -376,8 +355,6 @@ describeIf('POST /api/sql/verify', () => {
 
   describe('DML queries (INSERT/UPDATE/DELETE)', () => {
     it('should verify INSERT statement with SELECT', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -395,8 +372,6 @@ describeIf('POST /api/sql/verify', () => {
     });
 
     it('should handle multi-statement query with DML and SELECT', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -419,8 +394,6 @@ describeIf('POST /api/sql/verify', () => {
 
   describe('MongoDB queries', () => {
     it('should verify MongoDB query', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -439,8 +412,6 @@ describeIf('POST /api/sql/verify', () => {
     });
 
     it('should verify MongoDB query with filter', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -460,8 +431,6 @@ describeIf('POST /api/sql/verify', () => {
 
   describe('dbType override', () => {
     it('should use dbType from request body', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -483,8 +452,6 @@ describeIf('POST /api/sql/verify', () => {
 
   describe('Edge cases', () => {
     it('should handle query with comments', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({
@@ -505,8 +472,6 @@ describeIf('POST /api/sql/verify', () => {
     });
 
     it('should handle query with extra whitespace', async () => {
-      const { POST } = await import('@/app/api/sql/verify/route');
-
       mockRequest = new NextRequest('http://localhost:3000/api/sql/verify', {
         method: 'POST',
         body: JSON.stringify({

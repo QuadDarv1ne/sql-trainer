@@ -22,7 +22,7 @@ export interface TimeRangeFilters {
 }
 
 function getDbPath(): string {
-  return process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'users.db');
+  return process.env.DATABASE_PATH || path.join(/*turbopackIgnore: true*/ process.cwd(), 'data', 'users.db');
 }
 
 let _dbPath: string | null = null;
