@@ -195,7 +195,7 @@ describe('executeMongoQuery - aggregate()', () => {
       schemaWithRelation,
     );
     expect(result.success).toBe(true);
-    expect(result.rows[0].user[0].name).toBe('Alice');
+    expect((result.rows[0].user as Record<string, unknown>[])[0].name).toBe('Alice');
   });
 
   it('supports combined match and sort', () => {
