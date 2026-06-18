@@ -2,6 +2,15 @@ import { withAdminAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db-users';
 import { logger } from '@/lib/logger';
+import { validateBody } from '@/lib/validation';
+import { z } from 'zod';
+
+const scheduledExportSchema = z.object({
+  reportType: z.string().min(1, 'reportType is required'),
+  format: z.enum(['csv', 'json']).default('csv'),
+  schedule: z.enum(['daily', 'weekly', 'monthly']).default('weekly'),
+  emailRecipients: z.array(z.string().email()).default([]),
+});
 
 export const GET = withAdminAuth(async () => {
   const db = getDb();
@@ -80,15 +89,10 @@ export const POST = withAdminAuth(async ({ session, request }) => {
   } catch {
     return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
   }
-  const { reportType, format = 'csv', schedule = 'weekly', emailRecipients = [] } = body as Record<string, unknown>;
+  const parsed = validateBody(body, scheduledExportSchema);
+  if ('response' in parsed) return parsed.response;
 
-  if (!reportType) {
-    return NextResponse.json({ error: 'reportType is required' }, { status: 400 });
-  }
-
-  if (!Array.isArray(emailRecipients)) {
-    return NextResponse.json({ error: 'emailRecipients must be an array' }, { status: 400 });
-  }
+  const { reportType, format, schedule, emailRecipients } = parsed.data;
 
   const id = `sr_${Date.now()}_${globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 8)}`;
   const now = Date.now();

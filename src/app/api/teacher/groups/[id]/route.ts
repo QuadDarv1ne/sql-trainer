@@ -2,6 +2,13 @@ import { withTeacherAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { getGroupById, updateGroup, deleteGroup, getGroupMembers } from '@/lib/db-users';
+import { validateBody } from '@/lib/validation';
+import { z } from 'zod';
+
+const updateGroupSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  description: z.string().max(500).optional(),
+});
 
 export const GET = withTeacherAuth(async ({ session, request }) => {
   try {
@@ -48,11 +55,14 @@ export const PATCH = withTeacherAuth(async ({ session, request }) => {
     }
 
     const body = await request.json();
+    const parsed = validateBody(body, updateGroupSchema);
+    if ('response' in parsed) return parsed.response;
+
     const group = updateGroup(
       id,
       {
-        name: body.name?.trim(),
-        description: body.description?.trim(),
+        name: parsed.data.name?.trim(),
+        description: parsed.data.description?.trim(),
       },
       session.user.id,
     );

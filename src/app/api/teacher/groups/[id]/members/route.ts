@@ -2,6 +2,12 @@ import { withTeacherAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { getGroupById, addGroupMembers, removeGroupMember, getGroupMembers } from '@/lib/db-users';
+import { validateBody } from '@/lib/validation';
+import { z } from 'zod';
+
+const addMembersSchema = z.object({
+  userIds: z.array(z.string()).min(1, 'userIds array is required'),
+});
 
 export const POST = withTeacherAuth(async ({ session, request }) => {
   try {
@@ -22,13 +28,10 @@ export const POST = withTeacherAuth(async ({ session, request }) => {
     }
 
     const body = await request.json();
-    const { userIds } = body;
+    const parsed = validateBody(body, addMembersSchema);
+    if ('response' in parsed) return parsed.response;
 
-    if (!Array.isArray(userIds) || userIds.length === 0) {
-      return NextResponse.json({ success: false, error: 'userIds array is required' }, { status: 400 });
-    }
-
-    const added = addGroupMembers(groupId, userIds, session.user.id);
+    const added = addGroupMembers(groupId, parsed.data.userIds, session.user.id);
     const members = getGroupMembers(groupId);
 
     return NextResponse.json({ success: true, added, members });
