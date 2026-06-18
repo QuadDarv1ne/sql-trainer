@@ -52,7 +52,7 @@ export const MYSQL_TASKS: TrainingTask[] = [
       'For each employee display first_name, salary and category: "High" if salary > 130000, otherwise "Regular". Use IF(salary > 130000, "High", "Regular").',
     hint: 'MySQL IF(condition, true_val, false_val) — compact form of CASE WHEN for two options.',
     sampleSolution:
-      "SELECT first_name, salary, IF(salary > 130000, 'Высокая', 'Обычная') as salary_category FROM employees ORDER BY salary DESC;",
+      "SELECT first_name, salary, IF(salary > 130000, 'High', 'Regular') as salary_category FROM employees ORDER BY salary DESC;",
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
   },
 
@@ -132,7 +132,7 @@ export const MYSQL_TASKS: TrainingTask[] = [
       'Insert a new employee: first_name="Test", last_name="Testov", email="test@company.ru", department_id=1, salary=100000, hire_date="2024-01-01". If the email already exists, update salary to 150000. Use ON DUPLICATE KEY UPDATE.',
     hint: 'INSERT INTO ... VALUES (...) ON DUPLICATE KEY UPDATE salary=150000 — MySQL equivalent of PostgreSQL UPSERT.',
     sampleSolution:
-      "INSERT INTO employees (first_name, last_name, email, department_id, salary, hire_date) VALUES ('Тест', 'Тестов', 'test@company.ru', 1, 100000, '2024-01-01') ON DUPLICATE KEY UPDATE salary = 150000;",
+      "INSERT INTO employees (first_name, last_name, email, department_id, salary, hire_date) VALUES ('Test', 'Testov', 'test@company.ru', 1, 100000, '2024-01-01') ON DUPLICATE KEY UPDATE salary = 150000;",
     verificationQuery: "SELECT COUNT(*) as count FROM employees WHERE email = 'test@company.ru';",
   },
 
@@ -148,7 +148,7 @@ export const MYSQL_TASKS: TrainingTask[] = [
       'Insert an employee with email="test@company.ru". On conflict, update salary to the value you tried to insert. Use VALUES(salary) to reference the new value.',
     hint: 'VALUES(col) inside ON DUPLICATE KEY UPDATE returns the value that was attempted to be inserted.',
     sampleSolution:
-      "INSERT INTO employees (first_name, last_name, email, department_id, salary, hire_date) VALUES ('Новый', 'Сотрудник', 'test@company.ru', 1, 120000, '2024-06-01') ON DUPLICATE KEY UPDATE salary = VALUES(salary);",
+      "INSERT INTO employees (first_name, last_name, email, department_id, salary, hire_date) VALUES ('New', 'Employee', 'test@company.ru', 1, 120000, '2024-06-01') ON DUPLICATE KEY UPDATE salary = VALUES(salary);",
     verificationQuery: "SELECT COUNT(*) as count FROM employees WHERE email = 'test@company.ru';",
   },
 
@@ -163,7 +163,7 @@ export const MYSQL_TASKS: TrainingTask[] = [
     taskText:
       'Use REPLACE INTO to insert a category: name="Toys", description="Kids products". If a category with this unique key exists, it will be deleted and re-inserted.',
     hint: 'REPLACE INTO works like INSERT, but on unique key conflict it deletes the old row and inserts a new one.',
-    sampleSolution: "REPLACE INTO categories (name, description) VALUES ('Игрушки', 'Детские товары');",
+    sampleSolution: "REPLACE INTO categories (name, description) VALUES ('Toys', 'Kids products');",
     verificationQuery: 'SELECT COUNT(*) as count FROM categories;',
   },
 
@@ -179,7 +179,7 @@ export const MYSQL_TASKS: TrainingTask[] = [
       'Imagine the orders table has a shipping_city column with comma-separated values. Find all orders where shipping_city contains "Moscow". Use FIND_IN_SET("Moscow", shipping_city).',
     hint: 'FIND_IN_SET(str, str_list) returns the position of str in a comma-separated list, or 0 if not found.',
     sampleSolution:
-      "SELECT id, shipping_city FROM orders WHERE FIND_IN_SET(shipping_city, 'Москва,Санкт-Петербург') > 0;",
+      "SELECT id, shipping_city FROM orders WHERE FIND_IN_SET(shipping_city, 'Moscow,Saint Petersburg') > 0;",
     verificationQuery: 'SELECT COUNT(*) as count FROM orders;',
   },
 
@@ -257,8 +257,7 @@ export const MYSQL_TASKS: TrainingTask[] = [
     schema: SHOP_SCHEMA,
     taskText: 'Find products whose name starts with a vowel (A, E, I, O, U). Use REGEXP_LIKE(name, "^[AEIOUaeiou]").',
     hint: 'MySQL REGEXP_LIKE(string, pattern) checks matching a regular expression. ^ — start of string, [...] — character set.',
-    sampleSolution:
-      "SELECT name FROM products WHERE REGEXP_LIKE(name, '^[AEIOUАЕЁИОУЫЭЮЯaeiouаеёиоуыэюя]') ORDER BY name;",
+    sampleSolution: "SELECT name FROM products WHERE REGEXP_LIKE(name, '^[AEIOUaeiou]') ORDER BY name;",
     verificationQuery: 'SELECT COUNT(*) as count FROM products;',
   },
 
@@ -288,7 +287,7 @@ export const MYSQL_TASKS: TrainingTask[] = [
     schema: SHOP_SCHEMA,
     taskText: 'Update all orders without a status (NULL): set status = "Not specified". Use WHERE status IS NULL.',
     hint: 'WHERE status IS NULL finds rows with NULL value.',
-    sampleSolution: "UPDATE orders SET status = 'Не указан' WHERE status IS NULL;",
-    verificationQuery: 'SELECT COUNT(*) as count FROM orders WHERE status = "Не указан";',
+    sampleSolution: "UPDATE orders SET status = 'Not specified' WHERE status IS NULL;",
+    verificationQuery: 'SELECT COUNT(*) as count FROM orders WHERE status = "Not specified";',
   },
 ];
