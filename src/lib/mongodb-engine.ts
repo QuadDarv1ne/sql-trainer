@@ -29,7 +29,7 @@ function parseMongoQuery(
     if (Array.isArray(parsed)) {
       return { type: 'aggregate', collection: '', options: parsed };
     }
-    return { type: 'find', collection: '', options: parsed };
+    return { type: 'find', collection: '', options: { query: parsed } };
   } catch {
     // Try parsing as MongoDB shell syntax
     // Pattern: db.collection.find({...}) or db.collection.aggregate([{...}])
@@ -38,7 +38,7 @@ function parseMongoQuery(
       const [, collection, queryPart] = findMatch;
       try {
         const query = queryPart ? JSON.parse(queryPart) : {};
-        return { type: 'find', collection, options: query };
+        return { type: 'find', collection, options: { query } };
       } catch {
         return null;
       }
