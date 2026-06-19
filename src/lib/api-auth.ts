@@ -9,6 +9,7 @@ import { hasRole } from '@/lib/rbac';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { t } from '@/lib/i18n';
+import { validateCsrfTokenEdge, csrfErrorResponse } from '@/lib/csrf';
 
 const RATE_LIMIT_MESSAGE = 'error.rateLimit';
 
@@ -121,6 +122,13 @@ function withRoleAuth(
       const authResult = await roleCheck();
       if (!authResult.session) {
         return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
+      }
+
+      const method = request.method.toUpperCase();
+      if (method !== 'GET' && method !== 'HEAD') {
+        if (!validateCsrfTokenEdge(request)) {
+          return csrfErrorResponse();
+        }
       }
 
       const userId = authResult.session.user.id;

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Invalid or expired code' }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, userId: result.userId, type: result.type });
+    return NextResponse.json({ success: true, type: result.type });
   } catch (err: unknown) {
     logger.error('Verify reset code error:', err);
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });

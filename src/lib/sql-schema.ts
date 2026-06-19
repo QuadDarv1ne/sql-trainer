@@ -22,5 +22,5 @@ export const sqlExplainSchema = z.object({
 export const sqlVerifySchema = z.object({
   sql: sqlString,
   taskId: z.string().min(1, { message: 'taskId is required' }),
-  dbType: z.string().optional(),
+  dbType: z.enum(VALID_DB_TYPES).optional(),
 });
