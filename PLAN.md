@@ -1,6 +1,6 @@
 # SQL Trainer — Plan of 10 Quality Improvements
 
-> Created: 2026-06-18 | Updated: 2026-06-19 (revised)
+> Created: 2026-06-19 | Updated: 2026-06-19
 
 ## Plan
 
@@ -36,18 +36,13 @@
 | 9 | OpenAPI docs | Done | 2026-06-18 |
 | 10 | Multi-browser E2E | Done | 2026-06-18 |
 
-## Batch 2 — Code Quality Pass (2026-06-19)
+## Batch 3 — Critical Security Fix (2026-06-19)
 
-- [x] 11. Fix `$_id` group key exclusion bug in `mongodb-engine.ts` (line 260)
-- [x] 12. Fix misleading test description in `utils.test.ts` — "treats negatives as positive" (actually modulo preserves sign)
-- [x] 13. Replace `||` with `??` in `t()` fallback chain — prevents falsy-value skipping
-- [x] 14. Fix misleading comment in `getPlural()` — said "return the key" but returned translation
-- [x] 15. Remove unused `getPlural` stub (dead code) + its test
-- [x] 16. Add edge case test: whitespace-only string passes `z.string().min(1)` in SQL schema
+- [x] 17. **CRITICAL**: Rename `src/proxy.ts` → `src/middleware.ts` — Next.js ignores `proxy.ts`, so CSRF validation, CSP/HSTS security headers, and route access control were NEVER applied. All now active.
+- [x] 18. Remove stale `/api/deadlines` prefix from CSRF list (already covered by `/api/admin`)
 
 ## Remaining Items (Priority Order)
 
 1. **Split `i18n.ts`** → convert 327KB file to `src/locales/{ru,en}.json` with lazy loading
 2. **Redis rate limiter** → replace in-memory with `ioredis` for auth endpoints
-3. **Security headers** → add Content-Security-Policy, X-Frame-Options via middleware
-4. **TypeScript strictness** → enable `strict: true` in tsconfig and fix resulting errors
+3. **TypeScript strictness** → enable `strict: true` in tsconfig and fix resulting errors
