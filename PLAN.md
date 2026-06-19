@@ -27,6 +27,8 @@
 - [x] **CRITICAL**: Rename `proxy.ts` → `middleware.ts` — security headers + CSRF were not active
 - [x] Remove unused dependencies: `mongodb`, `@tanstack/react-table`
 - [x] Remove stale `/api/deadlines` CSRF prefix
+- [x] Remove unused `db/index.ts` barrel file (dead re-export of `db-users.ts`)
+- [x] Fix flaky SQLite DB tests — add `crypto.randomUUID()` suffix to test DB filenames
 
 ## Remaining (Priority Order)
 
