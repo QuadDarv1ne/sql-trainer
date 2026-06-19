@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 
-const TEST_DB_PATH = path.join(process.cwd(), 'data', 'test-db-progress.db');
+const TEST_DB_PATH = path.join(process.cwd(), 'data', `test-db-progress-${crypto.randomUUID().slice(0, 8)}.db`);
 
 describe('db/progress module', () => {
   beforeAll(async () => {
