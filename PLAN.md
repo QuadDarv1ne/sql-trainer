@@ -1,6 +1,6 @@
 # SQL Trainer — Plan of 10 Quality Improvements
 
-> Created: 2026-06-18
+> Created: 2026-06-18 | Updated: 2026-06-19
 
 ## Plan
 
@@ -29,3 +29,10 @@
 | 8 | Redis rate limiter integration | Pending | |
 | 9 | OpenAPI docs | Done | 2026-06-18 |
 | 10 | Multi-browser E2E | Done | 2026-06-18 |
+
+## Remaining Items (Priority Order)
+
+1. **Split `db-users.ts`** → extract to `src/lib/db/` (users, auth, progress, achievements, admin, teacher, migrations)
+2. **Split `i18n.ts`** → convert to `src/locales/{ru,en}.json` with lazy loading
+3. **Add unit tests for `db/` modules** → target +50 tests after split
+4. **Redis rate limiter** → replace in-memory with `ioredis` for auth endpoints
