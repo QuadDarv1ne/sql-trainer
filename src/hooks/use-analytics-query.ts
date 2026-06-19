@@ -56,6 +56,10 @@ export function useAnalyticsQuery<T = unknown>({
   const [error, setError] = useState<string | null>(null);
   const [refetchCounter, setRefetchCounter] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
+  const transformRef = useRef(transform);
+  useEffect(() => {
+    transformRef.current = transform;
+  }, [transform]);
   const { startDate, endDate } = useDateRange();
   const paramsKey = JSON.stringify(params);
 
@@ -86,7 +90,7 @@ export function useAnalyticsQuery<T = unknown>({
       })
       .then((json: Record<string, unknown>) => {
         if (!controller.signal.aborted) {
-          const extracted = transform ? transform(json) : (json[dataKey ?? ''] as T);
+          const extracted = transformRef.current ? transformRef.current(json) : (json[dataKey ?? ''] as T);
           setData(extracted);
         }
       })
@@ -103,7 +107,7 @@ export function useAnalyticsQuery<T = unknown>({
         }
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- refetchCounter triggers manual refetch
-  }, [endpoint, dataKey, startDate, endDate, paramsKey, transform, refetchCounter]);
+  }, [endpoint, dataKey, startDate, endDate, paramsKey, refetchCounter]);
 
   useEffect(() => {
     if (!enabled) {
