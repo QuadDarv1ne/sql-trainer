@@ -15,6 +15,12 @@
 - [x] 9. Add OpenAPI/Swagger docs for core API endpoints (`/api/sql/verify`, `/api/user/progress`)
 - [x] 10. Add Firefox + WebKit to Playwright config, write 3 new E2E scenarios
 
+## Security Hardening (2026-06-19)
+
+- [x] CSRF protection added to `withRoleAuth` wrapper — covers ~30 admin/teacher endpoints
+- [x] `sqlVerifySchema.dbType` changed from `z.string()` to `z.enum(VALID_DB_TYPES)`
+- [x] Removed `userId` leak from `auth/verify-reset` response
+
 ## Progress
 
 | # | Task | Status | Date |
