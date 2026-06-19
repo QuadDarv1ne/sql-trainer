@@ -40,5 +40,5 @@
 
 1. **Split `i18n.ts`** → convert 327KB file to `src/locales/{ru,en}.json` with lazy loading
 2. **Redis rate limiter** → replace in-memory with `ioredis` for auth endpoints
-3. **Extract analytics from `db-users.ts`** → move remaining ~8K lines of analytics into `db/analytics.ts`
-4. **Security headers** → add Content-Security-Policy, X-Frame-Options via middleware
+3. **Security headers** → add Content-Security-Policy, X-Frame-Options via middleware
+4. **TypeScript strictness** → enable `strict: true` in tsconfig and fix resulting errors

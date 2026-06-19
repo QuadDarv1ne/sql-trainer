@@ -257,7 +257,7 @@ function aggregateGroup(docs: Record<string, unknown>[], group: Record<string, u
   const results: Record<string, unknown>[] = [];
   for (const [, groupDocs] of groups) {
     const result: Record<string, unknown> = {};
-    if (typeof _id === 'string' && _id !== '$_id') {
+    if (typeof _id === 'string') {
       result._id = getNestedValue(groupDocs[0], _id.slice(1));
     } else if (typeof _id === 'object') {
       for (const [k, v] of Object.entries(_id as Record<string, string>)) {

@@ -6228,7 +6228,7 @@ export function getLocale(): Locale {
 
 export function t(key: string, params?: Record<string, string> & { default?: string }): string {
   const { default: defaultVal, ...restParams } = params || {};
-  let value = translations[currentLocale]?.[key] || defaultVal || translations.ru[key] || key;
+  let value = translations[currentLocale]?.[key] ?? defaultVal ?? translations.ru[key] ?? key;
   if (restParams) {
     Object.entries(restParams).forEach(([k, v]) => {
       value = value.replace(`{${k}}`, v);
@@ -6257,7 +6257,6 @@ export function tWithLocale(
 }
 
 export function getPlural(key: string): string {
-  // For now, just return the key and let the caller handle pluralization
   return t(key);
 }
 

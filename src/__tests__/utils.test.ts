@@ -51,7 +51,7 @@ describe('plural', () => {
       expect(plural(0, forms.one, forms.few, forms.many)).toBe('баллов');
     });
 
-    it('should handle negative numbers by treating them as positive', () => {
+    it('should return "many" form for negative numbers', () => {
       // JS modulo on negative numbers gives negative results,
       // so negative numbers fall through to "many" form
       expect(plural(-1, forms.one, forms.few, forms.many)).toBe('баллов');
