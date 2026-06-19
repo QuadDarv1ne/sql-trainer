@@ -12,7 +12,6 @@ const csrfProtectedApiPrefixes = [
   '/api/auth/reset-password',
   '/api/auth/verify-reset',
   '/api/push',
-  '/api/deadlines',
   '/api/sql',
 ];
 
