@@ -55,6 +55,7 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
         await res.json();
 
         const progressRes = await fetch('/api/teacher/students/progress');
+        if (!progressRes.ok) throw new Error('Failed to fetch student progress');
         const { students } = await progressRes.json();
 
         generateClassReportPDF(

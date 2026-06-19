@@ -107,7 +107,7 @@ describe('StudentDashboard', () => {
     vi.restoreAllMocks();
   });
 
-  it('redirects non-student users to /app', () => {
+  it('redirects non-student users to /app', async () => {
     (useSession as Mock).mockReturnValue({
       ...mockStudentSession,
       data: {
@@ -119,26 +119,30 @@ describe('StudentDashboard', () => {
       },
     });
 
-    render(<StudentDashboard />);
+    await act(async () => {
+      render(<StudentDashboard />);
+    });
 
     expect(mockPush).toHaveBeenCalledWith('/app');
   });
 
-  it('shows loading state initially', () => {
+  it('shows loading state initially', async () => {
     // Make fetch pending to show loading
     mockFetch.mockReturnValue(new Promise(() => {}));
 
-    act(() => {
-      render(<StudentDashboard />);
-    });
+    render(<StudentDashboard />);
 
     // Spinner element with animate-spin class
-    const spinner = document.querySelector('.animate-spin');
-    expect(spinner).toBeTruthy();
+    await waitFor(() => {
+      const spinner = document.querySelector('.animate-spin');
+      expect(spinner).toBeTruthy();
+    });
   });
 
   it('fetches and displays student progress data', async () => {
-    render(<StudentDashboard />);
+    await act(async () => {
+      render(<StudentDashboard />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText(/Welcome/i)).toBeTruthy();
@@ -154,7 +158,9 @@ describe('StudentDashboard', () => {
   });
 
   it('displays recommendations card when available', async () => {
-    render(<StudentDashboard />);
+    await act(async () => {
+      render(<StudentDashboard />);
+    });
 
     await waitFor(() => {
       // Use getAllByText since "Recommendations" appears in subtitle and card title
@@ -167,7 +173,9 @@ describe('StudentDashboard', () => {
   });
 
   it('displays reminders card when available', async () => {
-    render(<StudentDashboard />);
+    await act(async () => {
+      render(<StudentDashboard />);
+    });
 
     await waitFor(() => {
       const reminderCards = screen.getAllByText(/Reminders/i);
@@ -192,7 +200,9 @@ describe('StudentDashboard', () => {
         json: () => Promise.resolve(mockRemindersResponse),
       });
 
-    render(<StudentDashboard />);
+    await act(async () => {
+      render(<StudentDashboard />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText(/Failed to load data/i)).toBeTruthy();
@@ -200,7 +210,9 @@ describe('StudentDashboard', () => {
   });
 
   it('renders "Start task" button when there are incomplete tasks', async () => {
-    render(<StudentDashboard />);
+    await act(async () => {
+      render(<StudentDashboard />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText(/Welcome/i)).toBeTruthy();

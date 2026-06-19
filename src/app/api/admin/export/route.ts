@@ -12,6 +12,13 @@ import {
   getSystemHealth,
 } from '@/lib/db-users';
 
+function sanitizeCsvValue(value: string): string {
+  if (/^[=+\-@\t\r]/.test(value)) {
+    return `'${value}`;
+  }
+  return value;
+}
+
 function toCSV(columns: string[], rows: Record<string, unknown>[]): string {
   const header = columns.join(',');
   const body = rows
@@ -20,7 +27,7 @@ function toCSV(columns: string[], rows: Record<string, unknown>[]): string {
         .map((c) => {
           const val = row[c];
           if (val === null || val === undefined) return '';
-          const str = String(val);
+          const str = sanitizeCsvValue(String(val));
           if (str.includes(',') || str.includes('"') || str.includes('\n')) {
             return `"${str.replace(/"/g, '""')}"`;
           }

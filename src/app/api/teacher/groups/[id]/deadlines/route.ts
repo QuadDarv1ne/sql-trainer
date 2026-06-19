@@ -19,9 +19,8 @@ const createDeadlineSchema = z.object({
   dueAt: z.number().int().positive(),
 });
 
-export const GET = withTeacherAuth(async ({ session, request }) => {
-  const url = new URL(request.url);
-  const groupId = url.pathname.split('/')[5];
+export const GET = withTeacherAuth(async ({ session, params }) => {
+  const groupId = params?.id;
 
   if (!groupId) {
     return NextResponse.json({ success: false, error: 'Group ID is required' }, { status: 400 });
@@ -40,9 +39,8 @@ export const GET = withTeacherAuth(async ({ session, request }) => {
   return NextResponse.json({ success: true, deadlines });
 });
 
-export const POST = withTeacherAuth(async ({ session, request }) => {
-  const url = new URL(request.url);
-  const groupId = url.pathname.split('/')[5];
+export const POST = withTeacherAuth(async ({ session, request, params }) => {
+  const groupId = params?.id;
 
   if (!groupId) {
     return NextResponse.json({ success: false, error: 'Group ID is required' }, { status: 400 });
@@ -88,9 +86,9 @@ export const POST = withTeacherAuth(async ({ session, request }) => {
   return NextResponse.json({ success: true, deadline });
 });
 
-export const PATCH = withTeacherAuth(async ({ session, request }) => {
+export const PATCH = withTeacherAuth(async ({ session, request, params }) => {
   const url = new URL(request.url);
-  const groupId = url.pathname.split('/')[5];
+  const groupId = params?.id;
   const deadlineId = url.searchParams.get('deadlineId');
 
   if (!groupId || !deadlineId) {
@@ -133,9 +131,9 @@ export const PATCH = withTeacherAuth(async ({ session, request }) => {
   return NextResponse.json({ success: true });
 });
 
-export const DELETE = withTeacherAuth(async ({ session, request }) => {
+export const DELETE = withTeacherAuth(async ({ session, request, params }) => {
   const url = new URL(request.url);
-  const groupId = url.pathname.split('/')[5];
+  const groupId = params?.id;
   const deadlineId = url.searchParams.get('deadlineId');
 
   if (!groupId || !deadlineId) {

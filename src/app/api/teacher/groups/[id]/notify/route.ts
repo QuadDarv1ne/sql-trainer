@@ -10,9 +10,8 @@ const notifySchema = z.object({
   channel: z.enum(['email', 'in_app']).default('in_app'),
 });
 
-export const POST = withTeacherAuth(async ({ session, request }) => {
-  const url = new URL(request.url);
-  const groupId = url.pathname.split('/')[5];
+export const POST = withTeacherAuth(async ({ session, request, params }) => {
+  const groupId = params?.id;
 
   if (!groupId) {
     return NextResponse.json({ success: false, error: 'Group ID is required' }, { status: 400 });

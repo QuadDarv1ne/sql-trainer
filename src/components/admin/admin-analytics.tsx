@@ -72,6 +72,7 @@ export default function AdminAnalytics() {
   const fetchMetrics = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/system');
+      if (!res.ok) return;
       const data = await res.json();
       if (data.success) {
         setMetrics(data.metrics);
@@ -84,6 +85,7 @@ export default function AdminAnalytics() {
   const fetchUserActivity = useCallback(async () => {
     try {
       const res = await fetch(`/api/admin/users?limit=20`);
+      if (!res.ok) return;
       const data = await res.json();
       if (data.success) {
         setUserActivity(data.users || []);
@@ -96,6 +98,7 @@ export default function AdminAnalytics() {
   const fetchAuditLogs = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/audit-logs?limit=20');
+      if (!res.ok) return;
       const data = await res.json();
       if (data.success) {
         setAuditLogs(data.logs || []);
@@ -124,6 +127,7 @@ export default function AdminAnalytics() {
   const handleExport = async () => {
     try {
       const res = await fetch('/api/admin/export-analytics');
+      if (!res.ok) throw new Error('Export failed');
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');

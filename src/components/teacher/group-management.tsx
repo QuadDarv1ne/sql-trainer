@@ -87,6 +87,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
   const fetchGroups = useCallback(async () => {
     try {
       const res = await fetch('/api/teacher/groups');
+      if (!res.ok) return;
       const data = await res.json();
       if (data.success) {
         setGroups(data.groups || []);
@@ -104,6 +105,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     if (!groupIdParam) return;
     try {
       const res = await fetch(`/api/teacher/groups/${groupIdParam}/members`);
+      if (!res.ok) return;
       const data = await res.json();
       if (data.success) {
         setStudents(data.students || []);
@@ -143,6 +145,10 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         }),
       });
 
+      if (!res.ok) {
+        toast({ title: 'Error', description: 'Failed to create group', variant: 'destructive' });
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         toast({
@@ -186,6 +192,10 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         body: JSON.stringify({ emails }),
       });
 
+      if (!res.ok) {
+        toast({ title: 'Error', description: 'Failed to add students', variant: 'destructive' });
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         toast({
@@ -216,6 +226,14 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         body: JSON.stringify({ studentIds: [studentId] }),
       });
 
+      if (!res.ok) {
+        toast({
+          title: 'Error',
+          description: 'Failed to remove student',
+          variant: 'destructive',
+        });
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         toast({
@@ -244,6 +262,14 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         body: JSON.stringify({ studentIds: Array.from(selectedStudents) }),
       });
 
+      if (!res.ok) {
+        toast({
+          title: 'Error',
+          description: 'Failed to remove students',
+          variant: 'destructive',
+        });
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         toast({
@@ -268,6 +294,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
 
     try {
       const res = await fetch(`/api/teacher/export?groupId=${selectedGroup.id}`);
+      if (!res.ok) throw new Error('Export failed');
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');

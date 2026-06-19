@@ -65,9 +65,9 @@ export function DeadlineManager() {
     try {
       setError(null);
       const res = await fetch('/api/admin/deadlines?scope=all');
+      if (!res.ok) throw new Error('Failed to load deadlines');
       const data = await res.json();
-      if (res.ok) setDeadlines(data.deadlines || []);
-      else throw new Error(data.error || 'Failed to load deadlines');
+      setDeadlines(data.deadlines || []);
     } catch (err) {
       logger.error('Failed to load deadlines:', err);
       setError(err instanceof Error ? err.message : t('admin.stats.loading'));
@@ -84,8 +84,10 @@ export function DeadlineManager() {
     if (!deleteId) return;
     try {
       const res = await fetch(`/api/admin/deadlines/${deleteId}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to delete deadline');
+      }
       toast.success(t('deadline.deleted'));
       fetchDeadlines();
     } catch (err: unknown) {

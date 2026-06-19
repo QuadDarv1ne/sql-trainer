@@ -9,10 +9,9 @@ const addMembersSchema = z.object({
   userIds: z.array(z.string()).min(1, 'userIds array is required'),
 });
 
-export const POST = withTeacherAuth(async ({ session, request }) => {
+export const POST = withTeacherAuth(async ({ session, request, params }) => {
   try {
-    const url = new URL(request.url);
-    const groupId = url.pathname.split('/')[5];
+    const groupId = params?.id;
 
     if (!groupId) {
       return NextResponse.json({ success: false, error: 'Group ID is required' }, { status: 400 });
@@ -41,10 +40,10 @@ export const POST = withTeacherAuth(async ({ session, request }) => {
   }
 });
 
-export const DELETE = withTeacherAuth(async ({ session, request }) => {
+export const DELETE = withTeacherAuth(async ({ session, request, params }) => {
   try {
     const url = new URL(request.url);
-    const groupId = url.pathname.split('/')[5];
+    const groupId = params?.id;
     const userId = url.searchParams.get('userId');
 
     if (!groupId || !userId) {

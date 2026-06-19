@@ -10,10 +10,9 @@ const updateGroupSchema = z.object({
   description: z.string().max(500).optional(),
 });
 
-export const GET = withTeacherAuth(async ({ session, request }) => {
+export const GET = withTeacherAuth(async ({ session, params }) => {
   try {
-    const url = new URL(request.url);
-    const id = url.pathname.split('/').pop();
+    const id = params?.id;
 
     if (!id) {
       return NextResponse.json({ success: false, error: 'Group ID is required' }, { status: 400 });
@@ -36,10 +35,9 @@ export const GET = withTeacherAuth(async ({ session, request }) => {
   }
 });
 
-export const PATCH = withTeacherAuth(async ({ session, request }) => {
+export const PATCH = withTeacherAuth(async ({ session, request, params }) => {
   try {
-    const url = new URL(request.url);
-    const id = url.pathname.split('/').pop();
+    const id = params?.id;
 
     if (!id) {
       return NextResponse.json({ success: false, error: 'Group ID is required' }, { status: 400 });
@@ -74,10 +72,9 @@ export const PATCH = withTeacherAuth(async ({ session, request }) => {
   }
 });
 
-export const DELETE = withTeacherAuth(async ({ session, request }) => {
+export const DELETE = withTeacherAuth(async ({ session, params }) => {
   try {
-    const url = new URL(request.url);
-    const id = url.pathname.split('/').pop();
+    const id = params?.id;
 
     if (!id) {
       return NextResponse.json({ success: false, error: 'Group ID is required' }, { status: 400 });

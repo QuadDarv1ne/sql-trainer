@@ -170,6 +170,7 @@ export async function explainPgQuery(
     // Validate SQL is a SELECT-like query (EXPLAIN only makes sense for read queries)
     const trimmed = sql.trim().toLowerCase();
     if (!trimmed.startsWith('select') && !trimmed.startsWith('with') && !trimmed.startsWith('explain')) {
+      await client.end();
       return {
         success: false,
         columns: [],
@@ -183,6 +184,7 @@ export async function explainPgQuery(
         trimmed.replace(/^(explain|select|with)\s*/i, ''),
       )
     ) {
+      await client.end();
       return {
         success: false,
         columns: [],
