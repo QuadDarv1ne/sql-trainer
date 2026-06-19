@@ -15,33 +15,20 @@
 - [x] 9. Add OpenAPI/Swagger docs for core API endpoints (`/api/sql/verify`, `/api/user/progress`)
 - [x] 10. Add Firefox + WebKit to Playwright config, write 3 new E2E scenarios
 
-## Security Hardening (2026-06-19)
+## Additional Improvements
 
 - [x] CSRF protection added to `withRoleAuth` wrapper — covers ~30 admin/teacher endpoints
 - [x] `sqlVerifySchema.dbType` changed from `z.string()` to `z.enum(VALID_DB_TYPES)`
 - [x] Removed `userId` leak from `auth/verify-reset` response
+- [x] Fix `$_id` group key exclusion bug in `mongodb-engine.ts`
+- [x] Replace `||` with `??` in `t()` fallback chain
+- [x] Remove unused `getPlural` stub
+- [x] Add edge case test: whitespace-only SQL
+- [x] **CRITICAL**: Rename `proxy.ts` → `middleware.ts` — security headers + CSRF were not active
+- [x] Remove unused dependencies: `mongodb`, `@tanstack/react-table`
+- [x] Remove stale `/api/deadlines` CSRF prefix
 
-## Progress
-
-| # | Task | Status | Date |
-|---|------|--------|------|
-| 1 | Remove blanket eslint-disable | Done | 2026-06-18 |
-| 2 | Split db-users.ts | Done | 2026-06-19 |
-| 3 | Split i18n.ts | Pending | |
-| 4 | Fix React act() warnings in tests | Done | 2026-06-18 |
-| 5 | Add db/ module tests | Done | 2026-06-19 |
-| 6 | CONTRIBUTING.md | Done | 2026-06-18 |
-| 7 | Zod validation for API routes | Done | 2026-06-18 |
-| 8 | Redis rate limiter integration | Pending | |
-| 9 | OpenAPI docs | Done | 2026-06-18 |
-| 10 | Multi-browser E2E | Done | 2026-06-18 |
-
-## Batch 3 — Critical Security Fix (2026-06-19)
-
-- [x] 17. **CRITICAL**: Rename `src/proxy.ts` → `src/middleware.ts` — Next.js ignores `proxy.ts`, so CSRF validation, CSP/HSTS security headers, and route access control were NEVER applied. All now active.
-- [x] 18. Remove stale `/api/deadlines` prefix from CSRF list (already covered by `/api/admin`)
-
-## Remaining Items (Priority Order)
+## Remaining (Priority Order)
 
 1. **Split `i18n.ts`** → convert 327KB file to `src/locales/{ru,en}.json` with lazy loading
 2. **Redis rate limiter** → replace in-memory with `ioredis` for auth endpoints
