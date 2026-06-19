@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { t, setLocale, getLocale, getPlural, translations, type Locale } from '@/lib/i18n';
+import { t, setLocale, getLocale, translations, type Locale } from '@/lib/i18n';
 
 describe('i18n', () => {
   beforeEach(() => {
@@ -87,9 +87,5 @@ describe('i18n', () => {
     });
   });
 
-  describe('getPlural', () => {
-    it('returns a string', () => {
-      expect(typeof getPlural('results.row')).toBe('string');
-    });
-  });
+  // getPlural was removed as unused (was a stub returning singular)
 });

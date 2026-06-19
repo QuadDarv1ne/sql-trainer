@@ -11,6 +11,11 @@ describe('sqlString', () => {
     expect(result.success).toBe(false);
   });
 
+  it('accepts whitespace-only string (Zod .min(1) does not trim)', () => {
+    const result = sqlString.safeParse('   ');
+    expect(result.success).toBe(true);
+  });
+
   it('rejects string exceeding max length', () => {
     const result = sqlString.safeParse('a'.repeat(10001));
     expect(result.success).toBe(false);

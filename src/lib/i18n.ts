@@ -6256,10 +6256,6 @@ export function tWithLocale(
   return value;
 }
 
-export function getPlural(key: string): string {
-  return t(key);
-}
-
 /**
  * Parse locale from cookie string (server-side).
  * Returns the detected locale or defaults to 'ru'.
