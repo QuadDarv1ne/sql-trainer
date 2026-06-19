@@ -125,8 +125,10 @@ export default function HomePage() {
   useEffect(() => {
     setMounted(true);
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- refs captured to local vars correctly
       const timer = practiceTimerRef.current;
       if (timer) clearTimeout(timer);
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- refs captured to local vars correctly
       const sync = progressSyncRef.current;
       sync?.abort();
     };
