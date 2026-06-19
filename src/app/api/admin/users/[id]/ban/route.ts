@@ -26,7 +26,7 @@ export const POST = withAdminAuth(async ({ session, request, params }) => {
   try {
     body = await request.json();
   } catch {
-    body = {};
+    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
   }
 
   const result = validateBody(body, banSchema);
