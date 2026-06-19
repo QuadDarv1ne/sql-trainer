@@ -5,7 +5,7 @@
 ## Plan
 
 - [x] 1. Remove blanket `eslint-disable` from `db-users.ts`, fix all hidden warnings
-- [ ] 2. Split `db-users.ts` (10K+ lines) into focused modules under `src/lib/db/`
+- [x] 2. Split `db-users.ts` (10K+ lines) into focused modules under `src/lib/db/`
 - [ ] 3. Split `i18n.ts` (327KB) into `src/locales/{ru,en}.json` with lazy loading
 - [x] 4. Add `act()` wrappers to `student-dashboard.test.tsx` and `use-analytics-query.test.ts` to eliminate React warnings
 - [ ] 5. Add unit tests for `db/` modules after split (target: +50 tests)
@@ -26,7 +26,7 @@
 | # | Task | Status | Date |
 |---|------|--------|------|
 | 1 | Remove blanket eslint-disable | Done | 2026-06-18 |
-| 2 | Split db-users.ts | Pending | |
+| 2 | Split db-users.ts | Done | 2026-06-19 |
 | 3 | Split i18n.ts | Pending | |
 | 4 | Fix React act() warnings in tests | Done | 2026-06-18 |
 | 5 | Add db/ module tests | Pending | |
@@ -38,7 +38,7 @@
 
 ## Remaining Items (Priority Order)
 
-1. **Split `db-users.ts`** → extract to `src/lib/db/` (users, auth, progress, achievements, admin, teacher, migrations)
-2. **Split `i18n.ts`** → convert to `src/locales/{ru,en}.json` with lazy loading
-3. **Add unit tests for `db/` modules** → target +50 tests after split
-4. **Redis rate limiter** → replace in-memory with `ioredis` for auth endpoints
+1. **Split `i18n.ts`** → convert to `src/locales/{ru,en}.json` with lazy loading
+2. **Add unit tests for `db/` modules** → target +50 tests
+3. **Redis rate limiter** → replace in-memory with `ioredis` for auth endpoints
+4. **Extract analytics from `db-users.ts`** → move remaining ~8K lines of analytics into `db/analytics.ts`

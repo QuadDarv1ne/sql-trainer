@@ -85,7 +85,7 @@ const eslintConfig = [
     },
   },
   {
-    // db-users.ts is a large legacy file — warn instead of error
+    // db-users.ts has legacy analytics code — warn instead of error
     files: ['src/lib/db-users.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
