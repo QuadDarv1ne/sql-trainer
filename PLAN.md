@@ -42,6 +42,8 @@
 - [x] 12. Fix misleading test description in `utils.test.ts` — "treats negatives as positive" (actually modulo preserves sign)
 - [x] 13. Replace `||` with `??` in `t()` fallback chain — prevents falsy-value skipping
 - [x] 14. Fix misleading comment in `getPlural()` — said "return the key" but returned translation
+- [x] 15. Remove unused `getPlural` stub (dead code) + its test
+- [x] 16. Add edge case test: whitespace-only string passes `z.string().min(1)` in SQL schema
 
 ## Remaining Items (Priority Order)
 
@@ -49,6 +51,3 @@
 2. **Redis rate limiter** → replace in-memory with `ioredis` for auth endpoints
 3. **Security headers** → add Content-Security-Policy, X-Frame-Options via middleware
 4. **TypeScript strictness** → enable `strict: true` in tsconfig and fix resulting errors
-5. **Add test for whitespace-only SQL** — `z.string().min(1)` passes `"   "`
-6. **Implement `getPlural` properly** — current stub always returns singular
-7. **Clean up unused exports** — scan for dead code with `ts-prune`
