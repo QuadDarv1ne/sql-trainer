@@ -1,6 +1,6 @@
 # SQL Trainer — Plan of 10 Quality Improvements
 
-> Created: 2026-06-18 | Updated: 2026-06-19
+> Created: 2026-06-18 | Updated: 2026-06-19 (revised)
 
 ## Plan
 
@@ -36,9 +36,19 @@
 | 9 | OpenAPI docs | Done | 2026-06-18 |
 | 10 | Multi-browser E2E | Done | 2026-06-18 |
 
+## Batch 2 — Code Quality Pass (2026-06-19)
+
+- [x] 11. Fix `$_id` group key exclusion bug in `mongodb-engine.ts` (line 260)
+- [x] 12. Fix misleading test description in `utils.test.ts` — "treats negatives as positive" (actually modulo preserves sign)
+- [x] 13. Replace `||` with `??` in `t()` fallback chain — prevents falsy-value skipping
+- [x] 14. Fix misleading comment in `getPlural()` — said "return the key" but returned translation
+
 ## Remaining Items (Priority Order)
 
 1. **Split `i18n.ts`** → convert 327KB file to `src/locales/{ru,en}.json` with lazy loading
 2. **Redis rate limiter** → replace in-memory with `ioredis` for auth endpoints
 3. **Security headers** → add Content-Security-Policy, X-Frame-Options via middleware
 4. **TypeScript strictness** → enable `strict: true` in tsconfig and fix resulting errors
+5. **Add test for whitespace-only SQL** — `z.string().min(1)` passes `"   "`
+6. **Implement `getPlural` properly** — current stub always returns singular
+7. **Clean up unused exports** — scan for dead code with `ts-prune`
