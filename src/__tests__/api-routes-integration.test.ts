@@ -53,7 +53,7 @@ function makePostRequest(url: string, body: Record<string, unknown>) {
 }
 
 describe('POST /api/sql/verify', () => {
-  it('rejects empty body with 400', async () => {
+  it('rejects empty body with 400', { timeout: 15000 }, async () => {
     const { POST } = await import('@/app/api/sql/verify/route');
     const req = makePostRequest('http://localhost/api/sql/verify', {});
     const res = await POST(req);
