@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import dynamic from 'next/dynamic';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { t } from '@/lib/i18n';
@@ -15,13 +16,22 @@ import {
 import UserTable from '@/components/admin/user-table';
 import DBStats from '@/components/admin/db-stats';
 import SystemHealth from '@/components/admin/system-health';
-import AnalyticsDashboard from '@/components/admin/analytics-dashboard';
-import LeaderboardTable from '@/components/admin/analytics/leaderboard-table';
 import { DeadlineManager } from '@/components/admin/deadline-manager';
 import AuditLog from '@/components/admin/audit-log';
 import type { Role } from '@/lib/rbac';
-import AdminAnalytics from '@/components/admin/admin-analytics';
 import { Download } from 'lucide-react';
+
+const AnalyticsDashboard = dynamic(() => import('@/components/admin/analytics-dashboard'), {
+  loading: () => <div className="h-64 animate-pulse rounded-md bg-muted" />,
+});
+
+const LeaderboardTable = dynamic(() => import('@/components/admin/analytics/leaderboard-table'), {
+  loading: () => <div className="h-64 animate-pulse rounded-md bg-muted" />,
+});
+
+const AdminAnalytics = dynamic(() => import('@/components/admin/admin-analytics'), {
+  loading: () => <div className="h-64 animate-pulse rounded-md bg-muted" />,
+});
 
 export default function AdminPage() {
   const router = useRouter();

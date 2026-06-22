@@ -38,7 +38,7 @@
 4. ~~**Add loading.tsx boundaries**~~ ✅ Done — skeleton loaders for /app, /dashboard, /admin, /teacher, /profile
 5. ~~**Fix flaky SQLite timeout tests**~~ ✅ Done — increased timeout to 15s for first-run DB initialization tests
 6. ~~**Add integration tests for API routes**~~ ✅ Done — tests for /api/sql/verify and /api/auth/register (6 new tests)
-7. **Bundle size audit** — analyze with `next build --analyze`, lazy-load heavy components (recharts, codemirror)
+7. ~~**Bundle size audit**~~ ✅ Done — lazy-loaded AnalyticsDashboard, LeaderboardTable, AdminAnalytics on admin page with skeleton placeholders
 8. ~~**Automate i18n key sync**~~ ✅ Done — test suite validates ru/en/zh key consistency and detects empty values
 9. **Performance monitoring** — add Web Vitals reporting to admin dashboard
 10. **E2E coverage expansion** — add tests for admin CRUD, teacher workflows, password reset flow
