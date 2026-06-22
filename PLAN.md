@@ -1,12 +1,12 @@
 # SQL Trainer — Plan of 10 Quality Improvements
 
-> Created: 2026-06-19 | Updated: 2026-06-19
+> Created: 2026-06-19 | Updated: 2026-06-22
 
 ## Plan
 
 - [x] 1. Remove blanket `eslint-disable` from `db-users.ts`, fix all hidden warnings
 - [x] 2. Split `db-users.ts` (10K+ lines) into focused modules under `src/lib/db/`
-- [ ] 3. Split `i18n.ts` (327KB) into `src/locales/{ru,en}.json` with lazy loading
+- [x] 3. Split `i18n.ts` (327KB) into `src/locales/{ru,en,zh}.json` with modular imports
 - [x] 4. Add `act()` wrappers to `student-dashboard.test.tsx` and `use-analytics-query.test.ts` to eliminate React warnings
 - [x] 5. Add unit tests for `db/` modules after split (+37 tests for connection, users, admin, progress)
 - [x] 6. Create `CONTRIBUTING.md` with setup, code style, and PR guidelines
@@ -30,8 +30,21 @@
 - [x] Remove unused `db/index.ts` barrel file (dead re-export of `db-users.ts`)
 - [x] Fix flaky SQLite DB tests — add `crypto.randomUUID()` suffix to test DB filenames
 
+## Next 10 — Phase 2 Roadmap
+
+1. **Enable TypeScript `strict: true`** — turn on strict mode in tsconfig, fix all resulting type errors
+2. **Migrate middleware.ts → proxy** — replace deprecated middleware convention with Next.js 16 proxy pattern
+3. **Add integration tests for API routes** — test `/api/sql/verify`, `/api/auth/register`, `/api/user/progress` end-to-end
+4. **Bundle size audit** — analyze with `next build --analyze`, lazy-load heavy components (recharts, codemirror)
+5. **Add loading.tsx / error.tsx boundaries** — improve UX with skeleton loaders and recovery screens per route
+6. **Automate i18n key sync** — script to diff keys across ru/en/zh, detect missing or stale translations
+7. **Performance monitoring** — add Web Vitals reporting to admin dashboard
+8. **E2E coverage expansion** — add tests for admin CRUD, teacher workflows, password reset flow
+9. **Accessibility audit** — add ARIA labels, keyboard nav, contrast fixes across components
+10. **CI/CD pipeline hardening** — add typecheck + lint + test gates to GitHub Actions workflow
+
 ## Remaining (Priority Order)
 
-1. **Split `i18n.ts`** → convert 327KB file to `src/locales/{ru,en}.json` with lazy loading
-2. **Redis rate limiter** → replace in-memory with `ioredis` for auth endpoints
-3. **TypeScript strictness** → enable `strict: true` in tsconfig and fix resulting errors
+1. ~~**Split `i18n.ts`** → convert 327KB file to `src/locales/{ru,en,zh}.json` with modular imports~~ ✅ Done
+2. **TypeScript strictness** → enable `strict: true` in tsconfig and fix resulting errors
+3. **Migrate middleware.ts → proxy** → replace deprecated middleware convention with Next.js 16 proxy pattern
