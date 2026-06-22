@@ -37,7 +37,7 @@
 3. ~~**Fix flaky db-progress test**~~ ✅ Done — use `.some()` instead of index-based assertion
 4. ~~**Add loading.tsx boundaries**~~ ✅ Done — skeleton loaders for /app, /dashboard, /admin, /teacher, /profile
 5. ~~**Fix flaky SQLite timeout tests**~~ ✅ Done — increased timeout to 15s for first-run DB initialization tests
-6. **Add integration tests for API routes** — test `/api/sql/verify`, `/api/auth/register`, `/api/user/progress` end-to-end
+6. ~~**Add integration tests for API routes**~~ ✅ Done — tests for /api/sql/verify and /api/auth/register (6 new tests)
 7. **Bundle size audit** — analyze with `next build --analyze`, lazy-load heavy components (recharts, codemirror)
 8. **Automate i18n key sync** — script to diff keys across ru/en/zh, detect missing or stale translations
 9. **Performance monitoring** — add Web Vitals reporting to admin dashboard
