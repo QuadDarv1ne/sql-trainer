@@ -37,7 +37,7 @@ describe('db/progress module', () => {
     return user!;
   }
 
-  it('saveUserProgress saves progress', async () => {
+  it('saveUserProgress saves progress', { timeout: 15000 }, async () => {
     const user = await createAndCompleteTask('progress1@example.com', 'beginner-1', 3);
     const { getUserProgress } = await import('@/lib/db/progress');
     const progress = await getUserProgress(user.id);

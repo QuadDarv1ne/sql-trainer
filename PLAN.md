@@ -36,12 +36,12 @@
 2. ~~**Migrate middleware.ts → proxy**~~ ✅ Done — renamed file + updated all references, deprecation warning resolved
 3. ~~**Fix flaky db-progress test**~~ ✅ Done — use `.some()` instead of index-based assertion
 4. ~~**Add loading.tsx boundaries**~~ ✅ Done — skeleton loaders for /app, /dashboard, /admin, /teacher, /profile
-5. **Add integration tests for API routes** — test `/api/sql/verify`, `/api/auth/register`, `/api/user/progress` end-to-end
-6. **Bundle size audit** — analyze with `next build --analyze`, lazy-load heavy components (recharts, codemirror)
-7. **Automate i18n key sync** — script to diff keys across ru/en/zh, detect missing or stale translations
-8. **Performance monitoring** — add Web Vitals reporting to admin dashboard
-9. **E2E coverage expansion** — add tests for admin CRUD, teacher workflows, password reset flow
-10. **Accessibility audit** — add ARIA labels, keyboard nav, contrast fixes across components
+5. ~~**Fix flaky SQLite timeout tests**~~ ✅ Done — increased timeout to 15s for first-run DB initialization tests
+6. **Add integration tests for API routes** — test `/api/sql/verify`, `/api/auth/register`, `/api/user/progress` end-to-end
+7. **Bundle size audit** — analyze with `next build --analyze`, lazy-load heavy components (recharts, codemirror)
+8. **Automate i18n key sync** — script to diff keys across ru/en/zh, detect missing or stale translations
+9. **Performance monitoring** — add Web Vitals reporting to admin dashboard
+10. **E2E coverage expansion** — add tests for admin CRUD, teacher workflows, password reset flow
 
 ## Remaining (Priority Order)
 

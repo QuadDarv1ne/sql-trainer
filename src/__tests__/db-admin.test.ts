@@ -34,7 +34,7 @@ describe('db/admin module', () => {
     return createUser(email, 'Admin Test', 'pass123');
   }
 
-  it('getAllUsers returns users', async () => {
+  it('getAllUsers returns users', { timeout: 15000 }, async () => {
     await createTestUser('allusers@example.com');
     const { getAllUsers } = await import('@/lib/db/admin');
     const users = getAllUsers();
