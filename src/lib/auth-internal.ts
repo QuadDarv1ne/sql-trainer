@@ -1,7 +1,7 @@
 /**
  * Internal NextAuth config with full DB access.
  * Used only by the API route handler (Node.js runtime).
- * The main auth.ts is Edge-compatible for middleware.
+ * The main auth.ts is Edge-compatible for proxy.
  */
 import NextAuth, { type DefaultSession } from 'next-auth';
 import type { User } from 'next-auth';

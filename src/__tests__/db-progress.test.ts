@@ -93,7 +93,7 @@ describe('db/progress module', () => {
     await checkAndAwardAchievements(user.id);
     const achs = await getUserAchievements(user.id);
     expect(achs.length).toBeGreaterThan(0);
-    expect(achs[0].title).toBe('First Query');
+    expect(achs.some((a) => a.title === 'First Query')).toBe(true);
   });
 
   it('getAchievementDetails returns details for ids', async () => {

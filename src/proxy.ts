@@ -55,7 +55,7 @@ function isCsrfProtectedRoute(pathname: string): boolean {
 export default auth(async (request) => {
   const pathname = request.nextUrl.pathname;
 
-  // request.auth is already populated by the auth() middleware wrapper
+  // request.auth is already populated by the auth() proxy wrapper
   // — no need for a redundant auth() call
   const session = request.auth;
 

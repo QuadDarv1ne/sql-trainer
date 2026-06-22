@@ -33,7 +33,7 @@
 ## Next 10 — Phase 2 Roadmap
 
 1. **Enable TypeScript `strict: true`** — turn on strict mode in tsconfig, fix all resulting type errors
-2. **Migrate middleware.ts → proxy** — replace deprecated middleware convention with Next.js 16 proxy pattern
+2. ~~**Migrate middleware.ts → proxy**~~ ✅ Done — renamed file + updated all references, deprecation warning resolved
 3. **Add integration tests for API routes** — test `/api/sql/verify`, `/api/auth/register`, `/api/user/progress` end-to-end
 4. **Bundle size audit** — analyze with `next build --analyze`, lazy-load heavy components (recharts, codemirror)
 5. **Add loading.tsx / error.tsx boundaries** — improve UX with skeleton loaders and recovery screens per route
@@ -47,4 +47,4 @@
 
 1. ~~**Split `i18n.ts`** → convert 327KB file to `src/locales/{ru,en,zh}.json` with modular imports~~ ✅ Done
 2. **TypeScript strictness** → enable `strict: true` in tsconfig and fix resulting errors
-3. **Migrate middleware.ts → proxy** → replace deprecated middleware convention with Next.js 16 proxy pattern
+3. ~~**Migrate middleware.ts → proxy**~~ ✅ Done

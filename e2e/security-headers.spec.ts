@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Security headers (middleware)', () => {
+test.describe('Security headers (proxy)', () => {
   test('CSP headers are present on API responses', async ({ page }) => {
     const resp = await page.goto('/');
     const headers = resp!.headers();
@@ -33,7 +33,7 @@ test.describe('Security headers (middleware)', () => {
   });
 });
 
-test.describe('CSRF protection (middleware)', () => {
+test.describe('CSRF protection (proxy)', () => {
   test('POST without CSRF token returns 403', async ({ page, context }) => {
     const resp = await page.request.post('/api/sql', {
       data: { sql: 'SELECT 1' },

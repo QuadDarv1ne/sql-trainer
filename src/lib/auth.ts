@@ -3,7 +3,7 @@
  * Sessions use JWT (stateless, stored in encrypted cookie).
  *
  * Split into two parts:
- * - This file: NextAuth config (Edge-compatible, used by middleware)
+ * - This file: NextAuth config (Edge-compatible, used by proxy)
  * - auth-internal.ts: Full config with DB access (used by API routes)
  */
 import NextAuth, { type DefaultSession } from 'next-auth';
@@ -31,7 +31,7 @@ interface AuthSession {
   };
 }
 
-// Minimal config for Edge runtime (middleware)
+// Minimal config for Edge runtime (proxy)
 const nextAuthConfig = {
   providers: [
     CredentialsProvider({
@@ -78,7 +78,7 @@ const nextAuthConfig = {
     async session({ session, token }: { session: DefaultSession; token: JWT }) {
       if (token) {
         // Note: Edge runtime cannot access the database, so role_changed_at validation
-        // happens in auth-internal.ts (Node.js runtime). The middleware uses this config
+        // happens in auth-internal.ts (Node.js runtime). The proxy uses this config
         // for route protection, and stale roles are validated on next API request.
         const currentRole = token.role as UserRole | undefined;
 

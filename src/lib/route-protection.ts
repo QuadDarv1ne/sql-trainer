@@ -1,5 +1,5 @@
 /**
- * Route protection decision logic — single source of truth for middleware.
+ * Route protection decision logic — single source of truth for proxy.
  *
  * Returns a decision for a given session + pathname combination:
  * - { action: 'allow' } — proceed
