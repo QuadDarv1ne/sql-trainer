@@ -32,12 +32,12 @@
 
 ## Next 10 — Phase 2 Roadmap
 
-1. **Enable TypeScript `strict: true`** — turn on strict mode in tsconfig, fix all resulting type errors
+1. **Enable TypeScript `strict: true`** — already enabled in tsconfig ✅
 2. ~~**Migrate middleware.ts → proxy**~~ ✅ Done — renamed file + updated all references, deprecation warning resolved
 3. ~~**Fix flaky db-progress test**~~ ✅ Done — use `.some()` instead of index-based assertion
-4. **Add integration tests for API routes** — test `/api/sql/verify`, `/api/auth/register`, `/api/user/progress` end-to-end
-5. **Bundle size audit** — analyze with `next build --analyze`, lazy-load heavy components (recharts, codemirror)
-6. **Add loading.tsx / error.tsx boundaries** — improve UX with skeleton loaders and recovery screens per route
+4. ~~**Add loading.tsx boundaries**~~ ✅ Done — skeleton loaders for /app, /dashboard, /admin, /teacher, /profile
+5. **Add integration tests for API routes** — test `/api/sql/verify`, `/api/auth/register`, `/api/user/progress` end-to-end
+6. **Bundle size audit** — analyze with `next build --analyze`, lazy-load heavy components (recharts, codemirror)
 7. **Automate i18n key sync** — script to diff keys across ru/en/zh, detect missing or stale translations
 8. **Performance monitoring** — add Web Vitals reporting to admin dashboard
 9. **E2E coverage expansion** — add tests for admin CRUD, teacher workflows, password reset flow
