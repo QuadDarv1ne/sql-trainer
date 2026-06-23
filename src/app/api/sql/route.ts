@@ -4,6 +4,7 @@ import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { apiServerError } from '@/lib/api-error';
+import { logger } from '@/lib/logger';
 import { auth } from '@/lib/auth';
 import type { MongoSchema } from '@/lib/mongodb-engine';
 import { validateBody } from '@/lib/validation';
@@ -196,11 +197,18 @@ export async function POST(request: NextRequest) {
 
     let result;
 
+    const start = performance.now();
     if (taskId) {
       const task = getTaskById(taskId);
       result = task ? executeWithSchema(sql, task.schema, effectiveDbType) : executeQuery(sql, effectiveDbType);
     } else {
       result = executeQuery(sql, effectiveDbType);
+    }
+    const elapsed = performance.now() - start;
+
+    if (elapsed > 1000) {
+      const sqlPreview = sql.length > 100 ? sql.slice(0, 100) + '...' : sql;
+      logger.warn(`Slow query (${Math.round(elapsed)}ms): ${sqlPreview}`);
     }
 
     return NextResponse.json(result);

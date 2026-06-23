@@ -51,7 +51,7 @@
 
 1. [x] **Add loading.tsx for auth routes** — skeleton loaders for /login, /register, /forgot-password to prevent blank screens during navigation
 2. [x] **Error boundary for all API routes** — centralized error handler with structured JSON responses and correlation IDs for debugging
-3. **Response time logging for slow queries** — log SQL execution time > 1s with query summary in production
+3. [x] **Response time logging for slow queries** — log SQL execution time > 1s with query summary in production
 4. **Input sanitization audit** — review all user-facing inputs for XSS, ensure consistent escaping across components
 5. **Database connection pool monitoring** — add metrics for active/idle connections, connection wait time, and pool exhaustion events
 6. **Image optimization audit** — ensure all images use next/image with proper sizes, formats (WebP/AVIF), and lazy loading
