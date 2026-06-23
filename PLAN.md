@@ -32,6 +32,7 @@
 - [x] Fix Redis `getStatus` to use window-based keys instead of O(N) `KEYS` pattern scan
 - [x] Fix unsafe `Number()` coercion in teacher API routes (`churn-prediction`, `engagement`)
 - [x] Remove `confirmAction` event-listener memory leak in `page.tsx`
+- [x] Add `isHealthy()` to `RateLimiter` interface + Redis status in `/api/health`
 
 ## Phase 2 — Next 10 Quality Improvements
 
