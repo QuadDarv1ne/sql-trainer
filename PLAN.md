@@ -11,7 +11,7 @@
 - [x] 5. Add unit tests for `db/` modules after split (+37 tests for connection, users, admin, progress)
 - [x] 6. Create `CONTRIBUTING.md` with setup, code style, and PR guidelines
 - [x] 7. Add Zod validation to all unprotected API routes (currently ~100+ endpoints)
-- [ ] 8. Implement Redis-backed rate limiting for auth endpoints (replace in-memory)
+- [x] 8. Implement Redis-backed rate limiting for auth endpoints (replace in-memory)
 - [x] 9. Add OpenAPI/Swagger docs for core API endpoints (`/api/sql/verify`, `/api/user/progress`)
 - [x] 10. Add Firefox + WebKit to Playwright config, write 3 new E2E scenarios
 
@@ -36,7 +36,7 @@
 
 ## Phase 2 — Next 10 Quality Improvements
 
-1. **Redis-backed rate limiting for auth endpoints** — replace in-memory fallback with Redis for `/api/auth/login`, `/api/auth/register`, `/api/auth/forgot-password` to prevent brute-force attacks in production
+1. [x] **Redis-backed rate limiting for auth endpoints** — replace in-memory fallback with Redis for `/api/auth/login`, `/api/auth/register`, `/api/auth/forgot-password` to prevent brute-force attacks in production
 2. [x] **Add health check endpoint for Redis** — extend `/api/health` to report Redis connection status, useful for monitoring and load balancer readiness probes
 3. [x] **Add rate limit headers to all protected endpoints** — return `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` headers so clients can self-throttle
 4. [x] **Web Vitals reporting** — add `web-vitals` package to track LCP, FID, CLS and send metrics to admin dashboard for performance monitoring
