@@ -40,7 +40,7 @@
 2. [x] **Add health check endpoint for Redis** — extend `/api/health` to report Redis connection status, useful for monitoring and load balancer readiness probes
 3. [x] **Add rate limit headers to all protected endpoints** — return `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` headers so clients can self-throttle
 4. [x] **Web Vitals reporting** — add `web-vitals` package to track LCP, FID, CLS and send metrics to admin dashboard for performance monitoring
-5. **E2E tests for admin CRUD** — Playwright scenarios for user management (ban/unban, role change, soft delete, bulk operations)
+5. [x] **E2E tests for admin CRUD** — Playwright scenarios for user management (ban/unban, role change, soft delete, bulk operations)
 6. **E2E tests for teacher workflows** — Playwright scenarios for group creation, student invitations, deadline management
 7. **E2E tests for password reset flow** — Playwright scenarios for forgot-password → email → reset → login cycle
 8. [x] **API response type safety** — add Zod schemas and TypeScript inferred types for all API response payloads to eliminate `as any` casts in client code
