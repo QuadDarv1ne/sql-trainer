@@ -44,5 +44,5 @@
 6. **E2E tests for teacher workflows** — Playwright scenarios for group creation, student invitations, deadline management
 7. **E2E tests for password reset flow** — Playwright scenarios for forgot-password → email → reset → login cycle
 8. [x] **API response type safety** — add Zod schemas and TypeScript inferred types for all API response payloads to eliminate `as any` casts in client code
-9. **Bundle analysis automation** — add `@next/bundle-analyzer` with CI step to catch size regressions before merge
+9. [x] **Bundle analysis automation** — add `@next/bundle-analyzer` with CI step to catch size regressions before merge
 10. [x] **Accessibility audit** — run `@axe-core/react` against all pages, fix critical WCAG violations (missing aria-labels, color contrast, keyboard navigation)
