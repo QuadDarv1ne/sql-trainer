@@ -24,7 +24,7 @@ export interface RateLimitResult {
 export interface RateLimiter {
   check(key: string, options: RateLimitOptions): Promise<RateLimitResult>;
   reset(key: string): Promise<void>;
-  getStatus(key: string): Promise<RateLimitResult | null>;
+  getStatus(key: string, options?: RateLimitOptions): Promise<RateLimitResult | null>;
 }
 
 /**
@@ -123,22 +123,22 @@ export class RedisRateLimiter implements RateLimiter {
     clearInMemoryKey(key);
   }
 
-  async getStatus(key: string): Promise<RateLimitResult | null> {
+  async getStatus(key: string, options?: RateLimitOptions): Promise<RateLimitResult | null> {
+    const max = options?.max ?? 100;
+    const windowMs = options?.windowMs ?? 60_000;
     if (this.isConnected && this.redis) {
       try {
-        const pattern = `ratelimit:${key}:*`;
-        const keys = await this.redis.keys(pattern);
-        if (keys.length > 0) {
-          const redis = this.redis;
-          const counts = await Promise.all(keys.map((k: string) => redis.get(k)));
-          const totalCount = counts.reduce((sum: number, val: string | null) => sum + (parseInt(val || '0') || 0), 0);
-          return {
-            success: totalCount < 100, // Default threshold
-            remaining: Math.max(0, 100 - totalCount),
-            resetAt: Date.now() + 60_000,
-            limit: 100,
-          };
-        }
+        const now = Date.now();
+        const windowKey = `ratelimit:${key}:${Math.floor(now / windowMs)}`;
+        const val = await this.redis.get(windowKey);
+        const totalCount = parseInt(val || '0') || 0;
+        const resetAt = (Math.floor(now / windowMs) + 1) * windowMs;
+        return {
+          success: totalCount < max,
+          remaining: Math.max(0, max - totalCount),
+          resetAt,
+          limit: max,
+        };
       } catch (error) {
         logger.error('Redis rate limit status check failed', error);
       }

@@ -6,7 +6,8 @@ const MAX_LIMIT = 500;
 
 export const GET = withTeacherAuth(async ({ request }) => {
   const url = new URL(request.url);
-  const limit = Math.min(Number(url.searchParams.get('limit')) || 50, MAX_LIMIT);
+  const raw = Number(url.searchParams.get('limit'));
+  const limit = Number.isFinite(raw) && raw > 0 ? Math.min(raw, MAX_LIMIT) : 50;
   const metrics = getStudentEngagementMetrics(limit);
   return NextResponse.json({ metrics });
 });

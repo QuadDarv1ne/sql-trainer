@@ -117,28 +117,17 @@ export default function HomePage() {
   const { theme } = useTheme();
   const { data: session } = useSession();
   const [schemaInfo, setSchemaInfo] = useState<DatabaseInfo | null>(null);
-  const attemptCountRef = useRef(0);
-  const practiceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mounted, setMounted] = useState(false);
-  const progressSyncRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     setMounted(true);
-    return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps -- refs captured to local vars correctly
-      const timer = practiceTimerRef.current;
-      if (timer) clearTimeout(timer);
-      // eslint-disable-next-line react-hooks/exhaustive-deps -- refs captured to local vars correctly
-      const sync = progressSyncRef.current;
-      sync?.abort();
-    };
   }, []);
   const [explainPlan, setExplainPlan] = useState<string | null>(null);
   const [explainSuggestions, setExplainSuggestions] = useState<string[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(!onboardingCompleted);
   const [referenceTab, setReferenceTab] = useState<'reference' | 'glossary'>('reference');
 
-  const { executeQuery, executeExplain, executeVerify } = useQueryExecutor({
+  const { executeQuery, executeExplain, executeVerify, attemptCountRef } = useQueryExecutor({
     editorContent,
     isExecuting,
     dbType,
@@ -179,18 +168,8 @@ export default function HomePage() {
     };
   }, [session?.user]);
 
-  // Confirmation dialog for destructive actions
   const confirmAction = useCallback((message: string): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const handleConfirm = (e: MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const confirmed = window.confirm(message);
-        resolve(confirmed);
-        document.removeEventListener('click', handleConfirm);
-      };
-      document.addEventListener('click', handleConfirm);
-    });
+    return Promise.resolve(window.confirm(message));
   }, []);
 
   // Get current task
@@ -227,6 +206,7 @@ export default function HomePage() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- attemptCountRef is a mutable ref, not reactive
   }, [currentTask, dbType]);
 
   // Keyboard shortcuts
