@@ -1,8 +1,8 @@
 # SQL Trainer — Plan of 10 Quality Improvements
 
-> Created: 2026-06-19 | Updated: 2026-06-22
+> Created: 2026-06-19 | Updated: 2026-06-23
 
-## Plan
+## Phase 1 — Completed
 
 - [x] 1. Remove blanket `eslint-disable` from `db-users.ts`, fix all hidden warnings
 - [x] 2. Split `db-users.ts` (10K+ lines) into focused modules under `src/lib/db/`
@@ -29,22 +29,19 @@
 - [x] Remove stale `/api/deadlines` CSRF prefix
 - [x] Remove unused `db/index.ts` barrel file (dead re-export of `db-users.ts`)
 - [x] Fix flaky SQLite DB tests — add `crypto.randomUUID()` suffix to test DB filenames
+- [x] Fix Redis `getStatus` to use window-based keys instead of O(N) `KEYS` pattern scan
+- [x] Fix unsafe `Number()` coercion in teacher API routes (`churn-prediction`, `engagement`)
+- [x] Remove `confirmAction` event-listener memory leak in `page.tsx`
 
-## Next 10 — Phase 2 Roadmap
+## Phase 2 — Next 10 Quality Improvements
 
-1. **Enable TypeScript `strict: true`** — already enabled in tsconfig ✅
-2. ~~**Migrate middleware.ts → proxy**~~ ✅ Done — renamed file + updated all references, deprecation warning resolved
-3. ~~**Fix flaky db-progress test**~~ ✅ Done — use `.some()` instead of index-based assertion
-4. ~~**Add loading.tsx boundaries**~~ ✅ Done — skeleton loaders for /app, /dashboard, /admin, /teacher, /profile
-5. ~~**Fix flaky SQLite timeout tests**~~ ✅ Done — increased timeout to 15s for first-run DB initialization tests
-6. ~~**Add integration tests for API routes**~~ ✅ Done — tests for /api/sql/verify and /api/auth/register (6 new tests)
-7. ~~**Bundle size audit**~~ ✅ Done — lazy-loaded AnalyticsDashboard, LeaderboardTable, AdminAnalytics on admin page with skeleton placeholders
-8. ~~**Automate i18n key sync**~~ ✅ Done — test suite validates ru/en/zh key consistency and detects empty values
-9. **Performance monitoring** — add Web Vitals reporting to admin dashboard
-10. **E2E coverage expansion** — add tests for admin CRUD, teacher workflows, password reset flow
-
-## Remaining (Priority Order)
-
-1. ~~**Split `i18n.ts`** → convert 327KB file to `src/locales/{ru,en,zh}.json` with modular imports~~ ✅ Done
-2. **TypeScript strictness** → enable `strict: true` in tsconfig and fix resulting errors
-3. ~~**Migrate middleware.ts → proxy**~~ ✅ Done
+1. **Redis-backed rate limiting for auth endpoints** — replace in-memory fallback with Redis for `/api/auth/login`, `/api/auth/register`, `/api/auth/forgot-password` to prevent brute-force attacks in production
+2. **Add health check endpoint for Redis** — extend `/api/health` to report Redis connection status and latency, useful for monitoring and load balancer readiness probes
+3. **Add rate limit headers to all protected endpoints** — return `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` headers so clients can self-throttle
+4. **Web Vitals reporting** — add `web-vitals` package to track LCP, FID, CLS and send metrics to admin dashboard for performance monitoring
+5. **E2E tests for admin CRUD** — Playwright scenarios for user management (ban/unban, role change, soft delete, bulk operations)
+6. **E2E tests for teacher workflows** — Playwright scenarios for group creation, student invitations, deadline management
+7. **E2E tests for password reset flow** — Playwright scenarios for forgot-password → email → reset → login cycle
+8. **API response type safety** — add Zod schemas and TypeScript inferred types for all API response payloads to eliminate `as any` casts in client code
+9. **Bundle analysis automation** — add `@next/bundle-analyzer` with CI step to catch size regressions before merge
+10. **Accessibility audit** — run `@axe-core/react` against all pages, fix critical WCAG violations (missing aria-labels, color contrast, keyboard navigation)
