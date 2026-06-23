@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from 'next-themes';
 import ServiceWorkerRegister from '@/components/service-worker-register';
 import PwaInstallPrompt from '@/components/pwa-install-prompt';
+import WebVitals from '@/components/web-vitals';
 import { ThemeTimeSync } from '@/components/theme-time-sync';
 import { ThemeColorMeta } from '@/components/theme-color-meta';
 import { CsrfTokenMeta } from './csrf-token-meta';
@@ -74,6 +75,7 @@ export default function RootLayout({
           <ThemeColorMeta />
           <ServiceWorkerRegister />
           <PwaInstallPrompt />
+          <WebVitals />
         </ThemeProvider>
       </body>
     </html>
