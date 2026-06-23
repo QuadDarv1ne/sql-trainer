@@ -4,7 +4,7 @@ import { createUser } from '@/lib/db-users';
 import type { UserRole } from '@/lib/db-users';
 import { rateLimit } from '@/lib/rate-limit';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
-import { logger } from '@/lib/logger';
+import { apiServerError } from '@/lib/api-error';
 import { validateBody } from '@/lib/validation';
 
 const ALLOWED_SELF_ROLES: UserRole[] = ['student', 'teacher'];
@@ -61,7 +61,6 @@ export async function POST(request: NextRequest) {
       user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role },
     });
   } catch (err: unknown) {
-    logger.error('Registration error:', err);
-    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
+    return apiServerError('Registration', undefined, err);
   }
 }

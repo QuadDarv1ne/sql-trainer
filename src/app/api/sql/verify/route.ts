@@ -4,7 +4,7 @@ import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
 import { validateBody } from '@/lib/validation';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
-import { logger } from '@/lib/logger';
+import { apiServerError } from '@/lib/api-error';
 import type { MongoSchema } from '@/lib/mongodb-engine';
 import { sqlVerifySchema } from '@/lib/sql-schema';
 
@@ -83,11 +83,7 @@ export async function POST(request: NextRequest) {
     // For pure SELECT queries, use the original approach
     return verifySelectOnly(sql, task, effectiveDbType);
   } catch (err: unknown) {
-    logger.error('SQL verify error:', err);
-    return NextResponse.json(
-      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Internal server error' },
-      { status: 500 },
-    );
+    return apiServerError('SQL verify', undefined, err);
   }
 }
 

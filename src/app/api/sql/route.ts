@@ -3,7 +3,7 @@ import { executeQuery, executeWithSchema } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit } from '@/lib/rate-limit';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
-import { logger } from '@/lib/logger';
+import { apiServerError } from '@/lib/api-error';
 import { auth } from '@/lib/auth';
 import type { MongoSchema } from '@/lib/mongodb-engine';
 import { validateBody } from '@/lib/validation';
@@ -205,10 +205,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (err: unknown) {
-    logger.error('SQL execute error:', err);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error', columns: [], rows: [], executionTime: 0 },
-      { status: 500 },
-    );
+    return apiServerError('SQL execute', undefined, err);
   }
 }
