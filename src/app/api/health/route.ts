@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db-users';
+import { getRateLimiter } from '@/lib/rate-limiter-distributed';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
@@ -14,6 +15,7 @@ interface HealthStatus {
     heapTotal: number; // bytes
   };
   database: 'connected' | 'disconnected' | 'error';
+  redis: 'connected' | 'disconnected' | 'not_configured';
   version?: string;
 }
 
@@ -28,6 +30,7 @@ export async function GET() {
       heapTotal: process.memoryUsage().heapTotal,
     },
     database: 'disconnected',
+    redis: 'disconnected',
   };
 
   try {
@@ -46,14 +49,24 @@ export async function GET() {
   }
 
   try {
+    const limiter = getRateLimiter();
+    status.redis = limiter.isHealthy() ? 'connected' : 'disconnected';
+    if (status.redis === 'disconnected') {
+      status.status = 'degraded';
+    }
+  } catch {
+    status.redis = 'not_configured';
+  }
+
+  try {
     status.version = process.env.NEXT_PUBLIC_APP_VERSION || undefined;
   } catch {
     // no-op
   }
 
-  if (status.database === 'connected') {
+  if (status.database === 'connected' && status.redis !== 'disconnected') {
     status.status = 'healthy';
-  } else if (status.database === 'error') {
+  } else if (status.database === 'error' || status.redis === 'disconnected') {
     status.status = 'degraded';
   }
 

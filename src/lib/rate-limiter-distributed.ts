@@ -25,6 +25,7 @@ export interface RateLimiter {
   check(key: string, options: RateLimitOptions): Promise<RateLimitResult>;
   reset(key: string): Promise<void>;
   getStatus(key: string, options?: RateLimitOptions): Promise<RateLimitResult | null>;
+  isHealthy(): boolean;
 }
 
 /**
@@ -144,6 +145,10 @@ export class RedisRateLimiter implements RateLimiter {
       }
     }
     return null;
+  }
+
+  isHealthy(): boolean {
+    return this.isConnected;
   }
 
   async disconnect(): Promise<void> {
