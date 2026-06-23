@@ -46,3 +46,16 @@
 8. [x] **API response type safety** — add Zod schemas and TypeScript inferred types for all API response payloads to eliminate `as any` casts in client code
 9. [x] **Bundle analysis automation** — add `@next/bundle-analyzer` with CI step to catch size regressions before merge
 10. [x] **Accessibility audit** — run `@axe-core/react` against all pages, fix critical WCAG violations (missing aria-labels, color contrast, keyboard navigation)
+
+## Phase 3 — Next 10 Quality Improvements
+
+1. [x] **Add loading.tsx for auth routes** — skeleton loaders for /login, /register, /forgot-password to prevent blank screens during navigation
+2. **Error boundary for all API routes** — centralized error handler with structured JSON responses and correlation IDs for debugging
+3. **Response time logging for slow queries** — log SQL execution time > 1s with query summary in production
+4. **Input sanitization audit** — review all user-facing inputs for XSS, ensure consistent escaping across components
+5. **Database connection pool monitoring** — add metrics for active/idle connections, connection wait time, and pool exhaustion events
+6. **Image optimization audit** — ensure all images use next/image with proper sizes, formats (WebP/AVIF), and lazy loading
+7. **Dead code elimination** — run `ts-prune` or similar to find and remove unused exports across the codebase
+8. **CSP nonce for inline scripts** — implement dynamic nonce generation for Content Security Policy to allow necessary inline scripts
+9. **API response compression** — enable gzip/brotli compression for API responses to reduce payload sizes
+10. **Automated dependency updates** — configure Renovate or Dependabot for automated security patches
