@@ -62,7 +62,7 @@ export function ReminderBell() {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative" aria-label={t('notification.title')}>
           <Bell className="h-5 w-5" />
           {reminders.length > 0 && (
             <Badge

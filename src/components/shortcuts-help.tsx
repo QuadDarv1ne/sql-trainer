@@ -46,7 +46,7 @@ export default function ShortcutsHelp() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={t('shortcuts.title')}>
           <HelpCircle className="h-4 w-4" />
         </Button>
       </DialogTrigger>

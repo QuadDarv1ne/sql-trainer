@@ -433,7 +433,7 @@ export default function HomePage() {
           {/* Mobile menu */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden h-9 w-9 rounded-lg">
+              <Button variant="ghost" size="icon" className="md:hidden h-9 w-9 rounded-lg" aria-label="Open menu">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -451,6 +451,7 @@ export default function HomePage() {
             size="icon"
             className="hidden md:flex h-9 sm:h-10 w-9 sm:w-10 rounded-lg hover:bg-muted/70 transition-all"
             onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           >
             {sidebarOpen ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
           </Button>
