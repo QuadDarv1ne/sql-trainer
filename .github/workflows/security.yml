@@ -9,6 +9,10 @@ on:
     # Run security scan daily at 6 AM UTC
     - cron: '0 6 * * *'
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   security:
     runs-on: ubuntu-latest
@@ -38,8 +42,16 @@ jobs:
         run: npm ci
 
       - name: Run npm audit
-        run: npm audit --audit-level=moderate
+        run: npm audit --audit-level=moderate --json > audit-results.json 2>&1 || true
         continue-on-error: true
+
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-results
+          path: audit-results.json
+          retention-days: 30
 
       - name: Dependency review
         uses: actions/dependency-review-action@v4
@@ -47,3 +59,25 @@ jobs:
         with:
           fail-on-severity: moderate
           deny-licenses: GPL-3.0, AGPL-3.0
+
+      - name: Check for hardcoded secrets
+        run: |
+          echo "🔍 Checking for hardcoded secrets..."
+          if grep -r -i -E "(password|secret|api_key|token) *= *['\"][^'\"]{8,}" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" src/ 2>/dev/null | grep -v "node_modules" | grep -v ".test." | grep -v "turbopackIgnore"; then
+            echo "⚠️  Warning: Potential hardcoded secrets detected. Please use environment variables instead."
+          else
+            echo "✅ No obvious hardcoded secrets found."
+          fi
+        continue-on-error: true
+
+      - name: Check for console.log statements
+        run: |
+          echo "🔍 Checking for console.log statements in production code..."
+          console_count=$(grep -r "console\.\(log\|warn\|error\)" --include="*.ts" --include="*.tsx" src/ 2>/dev/null | grep -v "node_modules" | grep -v ".test." | wc -l)
+          if [ "$console_count" -gt 0 ]; then
+            echo "⚠️  Found $console_count console.log/warn/error statements in production code."
+            echo "   Consider using the logger from '@/lib/logger' instead."
+          else
+            echo "✅ No console.log statements found in production code."
+          fi
+        continue-on-error: true
