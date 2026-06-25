@@ -1,19 +1,19 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Password reset flow', () => {
-  test('forgot-password page loads', async ({ page }) => {
-    await page.goto('/forgot-password');
+  test('reset-password page loads', async ({ page }) => {
+    await page.goto('/reset-password');
     await expect(page.getByText(/password|reset/i)).toBeVisible({ timeout: 10000 });
   });
 
-  test('forgot-password form has email input', async ({ page }) => {
-    await page.goto('/forgot-password');
+  test('reset-password form has email input', async ({ page }) => {
+    await page.goto('/reset-password');
     const emailInput = page.getByRole('textbox', { name: /email/i });
     await expect(emailInput).toBeVisible({ timeout: 10000 });
   });
 
-  test('forgot-password submit with empty email shows error', async ({ page }) => {
-    await page.goto('/forgot-password');
+  test('reset-password submit with empty email shows error', async ({ page }) => {
+    await page.goto('/reset-password');
     const submitButton = page.getByRole('button', { name: /submit|reset|send/i });
     if (await submitButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await submitButton.click();

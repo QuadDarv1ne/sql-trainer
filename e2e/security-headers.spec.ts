@@ -14,10 +14,10 @@ test.describe('Security headers (proxy)', () => {
     expect(headers['strict-transport-security']).toMatch(/max-age=\d+/);
   });
 
-  test('X-Frame-Options is SAMEORIGIN', async ({ page }) => {
+  test('X-Frame-Options is DENY', async ({ page }) => {
     const resp = await page.goto('/');
     const headers = resp!.headers();
-    expect(headers['x-frame-options']).toBe('SAMEORIGIN');
+    expect(headers['x-frame-options']).toBe('DENY');
   });
 
   test('X-Content-Type-Options is nosniff', async ({ page }) => {
@@ -30,6 +30,20 @@ test.describe('Security headers (proxy)', () => {
     const resp = await page.goto('/');
     const headers = resp!.headers();
     expect(headers['referrer-policy']).toBe('strict-origin-when-cross-origin');
+  });
+
+  test('X-XSS-Protection is enabled', async ({ page }) => {
+    const resp = await page.goto('/');
+    const headers = resp!.headers();
+    expect(headers['x-xss-protection']).toBe('1; mode=block');
+  });
+
+  test('Permissions-Policy blocks camera/microphone/geolocation', async ({ page }) => {
+    const resp = await page.goto('/');
+    const headers = resp!.headers();
+    expect(headers['permissions-policy']).toContain('camera=()');
+    expect(headers['permissions-policy']).toContain('microphone=()');
+    expect(headers['permissions-policy']).toContain('geolocation=()');
   });
 });
 
