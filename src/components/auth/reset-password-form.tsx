@@ -12,6 +12,7 @@ import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
 import { Loader2, Mail, Lock, AlertCircle, CheckCircle2, KeyRound, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { evaluatePasswordStrength } from '@/lib/password-strength';
 
 type Step = 'request' | 'verify' | 'done';
 
@@ -21,16 +22,14 @@ function getPasswordStrength(password: string): {
   color: string;
   requirements: { met: boolean; text: string }[];
 } {
+  const { score, checks } = evaluatePasswordStrength(password);
   const requirements = [
-    { met: password.length >= 8, text: t('auth.passwordPlaceholder') },
-    { met: /[A-Z]/.test(password), text: t('profile.req.uppercase') },
-    { met: /[a-z]/.test(password), text: t('profile.req.lowercase') },
-    { met: /\d/.test(password), text: t('profile.req.digit') },
-    { met: /[^A-Za-z0-9]/.test(password), text: t('profile.req.special') },
+    { met: checks.minLength, text: t('auth.passwordPlaceholder') },
+    { met: checks.uppercase, text: t('profile.req.uppercase') },
+    { met: checks.lowercase, text: t('profile.req.lowercase') },
+    { met: checks.digit, text: t('profile.req.digit') },
+    { met: checks.special, text: t('profile.req.special') },
   ];
-
-  const metCount = requirements.filter((r) => r.met).length;
-  const score = Math.round((metCount / requirements.length) * 100);
 
   let label = t('auth.strength.weak');
   let colorClasses = { light: 'text-red-500', dark: 'dark:text-red-400' };

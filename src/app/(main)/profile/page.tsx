@@ -45,6 +45,8 @@ import LeaderboardTable from '@/components/profile/leaderboard';
 import { useSQLTrainerStore } from '@/lib/store';
 import { t } from '@/lib/i18n';
 
+import { evaluatePasswordStrength } from '@/lib/password-strength';
+
 interface UserProfile {
   id: string;
   name: string;
@@ -60,16 +62,14 @@ function getPasswordStrength(password: string): {
   color: string;
   requirements: { met: boolean; text: string }[];
 } {
+  const { score, checks } = evaluatePasswordStrength(password);
   const requirements = [
-    { met: password.length >= 8, text: t('profile.req.minChars') },
-    { met: /[A-Z]/.test(password), text: t('profile.req.uppercase') },
-    { met: /[a-z]/.test(password), text: t('profile.req.lowercase') },
-    { met: /\d/.test(password), text: t('profile.req.digit') },
-    { met: /[^A-Za-z0-9]/.test(password), text: t('profile.req.special') },
+    { met: checks.minLength, text: t('profile.req.minChars') },
+    { met: checks.uppercase, text: t('profile.req.uppercase') },
+    { met: checks.lowercase, text: t('profile.req.lowercase') },
+    { met: checks.digit, text: t('profile.req.digit') },
+    { met: checks.special, text: t('profile.req.special') },
   ];
-
-  const metCount = requirements.filter((r) => r.met).length;
-  const score = Math.round((metCount / requirements.length) * 100);
 
   let label = t('profile.strength.weak');
   let color = 'text-red-500';
