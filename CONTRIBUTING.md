@@ -84,9 +84,16 @@ Flat config at `eslint.config.mjs`. Key rules:
 
 ### Database
 
-- User data: SQLite via `better-sqlite3` (`src/lib/db-users.ts`)
+- User data: SQLite via `better-sqlite3` (`src/lib/db-users.ts`, modular `src/lib/db/`)
 - Training data: in-memory SQLite (`src/lib/sql-engine.ts`)
 - Schema creation is handled at startup — no manual migrations yet
+
+### Shared Utilities
+
+- `src/lib/password-strength.ts` — password strength evaluation (used by auth forms and profile)
+- `src/lib/validation.ts` — Zod-based request body validation helpers
+- `src/lib/api-auth.ts` — auth wrappers (`withAdminAuth`, `withUserAuth`, `withTeacherAuth`)
+- `src/lib/api-error.ts` — centralized API error responses with correlation IDs
 
 ## Git Workflow
 
