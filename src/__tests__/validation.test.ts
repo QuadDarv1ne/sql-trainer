@@ -1,11 +1,6 @@
-/**
- * Tests for validation utilities.
- * Tests validateBody, parseAndValidate, and withValidation functions.
- */
-
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
-import { validateBody, parseAndValidate, withValidation } from '@/lib/validation';
+import { validateBody, parseAndValidate } from '@/lib/validation';
 
 describe('Validation Utilities', () => {
   const testSchema = z.object({
@@ -180,70 +175,6 @@ describe('Validation Utilities', () => {
       const result = await parseAndValidate(mockRequest, arraySchema);
 
       expect('response' in result).toBe(true);
-    });
-  });
-
-  describe('withValidation', () => {
-    it('should call handler with valid data', async () => {
-      const mockHandler = vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
-
-      const wrappedHandler = withValidation(testSchema, mockHandler);
-
-      const mockRequest = {
-        json: async () => ({ name: 'Bob', age: 35 }),
-      } as unknown as Request;
-
-      await wrappedHandler(mockRequest);
-
-      expect(mockHandler).toHaveBeenCalledTimes(1);
-      expect(mockHandler).toHaveBeenCalledWith(mockRequest, { name: 'Bob', age: 35 });
-    });
-
-    it('should return error response for invalid data', async () => {
-      const mockHandler = vi.fn();
-
-      const wrappedHandler = withValidation(testSchema, mockHandler);
-
-      const mockRequest = {
-        json: async () => ({ name: '', age: 35 }),
-      } as unknown as Request;
-
-      const response = await wrappedHandler(mockRequest);
-
-      expect(mockHandler).not.toHaveBeenCalled();
-      expect(response.status).toBe(400);
-    });
-
-    it('should handle handler errors', async () => {
-      const mockHandler = vi.fn().mockRejectedValue(new Error('Handler error'));
-
-      const wrappedHandler = withValidation(testSchema, mockHandler);
-
-      const mockRequest = {
-        json: async () => ({ name: 'Bob', age: 35 }),
-      } as unknown as Request;
-
-      await expect(wrappedHandler(mockRequest)).rejects.toThrow('Handler error');
-    });
-
-    it('should preserve request object for handler', async () => {
-      const mockHandler = vi.fn().mockImplementation(async (req, data) => {
-        expect(req).toBeDefined();
-        return new Response(JSON.stringify({ data }), { status: 200 });
-      });
-
-      const wrappedHandler = withValidation(testSchema, mockHandler);
-
-      const mockRequest = {
-        json: async () => ({ name: 'Bob', age: 35 }),
-        headers: new Headers(),
-        method: 'POST',
-        url: 'http://test.com/api',
-      } as unknown as Request;
-
-      await wrappedHandler(mockRequest);
-
-      expect(mockHandler).toHaveBeenCalled();
     });
   });
 

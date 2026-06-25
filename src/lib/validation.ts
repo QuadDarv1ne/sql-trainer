@@ -49,23 +49,3 @@ export async function parseAndValidate<T extends z.ZodType>(
 
   return validateBody(body, schema);
 }
-
-/**
- * Create a higher-order function that wraps a route handler with Zod validation.
- * Usage:
- *   export const POST = withValidation(sqlVerifySchema, async (req, data) => { ... });
- */
-export function withValidation<T extends z.ZodType>(
-  schema: T,
-  handler: (req: Request, data: z.infer<T>) => Promise<NextResponse>,
-) {
-  return async (req: Request): Promise<NextResponse> => {
-    const validation = await parseAndValidate(req, schema);
-
-    if ('response' in validation) {
-      return validation.response;
-    }
-
-    return handler(req, validation.data);
-  };
-}
