@@ -72,5 +72,9 @@ export async function GET() {
 
   return NextResponse.json(status, {
     status: status.status === 'healthy' ? 200 : 503,
+    headers: {
+      'Cache-Control': status.status === 'healthy' ? 'public, max-age=30' : 'no-store',
+      ...(status.status !== 'healthy' ? { 'Retry-After': '30' } : {}),
+    },
   });
 }
