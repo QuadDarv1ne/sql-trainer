@@ -17,6 +17,28 @@ import { logger } from './logger';
 let lastTick = 0;
 const TICK_INTERVAL_MS = 60_000; // Check every 60 seconds
 
+function isChannelEnabled(userId: string, channel: string): boolean {
+  const prefs = getNotificationPreferences(userId);
+  let channels: string[];
+  try {
+    channels = JSON.parse(prefs.channels_enabled);
+  } catch {
+    channels = ['in_app'];
+  }
+  return channels.includes(channel);
+}
+
+function getDeadlineInfo(
+  db: ReturnType<typeof getDb>,
+  deadlineId: string,
+): { title: string; type: string; due_at: number } | null {
+  return (
+    (db.prepare('SELECT * FROM deadlines WHERE id = ?').get(deadlineId) as
+      | { title: string; type: string; due_at: number }
+      | undefined) ?? null
+  );
+}
+
 export async function heartbeat(): Promise<{
   processed_reminders: number;
   processed_emails_sent: number;
@@ -66,28 +88,13 @@ function processDueReminders(): number {
           markScheduleSent(reminder.id);
           processed++;
         } else if (reminder.channel === 'email') {
-          // Get user preferences to check if email is enabled
-          const prefs = getNotificationPreferences(reminder.user_id);
-          let channels: string[];
-          try {
-            channels = JSON.parse(prefs.channels_enabled);
-          } catch {
-            channels = ['in_app'];
-          }
-          if (!channels.includes('email')) {
+          if (!isChannelEnabled(reminder.user_id, 'email')) {
             markScheduleSent(reminder.id);
             processed++;
             continue;
           }
 
-          // Get deadline info for email content
-          const deadline = db.prepare('SELECT * FROM deadlines WHERE id = ?').get(reminder.deadline_id) as
-            | {
-                title: string;
-                type: string;
-                due_at: number;
-              }
-            | undefined;
+          const deadline = getDeadlineInfo(db, reminder.deadline_id);
 
           if (deadline) {
             const now = Date.now();
@@ -106,28 +113,13 @@ function processDueReminders(): number {
           markScheduleSent(reminder.id);
           processed++;
         } else if (reminder.channel === 'push') {
-          // Get user preferences to check if push is enabled
-          const prefs = getNotificationPreferences(reminder.user_id);
-          let channels: string[];
-          try {
-            channels = JSON.parse(prefs.channels_enabled);
-          } catch {
-            channels = ['in_app'];
-          }
-          if (!channels.includes('push')) {
+          if (!isChannelEnabled(reminder.user_id, 'push')) {
             markScheduleSent(reminder.id);
             processed++;
             continue;
           }
 
-          // Get deadline info for push content
-          const deadline = db.prepare('SELECT * FROM deadlines WHERE id = ?').get(reminder.deadline_id) as
-            | {
-                title: string;
-                type: string;
-                due_at: number;
-              }
-            | undefined;
+          const deadline = getDeadlineInfo(db, reminder.deadline_id);
 
           if (deadline) {
             const now = Date.now();
