@@ -10,7 +10,8 @@ import {
 } from '@/lib/db-users';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
-import { escapeHtml, getUserEmail } from '@/lib/email';
+import { escapeHtml } from '@/lib/html-utils';
+import { getUserEmail } from '@/lib/email';
 import { validateBody } from '@/lib/validation';
 import { validateCsrfTokenEdge, csrfErrorResponse } from '@/lib/csrf';
 

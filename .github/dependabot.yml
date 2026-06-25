@@ -5,17 +5,52 @@ updates:
     schedule:
       interval: 'weekly'
       day: 'monday'
+      time: '06:00'
+      timezone: 'Europe/Moscow'
     open-pull-requests-limit: 10
     labels:
       - 'dependencies'
+      - 'automated'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
     groups:
-      production:
-        dependency-type: 'production'
+      codemirror:
+        patterns:
+          - '@codemirror/*'
+          - 'codemirror'
+          - '@lezer/*'
         update-types:
           - 'minor'
           - 'patch'
-      development:
-        dependency-type: 'development'
+      radix-ui:
+        patterns:
+          - '@radix-ui/*'
+        update-types:
+          - 'minor'
+          - 'patch'
+      testing:
+        patterns:
+          - 'vitest'
+          - '@vitest/*'
+          - '@testing-library/*'
+          - 'jsdom'
+        update-types:
+          - 'minor'
+          - 'patch'
+      playwright:
+        patterns:
+          - 'playwright'
+          - '@playwright/*'
+        update-types:
+          - 'minor'
+          - 'patch'
+      eslint:
+        patterns:
+          - 'eslint'
+          - 'eslint-*'
+          - '@typescript-eslint/*'
+          - 'eslint-config-*'
         update-types:
           - 'minor'
           - 'patch'
@@ -29,6 +64,23 @@ updates:
     schedule:
       interval: 'weekly'
       day: 'monday'
+      time: '06:00'
+      timezone: 'Europe/Moscow'
     labels:
       - 'dependencies'
+      - 'automated'
       - 'ci'
+    commit-message:
+      prefix: 'chore'
+
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    labels:
+      - 'dependencies'
+      - 'automated'
+      - 'docker'
+    commit-message:
+      prefix: 'chore'
