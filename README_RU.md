@@ -270,6 +270,6 @@ sql-trainer/
 
 <div align="center">
 
-**SQL Trainer** — © 2025 Дуплей Максим Игоревич
+**SQL Trainer** — © 2026 Дуплей Максим Игоревич
 
 </div>

@@ -58,11 +58,7 @@ export async function GET() {
     status.redis = 'not_configured';
   }
 
-  try {
-    status.version = process.env.NEXT_PUBLIC_APP_VERSION || undefined;
-  } catch {
-    // no-op
-  }
+  status.version = process.env.NEXT_PUBLIC_APP_VERSION || undefined;
 
   if (status.database === 'connected' && status.redis !== 'disconnected') {
     status.status = 'healthy';

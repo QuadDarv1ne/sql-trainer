@@ -22,7 +22,7 @@ function getPasswordStrength(password: string): {
   requirements: { met: boolean; text: string }[];
 } {
   const requirements = [
-    { met: password.length >= 6, text: t('auth.passwordPlaceholder') },
+    { met: password.length >= 8, text: t('auth.passwordPlaceholder') },
     { met: /[A-Z]/.test(password), text: t('profile.req.uppercase') },
     { met: /[a-z]/.test(password), text: t('profile.req.lowercase') },
     { met: /\d/.test(password), text: t('profile.req.digit') },
@@ -120,7 +120,7 @@ export default function ResetPasswordForm() {
       return;
     }
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       setError(t('auth.passwordTooShort'));
       return;
     }
