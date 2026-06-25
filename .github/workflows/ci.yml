@@ -23,6 +23,13 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+
       - name: Restore Next.js cache
         uses: actions/cache@v4
         with:
@@ -32,13 +39,11 @@ jobs:
             ${{ runner.os }}-nextjs-
 
       - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Typecheck
         run: npm run typecheck
-
-      - name: Build
-        run: npm run build
 
       - name: Lint
         run: npm run lint
@@ -49,6 +54,9 @@ jobs:
 
       - name: Test
         run: npm run test:ci
+
+      - name: Build
+        run: npm run build
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium

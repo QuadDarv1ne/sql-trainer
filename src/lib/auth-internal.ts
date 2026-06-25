@@ -146,4 +146,3 @@ const nextAuth = NextAuth({
 
 export const { auth, signIn, signOut } = nextAuth;
 export const { GET, POST } = nextAuth.handlers;
-export const handlers = nextAuth.handlers;
