@@ -3,7 +3,8 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { DIFFICULTY_LABELS, DIFFICULTY_COLORS, type TrainingTask } from '@/lib/training-tasks';
+import { DIFFICULTY_LABELS, DIFFICULTY_COLORS, type TrainingTask, type TaskCategory } from '@/lib/training-tasks';
+import { CATEGORY_ICONS } from '@/lib/category-icons';
 import { generateProgressiveHints, getNextHintLevel } from '@/lib/progressive-hints';
 import { t } from '@/lib/i18n';
 import ContextualTips from '@/components/contextual-tips';
@@ -76,6 +77,15 @@ export default function TaskPanel({
           <Badge className={`${DIFFICULTY_COLORS[task.difficulty]} shadow-sm`}>
             {DIFFICULTY_LABELS[task.difficulty]}
           </Badge>
+          {task.category && (
+            <Badge variant="secondary" className="text-[10px] px-2 py-0.5 shadow-sm">
+              {(() => {
+                const Icon = CATEGORY_ICONS[task.category as TaskCategory];
+                return Icon ? <Icon className="mr-1 h-3 w-3 inline" /> : null;
+              })()}
+              {t(`category.${task.category}`)}
+            </Badge>
+          )}
           {isCompleted && (
             <Badge
               variant="outline"

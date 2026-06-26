@@ -240,6 +240,14 @@ export default function ActionBar({
 
       {/* Right side: task info + navigation */}
       <div className="ml-auto flex items-center gap-2">
+        {/* Character count */}
+        {editorContent.length > 0 && (
+          <div className="hidden lg:flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 rounded bg-muted/50">
+            <span className="font-mono">{editorContent.length}</span>
+            <span>chars</span>
+          </div>
+        )}
+
         {/* Query count indicator */}
         {queryHistory.length > 0 && (
           <div className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 rounded bg-muted/50">

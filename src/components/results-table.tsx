@@ -152,6 +152,21 @@ export default function ResultsTable({
     toast.success(t('results.downloaded'));
   }, [columns, sortedRows]);
 
+  const exportMarkdown = useCallback(() => {
+    const header = '| ' + columns.join(' | ') + ' |';
+    const separator = '| ' + columns.map(() => '---').join(' | ') + ' |';
+    const rows = sortedRows.map((row) => '| ' + columns.map((col) => formatCellValue(row[col])).join(' | ') + ' |');
+    const md = [header, separator, ...rows].join('\n');
+    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'query_result.md';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(t('results.downloaded'));
+  }, [columns, sortedRows]);
+
   if (!success && error) {
     return (
       <div className="flex h-full flex-col gap-3 p-4">
@@ -288,6 +303,14 @@ export default function ResultsTable({
             aria-label={t('results.exportJSON', { default: 'Export JSON' })}
           >
             <span className="text-[10px] font-bold font-mono">{'{ }'}</span>
+          </button>
+          <button
+            onClick={exportMarkdown}
+            className="flex items-center justify-center h-8 w-8 rounded-lg text-muted-foreground transition-all hover:bg-muted hover:text-foreground hover:scale-105"
+            title={t('results.exportMarkdown', { default: 'Export Markdown' })}
+            aria-label={t('results.exportMarkdown', { default: 'Export Markdown' })}
+          >
+            <span className="text-[10px] font-bold font-mono">MD</span>
           </button>
           {columns.length >= 2 && (
             <button

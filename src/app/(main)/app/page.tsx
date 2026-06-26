@@ -94,6 +94,7 @@ export default function HomePage() {
     userStats,
     onboardingCompleted,
     setOnboardingCompleted,
+    toggleBookmark,
   } = useSQLTrainerStore();
 
   const editorRef = useRef<SQLEditorRef>(null);
@@ -248,6 +249,15 @@ export default function HomePage() {
         e.preventDefault();
         setSidebarOpen(!sidebarOpen);
       }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'B') {
+        e.preventDefault();
+        if (currentTaskId) toggleBookmark(currentTaskId);
+      }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'E') {
+        e.preventDefault();
+        executeQuery();
+        if (currentTaskId) executeVerify?.();
+      }
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
         e.preventDefault();
         const cycle: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
@@ -274,6 +284,9 @@ export default function HomePage() {
     sidebarOpen,
     setSidebarOpen,
     theme,
+    toggleBookmark,
+    currentTaskId,
+    executeVerify,
   ]);
 
   // Clear editor
