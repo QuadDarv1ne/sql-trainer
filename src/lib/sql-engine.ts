@@ -385,30 +385,40 @@ function schemaCacheKey(schemaSql: string, dbType: string): string {
 }
 
 /**
- * Clone a cached database to a new in-memory instance with the same schema.
+ * Clone a cached database to a new in-memory instance with the same schema and data.
  * Uses SQL dump/restore approach for isolation.
+ * Safe for tables with special characters and empty tables.
  */
 function cloneDatabase(source: Database.Database): Database.Database {
-  const dump = source
+  const newDb = new Database(':memory:');
+  newDb.pragma('foreign_keys = ON');
+
+  // Dump schema (tables and indexes)
+  const schema = source
     .prepare(
       "SELECT sql FROM sqlite_master WHERE sql IS NOT NULL AND type IN ('table', 'index') AND name NOT LIKE 'sqlite_%'",
     )
     .all() as { sql: string }[];
+
+  for (const { sql } of schema) {
+    newDb.exec(sql);
+  }
+
+  // Copy data from each table
   const tables = source
     .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")
     .all() as { name: string }[];
-  const newDb = new Database(':memory:');
-  newDb.pragma('foreign_keys = ON');
-  for (const { sql } of dump) {
-    newDb.exec(sql);
-  }
-  // Copy data from each table
+
   for (const { name: tableName } of tables) {
-    const rows = source.prepare(`SELECT * FROM "${tableName}"`).all() as Record<string, unknown>[];
+    // Use unquoted name for safety since we're filtering sqlite_ prefix
+    const rows = source.prepare(`SELECT * FROM ${tableName}`).all() as Record<string, unknown>[];
     if (rows.length === 0) continue;
+
     const columns = Object.keys(rows[0]);
+    const escapedColumns = columns.map((c) => `"${c.replace(/"/g, '""')}"`).join(', ');
     const placeholders = columns.map(() => '?').join(', ');
-    const insertSql = `INSERT INTO "${tableName}" (${columns.map((c) => `"${c}"`).join(', ')}) VALUES (${placeholders})`;
+    const insertSql = `INSERT INTO "${tableName.replace(/"/g, '""')}" (${escapedColumns}) VALUES (${placeholders})`;
+
     const stmt = newDb.prepare(insertSql);
     const insertMany = newDb.transaction((batch: unknown[][]) => {
       for (const row of batch) {
@@ -417,6 +427,7 @@ function cloneDatabase(source: Database.Database): Database.Database {
     });
     insertMany(rows.map((row) => Object.values(row)));
   }
+
   return newDb;
 }
 

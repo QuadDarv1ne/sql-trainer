@@ -29,6 +29,15 @@ function getLandingPage(role?: Role): string {
   }
 }
 
+/**
+ * Check if pathname exactly matches or starts with route path (avoiding partial matches).
+ * e.g., '/profile' matches '/profile' and '/profile/settings' but not '/profile-old'
+ */
+function matchesRoute(route: string, pathname: string): boolean {
+  if (pathname === route) return true;
+  return pathname.startsWith(route + '/');
+}
+
 export function evaluateRouteAccess(session: Session, pathname: string): { action: 'allow' | 'redirect'; url: string } {
   // Redirect authenticated users away from auth pages to their role landing
   if (authRoutes.includes(pathname) && session) {
@@ -36,7 +45,7 @@ export function evaluateRouteAccess(session: Session, pathname: string): { actio
   }
 
   // Redirect unauthenticated users to login for protected routes
-  if (protectedRoutes.some((route) => pathname.startsWith(route)) && !session) {
+  if (protectedRoutes.some((route) => matchesRoute(route, pathname)) && !session) {
     return {
       action: 'redirect',
       url: `/login?callbackUrl=${encodeURIComponent(pathname)}`,
@@ -45,7 +54,7 @@ export function evaluateRouteAccess(session: Session, pathname: string): { actio
 
   // Role-based route protection
   for (const [route, allowedRoles] of Object.entries(roleProtectedRoutes)) {
-    if (pathname === route || pathname.startsWith(route + '/')) {
+    if (matchesRoute(route, pathname)) {
       if (!session) {
         return {
           action: 'redirect',

@@ -1,7 +1,14 @@
 import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
-import { generateCsrfTokenEdge, validateCsrfTokenEdge, isCsrfProtectedMethod, getCookieFromHeader } from '@/lib/csrf';
+import {
+  generateCsrfTokenEdge,
+  validateCsrfTokenEdge,
+  isCsrfProtectedMethod,
+  getCookieFromHeader,
+  CSRF_COOKIE_NAME,
+} from '@/lib/csrf';
 import { evaluateRouteAccess } from '@/lib/route-protection';
+import { logger } from '@/lib/logger';
 
 // API routes that handle state-changing operations and need CSRF validation
 const csrfProtectedApiPrefixes = [
@@ -76,14 +83,19 @@ export default auth(async (request) => {
   const response = NextResponse.next();
 
   // Generate CSRF token for authenticated requests only when missing
-  // Avoids regenerating on every request which breaks multi-tab usage
+  // Use a flag to avoid regenerating on every request which breaks multi-tab usage
   if (session) {
-    const existingCsrfCookie = getCookieFromHeader(request, 'csrf-token-raw');
+    const existingCsrfCookie = getCookieFromHeader(request, `${CSRF_COOKIE_NAME}-raw`);
     if (!existingCsrfCookie) {
-      const { rawToken, setCookieHeaders } = await generateCsrfTokenEdge();
-      response.headers.set('X-CSRF-Token', rawToken);
-      for (const cookieHeader of setCookieHeaders) {
-        response.headers.append('Set-Cookie', cookieHeader);
+      try {
+        const { rawToken, setCookieHeaders } = await generateCsrfTokenEdge();
+        response.headers.set('X-CSRF-Token', rawToken);
+        for (const cookieHeader of setCookieHeaders) {
+          response.headers.append('Set-Cookie', cookieHeader);
+        }
+      } catch {
+        // CSRF token generation is non-critical; allow request to proceed
+        logger.warn('Failed to generate CSRF token, proceeding without it');
       }
     }
   }
