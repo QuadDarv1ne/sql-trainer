@@ -1,58 +1,68 @@
 # План улучшений SQL Trainer — Сессия 2026-06-26
 
-> **Версия проекта:** v0.3.0 | **Дата:** 2026-06-26 | **Итого: 21 улучшение**
+> **Версия проекта:** v0.3.0 | **Дата:** 2026-06-26 | **Итого: 26 улучшений**
 
 ---
 
-## Батч 1 — Горячие клавиши и UX (5c7f98d)
+## Батч 1 (5c7f98d) — Горячие клавиши и UX
 
-| # | Улучшение | Файл |
-|---|-----------|------|
-| 1 | Ctrl+B — toggle боковой панели | `page.tsx` |
-| 2 | Copy SQL — копирование решения | `task-panel.tsx` |
-| 3 | Row count badge | `results-table.tsx` |
-| 4 | Ctrl+Shift+D — переключение темы | `page.tsx` |
-| 5 | Shortcuts help | `shortcuts-help.tsx` |
+| # | Улучшение |
+|---|-----------|
+| 1 | Ctrl+B — toggle боковой панели |
+| 2 | Copy SQL — копирование решения |
+| 3 | Row count badge |
+| 4 | Ctrl+Shift+D — переключение темы |
+| 5 | Shortcuts help |
 
-## Батч 2 — Навигация и экспорт (8b6724a)
+## Батч 2 (8b6724a) — Навигация и экспорт
 
-| # | Улучшение | Файл |
-|---|-----------|------|
-| 6 | Copy error | `results-table.tsx` |
-| 7 | JSON export | `results-table.tsx` |
-| 8 | Difficulty badge | `action-bar.tsx` |
-| 9 | Prev/Next navigation | `action-bar.tsx` |
-| 10 | Query counter | `action-bar.tsx` |
+| # | Улучшение |
+|---|-----------|
+| 6 | Copy error |
+| 7 | JSON export |
+| 8 | Difficulty badge |
+| 9 | Prev/Next navigation |
+| 10 | Query counter |
 
-## Батч 3 — Закладки и визуал (d8cf048)
+## Батч 3 (d8cf048) — Закладки и визуал
 
-| # | Улучшение | Файл |
-|---|-----------|------|
-| 11 | Bookmark toggle | `action-bar.tsx` |
-| 12 | Clear confirmation | `action-bar.tsx` |
-| 13 | Progress mini-bar | `sidebar.tsx` |
+| # | Улучшение |
+|---|-----------|
+| 11 | Bookmark toggle |
+| 12 | Clear confirmation |
+| 13 | Progress mini-bar |
 
-## Батч 4 — Уведомления и статус (82857fa)
+## Батч 4 (82857fa) — Уведомления и статус
 
-| # | Улучшение | Файл |
-|---|-----------|------|
-| 14 | Clear history button | `action-bar.tsx` |
-| 15 | XP в toast уведомлении | `use-query-executor.ts` |
-| 16 | Cols badge | `results-table.tsx` |
+| # | Улучшение |
+|---|-----------|
+| 14 | Clear history button |
+| 15 | XP в toast уведомлении |
+| 16 | Cols badge |
 
-## Батч 5 — Горячие клавиши и форматы (текущий)
+## Батч 5 (b283df9) — Горячие клавиши и форматы
 
-| # | Улучшение | Файл |
-|---|-----------|------|
-| 17 | Ctrl+Shift+B — bookmark shortcut | `page.tsx` |
-| 18 | Ctrl+Shift+E — execute + verify | `page.tsx` |
-| 19 | Character count indicator | `action-bar.tsx` |
-| 20 | Markdown table export | `results-table.tsx` |
-| 21 | Category badge в task panel | `task-panel.tsx` |
+| # | Улучшение |
+|---|-----------|
+| 17 | Ctrl+Shift+B — bookmark shortcut |
+| 18 | Ctrl+Shift+E — execute + verify |
+| 19 | Character count indicator |
+| 20 | Markdown table export |
+| 21 | Category badge в task panel |
+
+## Батч 6 (текущий) — Копирование и навигация
+
+| # | Улучшение |
+|---|-----------|
+| 22 | Ctrl+Shift+X — clear history shortcut |
+| 23 | Copy SQL button в action bar |
+| 24 | Task progress indicator (X/Y) |
+| 25 | Shortcuts help обновлена |
+| 26 | ClipboardCopy иконка |
 
 ---
 
-## Результаты проверки
+## Проверки
 
 | Проверка | Статус |
 |----------|--------|

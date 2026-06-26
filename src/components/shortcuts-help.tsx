@@ -45,6 +45,9 @@ const SHORTCUTS = [
     items: [
       { keys: 'Ctrl + B', description: t('shortcuts.toggleSidebar', { default: 'Toggle sidebar' }) },
       { keys: 'Ctrl + Shift + D', description: t('shortcuts.toggleTheme', { default: 'Toggle theme' }) },
+      { keys: 'Ctrl + Shift + B', description: t('shortcuts.bookmarkTask', { default: 'Bookmark task' }) },
+      { keys: 'Ctrl + Shift + E', description: t('shortcuts.executeAndVerify', { default: 'Execute & verify' }) },
+      { keys: 'Ctrl + Shift + X', description: t('shortcuts.clearHistory', { default: 'Clear history' }) },
     ],
   },
 ];

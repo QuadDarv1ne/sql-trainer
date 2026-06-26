@@ -23,6 +23,7 @@ import {
   CheckCircle2,
   Bookmark,
   History,
+  ClipboardCopy,
 } from 'lucide-react';
 
 interface ActionBarProps {
@@ -208,6 +209,23 @@ export default function ActionBar({
 
         {!currentTask && <SqlTemplates onInsertTemplate={onInsertTemplate} />}
 
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs sm:text-sm hover:bg-muted/70 transition-all"
+              disabled={!editorContent.trim()}
+              onClick={() => {
+                navigator.clipboard.writeText(editorContent);
+              }}
+            >
+              <ClipboardCopy className="h-3.5 w-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('action.copySql', { default: 'Copy SQL' })}</TooltipContent>
+        </Tooltip>
+
         <Button
           variant="ghost"
           size="sm"
@@ -253,6 +271,15 @@ export default function ActionBar({
           <div className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 rounded bg-muted/50">
             <span className="font-semibold">{queryHistory.length}</span>
             <span className="hidden lg:inline">{queryHistory.length === 1 ? 'query' : 'queries'}</span>
+          </div>
+        )}
+
+        {/* Task progress indicator */}
+        {currentTask && taskIndex >= 0 && (
+          <div className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 rounded bg-muted/50">
+            <span className="font-semibold">{taskIndex + 1}</span>
+            <span>/</span>
+            <span>{TRAINING_TASKS.length}</span>
           </div>
         )}
 

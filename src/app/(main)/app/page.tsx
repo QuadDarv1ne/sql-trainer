@@ -258,6 +258,13 @@ export default function HomePage() {
         executeQuery();
         if (currentTaskId) executeVerify?.();
       }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'X') {
+        e.preventDefault();
+        const { clearHistory } = useSQLTrainerStore.getState();
+        if (window.confirm(t('action.clearHistoryConfirm', { default: 'Clear query history?' }))) {
+          clearHistory();
+        }
+      }
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
         e.preventDefault();
         const cycle: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
