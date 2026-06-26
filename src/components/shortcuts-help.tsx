@@ -40,6 +40,13 @@ const SHORTCUTS = [
       { keys: 'Ctrl + D', description: t('shortcuts.selectNext') },
     ],
   },
+  {
+    category: t('shortcuts.interface', { default: 'Interface' }),
+    items: [
+      { keys: 'Ctrl + B', description: t('shortcuts.toggleSidebar', { default: 'Toggle sidebar' }) },
+      { keys: 'Ctrl + Shift + D', description: t('shortcuts.toggleTheme', { default: 'Toggle theme' }) },
+    ],
+  },
 ];
 
 export default function ShortcutsHelp() {

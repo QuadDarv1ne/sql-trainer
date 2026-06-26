@@ -268,6 +268,12 @@ export default function ResultsTable({
             <Clock className="h-3 w-3" />
             {executionTime.toFixed(1)} {t('results.ms')}
           </div>
+          {rows.length > 0 && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 rounded bg-muted/50">
+              <span className="font-semibold">{rows.length}</span>
+              {plural(rows.length, 'row', 'rows', 'rows')}
+            </div>
+          )}
         </div>
       </div>
 

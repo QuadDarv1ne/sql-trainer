@@ -244,6 +244,18 @@ export default function HomePage() {
         e.preventDefault();
         setEditorContent(formatSQL(editorContent));
       }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault();
+        setSidebarOpen(!sidebarOpen);
+      }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
+        e.preventDefault();
+        const cycle: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
+        const idx = cycle.indexOf((theme as 'light' | 'dark' | 'system') || 'system');
+        const next = cycle[(idx + 1) % cycle.length];
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('next-theme', next);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -259,6 +271,9 @@ export default function HomePage() {
     setTotalHintPenalty,
     editorContent,
     currentTask,
+    sidebarOpen,
+    setSidebarOpen,
+    theme,
   ]);
 
   // Clear editor

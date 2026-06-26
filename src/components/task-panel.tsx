@@ -7,6 +7,7 @@ import { DIFFICULTY_LABELS, DIFFICULTY_COLORS, type TrainingTask } from '@/lib/t
 import { generateProgressiveHints, getNextHintLevel } from '@/lib/progressive-hints';
 import { t } from '@/lib/i18n';
 import ContextualTips from '@/components/contextual-tips';
+import { toast } from 'sonner';
 import {
   BookOpen,
   CheckCircle2,
@@ -318,15 +319,29 @@ export default function TaskPanel({
               <pre className="overflow-x-auto whitespace-pre-wrap break-words text-xs font-mono bg-muted/60 rounded-lg p-3.5">
                 {task.sampleSolution}
               </pre>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full h-9 text-xs hover:bg-muted/70 transition-all"
-                onClick={() => onUseSolution(task.sampleSolution)}
-              >
-                <Copy className="mr-2 h-4 w-4" />
-                <span className="font-medium">{t('task.solutionUse')}</span>
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 h-9 text-xs hover:bg-muted/70 transition-all"
+                  onClick={() => {
+                    navigator.clipboard.writeText(task.sampleSolution);
+                    toast.success(t('task.solutionCopied', { default: 'Solution copied to clipboard' }));
+                  }}
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  <span className="font-medium">{t('task.solutionCopy', { default: 'Copy SQL' })}</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 h-9 text-xs hover:bg-muted/70 transition-all"
+                  onClick={() => onUseSolution(task.sampleSolution)}
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  <span className="font-medium">{t('task.solutionUse')}</span>
+                </Button>
+              </div>
             </div>
           </div>
         )}
