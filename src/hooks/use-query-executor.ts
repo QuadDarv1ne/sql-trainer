@@ -105,7 +105,8 @@ export function useQueryExecutor({
             markTaskCompleted(currentTaskId, attemptCountRef.current);
             updateStreak();
             toast.success(t('task.completed'), {
-              description: `${attemptCountRef.current} ${plural(attemptCountRef.current, t('task.attempts'), t('task.attemptsFew'), t('task.attemptsMany'))}`,
+              description: `${attemptCountRef.current} ${plural(attemptCountRef.current, t('task.attempts'), t('task.attemptsFew'), t('task.attemptsMany'))} • +${useSQLTrainerStore.getState().userStats.xp} XP`,
+              duration: 4000,
             });
 
             if (practiceMode.active) {

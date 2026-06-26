@@ -22,6 +22,7 @@ import {
   Redo2,
   CheckCircle2,
   Bookmark,
+  History,
 } from 'lucide-react';
 
 interface ActionBarProps {
@@ -59,7 +60,8 @@ export default function ActionBar({
   currentTaskId,
   practiceMode,
 }: ActionBarProps) {
-  const { editorContent, queryHistory, setCurrentTaskId, bookmarkedTasks, toggleBookmark } = useSQLTrainerStore();
+  const { editorContent, queryHistory, setCurrentTaskId, bookmarkedTasks, toggleBookmark, clearHistory } =
+    useSQLTrainerStore();
   const currentTask = currentTaskId ? getTaskById(currentTaskId) : null;
   const isBookmarked = currentTaskId ? bookmarkedTasks.includes(currentTaskId) : false;
 
@@ -183,6 +185,26 @@ export default function ActionBar({
         <QueryHistory onRestoreQuery={onRestoreQuery} />
 
         <SavedQueries onLoadQuery={onLoadQuery} />
+
+        {queryHistory.length > 0 && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 text-xs sm:text-sm hover:bg-muted/70 transition-all"
+                onClick={() => {
+                  if (window.confirm(t('action.clearHistoryConfirm', { default: 'Clear query history?' }))) {
+                    clearHistory();
+                  }
+                }}
+              >
+                <History className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('action.clearHistory', { default: 'Clear history' })}</TooltipContent>
+          </Tooltip>
+        )}
 
         {!currentTask && <SqlTemplates onInsertTemplate={onInsertTemplate} />}
 

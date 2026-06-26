@@ -313,6 +313,12 @@ export default function ResultsTable({
               {plural(rows.length, 'row', 'rows', 'rows')}
             </div>
           )}
+          {columns.length > 0 && (
+            <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 rounded bg-muted/50">
+              <span className="font-semibold">{columns.length}</span>
+              {plural(columns.length, 'col', 'cols', 'cols')}
+            </div>
+          )}
         </div>
       </div>
 
