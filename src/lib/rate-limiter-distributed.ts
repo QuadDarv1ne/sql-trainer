@@ -58,7 +58,9 @@ export class RedisRateLimiter implements RateLimiter {
         logger.info('Redis rate limiter connected');
       } catch (error) {
         this.isConnected = false;
-        logger.warn('Redis connection failed, falling back to in-memory rate limiter', error);
+        logger.warn('Redis connection failed, falling back to in-memory rate limiter', {
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     })();
 
