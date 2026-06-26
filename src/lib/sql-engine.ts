@@ -410,8 +410,9 @@ function cloneDatabase(source: Database.Database): Database.Database {
     .all() as { name: string }[];
 
   for (const { name: tableName } of tables) {
-    // Use unquoted name for safety since we're filtering sqlite_ prefix
-    const rows = source.prepare(`SELECT * FROM ${tableName}`).all() as Record<string, unknown>[];
+    // Escape table name to prevent SQL injection
+    const safeName = tableName.replace(/"/g, '""');
+    const rows = source.prepare(`SELECT * FROM "${safeName}"`).all() as Record<string, unknown>[];
     if (rows.length === 0) continue;
 
     const columns = Object.keys(rows[0]);
@@ -497,15 +498,36 @@ function executeStatements(db: Database.Database, statements: string[], batchSta
           message: truncated ? t('sql.success.rowsLimited', { maxRows: String(MAX_ROWS) }) : undefined,
         };
       } else if (isDDL(stmt)) {
-        db.exec(stmt);
-        const executionTime = performance.now() - stmtStartTime;
-        lastResult = {
-          success: true,
-          columns: [],
-          rows: [],
-          executionTime,
-          message: t('sql.success.ddl'),
-        };
+        // Wrap DDL in transaction for atomicity — rollback on error
+        try {
+          db.exec('BEGIN');
+          db.exec(stmt);
+          db.exec('COMMIT');
+          const executionTime = performance.now() - stmtStartTime;
+          lastResult = {
+            success: true,
+            columns: [],
+            rows: [],
+            executionTime,
+            message: t('sql.success.ddl'),
+          };
+        } catch (ddlErr: unknown) {
+          // Ensure rollback on DDL error
+          try {
+            db.exec('ROLLBACK');
+          } catch (_rollbackErr) {
+            /* Ignore rollback errors */
+          }
+          const errorMsg = ddlErr instanceof Error ? ddlErr.message : String(ddlErr);
+          return {
+            success: false,
+            columns: [],
+            rows: [],
+            error: errorMsg,
+            executionTime: performance.now() - stmtStartTime,
+            suggestion: getSuggestionForError(errorMsg),
+          };
+        }
       } else {
         const statement = db.prepare(stmt);
         const result = statement.run();
@@ -773,7 +795,9 @@ export function getSchemaInfo(
       .all() as { name: string }[];
 
     const tableInfos: TableInfo[] = tables.map((table) => {
-      const columns = db.prepare(`PRAGMA table_info("${table.name}")`).all() as {
+      // Escape table name to prevent SQL injection
+      const safeName = table.name.replace(/"/g, '""');
+      const columns = db.prepare(`PRAGMA table_info("${safeName}")`).all() as {
         name: string;
         type: string;
         notnull: number;

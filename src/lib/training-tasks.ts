@@ -30,6 +30,42 @@ import { ADVANCED_TASKS } from './tasks/advanced';
 import { MONGODB_TASKS } from './tasks/mongodb';
 import { MYSQL_TASKS } from './tasks/mysql';
 
+// Validate task IDs for uniqueness at module load time
+function validateTaskUniqueness(tasks: import('./tasks/types').TrainingTask[]): void {
+  const idSet = new Set<string>();
+  const duplicates: string[] = [];
+  for (const task of tasks) {
+    if (idSet.has(task.id)) {
+      duplicates.push(task.id);
+    } else {
+      idSet.add(task.id);
+    }
+  }
+  if (duplicates.length > 0) {
+    throw new Error(`Duplicate task IDs found: ${duplicates.join(', ')}`);
+  }
+}
+
+// Validate at module load time
+try {
+  validateTaskUniqueness(BEGINNER_TASKS);
+  validateTaskUniqueness(INTERMEDIATE_TASKS);
+  validateTaskUniqueness(ADVANCED_TASKS);
+  validateTaskUniqueness(MONGODB_TASKS);
+  validateTaskUniqueness(MYSQL_TASKS);
+  validateTaskUniqueness([
+    ...BEGINNER_TASKS,
+    ...INTERMEDIATE_TASKS,
+    ...ADVANCED_TASKS,
+    ...MONGODB_TASKS,
+    ...MYSQL_TASKS,
+  ]);
+} catch (err) {
+  // eslint-disable-next-line no-console
+  console.error('[TRAINING-TASKS] Validation failed:', err);
+  throw err;
+}
+
 export const TRAINING_TASKS = [
   ...BEGINNER_TASKS,
   ...INTERMEDIATE_TASKS,

@@ -17,8 +17,10 @@ export function validateBody<T extends z.ZodType>(
 
   if (!result.success) {
     const firstError = result.error.issues[0]?.message ?? t('export.error.invalidFormat');
+    // Sanitize error to prevent leaking internal field names
+    const safeError = firstError.replace(/[\n\r]/g, '').slice(0, 200);
     return {
-      response: NextResponse.json({ success: false, error: firstError }, { status: 400 }),
+      response: NextResponse.json({ success: false, error: safeError }, { status: 400 }),
     };
   }
 

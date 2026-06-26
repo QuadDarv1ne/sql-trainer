@@ -80,7 +80,12 @@ export default auth(async (request) => {
     return NextResponse.redirect(new URL(decision.url, request.url));
   }
 
+  const requestId = crypto.randomUUID().slice(0, 12);
+
   const response = NextResponse.next();
+
+  // Inject request ID for traceability across logs and client debugging
+  response.headers.set('X-Request-Id', requestId);
 
   // Generate CSRF token for authenticated requests only when missing
   // Use a flag to avoid regenerating on every request which breaks multi-tab usage

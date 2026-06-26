@@ -117,6 +117,11 @@ function extractStatementTypes(sql: string): string[] {
  * Uses tokenization to prevent comment injection bypass.
  */
 function validateTrainingSql(sql: string): string | null {
+  // Check length limit
+  if (sql.length > 10000) {
+    return 'SQL query too long (max 10000 characters)';
+  }
+
   const statementTypes = extractStatementTypes(sql);
 
   for (const stmt of statementTypes) {
