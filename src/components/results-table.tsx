@@ -133,13 +133,44 @@ export default function ResultsTable({
     toast.success(t('results.downloaded'));
   }, [columns, sortedRows]);
 
+  const exportJSON = useCallback(() => {
+    const jsonData = sortedRows.map((row) => {
+      const obj: Record<string, unknown> = {};
+      columns.forEach((col) => {
+        obj[col] = row[col] ?? null;
+      });
+      return obj;
+    });
+    const json = JSON.stringify(jsonData, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'query_result.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(t('results.downloaded'));
+  }, [columns, sortedRows]);
+
   if (!success && error) {
     return (
       <div className="flex h-full flex-col gap-3 p-4">
         <Alert variant="destructive">
           <XCircle className="h-4 w-4" />
           <AlertDescription>
-            <span className="font-medium">{t('results.queryError')}</span>
+            <div className="flex items-center justify-between">
+              <span className="font-medium">{t('results.queryError')}</span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(error);
+                  toast.success(t('results.errorCopied', { default: 'Error copied to clipboard' }));
+                }}
+                className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <Copy className="h-3 w-3" />
+                {t('results.copyError', { default: 'Copy' })}
+              </button>
+            </div>
             <pre className="mt-2 whitespace-pre-wrap break-words rounded-md bg-destructive/10 p-3 text-sm font-mono">
               {error}
             </pre>
@@ -249,6 +280,14 @@ export default function ResultsTable({
             aria-label={t('results.exportCSV')}
           >
             <Download className="h-4 w-4" />
+          </button>
+          <button
+            onClick={exportJSON}
+            className="flex items-center justify-center h-8 w-8 rounded-lg text-muted-foreground transition-all hover:bg-muted hover:text-foreground hover:scale-105"
+            title={t('results.exportJSON', { default: 'Export JSON' })}
+            aria-label={t('results.exportJSON', { default: 'Export JSON' })}
+          >
+            <span className="text-[10px] font-bold font-mono">{'{ }'}</span>
           </button>
           {columns.length >= 2 && (
             <button

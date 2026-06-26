@@ -1,7 +1,7 @@
 'use client';
 
 import { useSQLTrainerStore } from '@/lib/store';
-import { getTaskById } from '@/lib/training-tasks';
+import { getTaskById, TRAINING_TASKS, DIFFICULTY_LABELS, DIFFICULTY_COLORS } from '@/lib/training-tasks';
 import { t } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -14,6 +14,7 @@ import {
   RotateCcw,
   Trash2,
   ChevronRight,
+  ChevronLeft,
   Loader2,
   Search,
   Shuffle,
@@ -57,8 +58,12 @@ export default function ActionBar({
   currentTaskId,
   practiceMode,
 }: ActionBarProps) {
-  const { editorContent } = useSQLTrainerStore();
+  const { editorContent, queryHistory, setCurrentTaskId } = useSQLTrainerStore();
   const currentTask = currentTaskId ? getTaskById(currentTaskId) : null;
+
+  const taskIndex = currentTask ? TRAINING_TASKS.findIndex((t) => t.id === currentTask.id) : -1;
+  const hasPrev = taskIndex > 0;
+  const hasNext = taskIndex >= 0 && taskIndex < TRAINING_TASKS.length - 1;
 
   return (
     <div className="flex items-center gap-2 border-b border-border bg-gradient-to-b from-muted/40 to-muted/20 px-2 sm:px-4 py-2 overflow-x-auto">
@@ -71,7 +76,10 @@ export default function ActionBar({
           <span className="font-semibold sm:hidden">
             {practiceMode.currentIndex + 1}/{practiceMode.taskOrder.length}
           </span>
-          <Badge variant="secondary" className="text-xs px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-0">
+          <Badge
+            variant="secondary"
+            className="text-xs px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-0"
+          >
             ✓ {practiceMode.completedInSession.length}
           </Badge>
         </div>
@@ -136,7 +144,13 @@ export default function ActionBar({
       <div className="flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm hover:bg-muted/70 transition-all" onClick={onUndo} disabled={!canUndo}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs sm:text-sm hover:bg-muted/70 transition-all"
+              onClick={onUndo}
+              disabled={!canUndo}
+            >
               <Undo2 className="h-4 w-4" />
               <kbd className="ml-1.5 h-3.5 items-center rounded border border-current/20 bg-current/10 px-1 text-[9px] font-mono hidden sm:inline-flex">
                 Ctrl+Z
@@ -148,7 +162,13 @@ export default function ActionBar({
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm hover:bg-muted/70 transition-all" onClick={onRedo} disabled={!canRedo}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs sm:text-sm hover:bg-muted/70 transition-all"
+              onClick={onRedo}
+              disabled={!canRedo}
+            >
               <Redo2 className="h-4 w-4" />
               <kbd className="ml-1.5 h-3.5 items-center rounded border border-current/20 bg-current/10 px-1 text-[9px] font-mono hidden sm:inline-flex">
                 Ctrl+Y
@@ -164,24 +184,88 @@ export default function ActionBar({
 
         {!currentTask && <SqlTemplates onInsertTemplate={onInsertTemplate} />}
 
-        <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 dark:hover:text-red-400 transition-all" onClick={clearEditor}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 text-xs sm:text-sm hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 dark:hover:text-red-400 transition-all"
+          onClick={clearEditor}
+        >
           <Trash2 className="mr-1 h-3.5 w-3.5" />
           <span className="hidden sm:inline font-medium">{t('action.clear')}</span>
         </Button>
 
         {currentTask && (
-          <Button variant="ghost" size="sm" className="h-8 text-xs sm:text-sm hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:text-amber-600 dark:hover:text-amber-400 transition-all" onClick={resetDb}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-xs sm:text-sm hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:text-amber-600 dark:hover:text-amber-400 transition-all"
+            onClick={resetDb}
+          >
             <RotateCcw className="mr-1 h-3.5 w-3.5" />
             <span className="hidden sm:inline font-medium">{t('action.resetDb')}</span>
           </Button>
         )}
       </div>
 
-      {/* Right side: task badge - hidden on mobile */}
+      {/* Right side: task info + navigation */}
       <div className="ml-auto flex items-center gap-2">
+        {/* Query count indicator */}
+        {queryHistory.length > 0 && (
+          <div className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 rounded bg-muted/50">
+            <span className="font-semibold">{queryHistory.length}</span>
+            <span className="hidden lg:inline">{queryHistory.length === 1 ? 'query' : 'queries'}</span>
+          </div>
+        )}
+
+        {/* Prev/Next task navigation */}
         {currentTask && (
-          <Badge variant="outline" className="text-xs px-2 sm:px-3 py-1.5 bg-background border-border/70 shadow-sm hidden sm:flex">
-            <ChevronRight className="mr-1 h-3.5 w-3.5" />
+          <div className="hidden sm:flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0"
+                  disabled={!hasPrev}
+                  onClick={() => {
+                    if (hasPrev) setCurrentTaskId(TRAINING_TASKS[taskIndex - 1].id);
+                  }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('task.prev', { default: 'Previous task' })}</TooltipContent>
+            </Tooltip>
+
+            <Badge className={`${DIFFICULTY_COLORS[currentTask.difficulty]} text-[10px] px-2 py-0.5 shadow-sm`}>
+              {DIFFICULTY_LABELS[currentTask.difficulty]}
+            </Badge>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0"
+                  disabled={!hasNext}
+                  onClick={() => {
+                    if (hasNext) setCurrentTaskId(TRAINING_TASKS[taskIndex + 1].id);
+                  }}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('task.next', { default: 'Next task' })}</TooltipContent>
+            </Tooltip>
+          </div>
+        )}
+
+        {/* Task title badge */}
+        {currentTask && (
+          <Badge
+            variant="outline"
+            className="text-xs px-2 sm:px-3 py-1.5 bg-background border-border/70 shadow-sm hidden lg:flex"
+          >
             <span className="font-medium max-w-[150px] truncate">{currentTask.title}</span>
           </Badge>
         )}
