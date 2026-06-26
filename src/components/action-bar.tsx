@@ -21,6 +21,7 @@ import {
   Undo2,
   Redo2,
   CheckCircle2,
+  Bookmark,
 } from 'lucide-react';
 
 interface ActionBarProps {
@@ -58,8 +59,9 @@ export default function ActionBar({
   currentTaskId,
   practiceMode,
 }: ActionBarProps) {
-  const { editorContent, queryHistory, setCurrentTaskId } = useSQLTrainerStore();
+  const { editorContent, queryHistory, setCurrentTaskId, bookmarkedTasks, toggleBookmark } = useSQLTrainerStore();
   const currentTask = currentTaskId ? getTaskById(currentTaskId) : null;
+  const isBookmarked = currentTaskId ? bookmarkedTasks.includes(currentTaskId) : false;
 
   const taskIndex = currentTask ? TRAINING_TASKS.findIndex((t) => t.id === currentTask.id) : -1;
   const hasPrev = taskIndex > 0;
@@ -188,7 +190,14 @@ export default function ActionBar({
           variant="ghost"
           size="sm"
           className="h-8 text-xs sm:text-sm hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 dark:hover:text-red-400 transition-all"
-          onClick={clearEditor}
+          onClick={() => {
+            if (
+              editorContent.trim() &&
+              !window.confirm(t('action.clearConfirm', { default: 'Clear the editor? Unsaved content will be lost.' }))
+            )
+              return;
+            clearEditor();
+          }}
         >
           <Trash2 className="mr-1 h-3.5 w-3.5" />
           <span className="hidden sm:inline font-medium">{t('action.clear')}</span>
@@ -215,6 +224,23 @@ export default function ActionBar({
             <span className="font-semibold">{queryHistory.length}</span>
             <span className="hidden lg:inline">{queryHistory.length === 1 ? 'query' : 'queries'}</span>
           </div>
+        )}
+
+        {/* Bookmark toggle */}
+        {currentTask && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-8 w-8 p-0 transition-all ${isBookmarked ? 'text-amber-500 hover:text-amber-600' : 'text-muted-foreground hover:text-amber-500'}`}
+                onClick={() => toggleBookmark(currentTask.id)}
+              >
+                <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-amber-500' : ''}`} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{isBookmarked ? t('action.removeFromBookmark') : t('action.addToBookmark')}</TooltipContent>
+          </Tooltip>
         )}
 
         {/* Prev/Next task navigation */}

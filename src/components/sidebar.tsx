@@ -140,7 +140,10 @@ export default function Sidebar() {
   const totalCount = TRAINING_TASKS.length;
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
-  const completedIds = useMemo(() => new Set(completedTasks.map((t: import('@/lib/store').CompletedTask) => t.taskId)), [completedTasks]);
+  const completedIds = useMemo(
+    () => new Set(completedTasks.map((t: import('@/lib/store').CompletedTask) => t.taskId)),
+    [completedTasks],
+  );
 
   const bookmarkedIds = useMemo(() => new Set(bookmarkedTasks), [bookmarkedTasks]);
 
@@ -368,9 +371,25 @@ export default function Sidebar() {
                     </div>
                     <div className="flex flex-col items-start">
                       <span className="text-sm font-semibold text-foreground">{DIFFICULTY_LABELS[difficulty]}</span>
-                      <span className="text-xs text-muted-foreground font-medium">
-                        {completedInDifficulty}/{totalInDifficulty}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground font-medium">
+                          {completedInDifficulty}/{totalInDifficulty}
+                        </span>
+                        {totalInDifficulty > 0 && (
+                          <div className="h-1 w-12 rounded-full bg-muted overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all ${
+                                difficulty === 'beginner'
+                                  ? 'bg-emerald-500'
+                                  : difficulty === 'intermediate'
+                                    ? 'bg-blue-500'
+                                    : 'bg-amber-500'
+                              }`}
+                              style={{ width: `${(completedInDifficulty / totalInDifficulty) * 100}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                   {isExpanded ? (

@@ -14,23 +14,31 @@
 | 4 | **Ctrl+Shift+D** — циклическое переключение темы | `src/app/(main)/app/page.tsx` |
 | 5 | **Shortcuts help** — обновлена справка по горячим клавишам | `src/components/shortcuts-help.tsx` |
 
-## Батч 2 — Навигация и экспорт (текущий)
+## Батч 2 — Навигация и экспорт (коммит 8b6724a)
 
 | # | Улучшение | Файл |
 |---|-----------|------|
-| 1 | **Copy error** — кнопка копирования ошибки SQL-запроса | `src/components/results-table.tsx` |
-| 2 | **JSON export** — экспорт результатов в JSON рядом с CSV | `src/components/results-table.tsx` |
-| 3 | **Difficulty badge** — цветной badge сложности задачи в action bar | `src/components/action-bar.tsx` |
-| 4 | **Prev/Next navigation** — кнопки навигации между задачами | `src/components/action-bar.tsx` |
-| 5 | **Query counter** — счётчик выполненных запросов за сессию | `src/components/action-bar.tsx` |
+| 6 | **Copy error** — кнопка копирования ошибки SQL-запроса | `src/components/results-table.tsx` |
+| 7 | **JSON export** — экспорт результатов в JSON рядом с CSV | `src/components/results-table.tsx` |
+| 8 | **Difficulty badge** — цветной badge сложности задачи в action bar | `src/components/action-bar.tsx` |
+| 9 | **Prev/Next navigation** — кнопки навигации между задачами | `src/components/action-bar.tsx` |
+| 10 | **Query counter** — счётчик выполненных запросов за сессию | `src/components/action-bar.tsx` |
+
+## Батч 3 — Закладки и визуал (текущий)
+
+| # | Улучшение | Файл |
+|---|-----------|------|
+| 11 | **Bookmark toggle** — кнопка закладки текущей задачи в action bar | `src/components/action-bar.tsx` |
+| 12 | **Clear confirmation** — диалог подтверждения при очистке непустого редактора | `src/components/action-bar.tsx` |
+| 13 | **Progress mini-bar** — мини-прогресс-бар по уровню сложности в сайдбаре | `src/components/sidebar.tsx` |
 
 ## Результаты проверки
 
-| Проверка | Батч 1 | Батч 2 |
-|----------|--------|--------|
-| TypeScript | ✅ | ✅ |
-| ESLint | ✅ 0 ошибок | ✅ 0 ошибок |
-| Тесты | ✅ 779/779 | ✅ 779/779 |
+| Проверка | Батч 1 | Батч 2 | Батч 3 |
+|----------|--------|--------|--------|
+| TypeScript | ✅ | ✅ | ✅ |
+| ESLint | ✅ 0 | ✅ 0 | ✅ 0 |
+| Тесты | ✅ 779/779 | ✅ 779/779 | ✅ 779/779 |
 
 ---
 
