@@ -1,15 +1,25 @@
 import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import nextTypescript from 'eslint-config-next/typescript';
 import eslintConfigPrettier from 'eslint-config-prettier';
+import tseslint from 'typescript-eslint';
 
 const eslintConfig = [
   ...nextCoreWebVitals,
   ...nextTypescript,
+  ...tseslint.configs.strict,
   eslintConfigPrettier,
   {
     languageOptions: {
       globals: {
         React: 'readonly',
+        Headers: 'readonly',
+        HeadersInit: 'readonly',
+        RequestInit: 'readonly',
+        Response: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        fetch: 'readonly',
+        Request: 'readonly',
       },
     },
     rules: {

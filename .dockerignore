@@ -19,6 +19,7 @@ playwright-report/
 test-results/
 coverage/
 data/
+img/
 .git/
 .github/
 *.md

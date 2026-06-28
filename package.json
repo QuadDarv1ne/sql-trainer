@@ -12,6 +12,7 @@
     "test:coverage": "node scripts/test.mjs --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "generate:env": "node scripts/generate-env.mjs",
     "generate:pwa-assets": "node scripts/generate-pwa-assets.mjs",
     "typecheck": "node scripts/typecheck.mjs",
     "prepare": "husky"

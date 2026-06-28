@@ -36,7 +36,7 @@ export function evaluateRouteAccess(session: Session, pathname: string): { actio
   }
 
   // Redirect unauthenticated users to login for protected routes
-  if (protectedRoutes.some((route) => pathname.startsWith(route)) && !session) {
+  if (protectedRoutes.some((route) => pathname === route || pathname.startsWith(route + '/')) && !session) {
     return {
       action: 'redirect',
       url: `/login?callbackUrl=${encodeURIComponent(pathname)}`,

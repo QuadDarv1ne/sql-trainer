@@ -155,15 +155,20 @@ export default function Sidebar() {
       if (query && !task.title.toLowerCase().includes(query) && !task.id.toLowerCase().includes(query)) return;
       map[task.difficulty][cat].push(task);
     });
-    // Remove empty categories
+    // Filter out empty categories
+    const result: Record<Difficulty, Partial<Record<CategoryKey, TrainingTask[]>>> = {
+      beginner: {},
+      intermediate: {},
+      advanced: {},
+    };
     for (const diff of ['beginner', 'intermediate', 'advanced'] as Difficulty[]) {
       for (const cat of ['base', 'company', 'shop', 'analytics', 'exam'] as CategoryKey[]) {
-        if (map[diff][cat].length === 0) {
-          delete map[diff][cat];
+        if (map[diff][cat].length > 0) {
+          result[diff][cat] = map[diff][cat];
         }
       }
     }
-    return map;
+    return result as Record<Difficulty, Record<CategoryKey, TrainingTask[]>>;
   }, [showBookmarksOnly, bookmarkedIds, activeCategoryFilter, searchQuery]);
 
   // Get available categories for filter

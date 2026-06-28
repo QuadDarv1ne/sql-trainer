@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { t } from '@/lib/i18n';
 import { logger } from '@/lib/logger';
+import { csrfHeaders } from '@/lib/safe-fetch';
 import { Deadline } from '@/lib/db-users';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -83,7 +84,7 @@ export function DeadlineManager() {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      const res = await fetch(`/api/admin/deadlines/${deleteId}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/deadlines/${deleteId}`, { method: 'DELETE', headers: csrfHeaders() });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       toast.success(t('deadline.deleted'));

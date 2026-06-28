@@ -12,6 +12,7 @@ import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
 import { Loader2, Mail, Lock, AlertCircle, CheckCircle2, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { csrfHeaders } from '@/lib/safe-fetch';
 
 type Step = 'request' | 'verify' | 'done';
 
@@ -88,7 +89,7 @@ export default function ResetPasswordForm() {
     try {
       const res = await fetch('/api/auth/reset-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ email }),
       });
 
@@ -130,7 +131,7 @@ export default function ResetPasswordForm() {
     try {
       const res = await fetch('/api/auth/reset-password', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ code, newPassword }),
       });
 

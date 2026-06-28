@@ -41,6 +41,7 @@ import {
 } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { logger } from '@/lib/logger';
+import { csrfHeaders } from '@/lib/safe-fetch';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
@@ -136,7 +137,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     try {
       const res = await fetch('/api/teacher/groups', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           name: newGroupName.trim(),
           description: newGroupDescription.trim(),
@@ -182,7 +183,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     try {
       const res = await fetch(`/api/teacher/groups/${selectedGroup.id}/members`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ emails }),
       });
 
@@ -212,7 +213,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     try {
       const res = await fetch(`/api/teacher/groups/${selectedGroup.id}/members`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ studentIds: [studentId] }),
       });
 
@@ -240,7 +241,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     try {
       const res = await fetch(`/api/teacher/groups/${selectedGroup.id}/members`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ studentIds: Array.from(selectedStudents) }),
       });
 

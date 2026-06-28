@@ -44,6 +44,7 @@ import AchievementsGrid from '@/components/profile/achievements-grid';
 import LeaderboardTable from '@/components/profile/leaderboard';
 import { useSQLTrainerStore } from '@/lib/store';
 import { t } from '@/lib/i18n';
+import { csrfHeaders } from '@/lib/safe-fetch';
 
 interface UserProfile {
   id: string;
@@ -288,7 +289,7 @@ export default function ProfilePage() {
     try {
       const res = await fetch('/api/user/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ name: editName, phone: editPhone || null }),
       });
       const data = await res.json();
@@ -322,7 +323,7 @@ export default function ProfilePage() {
     try {
       const res = await fetch('/api/user/change-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ currentPassword, newPassword }),
       });
       const data = await res.json();
@@ -352,7 +353,7 @@ export default function ProfilePage() {
     try {
       const res = await fetch('/api/user/change-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ newEmail, password: emailPassword }),
       });
       const data = await res.json();
@@ -381,7 +382,7 @@ export default function ProfilePage() {
     try {
       const res = await fetch('/api/user/delete', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ confirmPassword: deletePassword }),
       });
       const data = await res.json();

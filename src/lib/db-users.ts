@@ -438,7 +438,7 @@ export async function findUserByEmail(
   const db = getDb();
   const user = db
     .prepare(
-      'SELECT id, email, name, phone, password_hash, role, role_changed_at, banned_at FROM users WHERE email = ?',
+      'SELECT id, email, name, phone, password_hash, role, role_changed_at, banned_at FROM users WHERE email = ? AND deleted_at IS NULL',
     )
     .get(email) as
     | {
@@ -493,21 +493,27 @@ export async function getUserById(
   avatar_url: string | null;
   role: UserRole;
   created_at: number;
+  deleted_at: number | null;
+  banned_at: number | null;
+  role_changed_at: number | null;
 } | null> {
   const db = getDb();
   const user = db
-    .prepare('SELECT id, email, name, phone, avatar_url, role, created_at FROM users WHERE id = ?')
+    .prepare('SELECT id, email, name, phone, avatar_url, role, created_at, deleted_at, banned_at, role_changed_at FROM users WHERE id = ?')
     .get(userId) as
-    | {
-        id: string;
-        email: string;
-        name: string;
-        phone: string | null;
-        avatar_url: string | null;
-        role: UserRole;
-        created_at: number;
-      }
-    | undefined;
+      | {
+          id: string;
+          email: string;
+          name: string;
+          phone: string | null;
+          avatar_url: string | null;
+          role: UserRole;
+          created_at: number;
+          deleted_at: number | null;
+          banned_at: number | null;
+          role_changed_at: number | null;
+        }
+      | undefined;
   return user || null;
 }
 
@@ -520,10 +526,11 @@ export async function findUserByIdWithHash(
   phone: string | null;
   password_hash: string;
   role: UserRole;
+  banned_at: number | null;
 } | null> {
   const db = getDb();
-  const user = db.prepare('SELECT id, email, name, phone, password_hash, role FROM users WHERE id = ?').get(userId) as
-    | { id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole }
+  const user = db.prepare('SELECT id, email, name, phone, password_hash, role, banned_at FROM users WHERE id = ? AND deleted_at IS NULL').get(userId) as
+    | { id: string; email: string; name: string; phone: string | null; password_hash: string; role: UserRole; banned_at: number | null }
     | undefined;
   return user || null;
 }
@@ -799,6 +806,7 @@ export function getLeaderboard(limit = 50, offset = 0): LeaderboardEntry[] {
            COALESCE(SUM(up.attempts), 0) as total_attempts
     FROM users u
     LEFT JOIN user_progress up ON u.id = up.user_id
+    WHERE u.deleted_at IS NULL AND u.banned_at IS NULL
     GROUP BY u.id, u.name
     ORDER BY tasks_completed DESC, total_attempts ASC
     LIMIT ? OFFSET ?
@@ -1033,9 +1041,9 @@ export function bulkUpdateRole(userIds: string[], role: UserRole, actorId?: stri
   const db = getDb();
   const placeholders = userIds.map(() => '?').join(',');
   const stmt = db.prepare(
-    `UPDATE users SET role = ?, updated_at = ? WHERE id IN (${placeholders}) AND deleted_at IS NULL`,
+    `UPDATE users SET role = ?, role_changed_at = ?, updated_at = ? WHERE id IN (${placeholders}) AND deleted_at IS NULL`,
   );
-  const result = stmt.run(role, Date.now(), ...userIds);
+  const result = stmt.run(role, Date.now(), Date.now(), ...userIds);
   if (result.changes > 0 && actorId) {
     logAudit(actorId, 'bulk_role_change', 'user', null, JSON.stringify({ userIds, role, changed: result.changes }));
   }
@@ -1130,7 +1138,7 @@ export function getTeacherStudentProgress(): StudentProgress[] {
            MAX(up.completed_at) as last_active
     FROM users u
     LEFT JOIN user_progress up ON u.id = up.user_id
-    WHERE u.role = 'student'
+    WHERE u.role = 'student' AND u.deleted_at IS NULL
     GROUP BY u.id, u.name, u.email
     ORDER BY tasks_completed DESC, total_attempts ASC
   `,
@@ -1397,14 +1405,14 @@ export interface DBStats {
 
 export function getDBStats(): DBStats {
   const db = getDb();
-  const totalUsers = db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number };
-  const studentsCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'student'").get() as {
+  const totalUsers = db.prepare('SELECT COUNT(*) as count FROM users WHERE deleted_at IS NULL').get() as { count: number };
+  const studentsCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'student' AND deleted_at IS NULL").get() as {
     count: number;
   };
-  const teachersCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'teacher'").get() as {
+  const teachersCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'teacher' AND deleted_at IS NULL").get() as {
     count: number;
   };
-  const adminsCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'admin'").get() as { count: number };
+  const adminsCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'admin' AND deleted_at IS NULL").get() as { count: number };
   const totalCompletions = db.prepare('SELECT COUNT(*) as count FROM user_progress').get() as { count: number };
   const achievementsAwarded = db.prepare('SELECT COUNT(*) as count FROM user_achievements').get() as { count: number };
 
@@ -1519,7 +1527,7 @@ export function getCompletionDistribution(filters?: TimeRangeFilters): Completio
     dateParams.push(filters.end_date);
   }
 
-  const raw = db
+const raw = db
     .prepare(
       `
     SELECT
@@ -1534,10 +1542,10 @@ export function getCompletionDistribution(filters?: TimeRangeFilters): Completio
       COUNT(*) as student_count
     FROM (
       SELECT u.id, COUNT(up.task_id) as tasks_completed
-      FROM users u
-      LEFT JOIN user_progress up ON u.id = up.user_id
-      WHERE u.role = 'student'${dateCondition}
-      GROUP BY u.id
+FROM users u
+    LEFT JOIN user_progress up ON u.id = up.user_id${dateCondition}
+    WHERE u.role = 'student' AND u.deleted_at IS NULL
+    GROUP BY u.id
     )
     GROUP BY range_label
   `,
@@ -1618,7 +1626,7 @@ export interface AchievementStatsEntry {
 
 export function getAchievementStats(filters?: TimeRangeFilters): AchievementStatsEntry[] {
   const db = getDb();
-  const totalStudents = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'student'").get() as {
+  const totalStudents = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'student' AND deleted_at IS NULL").get() as {
     count: number;
   };
 
@@ -1639,7 +1647,8 @@ export function getAchievementStats(filters?: TimeRangeFilters): AchievementStat
     SELECT a.id, a.title, a.description, a.icon,
            COUNT(ua.user_id) as earned_count
     FROM achievements a
-    LEFT JOIN user_achievements ua ON a.id = ua.achievement_id${dateCondition ? ' WHERE 1=1' + dateCondition : ''}
+    LEFT JOIN user_achievements ua ON a.id = ua.achievement_id
+    WHERE 1=1${dateCondition}
     GROUP BY a.id, a.title, a.description, a.icon
     ORDER BY a.id
   `,
@@ -1659,7 +1668,7 @@ export function getAchievementStats(filters?: TimeRangeFilters): AchievementStat
       SELECT ua.user_id, u.name, ua.earned_at
       FROM user_achievements ua
       JOIN users u ON ua.user_id = u.id
-      WHERE ua.achievement_id = ?
+      WHERE ua.achievement_id = ? AND u.deleted_at IS NULL
       ORDER BY ua.earned_at DESC
       LIMIT 5
     `,
@@ -1761,7 +1770,7 @@ export function getAdminLeaderboard(limit = 50, filters?: TimeRangeFilters): Adm
       (SELECT COUNT(*) FROM user_achievements ua WHERE ua.user_id = u.id) as achievements_count
     FROM users u
     LEFT JOIN user_progress up ON u.id = up.user_id
-    WHERE u.role = 'student'${dateCondition}
+    WHERE u.role = 'student' AND u.deleted_at IS NULL${dateCondition}
     GROUP BY u.id, u.name, u.email
     ORDER BY tasks_completed DESC, total_attempts ASC
     LIMIT ?
@@ -1861,16 +1870,18 @@ export function getWeeklyProgress(weeks = 12): WeeklyProgressEntry[] {
     )
     .all(cutoff) as { week_start: string; tasks_completed: number; avg_attempts: number; students_active: number }[];
 
-  // Calculate cumulative students
-  let cumulative = 0;
-  const studentSets = db
+  const cumulativeRows = db
     .prepare(
       `
     SELECT
-      date(completed_at / 1000, 'unixepoch', 'weekday 0') as week_start,
-      COUNT(DISTINCT user_id) as new_students
-    FROM user_progress
-    WHERE completed_at >= ?
+      date(first_activity / 1000, 'unixepoch', 'weekday 0') as week_start,
+      COUNT(*) as new_students
+    FROM (
+      SELECT user_id, MIN(completed_at) as first_activity
+      FROM user_progress
+      WHERE completed_at >= ?
+      GROUP BY user_id
+    )
     GROUP BY week_start
     ORDER BY week_start
   `,
@@ -1878,11 +1889,12 @@ export function getWeeklyProgress(weeks = 12): WeeklyProgressEntry[] {
     .all(cutoff) as { week_start: string; new_students: number }[];
 
   const result: WeeklyProgressEntry[] = [];
+  let cumulative = 0;
   for (let i = 0; i < weeks; i++) {
     const d = new Date(cutoff + i * 7 * 24 * 60 * 60 * 1000);
     const weekStart = d.toISOString().slice(0, 10);
     const existing = rows.find((r) => r.week_start === weekStart);
-    const newStudentsEntry = studentSets.find((r) => r.week_start === weekStart);
+    const newStudentsEntry = cumulativeRows.find((r) => r.week_start === weekStart);
 
     if (newStudentsEntry) {
       cumulative += newStudentsEntry.new_students;
@@ -1932,7 +1944,7 @@ export function getCohortAnalysis(filters?: TimeRangeFilters): CohortEntry[] {
       strftime('%Y-%m', datetime(created_at / 1000, 'unixepoch')) as cohort_month,
       COUNT(DISTINCT id) as total_students
     FROM users
-    WHERE role = 'student'${userDateCondition}
+    WHERE role = 'student' AND deleted_at IS NULL${userDateCondition}
     GROUP BY cohort_month
     ORDER BY cohort_month
   `,
@@ -1961,6 +1973,7 @@ export function getCohortAnalysis(filters?: TimeRangeFilters): CohortEntry[] {
         FROM users u
         JOIN user_progress up ON u.id = up.user_id
         WHERE u.role = 'student'
+          AND u.deleted_at IS NULL
           AND strftime('%Y-%m', datetime(u.created_at / 1000, 'unixepoch')) = ?
           AND strftime('%Y-%m', datetime(up.completed_at / 1000, 'unixepoch')) = 
               strftime('%Y-%m', datetime(u.created_at / 1000, 'unixepoch', ?))${progressDateCondition}
@@ -2311,7 +2324,7 @@ export function generateStudentAlerts(filters?: TimeRangeFilters): StudentAlert[
       COALESCE(ROUND(AVG(up.attempts * 1.0), 2), 0) as avg_attempts
     FROM users u
     LEFT JOIN user_progress up ON u.id = up.user_id${dateCondition}
-    WHERE u.role = 'student'
+WHERE u.role = 'student' AND u.deleted_at IS NULL
     GROUP BY u.id, u.name, u.email, u.created_at
   `,
     )
@@ -2326,7 +2339,6 @@ export function generateStudentAlerts(filters?: TimeRangeFilters): StudentAlert[
   }[];
 
   for (const student of students) {
-    // Check if student is inactive (no activity in 7 days)
     if (student.last_active && student.last_active < sevenDaysAgo) {
       const daysInactive = Math.floor((now - student.last_active) / (24 * 60 * 60 * 1000));
       alerts.push({
@@ -2442,7 +2454,7 @@ export function generateRecommendations(filters?: TimeRangeFilters): Recommendat
       COALESCE(SUM(CASE WHEN up.task_id LIKE 'advanced-%' THEN 1 ELSE 0 END), 0) as advanced_completed
     FROM users u
     LEFT JOIN user_progress up ON u.id = up.user_id${dateCondition}
-    WHERE u.role = 'student'
+    WHERE u.role = 'student' AND u.deleted_at IS NULL
     GROUP BY u.id, u.name, u.email
   `,
     )
@@ -2562,7 +2574,7 @@ export function generateClassReport(filters?: TimeRangeFilters): ClassReport {
   const now = Date.now();
   const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
 
-  const totalStudents = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'student'").get() as {
+  const totalStudents = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'student' AND deleted_at IS NULL").get() as {
     count: number;
   };
 
@@ -2607,7 +2619,7 @@ export function generateClassReport(filters?: TimeRangeFilters): ClassReport {
       MAX(up.completed_at) as last_active
     FROM users u
     LEFT JOIN user_progress up ON u.id = up.user_id
-    WHERE u.role = 'student'${studentDateCondition}
+    WHERE u.role = 'student' AND u.deleted_at IS NULL${studentDateCondition}
     GROUP BY u.id, u.name
   `,
     )
@@ -2901,7 +2913,7 @@ export function getStudentEngagementMetrics(limit: number = 50, filters?: TimeRa
       (SELECT COUNT(*) FROM user_progress WHERE user_id = u.id${dateCondition}) as total_progress,
       (SELECT AVG(attempts) FROM user_progress WHERE user_id = u.id${dateCondition}) as avg_attempts
     FROM users u
-    WHERE u.role = 'student'
+    WHERE u.role = 'student' AND u.deleted_at IS NULL
     ORDER BY u.tasks_completed DESC
     LIMIT ?
   `,

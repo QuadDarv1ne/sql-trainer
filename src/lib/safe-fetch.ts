@@ -4,19 +4,39 @@
 import { logger } from './logger';
 
 const CSRF_HEADER_NAME = 'x-csrf-token';
+const CSRF_COOKIE_RAW = 'csrf-token-raw';
 const CSRF_STATE_CHANGING_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'] as const;
 
-function getCsrfToken(): string | null {
+export function getCsrfToken(): string | null {
   if (typeof document === 'undefined') return null;
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+    const trimmed = cookie.trim();
+    if (trimmed.startsWith(`${CSRF_COOKIE_RAW}=`)) {
+      return decodeURIComponent(trimmed.slice(CSRF_COOKIE_RAW.length + 1));
+    }
+  }
   const meta = document.querySelector('meta[name="csrf-token"]');
   return meta?.getAttribute('content') ?? null;
+}
+
+/**
+ * Returns headers with CSRF token for state-changing requests.
+ * Use this with raw fetch() calls that need CSRF protection.
+ */
+export function csrfHeaders(init?: HeadersInit): Headers {
+  const headers = new Headers(init);
+  const token = getCsrfToken();
+  if (token) {
+    headers.set(CSRF_HEADER_NAME, token);
+  }
+  return headers;
 }
 
 function isStateChanging(method: string): boolean {
   return (CSRF_STATE_CHANGING_METHODS as readonly string[]).includes(method.toUpperCase());
 }
 
-// eslint-disable-next-line no-undef -- RequestInit is a valid browser global
 interface SafeFetchOptions extends RequestInit {
   maxRetries?: number;
   retryDelay?: number;
@@ -26,7 +46,6 @@ interface SafeFetchOptions extends RequestInit {
 export async function safeFetch<T = unknown>(url: string | URL, options: SafeFetchOptions = {}): Promise<T | null> {
   const { maxRetries = 0, retryDelay = 1000, onError, headers, ...fetchOptions } = options;
 
-  // Attach CSRF token for state-changing requests
   const requestHeaders = new Headers(headers);
   if (isStateChanging(fetchOptions.method || 'GET')) {
     const token = getCsrfToken();

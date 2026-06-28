@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await findUserByEmail(email);
-    if (!user) {
-      // Don't reveal whether email exists
+    if (!user || user.banned_at) {
+      // Don't reveal whether email exists or if user is banned
       return NextResponse.json({ success: true, message: 'Если email зарегистрирован, код отправлен' });
     }
 
@@ -106,8 +106,8 @@ export async function PUT(request: NextRequest) {
 
     const { code, newPassword } = result.data;
 
-    // Rate limit: max 5 attempts per 15 minutes per code prefix
-    const rateLimitKey = `reset-verify:${code.substring(0, 3)}`;
+    // Rate limit: max 5 attempts per 15 minutes per code
+    const rateLimitKey = `reset-verify:${code}`;
     const limitResult = await rateLimit(rateLimitKey, { max: 5, windowMs: 15 * 60 * 1000 });
     if (!limitResult.success) {
       return NextResponse.json({ success: false, error: 'Слишком много попыток. Попробуйте позже' }, { status: 429 });

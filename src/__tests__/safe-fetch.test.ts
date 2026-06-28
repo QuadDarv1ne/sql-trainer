@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { safeFetch } from '@/lib/safe-fetch';
+import { safeFetch, getCsrfToken, csrfHeaders } from '@/lib/safe-fetch';
 
 vi.mock('@/lib/logger', () => ({
   logger: { error: vi.fn() },
@@ -57,7 +57,7 @@ describe('safeFetch', () => {
 
     const result = await safeFetch('/api/test', { maxRetries: 2, retryDelay: 10 });
     expect(result).toBeNull();
-    expect(fetch).toHaveBeenCalledTimes(3); // initial + 2 retries
+    expect(fetch).toHaveBeenCalledTimes(3);
   });
 
   it('should call onError callback on failure', async () => {
@@ -70,12 +70,7 @@ describe('safeFetch', () => {
 
   it('should add CSRF header for POST requests', async () => {
     const csrfToken = 'test-csrf-123';
-    Object.defineProperty(document, 'querySelector', {
-      value: vi.fn().mockReturnValue({
-        getAttribute: vi.fn().mockReturnValue(csrfToken),
-      }),
-      writable: true,
-    });
+    vi.spyOn(document, 'cookie', 'get').mockReturnValue(`csrf-token-raw=${csrfToken}; other=val`);
 
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ ok: true }), { status: 200, statusText: 'OK' }),
@@ -104,5 +99,37 @@ describe('safeFetch', () => {
 
     const callHeaders = (fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].headers as Headers;
     expect(callHeaders.get('x-csrf-token')).toBeNull();
+  });
+});
+
+describe('getCsrfToken', () => {
+  it('should read token from cookie', () => {
+    vi.spyOn(document, 'cookie', 'get').mockReturnValue('csrf-token-raw=abc123; other=val');
+    expect(getCsrfToken()).toBe('abc123');
+  });
+
+  it('should return null when cookie not present', () => {
+    vi.spyOn(document, 'cookie', 'get').mockReturnValue('');
+    expect(getCsrfToken()).toBeNull();
+  });
+
+  it('should decode URL-encoded token', () => {
+    vi.spyOn(document, 'cookie', 'get').mockReturnValue('csrf-token-raw=test%20token');
+    expect(getCsrfToken()).toBe('test token');
+  });
+});
+
+describe('csrfHeaders', () => {
+  it('should include CSRF token header when available', () => {
+    vi.spyOn(document, 'cookie', 'get').mockReturnValue('csrf-token-raw=my-token');
+    const headers = csrfHeaders({ 'Content-Type': 'application/json' });
+    expect(headers.get('x-csrf-token')).toBe('my-token');
+    expect(headers.get('Content-Type')).toBe('application/json');
+  });
+
+  it('should work without initial headers', () => {
+    vi.spyOn(document, 'cookie', 'get').mockReturnValue('csrf-token-raw=my-token');
+    const headers = csrfHeaders();
+    expect(headers.get('x-csrf-token')).toBe('my-token');
   });
 });

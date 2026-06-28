@@ -101,23 +101,12 @@ const nextAuth = NextAuth({
 
           // If user is banned, invalidate session
           if (dbUser && dbUser.banned_at) {
-            (session as AuthSession).user.id = '';
-            (session as AuthSession).user.name = '';
-            (session as AuthSession).user.email = '';
-            (session as AuthSession).user.phone = null;
-            (session as AuthSession).user.role = 'student';
-            return session;
+            return null as unknown as typeof session;
           }
 
           // If role_changed_at in DB is newer than in token, session is stale - invalidate it
           if (dbUser && dbUser.role_changed_at && tokenRoleChangedAt && dbUser.role_changed_at > tokenRoleChangedAt) {
-            // Force re-authentication by clearing the session
-            (session as AuthSession).user.id = '';
-            (session as AuthSession).user.name = '';
-            (session as AuthSession).user.email = '';
-            (session as AuthSession).user.phone = null;
-            (session as AuthSession).user.role = 'student';
-            return session;
+            return null as unknown as typeof session;
           }
 
           // If no stale session, use the token data

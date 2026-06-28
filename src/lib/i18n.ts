@@ -1907,7 +1907,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'landing.testimonials.student2.name': 'Дмитрий Козлов',
     'landing.testimonials.student2.role': 'Аналитик данных, Санкт-Петербург',
     'landing.testimonials.student2.quote':
-      'Отличная практика для подготовки к собеседованиям. Задания progressively усложняются, что помогает постепенно развиваться.',
+      'Отличная практика для подготовки к собеседованиям. Задания постепенно усложняются, что помогает постепенно развиваться.',
     'landing.testimonials.student3.name': 'Maria Garcia',
     'landing.testimonials.student3.role': 'Developer, Madrid',
     'landing.testimonials.student3.quote':
@@ -6219,7 +6219,7 @@ export function t(key: string, params?: Record<string, string> & { default?: str
   let value = translations[currentLocale]?.[key] || translations.ru[key] || defaultVal || key;
   if (restParams) {
     Object.entries(restParams).forEach(([k, v]) => {
-      value = value.replace(`{${k}}`, v);
+      value = value.replaceAll(`{${k}}`, v);
     });
   }
   return value;
@@ -6238,7 +6238,7 @@ export function tWithLocale(
   let value = translations[locale]?.[key] || translations.ru[key] || defaultVal || key;
   if (restParams) {
     Object.entries(restParams).forEach(([k, v]) => {
-      value = value.replace(`{${k}}`, v);
+      value = value.replaceAll(`{${k}}`, v);
     });
   }
   return value;

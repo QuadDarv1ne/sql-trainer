@@ -12,6 +12,7 @@ import { plural } from '@/lib/utils';
 import { t } from '@/lib/i18n';
 import { getNextHintLevel, generateProgressiveHints, calculateHintPenalty } from '@/lib/progressive-hints';
 import { logger } from '@/lib/logger';
+import { csrfHeaders } from '@/lib/safe-fetch';
 import ResultsTable from '@/components/results-table';
 import ActionBar from '@/components/action-bar';
 import ExplainPanel from '@/components/explain-panel';
@@ -191,7 +192,7 @@ export default function HomePage() {
       try {
         const res = await fetch('/api/sql/init-training', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ taskId: currentTask.id, dbType }),
         });
         const data = await res.json();
@@ -220,7 +221,7 @@ export default function HomePage() {
     try {
       const response = await fetch('/api/sql', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ sql: editorContent, dbType, taskId: currentTaskId }),
       });
 
@@ -248,7 +249,7 @@ export default function HomePage() {
         try {
           const verifyResponse = await fetch('/api/sql/verify', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({ sql: editorContent, taskId: currentTaskId, dbType }),
           });
 
@@ -282,7 +283,7 @@ export default function HomePage() {
               progressSyncRef.current = new AbortController();
               fetch('/api/user/progress', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({
                   taskId: currentTaskId,
                   attempts: attemptCountRef.current,
@@ -422,7 +423,7 @@ export default function HomePage() {
     try {
       const response = await fetch('/api/sql/explain', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ sql: editorContent, dbType, taskId: currentTaskId }),
       });
 
@@ -454,7 +455,7 @@ export default function HomePage() {
     try {
       const verifyResponse = await fetch('/api/sql/verify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ sql: editorContent, taskId: currentTaskId, dbType }),
       });
 
@@ -527,7 +528,7 @@ export default function HomePage() {
     if (currentTask) {
       fetch('/api/sql/init-training', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ taskId: currentTask.id, dbType }),
       })
         .then((res) => res.json())
@@ -708,7 +709,7 @@ export default function HomePage() {
               {userStats.level}
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="text-xs font-medium text-muted-foreground">Ур. {userStats.level}</span>
+              <span className="text-xs font-medium text-muted-foreground">{t('dashboard.level', { default: 'Ур.' })} {userStats.level}</span>
               <div className="h-1.5 w-20 rounded-full bg-muted-foreground/20 overflow-hidden mt-0.5">
                 <div
                   className="h-full rounded-full bg-blue-500 transition-all duration-300"
