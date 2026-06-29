@@ -28,7 +28,6 @@ import { t } from '@/lib/i18n';
 import { ROLE_LABELS } from '@/lib/rbac';
 import { logger } from '@/lib/logger';
 import type { Role } from '@/lib/rbac';
-import { csrfHeaders } from '@/lib/safe-fetch';
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -77,7 +76,7 @@ export default function RegisterForm() {
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, phone: phone || undefined, role }),
       });
 
