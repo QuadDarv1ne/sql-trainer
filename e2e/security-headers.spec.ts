@@ -48,7 +48,7 @@ test.describe('Security headers (proxy)', () => {
 });
 
 test.describe('CSRF protection (proxy)', () => {
-  test('POST without CSRF token returns 403', async ({ page, context }) => {
+  test('POST without CSRF token returns 403', async ({ page }) => {
     const resp = await page.request.post('/api/sql', {
       data: { sql: 'SELECT 1' },
       headers: { 'Content-Type': 'application/json' },
