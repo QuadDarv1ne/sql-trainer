@@ -318,6 +318,160 @@ describe('store — undo reset', () => {
   });
 });
 
+describe('store — UI slice', () => {
+  beforeEach(() => {
+    useSQLTrainerStore.getState().resetAllProgress();
+  });
+
+  it('should toggle sidebar', () => {
+    expect(useSQLTrainerStore.getState().sidebarOpen).toBe(true);
+    useSQLTrainerStore.getState().setSidebarOpen(false);
+    expect(useSQLTrainerStore.getState().sidebarOpen).toBe(false);
+    useSQLTrainerStore.getState().setSidebarOpen(true);
+    expect(useSQLTrainerStore.getState().sidebarOpen).toBe(true);
+  });
+
+  it('should toggle reference panel', () => {
+    expect(useSQLTrainerStore.getState().referenceOpen).toBe(false);
+    useSQLTrainerStore.getState().setReferenceOpen(true);
+    expect(useSQLTrainerStore.getState().referenceOpen).toBe(true);
+    useSQLTrainerStore.getState().setReferenceOpen(false);
+    expect(useSQLTrainerStore.getState().referenceOpen).toBe(false);
+  });
+
+  it('should manage hint level', () => {
+    expect(useSQLTrainerStore.getState().hintLevel).toBe(0);
+    useSQLTrainerStore.getState().setHintLevel(1);
+    expect(useSQLTrainerStore.getState().hintLevel).toBe(1);
+    useSQLTrainerStore.getState().setHintLevel(3);
+    expect(useSQLTrainerStore.getState().hintLevel).toBe(3);
+  });
+
+  it('should track hint penalty', () => {
+    expect(useSQLTrainerStore.getState().totalHintPenalty).toBe(0);
+    useSQLTrainerStore.getState().setTotalHintPenalty(50);
+    expect(useSQLTrainerStore.getState().totalHintPenalty).toBe(50);
+  });
+
+  it('should toggle solution visibility', () => {
+    expect(useSQLTrainerStore.getState().solutionVisible).toBe(false);
+    useSQLTrainerStore.getState().setSolutionVisible(true);
+    expect(useSQLTrainerStore.getState().solutionVisible).toBe(true);
+  });
+});
+
+describe('store — onboarding slice', () => {
+  beforeEach(() => {
+    useSQLTrainerStore.getState().resetAllProgress();
+  });
+
+  it('should start with onboarding incomplete', () => {
+    expect(useSQLTrainerStore.getState().onboardingCompleted).toBe(false);
+  });
+
+  it('should mark onboarding as completed', () => {
+    useSQLTrainerStore.getState().setOnboardingCompleted(true);
+    expect(useSQLTrainerStore.getState().onboardingCompleted).toBe(true);
+  });
+
+  it('should reset onboarding', () => {
+    useSQLTrainerStore.getState().setOnboardingCompleted(true);
+    expect(useSQLTrainerStore.getState().onboardingCompleted).toBe(true);
+    useSQLTrainerStore.getState().resetOnboarding();
+    expect(useSQLTrainerStore.getState().onboardingCompleted).toBe(false);
+  });
+});
+
+describe('store — timer slice', () => {
+  beforeEach(() => {
+    useSQLTrainerStore.getState().stopTimer();
+  });
+
+  it('should start timer with default duration', () => {
+    useSQLTrainerStore.getState().startTimer();
+    const state = useSQLTrainerStore.getState().timer;
+    expect(state.isActive).toBe(true);
+    expect(state.timeRemaining).toBe(900);
+    expect(state.totalDuration).toBe(900);
+    expect(state.isPaused).toBe(false);
+  });
+
+  it('should start timer with custom duration', () => {
+    useSQLTrainerStore.getState().startTimer(300);
+    const state = useSQLTrainerStore.getState().timer;
+    expect(state.isActive).toBe(true);
+    expect(state.timeRemaining).toBe(300);
+    expect(state.totalDuration).toBe(300);
+  });
+
+  it('should pause and resume timer', () => {
+    useSQLTrainerStore.getState().startTimer();
+    useSQLTrainerStore.getState().pauseTimer();
+    expect(useSQLTrainerStore.getState().timer.isPaused).toBe(true);
+
+    useSQLTrainerStore.getState().resumeTimer();
+    expect(useSQLTrainerStore.getState().timer.isPaused).toBe(false);
+  });
+
+  it('should stop timer and reset to default', () => {
+    useSQLTrainerStore.getState().startTimer(120);
+    expect(useSQLTrainerStore.getState().timer.isActive).toBe(true);
+
+    useSQLTrainerStore.getState().stopTimer();
+    const state = useSQLTrainerStore.getState().timer;
+    expect(state.isActive).toBe(false);
+    expect(state.timeRemaining).toBe(900);
+  });
+
+  it('should tick timer down by 1 second', () => {
+    useSQLTrainerStore.getState().startTimer(10);
+    expect(useSQLTrainerStore.getState().timer.timeRemaining).toBe(10);
+
+    useSQLTrainerStore.getState().tickTimer();
+    expect(useSQLTrainerStore.getState().timer.timeRemaining).toBe(9);
+  });
+
+  it('should not tick when paused', () => {
+    useSQLTrainerStore.getState().startTimer(10);
+    useSQLTrainerStore.getState().pauseTimer();
+    useSQLTrainerStore.getState().tickTimer();
+    expect(useSQLTrainerStore.getState().timer.timeRemaining).toBe(10);
+  });
+
+  it('should not tick below zero', () => {
+    useSQLTrainerStore.getState().startTimer(1);
+    useSQLTrainerStore.getState().tickTimer();
+    useSQLTrainerStore.getState().tickTimer();
+    expect(useSQLTrainerStore.getState().timer.timeRemaining).toBe(0);
+  });
+
+  it('should format time as MM:SS', () => {
+    useSQLTrainerStore.getState().startTimer(65);
+    expect(useSQLTrainerStore.getState().getFormattedTime()).toBe('01:05');
+  });
+
+  it('should detect warning threshold', () => {
+    useSQLTrainerStore.getState().setTimerSettings({ warningThreshold: 60 });
+    useSQLTrainerStore.getState().startTimer(60);
+    expect(useSQLTrainerStore.getState().isTimeWarning()).toBe(true);
+  });
+
+  it('should not show warning above threshold', () => {
+    useSQLTrainerStore.getState().setTimerSettings({ warningThreshold: 60 });
+    useSQLTrainerStore.getState().startTimer(120);
+    expect(useSQLTrainerStore.getState().isTimeWarning()).toBe(false);
+  });
+
+  it('should clamp time remaining to valid range', () => {
+    useSQLTrainerStore.getState().startTimer(600);
+    useSQLTrainerStore.getState().setTimeRemaining(-10);
+    expect(useSQLTrainerStore.getState().timer.timeRemaining).toBe(0);
+
+    useSQLTrainerStore.getState().setTimeRemaining(9999);
+    expect(useSQLTrainerStore.getState().timer.timeRemaining).toBe(900);
+  });
+});
+
 describe('store — export/import', () => {
   beforeEach(() => {
     useSQLTrainerStore.getState().resetAllProgress();
