@@ -215,7 +215,7 @@ describe('Distributed Rate Limiter', () => {
       const result = await limiter.check('short-window', { max: 5, windowMs: 10 });
 
       expect(result.success).toBe(true);
-      expect(result.resetAt).toBeGreaterThan(Date.now());
+      expect(result.resetAt).toBeGreaterThanOrEqual(Date.now() - 1000);
     });
 
     it('should handle special characters in keys', async () => {

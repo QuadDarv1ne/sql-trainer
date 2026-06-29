@@ -24,140 +24,140 @@ export interface UserStats {
 export const ACHIEVEMENTS: Record<string, Omit<Achievement, 'unlockedAt'>> = {
   FIRST_QUERY: {
     id: 'first_query',
-    title: 'Первый шаг',
-    description: 'Выполните первый SQL запрос',
+    title: 'First Step',
+    description: 'Execute your first SQL query',
     icon: '🎯',
   },
   BEGINNER_COMPLETE: {
     id: 'beginner_complete',
-    title: 'Новичок',
-    description: 'Завершите все задачи начального уровня',
+    title: 'Beginner',
+    description: 'Complete all beginner level tasks',
     icon: '🌱',
   },
   INTERMEDIATE_COMPLETE: {
     id: 'intermediate_complete',
-    title: 'Профессионал',
-    description: 'Завершите все задачи среднего уровня',
+    title: 'Professional',
+    description: 'Complete all intermediate level tasks',
     icon: '⭐',
   },
   ADVANCED_COMPLETE: {
     id: 'advanced_complete',
-    title: 'Эксперт',
-    description: 'Завершите все задачи продвинутого уровня',
+    title: 'Expert',
+    description: 'Complete all advanced level tasks',
     icon: '🏆',
   },
   PERFECT_SCORE: {
     id: 'perfect_score',
-    title: 'Идеально!',
-    description: 'Решите задачу с первой попытки',
+    title: 'Perfect!',
+    description: 'Solve a task on the first attempt',
     icon: '💯',
   },
   MARATHON: {
     id: 'marathon',
-    title: 'Марафон',
-    description: 'Решите 10 задач подряд',
+    title: 'Marathon',
+    description: 'Solve 10 tasks in a row',
     icon: '🔥',
   },
   MASTER: {
     id: 'master',
-    title: 'Мастер SQL',
-    description: 'Завершите все задачи',
+    title: 'SQL Master',
+    description: 'Complete all tasks',
     icon: '👑',
   },
   EXPLAIN_MASTER: {
     id: 'explain_master',
-    title: 'Аналитик',
-    description: 'Используйте EXPLAIN 10 раз',
+    title: 'Analyst',
+    description: 'Use EXPLAIN 10 times',
     icon: '📊',
   },
   HISTORY_KEEPER: {
     id: 'history_keeper',
-    title: 'Хранитель',
-    description: 'Сохраните 20 запросов в истории',
+    title: 'Historian',
+    description: 'Save 20 queries in history',
     icon: '📚',
   },
   STREAK_3: {
     id: 'streak_3',
-    title: 'На ходу',
-    description: 'Серия практики 3 дня',
+    title: 'On a Roll',
+    description: 'Practice streak of 3 days',
     icon: '🔥',
   },
   STREAK_5: {
     id: 'streak_5',
-    title: 'Неостановимый',
-    description: 'Серия практики 5 дней',
+    title: 'Unstoppable',
+    description: 'Practice streak of 5 days',
     icon: '💥',
   },
   FIRST_JOIN: {
     id: 'first_join',
-    title: 'Мастер соединений',
-    description: 'Выполните первый запрос с JOIN',
+    title: 'Join Master',
+    description: 'Execute your first query with JOIN',
     icon: '🔗',
   },
   FIRST_WINDOW: {
     id: 'first_window',
-    title: 'Оконный мастер',
-    description: 'Выполните первый запрос с оконной функцией',
+    title: 'Window Master',
+    description: 'Execute your first query with a window function',
     icon: '🪟',
   },
   FIRST_CTE: {
     id: 'first_cte',
-    title: 'CTE мастер',
-    description: 'Выполните первый запрос с CTE (WITH)',
+    title: 'CTE Master',
+    description: 'Execute your first query with CTE (WITH)',
     icon: '📋',
   },
   FIRST_SUBQUERY: {
     id: 'first_subquery',
-    title: 'Вложенный запрос',
-    description: 'Выполните первый запрос с подзапросом',
+    title: 'Subquery',
+    description: 'Execute your first query with a subquery',
     icon: '🔍',
   },
   HINT_FREE: {
     id: 'hint_free',
-    title: 'Самостоятельный',
-    description: 'Решите 5 задач без подсказок',
+    title: 'Independent',
+    description: 'Solve 5 tasks without hints',
     icon: '🧠',
   },
   AGGREGATE_MASTER: {
     id: 'aggregate_master',
-    title: 'Агрегатор',
-    description: 'Решите 10 задач с GROUP BY и агрегатными функциями',
+    title: 'Aggregator',
+    description: 'Solve 10 tasks with GROUP BY and aggregate functions',
     icon: '📊',
   },
   COMPANY_COMPLETE: {
     id: 'company_complete',
-    title: 'Корпоративный аналитик',
-    description: 'Решите все задачи категории «Компания»',
+    title: 'Corporate Analyst',
+    description: 'Solve all tasks in the Company category',
     icon: '🏢',
   },
   SHOP_COMPLETE: {
     id: 'shop_complete',
-    title: 'E-commerce эксперт',
-    description: 'Решите все задачи категории «Магазин»',
+    title: 'E-commerce Expert',
+    description: 'Solve all tasks in the Shop category',
     icon: '🛒',
   },
   ANALYTICS_COMPLETE: {
     id: 'analytics_complete',
-    title: 'Аналитик данных',
-    description: 'Решите все задачи категории «Аналитика»',
+    title: 'Data Analyst',
+    description: 'Solve all tasks in the Analytics category',
     icon: '📈',
   },
   STREAK_7: {
     id: 'streak_7',
-    title: 'Неделя практики',
-    description: 'Серия практики 7 дней',
+    title: 'Week of Practice',
+    description: 'Practice streak of 7 days',
     icon: '🔥',
   },
   STREAK_14: {
     id: 'streak_14',
-    title: 'Две недели',
-    description: 'Серия практики 14 дней',
+    title: 'Two Weeks',
+    description: 'Practice streak of 14 days',
     icon: '💎',
   },
   STREAK_30: {
     id: 'streak_30',
-    title: 'Месяц практики',
-    description: 'Серия практики 30 дней',
+    title: 'Month of Practice',
+    description: 'Practice streak of 30 days',
     icon: '👑',
   },
 } as const;
@@ -229,7 +229,14 @@ export const createGamificationSlice: StateCreator<GamificationSlice, [], [], Ga
   achievements: [],
   unlockedAchievements: [],
 
-  checkAndUnlockAchievements: ({ completedTasks, queryHistoryLength, currentStreak, taskId, attempts }) => {
+  checkAndUnlockAchievements: ({
+    completedTasks,
+    queryHistoryLength,
+    currentStreak,
+    taskId,
+    attempts,
+    hintFreeCount,
+  }) => {
     const { achievements, unlockedAchievements } = get();
     const newAchievementIds: string[] = [];
     const achievementSet = new Set(achievements);
@@ -405,8 +412,7 @@ export const createGamificationSlice: StateCreator<GamificationSlice, [], [], Ga
     }
 
     // Hint-free solver
-    const hintFreeCount = completedTasks.filter((t) => t.attempts === 1).length;
-    if (hintFreeCount >= 5 && !achievementSet.has(ACHIEVEMENTS.HINT_FREE.id)) {
+    if ((hintFreeCount ?? get().userStats.hintFreeCount) >= 5 && !achievementSet.has(ACHIEVEMENTS.HINT_FREE.id)) {
       newAchievementIds.push(ACHIEVEMENTS.HINT_FREE.id);
       achievementSet.add(ACHIEVEMENTS.HINT_FREE.id);
     }

@@ -248,14 +248,42 @@ describe('store — gamification slice', () => {
 
   it('should track hint-free completions', () => {
     useSQLTrainerStore.getState().resetAllProgress();
+    useSQLTrainerStore.getState().setHintLevel(0);
 
-    const before = useSQLTrainerStore.getState().userStats.hintFreeCount;
+    // hintLevel is 0 → incrementHintFreeCount should fire
+    useSQLTrainerStore.getState().markTaskCompleted('beginner-3', 2);
+    expect(useSQLTrainerStore.getState().userStats.hintFreeCount).toBe(1);
+  });
+
+  it('should not count hint-assisted completions as hint-free', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+    useSQLTrainerStore.getState().setHintLevel(2);
+
+    // hintLevel > 0 → should NOT increment hintFreeCount
     useSQLTrainerStore.getState().markTaskCompleted('beginner-3', 1);
+    expect(useSQLTrainerStore.getState().userStats.hintFreeCount).toBe(0);
+  });
 
-    // hintFreeCount should increment when task is completed without hints
-    // (depends on hint level being 0 at completion time)
-    const after = useSQLTrainerStore.getState().userStats.hintFreeCount;
-    expect(after).toBeGreaterThanOrEqual(before);
+  it('should unlock HINT_FREE achievement after 5 hint-free completions', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+    useSQLTrainerStore.getState().setHintLevel(0);
+
+    for (let i = 0; i < 5; i++) {
+      useSQLTrainerStore.getState().markTaskCompleted(`task-${i}`, 1);
+    }
+
+    expect(useSQLTrainerStore.getState().achievements).toContain('hint_free');
+  });
+
+  it('should NOT unlock HINT_FREE achievement if hints were used', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+    useSQLTrainerStore.getState().setHintLevel(1);
+
+    for (let i = 0; i < 5; i++) {
+      useSQLTrainerStore.getState().markTaskCompleted(`task-${i}`, 1);
+    }
+
+    expect(useSQLTrainerStore.getState().achievements).not.toContain('hint_free');
   });
 });
 
@@ -315,6 +343,160 @@ describe('store — undo reset', () => {
     useSQLTrainerStore.getState().undoReset();
     expect(useSQLTrainerStore.getState().completedTasks.length).toBe(1);
     expect(useSQLTrainerStore.getState().userStats.xp).toBe(totalXP);
+  });
+});
+
+describe('store — UI slice', () => {
+  beforeEach(() => {
+    useSQLTrainerStore.getState().resetAllProgress();
+  });
+
+  it('should toggle sidebar', () => {
+    expect(useSQLTrainerStore.getState().sidebarOpen).toBe(true);
+    useSQLTrainerStore.getState().setSidebarOpen(false);
+    expect(useSQLTrainerStore.getState().sidebarOpen).toBe(false);
+    useSQLTrainerStore.getState().setSidebarOpen(true);
+    expect(useSQLTrainerStore.getState().sidebarOpen).toBe(true);
+  });
+
+  it('should toggle reference panel', () => {
+    expect(useSQLTrainerStore.getState().referenceOpen).toBe(false);
+    useSQLTrainerStore.getState().setReferenceOpen(true);
+    expect(useSQLTrainerStore.getState().referenceOpen).toBe(true);
+    useSQLTrainerStore.getState().setReferenceOpen(false);
+    expect(useSQLTrainerStore.getState().referenceOpen).toBe(false);
+  });
+
+  it('should manage hint level', () => {
+    expect(useSQLTrainerStore.getState().hintLevel).toBe(0);
+    useSQLTrainerStore.getState().setHintLevel(1);
+    expect(useSQLTrainerStore.getState().hintLevel).toBe(1);
+    useSQLTrainerStore.getState().setHintLevel(3);
+    expect(useSQLTrainerStore.getState().hintLevel).toBe(3);
+  });
+
+  it('should track hint penalty', () => {
+    expect(useSQLTrainerStore.getState().totalHintPenalty).toBe(0);
+    useSQLTrainerStore.getState().setTotalHintPenalty(50);
+    expect(useSQLTrainerStore.getState().totalHintPenalty).toBe(50);
+  });
+
+  it('should toggle solution visibility', () => {
+    expect(useSQLTrainerStore.getState().solutionVisible).toBe(false);
+    useSQLTrainerStore.getState().setSolutionVisible(true);
+    expect(useSQLTrainerStore.getState().solutionVisible).toBe(true);
+  });
+});
+
+describe('store — onboarding slice', () => {
+  beforeEach(() => {
+    useSQLTrainerStore.getState().resetAllProgress();
+  });
+
+  it('should start with onboarding incomplete', () => {
+    expect(useSQLTrainerStore.getState().onboardingCompleted).toBe(false);
+  });
+
+  it('should mark onboarding as completed', () => {
+    useSQLTrainerStore.getState().setOnboardingCompleted(true);
+    expect(useSQLTrainerStore.getState().onboardingCompleted).toBe(true);
+  });
+
+  it('should reset onboarding', () => {
+    useSQLTrainerStore.getState().setOnboardingCompleted(true);
+    expect(useSQLTrainerStore.getState().onboardingCompleted).toBe(true);
+    useSQLTrainerStore.getState().resetOnboarding();
+    expect(useSQLTrainerStore.getState().onboardingCompleted).toBe(false);
+  });
+});
+
+describe('store — timer slice', () => {
+  beforeEach(() => {
+    useSQLTrainerStore.getState().stopTimer();
+  });
+
+  it('should start timer with default duration', () => {
+    useSQLTrainerStore.getState().startTimer();
+    const state = useSQLTrainerStore.getState().timer;
+    expect(state.isActive).toBe(true);
+    expect(state.timeRemaining).toBe(900);
+    expect(state.totalDuration).toBe(900);
+    expect(state.isPaused).toBe(false);
+  });
+
+  it('should start timer with custom duration', () => {
+    useSQLTrainerStore.getState().startTimer(300);
+    const state = useSQLTrainerStore.getState().timer;
+    expect(state.isActive).toBe(true);
+    expect(state.timeRemaining).toBe(300);
+    expect(state.totalDuration).toBe(300);
+  });
+
+  it('should pause and resume timer', () => {
+    useSQLTrainerStore.getState().startTimer();
+    useSQLTrainerStore.getState().pauseTimer();
+    expect(useSQLTrainerStore.getState().timer.isPaused).toBe(true);
+
+    useSQLTrainerStore.getState().resumeTimer();
+    expect(useSQLTrainerStore.getState().timer.isPaused).toBe(false);
+  });
+
+  it('should stop timer and reset to default', () => {
+    useSQLTrainerStore.getState().startTimer(120);
+    expect(useSQLTrainerStore.getState().timer.isActive).toBe(true);
+
+    useSQLTrainerStore.getState().stopTimer();
+    const state = useSQLTrainerStore.getState().timer;
+    expect(state.isActive).toBe(false);
+    expect(state.timeRemaining).toBe(900);
+  });
+
+  it('should tick timer down by 1 second', () => {
+    useSQLTrainerStore.getState().startTimer(10);
+    expect(useSQLTrainerStore.getState().timer.timeRemaining).toBe(10);
+
+    useSQLTrainerStore.getState().tickTimer();
+    expect(useSQLTrainerStore.getState().timer.timeRemaining).toBe(9);
+  });
+
+  it('should not tick when paused', () => {
+    useSQLTrainerStore.getState().startTimer(10);
+    useSQLTrainerStore.getState().pauseTimer();
+    useSQLTrainerStore.getState().tickTimer();
+    expect(useSQLTrainerStore.getState().timer.timeRemaining).toBe(10);
+  });
+
+  it('should not tick below zero', () => {
+    useSQLTrainerStore.getState().startTimer(1);
+    useSQLTrainerStore.getState().tickTimer();
+    useSQLTrainerStore.getState().tickTimer();
+    expect(useSQLTrainerStore.getState().timer.timeRemaining).toBe(0);
+  });
+
+  it('should format time as MM:SS', () => {
+    useSQLTrainerStore.getState().startTimer(65);
+    expect(useSQLTrainerStore.getState().getFormattedTime()).toBe('01:05');
+  });
+
+  it('should detect warning threshold', () => {
+    useSQLTrainerStore.getState().setTimerSettings({ warningThreshold: 60 });
+    useSQLTrainerStore.getState().startTimer(60);
+    expect(useSQLTrainerStore.getState().isTimeWarning()).toBe(true);
+  });
+
+  it('should not show warning above threshold', () => {
+    useSQLTrainerStore.getState().setTimerSettings({ warningThreshold: 60 });
+    useSQLTrainerStore.getState().startTimer(120);
+    expect(useSQLTrainerStore.getState().isTimeWarning()).toBe(false);
+  });
+
+  it('should clamp time remaining to valid range', () => {
+    useSQLTrainerStore.getState().startTimer(600);
+    useSQLTrainerStore.getState().setTimeRemaining(-10);
+    expect(useSQLTrainerStore.getState().timer.timeRemaining).toBe(0);
+
+    useSQLTrainerStore.getState().setTimeRemaining(9999);
+    expect(useSQLTrainerStore.getState().timer.timeRemaining).toBe(900);
   });
 });
 

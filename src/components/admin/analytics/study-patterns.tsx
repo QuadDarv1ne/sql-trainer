@@ -153,7 +153,7 @@ export default function StudyPatterns() {
               <div className="flex flex-col gap-0.5 pt-6">
                 {data.day_hour_heatmap.map((_, dayIdx) => (
                   <div key={dayIdx} className="w-6 h-6 flex items-center text-xs text-muted-foreground">
-                    {['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][dayIdx]}
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dayIdx]}
                   </div>
                 ))}
               </div>

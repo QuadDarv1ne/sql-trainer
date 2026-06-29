@@ -22,9 +22,11 @@ import {
   GraduationCap,
   Eye,
   EyeOff,
+  ArrowLeft,
 } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { ROLE_LABELS } from '@/lib/rbac';
+import { logger } from '@/lib/logger';
 import type { Role } from '@/lib/rbac';
 import { csrfHeaders } from '@/lib/safe-fetch';
 
@@ -90,7 +92,8 @@ export default function RegisterForm() {
 
       // Auto sign in via useEffect with proper cleanup
       pendingSignIn.current = { email, password };
-    } catch {
+    } catch (err) {
+      logger.error('[RegisterForm] Registration error', err);
       setError(t('auth.registerError'));
     } finally {
       setLoading(false);
@@ -114,7 +117,16 @@ export default function RegisterForm() {
   return (
     <Card className="w-full max-w-md shadow-lg border-border/80">
       <CardHeader className="space-y-2 pb-6">
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex items-start w-full -ml-2">
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+            {t('action.back')}
+          </Link>
+        </div>
+        <div className="flex flex-col items-center gap-2 pt-2">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-md">
             <User className="h-6 w-6 text-white" />
           </div>
@@ -178,7 +190,7 @@ export default function RegisterForm() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 h-11"
@@ -212,7 +224,7 @@ export default function RegisterForm() {
                       {ROLE_LABELS.student}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {t('auth.role.studentDesc', { default: 'Практика SQL-запросов' })}
+                      {t('auth.role.studentDesc', { default: 'Practice SQL queries' })}
                     </div>
                   </div>
                 </button>
@@ -235,7 +247,7 @@ export default function RegisterForm() {
                       {ROLE_LABELS.teacher}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {t('auth.role.teacherDesc', { default: 'Аналитика и прогресс студентов' })}
+                      {t('auth.role.teacherDesc', { default: 'Student analytics and progress' })}
                     </div>
                   </div>
                 </button>
@@ -264,7 +276,7 @@ export default function RegisterForm() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
                     tabIndex={-1}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { t, setLocale, getLocale, getPlural, translations, type Locale } from '@/lib/i18n';
+import { t, setLocale, getLocale, translations, type Locale } from '@/lib/i18n';
 
 describe('i18n', () => {
   beforeEach(() => {
@@ -26,18 +26,29 @@ describe('i18n', () => {
       expect(t('app.title')).toBe('SQL 训练器');
     });
 
-    it('falls back to Russian key if English missing', () => {
+    it('uses default value when key missing and default provided', () => {
       setLocale('en');
-      // All keys should have both RU and EN translations
-      expect(t('action.execute')).toBeDefined();
+      expect(t('nonexistent.key', { default: 'Fallback text' })).toBe('Fallback text');
     });
 
-    it('returns key if translation not found', () => {
-      expect(t('nonexistent.key')).toBe('nonexistent.key');
+    it('prefers default over ru fallback', () => {
+      setLocale('en');
+      // default should take priority over translations.ru[key]
+      expect(t('whatever.missing', { default: 'My Default' })).toBe('My Default');
+    });
+
+    it('returns key name when missing everywhere and no default', () => {
+      setLocale('en');
+      expect(t('completely.missing.key')).toBe('completely.missing.key');
     });
 
     it('supports parameter interpolation', () => {
       expect(t('editor.placeholder.task', { title: 'SELECT' })).toBe('Напишите SQL запрос для: SELECT...');
+    });
+
+    it('interpolates parameters with default value', () => {
+      setLocale('en');
+      expect(t('greeting.missing', { name: 'Alice', default: 'Hello, {name}!' })).toBe('Hello, Alice!');
     });
   });
 
@@ -76,9 +87,5 @@ describe('i18n', () => {
     });
   });
 
-  describe('getPlural', () => {
-    it('returns a string', () => {
-      expect(typeof getPlural('results.row')).toBe('string');
-    });
-  });
+  // getPlural was removed as unused (was a stub returning singular)
 });

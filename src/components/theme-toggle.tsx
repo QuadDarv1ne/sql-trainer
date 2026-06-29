@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { Moon, Sun, SunMoon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { t } from '@/lib/i18n';
 
 type ThemeValue = 'light' | 'dark' | 'system';
 
@@ -35,7 +36,12 @@ export function ThemeToggle({ size = 'default', className }: ThemeToggleProps) {
   // Placeholder during SSR/hydration to prevent mismatch
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon" className={`${btnClass} ${className || ''}`} aria-label="Toggle theme">
+      <Button
+        variant="ghost"
+        size="icon"
+        className={`${btnClass} ${className || ''}`}
+        aria-label={t('common.toggleTheme')}
+      >
         <Sun className={iconClass} />
       </Button>
     );
@@ -50,7 +56,7 @@ export function ThemeToggle({ size = 'default', className }: ThemeToggleProps) {
       size="icon"
       className={`${btnClass} ${className || ''}`}
       onClick={handleToggle}
-      aria-label={`Switch to ${nextTheme} theme`}
+      aria-label={t('common.switchToTheme', { theme: nextTheme })}
     >
       <Icon className={iconClass} />
     </Button>

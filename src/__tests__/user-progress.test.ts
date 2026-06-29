@@ -118,7 +118,7 @@ describe('User Progress API', () => {
       const { parseAndValidate } = await import('@/lib/validation');
 
       vi.mocked(parseAndValidate).mockResolvedValue({
-        response: NextResponse.json(JSON.stringify({ error: 'taskId обязателен' }), { status: 400 }),
+        response: NextResponse.json(JSON.stringify({ error: 'taskId is required' }), { status: 400 }),
       });
 
       const { POST } = await import('@/app/api/user/progress/route');
@@ -145,7 +145,9 @@ describe('User Progress API', () => {
       const { parseAndValidate } = await import('@/lib/validation');
 
       vi.mocked(parseAndValidate).mockResolvedValue({
-        response: NextResponse.json(JSON.stringify({ error: 'attempts должен быть неотрицательным' }), { status: 400 }),
+        response: NextResponse.json(JSON.stringify({ error: 'attempts must be a non-negative integer' }), {
+          status: 400,
+        }),
       });
 
       const { POST } = await import('@/app/api/user/progress/route');
@@ -172,7 +174,7 @@ describe('User Progress API', () => {
       const { parseAndValidate } = await import('@/lib/validation');
 
       vi.mocked(parseAndValidate).mockResolvedValue({
-        response: NextResponse.json(JSON.stringify({ error: 'attempts должен быть целым числом' }), { status: 400 }),
+        response: NextResponse.json(JSON.stringify({ error: 'attempts must be an integer' }), { status: 400 }),
       });
 
       const { POST } = await import('@/app/api/user/progress/route');

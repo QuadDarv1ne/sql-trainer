@@ -7,14 +7,14 @@ import { rateLimit } from '@/lib/rate-limit';
 import { validateBody } from '@/lib/validation';
 
 const profileUpdateSchema = z.object({
-  name: z.string().min(1, 'Имя не может быть пустым').max(100, 'Имя слишком длинное').optional(),
+  name: z.string().min(1, 'Name cannot be empty').max(100, 'Name is too long').optional(),
   phone: z.string().optional().or(z.literal('')),
 });
 
 export const GET = withUserAuth(async ({ session }) => {
   const user = await getUserById(session.user.id);
   if (!user) {
-    return NextResponse.json({ success: false, error: 'Пользователь не найден' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
   }
   return NextResponse.json({ success: true, user });
 });
@@ -23,7 +23,7 @@ export const PUT = withUserAuth(async ({ request, session }) => {
   // Stricter rate limit for profile updates: 10 per 15 minutes
   const limit = await rateLimit(`profile-update:${session.user.id}`, { max: 10, windowMs: 15 * 60 * 1000 });
   if (!limit.success) {
-    return NextResponse.json({ success: false, error: 'Слишком много попыток. Попробуйте позже' }, { status: 429 });
+    return NextResponse.json({ success: false, error: 'Too many attempts. Please try later' }, { status: 429 });
   }
 
   const result = validateBody(await request.json(), profileUpdateSchema);
@@ -46,7 +46,7 @@ export const PUT = withUserAuth(async ({ request, session }) => {
     phone: sanitizedPhone?.value ?? phone,
   });
   if (!updated) {
-    return NextResponse.json({ success: false, error: 'Не удалось обновить профиль' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Failed to update profile' }, { status: 500 });
   }
 
   const user = await getUserById(session.user.id);

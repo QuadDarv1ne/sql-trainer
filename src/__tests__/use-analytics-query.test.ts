@@ -1,7 +1,7 @@
 /**
  * Tests for useAnalyticsQuery hook.
  */
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useAnalyticsQuery } from '../hooks/use-analytics-query';
 
@@ -142,7 +142,9 @@ describe('useAnalyticsQuery', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     mockFetch.mockResolvedValueOnce(createResponse(true, { data: 'second' }));
-    result.current.refetch();
+    await act(async () => {
+      result.current.refetch();
+    });
 
     await waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(2));
   });

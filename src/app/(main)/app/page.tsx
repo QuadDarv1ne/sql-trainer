@@ -8,11 +8,11 @@ import { toast } from 'sonner';
 import { useSQLTrainerStore } from '@/lib/store';
 import { getTaskById, TRAINING_TASKS } from '@/lib/training-tasks';
 import { type DatabaseInfo } from '@/lib/sql-engine';
-import { plural } from '@/lib/utils';
 import { t } from '@/lib/i18n';
 import { getNextHintLevel, generateProgressiveHints, calculateHintPenalty } from '@/lib/progressive-hints';
 import { logger } from '@/lib/logger';
-import { csrfHeaders } from '@/lib/safe-fetch';
+import { useQueryExecutor } from '@/hooks/use-query-executor';
+import { TimerDisplay } from '@/components/timer-display';
 import ResultsTable from '@/components/results-table';
 import ActionBar from '@/components/action-bar';
 import ExplainPanel from '@/components/explain-panel';
@@ -87,22 +87,14 @@ export default function HomePage() {
     setSolutionVisible,
     isExecuting,
     setIsExecuting,
-    addQueryHistory,
     isTaskCompleted,
-    markTaskCompleted,
     completedTasks,
-    updateStreak,
     practiceMode,
-    nextPracticeTask,
     unlockedAchievements,
     userStats,
-    incrementExplainCount,
     onboardingCompleted,
     setOnboardingCompleted,
-    checkAndUnlockAchievements,
-    queryHistory,
-    streak,
-    addXP,
+    toggleBookmark,
   } = useSQLTrainerStore();
 
   const editorRef = useRef<SQLEditorRef>(null);
@@ -126,24 +118,27 @@ export default function HomePage() {
   const { theme } = useTheme();
   const { data: session } = useSession();
   const [schemaInfo, setSchemaInfo] = useState<DatabaseInfo | null>(null);
-  const attemptCountRef = useRef(0);
-  const practiceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mounted, setMounted] = useState(false);
-  const progressSyncRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     setMounted(true);
-    return () => {
-      if (practiceTimerRef.current) {
-        clearTimeout(practiceTimerRef.current);
-      }
-      progressSyncRef.current?.abort();
-    };
   }, []);
   const [explainPlan, setExplainPlan] = useState<string | null>(null);
   const [explainSuggestions, setExplainSuggestions] = useState<string[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(!onboardingCompleted);
   const [referenceTab, setReferenceTab] = useState<'reference' | 'glossary'>('reference');
+
+  const { executeQuery, executeExplain, executeVerify, attemptCountRef } = useQueryExecutor({
+    editorContent,
+    isExecuting,
+    dbType,
+    currentTaskId,
+    setIsExecuting,
+    setLastResult,
+    setVerification,
+    setExplainPlan,
+    setExplainSuggestions,
+  });
 
   // Load server progress on mount for authenticated users
   useEffect(() => {
@@ -174,6 +169,10 @@ export default function HomePage() {
     };
   }, [session?.user]);
 
+  const confirmAction = useCallback((message: string): Promise<boolean> => {
+    return Promise.resolve(window.confirm(message));
+  }, []);
+
   // Get current task
   const currentTask = useMemo(() => (currentTaskId ? getTaskById(currentTaskId) : null), [currentTaskId]);
 
@@ -192,7 +191,7 @@ export default function HomePage() {
       try {
         const res = await fetch('/api/sql/init-training', {
           method: 'POST',
-          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ taskId: currentTask.id, dbType }),
         });
         const data = await res.json();
@@ -208,149 +207,8 @@ export default function HomePage() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- attemptCountRef is a mutable ref, not reactive
   }, [currentTask, dbType]);
-
-  // Execute query
-  const executeQuery = useCallback(async () => {
-    if (!editorContent.trim() || isExecuting) return;
-
-    setIsExecuting(true);
-    attemptCountRef.current += 1;
-    setVerification(null);
-
-    try {
-      const response = await fetch('/api/sql', {
-        method: 'POST',
-          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ sql: editorContent, dbType, taskId: currentTaskId }),
-      });
-
-      const data = await response.json();
-
-      setLastResult({
-        success: data.success,
-        columns: data.columns || [],
-        rows: data.rows || [],
-        error: data.error,
-        executionTime: data.executionTime || 0,
-        message: data.message,
-      });
-
-      addQueryHistory({
-        sql: editorContent,
-        timestamp: Date.now(),
-        success: data.success,
-        executionTime: data.executionTime || 0,
-        rowCount: data.rows?.length,
-      });
-
-      // Verify task if there's a current task and query succeeded (including 0-row results)
-      if (currentTaskId && data.success) {
-        try {
-          const verifyResponse = await fetch('/api/sql/verify', {
-            method: 'POST',
-          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-            body: JSON.stringify({ sql: editorContent, taskId: currentTaskId, dbType }),
-          });
-
-          const verifyData = await verifyResponse.json();
-          setVerification({
-            verified: verifyData.verified,
-            userRowCount: verifyData.userRowCount,
-            expectedRowCount: verifyData.expectedRowCount,
-            message: verifyData.message,
-          });
-
-          // Mark task as completed only when verified
-          if (verifyData.verified && !isTaskCompleted(currentTaskId)) {
-            markTaskCompleted(currentTaskId, attemptCountRef.current);
-            updateStreak();
-            toast.success(t('task.completed'), {
-              description: `${attemptCountRef.current} ${plural(attemptCountRef.current, t('task.attempts'), t('task.attemptsFew'), t('task.attemptsMany'))}`,
-            });
-
-            // Auto-advance in practice mode
-            if (practiceMode.active) {
-              practiceTimerRef.current = setTimeout(() => {
-                practiceTimerRef.current = null;
-                nextPracticeTask();
-              }, 1500);
-            }
-
-            // Sync progress to server for authenticated users
-            if (session?.user) {
-              progressSyncRef.current?.abort();
-              progressSyncRef.current = new AbortController();
-              fetch('/api/user/progress', {
-                method: 'POST',
-          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-                body: JSON.stringify({
-                  taskId: currentTaskId,
-                  attempts: attemptCountRef.current,
-                }),
-                signal: progressSyncRef.current.signal,
-              })
-                .then((res) => {
-                  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                  // Check for new achievements after progress sync
-                  const signal = progressSyncRef.current;
-                  return fetch('/api/user/achievements?check=true', { signal: signal ? signal.signal : undefined });
-                })
-                .then((res) => {
-                  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                  return res.json();
-                })
-                .then((data) => {
-                  if (data.success && data.newAchievements?.length > 0) {
-                    data.newAchievements.forEach((achievement: { id: string; title: string }) => {
-                      toast.success(t('achievement.toast.title'), {
-                        description: t('achievement.toast.description', { title: achievement.title }),
-                        duration: 5000,
-                      });
-                    });
-                  }
-                })
-                .catch((e) => {
-                  if (e.name !== 'AbortError') {
-                    logger.error('Failed to check achievements', e);
-                  }
-                });
-            }
-          }
-        } catch (e) {
-          // Verification failed — still show results but notify user
-          logger.error('Task verification failed', e);
-          toast.error(t('task.verificationError', { default: 'Не удалось проверить результат запроса' }));
-        }
-      }
-    } catch (e) {
-      logger.error('Query execution failed', e);
-      setLastResult({
-        success: false,
-        columns: [],
-        rows: [],
-        error: t('results.error'),
-        executionTime: 0,
-      });
-    } finally {
-      setIsExecuting(false);
-    }
-  }, [
-    editorContent,
-    isExecuting,
-    dbType,
-    currentTaskId,
-    setIsExecuting,
-    setLastResult,
-    addQueryHistory,
-    isTaskCompleted,
-    markTaskCompleted,
-    updateStreak,
-    setVerification,
-    session,
-    practiceMode.active,
-    nextPracticeTask,
-  ]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -387,6 +245,34 @@ export default function HomePage() {
         e.preventDefault();
         setEditorContent(formatSQL(editorContent));
       }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault();
+        setSidebarOpen(!sidebarOpen);
+      }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'B') {
+        e.preventDefault();
+        if (currentTaskId) toggleBookmark(currentTaskId);
+      }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'E') {
+        e.preventDefault();
+        executeQuery();
+        if (currentTaskId) executeVerify?.();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'X') {
+        e.preventDefault();
+        const { clearHistory } = useSQLTrainerStore.getState();
+        if (window.confirm(t('action.clearHistoryConfirm', { default: 'Clear query history?' }))) {
+          clearHistory();
+        }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') {
+        e.preventDefault();
+        const cycle: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
+        const idx = cycle.indexOf((theme as 'light' | 'dark' | 'system') || 'system');
+        const next = cycle[(idx + 1) % cycle.length];
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('next-theme', next);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -402,6 +288,12 @@ export default function HomePage() {
     setTotalHintPenalty,
     editorContent,
     currentTask,
+    sidebarOpen,
+    setSidebarOpen,
+    theme,
+    toggleBookmark,
+    currentTaskId,
+    executeVerify,
   ]);
 
   // Clear editor
@@ -413,135 +305,40 @@ export default function HomePage() {
     setExplainSuggestions([]);
   };
 
-  // Explain query
-  const executeExplain = useCallback(async () => {
-    if (!editorContent.trim() || isExecuting || !currentTaskId) return;
-
-    setIsExecuting(true);
-    setExplainPlan(null);
-
-    try {
-      const response = await fetch('/api/sql/explain', {
-        method: 'POST',
-          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ sql: editorContent, dbType, taskId: currentTaskId }),
-      });
-
-      const data = await response.json();
-
-      if (data.success && data.plan) {
-        setExplainPlan(data.plan);
-        setExplainSuggestions(data.suggestions || []);
-        incrementExplainCount();
-      } else {
-        setExplainPlan(`${t('results.error')}: ${data.error}`);
-        setExplainSuggestions([]);
-      }
-    } catch (e) {
-      logger.error('EXPLAIN request failed', e);
-      setExplainPlan(t('results.error'));
-      setExplainSuggestions([]);
-    } finally {
-      setIsExecuting(false);
-    }
-  }, [editorContent, isExecuting, dbType, currentTaskId, setIsExecuting, incrementExplainCount]);
-
-  // Verify task solution
-  const executeVerify = useCallback(async () => {
-    if (!editorContent.trim() || isExecuting || !currentTaskId) return;
-
-    setIsExecuting(true);
-
-    try {
-      const verifyResponse = await fetch('/api/sql/verify', {
-        method: 'POST',
-          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ sql: editorContent, taskId: currentTaskId, dbType }),
-      });
-
-      const verifyData = await verifyResponse.json();
-      setVerification({
-        verified: verifyData.verified,
-        userRowCount: verifyData.userRowCount,
-        expectedRowCount: verifyData.expectedRowCount,
-        message: verifyData.message,
-      });
-
-      // Mark task as completed only when verified
-      if (verifyData.verified && !isTaskCompleted(currentTaskId)) {
-        markTaskCompleted(currentTaskId, attemptCountRef.current);
-        updateStreak();
-        toast.success(t('task.completed'), {
-          description: `+${verifyData.xp ?? 0} XP`,
-        });
-
-        const { newAchievements, xpGained } = checkAndUnlockAchievements({
-          completedTasks: [
-            ...completedTasks,
-            { taskId: currentTaskId, completedAt: Date.now(), attempts: attemptCountRef.current },
-          ],
-          queryHistoryLength: queryHistory.length,
-          currentStreak: streak.currentStreak,
-          taskId: currentTaskId,
-          attempts: attemptCountRef.current,
-        });
-
-        if (xpGained > 0) {
-          addXP(xpGained);
-        }
-
-        if (newAchievements.length > 0) {
-          newAchievements.forEach((a: { icon: string; title: string; description: string }) => {
-            toast.success(`${a.icon} ${a.title}`, { description: a.description });
-          });
-        }
-      } else if (!verifyData.verified) {
-        toast.error(t('task.notVerified'), {
-          description: verifyData.message || t('task.notVerifiedDetail'),
-        });
-      }
-    } catch (e) {
-      logger.error('Verify request failed', e);
-      toast.error(t('task.verifyError'));
-    } finally {
-      setIsExecuting(false);
-    }
-  }, [
-    editorContent,
-    isExecuting,
-    currentTaskId,
-    dbType,
-    completedTasks,
-    queryHistory,
-    streak,
-    setIsExecuting,
-    markTaskCompleted,
-    updateStreak,
-    checkAndUnlockAchievements,
-    addXP,
-    isTaskCompleted,
-    setVerification,
-  ]);
-
   // Reset DB (re-init task)
-  const resetDb = () => {
-    if (currentTask) {
-      fetch('/api/sql/init-training', {
-        method: 'POST',
-          headers: csrfHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ taskId: currentTask.id, dbType }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success && data.schema) {
-            setSchemaInfo(data.schema);
-          }
-        })
-        .catch((e) => logger.error('Failed to reset training schema', e));
+  const resetDb = async () => {
+    const confirmed = await confirmAction(
+      t('app.resetDbConfirm', {
+        default: 'Are you sure you want to reset the database? All unsaved changes will be lost.',
+      }),
+    );
+    if (!confirmed) return;
+
+    setIsExecuting(true);
+    try {
+      if (currentTask) {
+        const res = await fetch('/api/sql/init-training', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ taskId: currentTask.id, dbType }),
+        });
+        const data = await res.json();
+        if (data.success && data.schema) {
+          setSchemaInfo(data.schema);
+        }
+      }
+      setEditorContent('');
+      setLastResult(null);
+      setVerification(null);
+      setExplainPlan(null);
+      setExplainSuggestions([]);
+      toast.success(t('results.ddlSuccess'));
+    } catch (e) {
+      logger.error('Failed to reset training schema', e);
+      toast.error(t('results.queryError'));
+    } finally {
+      setIsExecuting(false);
     }
-    setEditorContent('');
-    setLastResult(null);
-    setVerification(null);
   };
 
   // Compute next task info
@@ -664,20 +461,20 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background">
+    <div className="flex h-screen flex-col overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
       {/* Header */}
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
-        <div className="flex items-center gap-4">
+      <header className="flex h-14 sm:h-16 shrink-0 items-center justify-between border-b border-border/60 bg-background/80 backdrop-blur-md shadow-sm px-3 sm:px-4 lg:px-6">
+        <div className="flex items-center gap-2 sm:gap-4">
           {/* Mobile menu */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden h-9 w-9">
+              <Button variant="ghost" size="icon" className="md:hidden h-9 w-9 rounded-lg" aria-label="Open menu">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-80 p-0">
-              <SheetHeader className="border-b border-border px-5 py-4">
-                <SheetTitle className="text-base">{t('header.tasks')}</SheetTitle>
+            <SheetContent side="left" className="w-[300px] sm:w-[340px] p-0">
+              <SheetHeader className="border-b border-border px-4 sm:px-5 py-3 sm:py-4 bg-gradient-to-r from-muted/50 to-muted/30">
+                <SheetTitle className="text-base font-semibold">{t('header.tasks')}</SheetTitle>
               </SheetHeader>
               <Sidebar />
             </SheetContent>
@@ -687,46 +484,55 @@ export default function HomePage() {
           <Button
             variant="ghost"
             size="icon"
-            className="hidden md:flex h-9 w-9"
+            className="hidden md:flex h-9 sm:h-10 w-9 sm:w-10 rounded-lg hover:bg-muted/70 transition-all"
             onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           >
             {sidebarOpen ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
           </Button>
 
           {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 shadow-sm">
-              <TableIcon className="h-5 w-5 text-white" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-500/25">
+              <TableIcon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
-            <h1 className="text-base font-semibold tracking-tight hidden sm:block">
-              SQL <span className="text-blue-600">Trainer</span>
+            <h1 className="text-base sm:text-lg font-bold tracking-tight hidden sm:block bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              SQL{' '}
+              <span className="bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">Trainer</span>
             </h1>
           </div>
 
-          {/* Level badge */}
-          <div className="hidden sm:flex items-center gap-2.5 rounded-lg bg-muted/50 px-3 py-1.5 border border-border/50">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-sm">
+          {/* Level badge - hidden on very small screens */}
+          <div className="hidden xs:flex sm:flex items-center gap-2 sm:gap-3 rounded-xl bg-gradient-to-r from-muted/80 to-muted/50 px-2 sm:px-4 py-1.5 sm:py-2 border border-border/50 shadow-sm">
+            <div className="flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-[10px] sm:text-xs font-bold text-white shadow-lg shadow-blue-500/25">
               {userStats.level}
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="text-xs font-medium text-muted-foreground">{t('dashboard.level', { default: 'Ур.' })} {userStats.level}</span>
-              <div className="h-1.5 w-20 rounded-full bg-muted-foreground/20 overflow-hidden mt-0.5">
+              <span className="text-[10px] sm:text-xs font-semibold text-foreground">
+                {t('app.level', { default: 'Lvl' })}. {userStats.level}
+              </span>
+              <div className="h-1 sm:h-1.5 w-16 sm:w-24 rounded-full bg-muted-foreground/20 overflow-hidden mt-0.5">
                 <div
-                  className="h-full rounded-full bg-blue-500 transition-all duration-300"
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300"
                   style={{ width: `${userStats.levelProgress}%` }}
                 />
               </div>
             </div>
           </div>
+
+          {/* Timer display - visible in practice mode */}
+          <div className="hidden lg:block">
+            <TimerDisplay />
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Locale Selector - hidden on very small screens */}
+        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3">
+          {/* Locale Selector - hidden on mobile */}
           <div className="hidden sm:block">
             <LocaleSelector />
           </div>
 
-          {/* DB Selector */}
+          {/* DB Selector - compact on mobile */}
           <DbSelector dbType={dbType} onChange={setDbType} />
 
           {/* Shortcuts help - hidden on mobile */}
@@ -737,7 +543,13 @@ export default function HomePage() {
           {/* Theme toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <ThemeToggle />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg hover:bg-muted/70 transition-all"
+              >
+                <ThemeToggle />
+              </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="text-xs">
               {mounted && theme === 'dark'
@@ -758,10 +570,10 @@ export default function HomePage() {
         {/* Desktop Sidebar */}
         <aside
           className={`hidden md:flex shrink-0 border-r border-border/50 transition-all duration-300 ease-in-out ${
-            sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'
-          } bg-muted/10`}
+            sidebarOpen ? 'w-[280px]' : 'w-0 overflow-hidden'
+          } bg-gradient-to-r from-muted/40 to-muted/20`}
         >
-          <div className="w-64">
+          <div className="w-[280px]">
             <Sidebar />
           </div>
         </aside>
@@ -789,8 +601,8 @@ export default function HomePage() {
 
           {/* Editor + Results panels */}
           <ResizablePanelGroup direction="vertical" className="flex-1">
-            <ResizablePanel defaultSize={45} minSize={20}>
-              <div className="h-full">
+            <ResizablePanel defaultSize={55} minSize={35}>
+              <div className="h-full p-3">
                 <SQLEditor
                   ref={editorRef}
                   value={editorContent}
@@ -821,8 +633,8 @@ export default function HomePage() {
               </div>
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={55} minSize={20}>
-              <div className="h-full overflow-hidden">
+            <ResizablePanel defaultSize={45} minSize={30}>
+              <div className="h-full overflow-hidden p-3">
                 {explainPlan ? (
                   <ExplainPanel
                     plan={explainPlan}
@@ -850,9 +662,9 @@ export default function HomePage() {
         </div>
 
         {/* Right panel: Task info + Schema + Reference */}
-        <aside className="hidden lg:flex w-80 shrink-0 flex-col border-l border-border/50 bg-muted/10">
+        <aside className="hidden lg:flex w-[280px] shrink-0 flex-col border-l border-border/50 bg-gradient-to-l from-muted/40 to-muted/20">
           <ResizablePanelGroup direction="vertical">
-            <ResizablePanel defaultSize={45} minSize={20}>
+            <ResizablePanel defaultSize={50} minSize={30}>
               <ScrollArea className="h-full">
                 <div className="p-3">
                   {currentTask ? (
@@ -894,32 +706,32 @@ export default function HomePage() {
               </ScrollArea>
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={30} minSize={15}>
+            <ResizablePanel defaultSize={30} minSize={20}>
               <div className="p-3">
                 <SchemaViewer schema={schemaInfo} onPreviewTable={handlePreviewTable} />
               </div>
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={25} minSize={15}>
+            <ResizablePanel defaultSize={20} minSize={15}>
               <div className="flex h-full flex-col">
                 {/* Tab switcher */}
-                <div className="flex border-b border-border/50">
+                <div className="flex border-b border-border/50 bg-muted/30">
                   <button
                     onClick={() => setReferenceTab('reference')}
-                    className={`flex-1 px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                    className={`flex-1 px-3 py-2 text-xs font-semibold transition-all ${
                       referenceTab === 'reference'
-                        ? 'bg-muted text-foreground border-b-2 border-blue-500'
-                        : 'text-muted-foreground hover:text-foreground'
+                        ? 'bg-gradient-to-b from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 text-blue-700 dark:text-blue-400 border-b-2 border-blue-500'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     }`}
                   >
                     {t('sqlRef.title')}
                   </button>
                   <button
                     onClick={() => setReferenceTab('glossary')}
-                    className={`flex-1 px-3 py-1.5 text-[11px] font-medium transition-colors ${
+                    className={`flex-1 px-3 py-2 text-xs font-semibold transition-all ${
                       referenceTab === 'glossary'
-                        ? 'bg-muted text-foreground border-b-2 border-blue-500'
-                        : 'text-muted-foreground hover:text-foreground'
+                        ? 'bg-gradient-to-b from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 text-blue-700 dark:text-blue-400 border-b-2 border-blue-500'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     }`}
                   >
                     {t('glossary.title')}

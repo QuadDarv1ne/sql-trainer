@@ -1,4 +1,9 @@
 import type { NextConfig } from 'next';
+import bundleAnalyzer from '@next/bundle-analyzer';
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -10,6 +15,33 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '1mb',
     },
   },
+  compress: true,
+  headers: async () => [
+    {
+      source: '/(.*)',
+      headers: [
+        { key: 'X-Frame-Options', value: 'DENY' },
+        { key: 'X-Content-Type-Options', value: 'nosniff' },
+        { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        { key: 'X-XSS-Protection', value: '1; mode=block' },
+        { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        {
+          key: 'Content-Security-Policy',
+          value: [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: blob:",
+            "font-src 'self'",
+            "connect-src 'self' https://vitals.vercel-insights.com",
+            "frame-ancestors 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+          ].join('; '),
+        },
+      ],
+    },
+  ],
   // Deduplicate @codemirror packages to avoid "multiple instances of @codemirror/state" error
   transpilePackages: [
     '@codemirror/state',
@@ -31,7 +63,6 @@ const nextConfig: NextConfig = {
   // Force webpack to resolve these packages to a single instance
   webpack: (config, { isServer }) => {
     if (!isServer && !process.env.TURBOPACK) {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- webpack config
       config.resolve = config.resolve || {};
       config.resolve.alias = {
         ...config.resolve.alias,
@@ -50,6 +81,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   turbopack: {
+    root: process.cwd(),
     resolveAlias: {
       '@codemirror/state': '@codemirror/state',
       '@codemirror/view': '@codemirror/view',
@@ -65,4 +97,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

@@ -34,26 +34,32 @@ export default function TimePatternsChart() {
   const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
+    const controller = new AbortController();
     const loadData = async () => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
         if (startDate) params.set('startDate', String(startDate));
         if (endDate) params.set('endDate', String(endDate));
-        const res = await fetch(`/api/admin/analytics/time-patterns?${params}`);
+        const res = await fetch(`/api/admin/analytics/time-patterns?${params}`, { signal: controller.signal });
         const json = await res.json();
-        setHourly(json.hourly || []);
-        setDaily(json.daily || []);
-        setPeakHour(json.peak_hour || 0);
-        setPeakDay(json.peak_day || '0');
+        if (!controller.signal.aborted) {
+          setHourly(json.hourly || []);
+          setDaily(json.daily || []);
+          setPeakHour(json.peak_hour || 0);
+          setPeakDay(json.peak_day || '0');
+        }
       } catch (err) {
-        logger.error('Time patterns fetch failed', err);
-        setError(t('analytics.error'));
+        if (!(err instanceof DOMException && err.name === 'AbortError')) {
+          logger.error('Time patterns fetch failed', err);
+          setError(t('analytics.error'));
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
     loadData();
+    return () => controller.abort();
   }, [startDate, endDate]);
 
   if (loading) return <div className="flex justify-center py-8">{t('analytics.loading')}</div>;

@@ -51,10 +51,11 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
       if (format === 'pdf') {
         // Fetch class report data and generate PDF
         const res = await fetch(`/api/teacher/analytics?${params}`);
-        if (!res.ok) throw new Error('Export failed');
+        if (!res.ok) throw new Error(t('export.failed'));
         await res.json();
 
         const progressRes = await fetch('/api/teacher/students/progress');
+        if (!progressRes.ok) throw new Error(t('export.fetchProgressFailed'));
         const { students } = await progressRes.json();
 
         generateClassReportPDF(
@@ -109,7 +110,7 @@ export default function TeacherExportDialog({ open, onOpenChange }: TeacherExpor
       } else {
         // CSV or Excel: fetch all data and export
         const res = await fetch(`/api/teacher/export?${params}`);
-        if (!res.ok) throw new Error('Export failed');
+        if (!res.ok) throw new Error(t('export.failed'));
         const { data } = await res.json();
 
         const filename = `teacher-report-${new Date().toISOString().slice(0, 10)}`;

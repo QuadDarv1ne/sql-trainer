@@ -36,6 +36,15 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Advanced: <Star className="h-4 w-4" />,
 };
 
+const CATEGORY_LOCALE_MAP: Record<string, string> = {
+  'SQL Basics': 'learningPath.category.sqlBasics',
+  Filtering: 'learningPath.category.filtering',
+  Sorting: 'learningPath.category.sorting',
+  Aggregation: 'learningPath.category.aggregation',
+  Joins: 'learningPath.category.joins',
+  Advanced: 'learningPath.category.advanced',
+};
+
 const XP_PER_DIFFICULTY: Record<Difficulty, number> = {
   beginner: 10,
   intermediate: 25,
@@ -111,10 +120,10 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-emerald-600" />
-            {t('learning.path.title', { default: 'Ваш учебный план' })}
+            {t('learning.path.title', { default: 'Your learning path' })}
           </CardTitle>
           <CardDescription>
-            {t('learning.path.subtitle', { default: 'Последовательное изучение SQL от простого к сложному' })}
+            {t('learning.path.subtitle', { default: 'Progressive SQL learning from basics to advanced' })}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -122,22 +131,24 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
             <div className="space-y-2">
               <Progress value={overallProgress} className="h-3" />
               <p className="text-sm text-muted-foreground">
-                {completedCount} / {totalTasks} {t('learning.path.tasks', { default: 'задач выполнено' })}
+                {completedCount} / {totalTasks} {t('learning.path.tasks', { default: 'tasks completed' })}
               </p>
             </div>
             <div className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-amber-500" />
               <div>
                 <p className="text-lg font-bold">{totalXP} XP</p>
-                <p className="text-xs text-muted-foreground">{t('learning.path.earned', { default: 'Заработано' })}</p>
+                <p className="text-xs text-muted-foreground">{t('learning.path.earned', { default: 'Earned' })}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Star className="h-5 w-5 text-purple-500" />
               <div>
-                <p className="text-lg font-bold">Уровень {userLevel}</p>
+                <p className="text-lg font-bold">
+                  {t('learning.path.levelLabel', { default: 'Level' })} {userLevel}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  {t('learning.path.level', { default: 'Текущий уровень' })}
+                  {t('learning.path.level', { default: 'Current level' })}
                 </p>
               </div>
             </div>
@@ -164,7 +175,7 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
                   </Badge>
                   <div className="flex-1" />
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    {diffCompleted} / {diffTotal} {t('learning.path.completed', { default: 'выполнено' })}
+                    {diffCompleted} / {diffTotal} {t('learning.path.completed', { default: 'completed' })}
                     <Progress value={diffProgress} className="w-24 h-2" />
                   </div>
                 </div>
@@ -176,7 +187,7 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
                       <CardHeader className="pb-3 bg-muted/30">
                         <div className="flex items-center gap-2">
                           {CATEGORY_ICONS[category] || <Target className="h-4 w-4" />}
-                          <CardTitle className="text-base">{category}</CardTitle>
+                          <CardTitle className="text-base">{t(CATEGORY_LOCALE_MAP[category] || category)}</CardTitle>
                           <Badge variant="outline" className="ml-auto">
                             {tasks.filter((t) => t.completed).length} / {tasks.length}
                           </Badge>
@@ -227,9 +238,9 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
                                   </Badge>
                                   {task.prerequisites.length > 0 && !task.completed && (
                                     <span>
-                                      {t('learning.path.requires', { default: 'Требуется:' })}{' '}
+                                      {t('learning.path.requires', { default: 'Required:' })}{' '}
                                       {task.prerequisites.length}{' '}
-                                      {t('learning.path.prerequisites', { default: 'предварительных задач' })}
+                                      {t('learning.path.prerequisites', { default: 'prerequisite tasks' })}
                                     </span>
                                   )}
                                 </div>
@@ -247,7 +258,7 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
                                   }}
                                 >
                                   <Play className="h-4 w-4 mr-1" />
-                                  {t('learning.path.start', { default: 'Начать' })}
+                                  {t('learning.path.start', { default: 'Start' })}
                                 </Button>
                               )}
 
@@ -262,7 +273,7 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
                                   }}
                                 >
                                   <ArrowRight className="h-4 w-4" />
-                                  {t('learning.path.repeat', { default: 'Повторить' })}
+                                  {t('learning.path.repeat', { default: 'Review' })}
                                 </Button>
                               )}
                             </div>
@@ -285,7 +296,7 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
             <CheckCircle2 className="h-8 w-8 text-emerald-500" />
             <div>
               <p className="text-2xl font-bold">{completedCount}</p>
-              <p className="text-xs text-muted-foreground">{t('learning.path.done', { default: 'Выполнено' })}</p>
+              <p className="text-xs text-muted-foreground">{t('learning.path.done', { default: 'Completed' })}</p>
             </div>
           </CardContent>
         </Card>
@@ -296,7 +307,7 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
               <p className="text-2xl font-bold">
                 {totalTasks - completedCount - taskNodes.filter((t) => t.locked).length}
               </p>
-              <p className="text-xs text-muted-foreground">{t('learning.path.available', { default: 'Доступно' })}</p>
+              <p className="text-xs text-muted-foreground">{t('learning.path.available', { default: 'Available' })}</p>
             </div>
           </CardContent>
         </Card>
@@ -305,7 +316,7 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
             <Lock className="h-8 w-8 text-muted-foreground" />
             <div>
               <p className="text-2xl font-bold">{taskNodes.filter((t) => t.locked).length}</p>
-              <p className="text-xs text-muted-foreground">{t('learning.path.locked', { default: 'Заблокировано' })}</p>
+              <p className="text-xs text-muted-foreground">{t('learning.path.locked', { default: 'Locked' })}</p>
             </div>
           </CardContent>
         </Card>
@@ -314,7 +325,7 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
             <Award className="h-8 w-8 text-amber-500" />
             <div>
               <p className="text-2xl font-bold">{Math.round((completedCount / totalTasks) * 100)}%</p>
-              <p className="text-xs text-muted-foreground">{t('learning.path.progress', { default: 'Прогресс' })}</p>
+              <p className="text-xs text-muted-foreground">{t('learning.path.progress', { default: 'Progress' })}</p>
             </div>
           </CardContent>
         </Card>

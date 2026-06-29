@@ -93,7 +93,7 @@ export default function StudentProgressTable() {
       if (bVal === null) return -1;
       const aStr = String(aVal);
       const bStr = String(bVal);
-      return sortDir === 'asc' ? aStr.localeCompare(bStr, 'ru') : bStr.localeCompare(aStr, 'ru');
+      return sortDir === 'asc' ? aStr.localeCompare(bStr, undefined) : bStr.localeCompare(aStr, undefined);
     });
     return result;
   }, [students, search, sortKey, sortDir]);

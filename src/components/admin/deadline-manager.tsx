@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { t } from '@/lib/i18n';
 import { logger } from '@/lib/logger';
-import { csrfHeaders } from '@/lib/safe-fetch';
 import { Deadline } from '@/lib/db-users';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +35,7 @@ const targetLabels: Record<Deadline['target_type'], string> = {
 };
 
 function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString('ru-RU', {
+  return new Date(ts).toLocaleDateString(undefined, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -51,7 +50,7 @@ function getTimeStatus(dueAt: number): { label: string; variant: 'destructive' |
   if (hoursLeft < 0) return { label: t('reminder.overdue'), variant: 'destructive' };
   if (hoursLeft < 24) return { label: t('reminder.dueSoon'), variant: 'destructive' };
   if (hoursLeft < 72) return { label: t('reminder.dueSoon'), variant: 'default' };
-  return { label: `${Math.round(hoursLeft)}ч`, variant: 'secondary' };
+  return { label: `${Math.round(hoursLeft)}h`, variant: 'secondary' };
 }
 
 export function DeadlineManager() {
@@ -66,9 +65,9 @@ export function DeadlineManager() {
     try {
       setError(null);
       const res = await fetch('/api/admin/deadlines?scope=all');
+      if (!res.ok) throw new Error(t('admin.deadline.loadFailed'));
       const data = await res.json();
-      if (res.ok) setDeadlines(data.deadlines || []);
-      else throw new Error(data.error || 'Failed to load deadlines');
+      setDeadlines(data.deadlines || []);
     } catch (err) {
       logger.error('Failed to load deadlines:', err);
       setError(err instanceof Error ? err.message : t('admin.stats.loading'));
@@ -84,9 +83,11 @@ export function DeadlineManager() {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      const res = await fetch(`/api/admin/deadlines/${deleteId}`, { method: 'DELETE', headers: csrfHeaders() });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const res = await fetch(`/api/admin/deadlines/${deleteId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || t('admin.deadline.deleteFailed'));
+      }
       toast.success(t('deadline.deleted'));
       fetchDeadlines();
     } catch (err: unknown) {

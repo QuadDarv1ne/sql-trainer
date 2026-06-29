@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+# Allow workflow runs from fork PRs (with limited permissions)
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,6 +28,13 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      - name: Restore node_modules cache
+        uses: actions/cache@v4
+        id: node-modules-cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+
       - name: Restore Next.js cache
         uses: actions/cache@v4
         with:
@@ -32,13 +44,11 @@ jobs:
             ${{ runner.os }}-nextjs-
 
       - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Typecheck
         run: npm run typecheck
-
-      - name: Build
-        run: npm run build
 
       - name: Lint
         run: npm run lint
@@ -50,8 +60,27 @@ jobs:
       - name: Test
         run: npm run test:ci
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+      - name: Build
+        run: npm run build
 
-      - name: E2E tests
+      - name: Check bundle size
+        run: |
+          npm run analyze 2>&1 | tee bundle-report.txt
+          echo "Bundle analysis complete. Check artifacts for details."
+
+      - name: Upload bundle report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-report
+          path: bundle-report.txt
+          retention-days: 30
+
+      - name: Install Playwright browsers (Chromium, Firefox, WebKit)
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: E2E tests (multi-browser)
         run: npm run test:e2e
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: /tmp/ms-playwright

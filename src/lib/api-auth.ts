@@ -6,11 +6,23 @@ import { auth } from '@/lib/auth-internal';
 import { NextResponse } from 'next/server';
 import type { UserRole } from '@/lib/db-users';
 import { hasRole } from '@/lib/rbac';
-import { rateLimit } from '@/lib/rate-limit';
+import { rateLimit, type RateLimitResult } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { t } from '@/lib/i18n';
+import { validateCsrfTokenEdge, csrfErrorResponse } from '@/lib/csrf';
 
 const RATE_LIMIT_MESSAGE = 'error.rateLimit';
+
+/**
+ * Inject standard rate limit headers into a response.
+ * Headers: X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
+ */
+function withRateLimitHeaders(response: NextResponse, result: RateLimitResult): NextResponse {
+  response.headers.set('X-RateLimit-Limit', String(result.limit));
+  response.headers.set('X-RateLimit-Remaining', String(result.remaining));
+  response.headers.set('X-RateLimit-Reset', String(Math.ceil(result.resetAt / 1000)));
+  return response;
+}
 
 interface AuthSession {
   user: {
@@ -123,16 +135,24 @@ function withRoleAuth(
         return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
       }
 
+      const method = request.method.toUpperCase();
+      if (method !== 'GET' && method !== 'HEAD') {
+        if (!validateCsrfTokenEdge(request)) {
+          return csrfErrorResponse();
+        }
+      }
+
       const userId = authResult.session.user.id;
       const limitResult = await rateLimit(`${rateLimitPrefix}:${userId}`, { max: rateLimitMax, windowMs: 60_000 });
       if (!limitResult.success) {
-        return NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 });
+        return withRateLimitHeaders(NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 }), limitResult);
       }
 
       const params = await resolveParams(context);
 
       try {
-        return await handler({ session: authResult.session, request, params });
+        const response = await handler({ session: authResult.session, request, params });
+        return withRateLimitHeaders(response, limitResult);
       } catch (error) {
         logger.error(`${errorLabel} handler error:`, error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -177,7 +197,7 @@ export function withAnalyticsAuth(handler: (ctx: AnalyticsHandlerContext) => Nex
     const userId = authResult.session.user.id;
     const limitResult = await rateLimit(`analytics:${userId}`, { max: 30, windowMs: 60_000 });
     if (!limitResult.success) {
-      return NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 });
+      return withRateLimitHeaders(NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 }), limitResult);
     }
 
     const url = new URL(request.url);
@@ -189,12 +209,13 @@ export function withAnalyticsAuth(handler: (ctx: AnalyticsHandlerContext) => Nex
     }
 
     try {
-      return await handler({
+      const response = await handler({
         session: authResult.session,
         startDate,
         endDate,
         searchParams,
       });
+      return withRateLimitHeaders(response, limitResult);
     } catch (error) {
       logger.error('Analytics handler error:', error);
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

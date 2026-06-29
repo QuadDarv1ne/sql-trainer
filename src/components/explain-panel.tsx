@@ -28,7 +28,7 @@ export default function ExplainPanel({ plan, suggestions, onClose }: ExplainPane
           <div className="mt-4 space-y-2">
             <h4 className="text-sm font-medium flex items-center gap-1.5">
               <Lightbulb className="h-4 w-4 text-amber-500" />
-              {t('explain.suggestionsTitle', { default: 'Рекомендации по оптимизации' })}
+              {t('explain.suggestionsTitle', { default: 'Optimization recommendations' })}
             </h4>
             <ul className="space-y-1.5">
               {suggestions.map((s, i) => (

@@ -114,7 +114,13 @@ export default function OnboardingTour({ onComplete }: OnboardingTourProps) {
                 <span className="text-2xl">{step.icon}</span>
                 {step.title}
               </CardTitle>
-              <Button variant="ghost" size="icon" onClick={handleSkip} className="h-8 w-8">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSkip}
+                className="h-8 w-8"
+                aria-label={t('onboarding.skip')}
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>

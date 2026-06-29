@@ -270,6 +270,6 @@ This project is the intellectual property of Dupley Maxim Igorevich. Terms of us
 
 <div align="center">
 
-**SQL Trainer** — © 2025 Dupley Maxim Igorevich
+**SQL Trainer** — © 2026 Dupley Maxim Igorevich
 
 </div>

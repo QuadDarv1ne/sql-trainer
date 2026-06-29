@@ -78,7 +78,7 @@ export default function ActivitySummary() {
 
       <Card>
         <CardHeader>
-          <CardTitle>DAU / WAU / MAU (30 дней)</CardTitle>
+          <CardTitle>DAU / WAU / MAU (30 days)</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>

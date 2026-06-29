@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('SQL Trainer', () => {
   test('page loads with welcome panel', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByText('SQL Тренажёр', { exact: false })).toBeVisible();
+    await expect(page.getByText(/SQL/, { exact: false })).toBeVisible();
   });
 
   test('SQL execution flow: write query, execute, see results', async ({ page }) => {
@@ -27,7 +27,7 @@ test.describe('SQL Trainer', () => {
     await page.keyboard.type('SELEC * FROM nonexistent');
     await page.keyboard.press('Control+Enter');
 
-    await expect(page.getByText(/ошибк|error/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/error/i)).toBeVisible({ timeout: 10000 });
   });
 
   test('task selection and execution', async ({ page }) => {
@@ -70,14 +70,14 @@ test.describe('SQL Trainer', () => {
     await page.waitForTimeout(500);
 
     // Check for hint button
-    const hintButton = page.getByRole('button', { name: /подсказк|hint/i });
+    const hintButton = page.getByRole('button', { name: /hint/i });
     if (await hintButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await hintButton.click();
-      await expect(page.getByText(/подсказк|hint/i)).toBeVisible();
+      await expect(page.getByText(/hint/i)).toBeVisible();
     }
 
     // Check for solution button
-    const solutionButton = page.getByRole('button', { name: /решени|solution/i });
+    const solutionButton = page.getByRole('button', { name: /solution/i });
     if (await solutionButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await solutionButton.click();
       // Solution should appear in editor

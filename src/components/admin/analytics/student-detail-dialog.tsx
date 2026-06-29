@@ -65,31 +65,45 @@ export default function StudentDetailDialog({ studentId, open, onOpenChange }: S
 
   useEffect(() => {
     if (!open || !studentId) return;
+    const controller = new AbortController();
 
     setLoading(true);
     setError('');
     setData(null);
 
-    fetch(`/api/admin/analytics/student/${studentId}`)
+    fetch(`/api/admin/analytics/student/${studentId}`, { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((data) => setData(data))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
+      .then((data) => {
+        if (!controller.signal.aborted) setData(data);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') setError(t('analytics.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
   }, [studentId, open]);
 
   useEffect(() => {
     if (!data?.student) return;
+    const controller = new AbortController();
 
-    fetch(`/api/admin/analytics/student/${data.student.user_id}/streak`)
+    fetch(`/api/admin/analytics/student/${data.student.user_id}/streak`, { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
-      .then((data) => setStreak(data.streak || 0))
-      .catch(() => setStreak(0));
+      .then((data) => {
+        if (!controller.signal.aborted) setStreak(data.streak || 0);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') setStreak(0);
+      });
+    return () => controller.abort();
   }, [data?.student]);
 
   const handleExportPDF = () => {
@@ -187,7 +201,7 @@ export default function StudentDetailDialog({ studentId, open, onOpenChange }: S
                   <div>
                     <p className="text-sm font-bold">
                       {data.student.last_active
-                        ? new Date(data.student.last_active).toLocaleDateString('ru-RU')
+                        ? new Date(data.student.last_active).toLocaleDateString(undefined)
                         : t('analytics.student.neverActive')}
                     </p>
                     <p className="text-xs text-muted-foreground">{t('analytics.student.lastActive')}</p>
@@ -269,7 +283,7 @@ export default function StudentDetailDialog({ studentId, open, onOpenChange }: S
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{achievement.title}</p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(achievement.earned_at).toLocaleDateString('ru-RU')}
+                          {new Date(achievement.earned_at).toLocaleDateString(undefined)}
                         </p>
                       </div>
                     </div>

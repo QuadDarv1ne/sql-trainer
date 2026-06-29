@@ -77,14 +77,22 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
 
   useEffect(() => {
     if (!open || !studentId) return;
+    const controller = new AbortController();
     setLoading(true);
     setError('');
     setData(null);
-    fetch(`/api/admin/analytics/student/${studentId}/academic-summary`)
+    fetch(`/api/admin/analytics/student/${studentId}/academic-summary`, { signal: controller.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch student academic profile'))))
-      .then((d) => setData(d.academicSummary))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
+      .then((d) => {
+        if (!controller.signal.aborted) setData(d.academicSummary);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') setError(t('analytics.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
   }, [studentId, open]);
 
   if (!studentId) return null;
@@ -274,7 +282,7 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                           <div>
                             <p className="font-medium text-sm">{activity.task_title}</p>
                             <p className="text-xs text-muted-foreground">
-                              {new Date(activity.completed_at).toLocaleDateString('ru-RU', {
+                              {new Date(activity.completed_at).toLocaleDateString(undefined, {
                                 month: 'short',
                                 day: 'numeric',
                                 hour: '2-digit',
@@ -316,7 +324,7 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
                           <div>
                             <p className="text-sm font-medium">{achievement.title}</p>
                             <p className="text-xs text-muted-foreground">
-                              {new Date(achievement.earned_at).toLocaleDateString('ru-RU')}
+                              {new Date(achievement.earned_at).toLocaleDateString(undefined)}
                             </p>
                           </div>
                         </div>

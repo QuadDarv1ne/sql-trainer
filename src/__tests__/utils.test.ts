@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { plural } from '@/lib/utils';
 
 describe('plural', () => {
-  describe('Russian plural rules', () => {
+  describe('Russian-style plural rules (one/few/many)', () => {
     const forms = { one: 'задача', few: 'задачи', many: 'задач' };
 
     it('should use "one" form for numbers ending in 1 (except 11)', () => {
@@ -51,7 +51,7 @@ describe('plural', () => {
       expect(plural(0, forms.one, forms.few, forms.many)).toBe('баллов');
     });
 
-    it('should handle negative numbers by treating them as positive', () => {
+    it('should return "many" form for negative numbers', () => {
       // JS modulo on negative numbers gives negative results,
       // so negative numbers fall through to "many" form
       expect(plural(-1, forms.one, forms.few, forms.many)).toBe('баллов');

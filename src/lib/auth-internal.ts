@@ -1,7 +1,7 @@
 /**
  * Internal NextAuth config with full DB access.
  * Used only by the API route handler (Node.js runtime).
- * The main auth.ts is Edge-compatible for middleware.
+ * The main auth.ts is Edge-compatible for proxy.
  */
 import NextAuth, { type DefaultSession } from 'next-auth';
 import type { User } from 'next-auth';
@@ -19,14 +19,21 @@ interface AuthUser {
   role_changed_at?: number | null;
 }
 
-interface AuthSession {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string | null;
-    role: UserRole;
-  };
+interface SessionUser {
+  id?: string;
+  name?: string;
+  email?: string;
+  phone?: string | null;
+  role?: UserRole;
+}
+
+interface TokenPayload {
+  id: string;
+  name?: string;
+  email?: string;
+  phone?: string | null;
+  role?: UserRole;
+  role_changed_at?: number | null;
 }
 
 const nextAuth = NextAuth({
@@ -73,12 +80,13 @@ const nextAuth = NextAuth({
       session?: { name?: string; phone?: string | null };
     }) {
       if (user) {
-        token.id = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.phone = user.phone;
-        token.role = (user as AuthUser).role;
-        token.role_changed_at = (user as AuthUser).role_changed_at;
+        const authUser = user as AuthUser;
+        token.id = authUser.id;
+        token.name = authUser.name;
+        token.email = authUser.email;
+        token.phone = authUser.phone;
+        token.role = authUser.role;
+        token.role_changed_at = authUser.role_changed_at;
       }
       if (trigger === 'update' && session) {
         token.name = session.name ?? token.name;
@@ -88,33 +96,42 @@ const nextAuth = NextAuth({
     },
     async session({ session, token }: { session: DefaultSession; token: JWT }) {
       if (token) {
-        // Validate role hasn't changed since token was issued
-        const tokenRoleChangedAt = token.role_changed_at as number | null | undefined;
-        const currentRole = token.role as UserRole | undefined;
+        const tokenPayload = token as unknown as TokenPayload;
+        const sessionUser = session.user as SessionUser;
+        const tokenRoleChangedAt = tokenPayload.role_changed_at;
+        const currentRole = tokenPayload.role;
 
         if (currentRole) {
-          // Fetch current role_changed_at and ban status from database to validate
           const db = (await import('@/lib/db-users')).getDb();
-          const dbUser = db.prepare('SELECT role, role_changed_at, banned_at FROM users WHERE id = ?').get(token.id) as
+          const dbUser = db
+            .prepare('SELECT role, role_changed_at, banned_at FROM users WHERE id = ?')
+            .get(tokenPayload.id) as
             | { role: UserRole; role_changed_at: number | null; banned_at: number | null }
             | undefined;
 
-          // If user is banned, invalidate session
           if (dbUser && dbUser.banned_at) {
-            return null as unknown as typeof session;
+            sessionUser.id = '';
+            sessionUser.name = '';
+            sessionUser.email = '';
+            sessionUser.phone = null;
+            sessionUser.role = 'student';
+            return session;
           }
 
-          // If role_changed_at in DB is newer than in token, session is stale - invalidate it
           if (dbUser && dbUser.role_changed_at && tokenRoleChangedAt && dbUser.role_changed_at > tokenRoleChangedAt) {
-            return null as unknown as typeof session;
+            sessionUser.id = '';
+            sessionUser.name = '';
+            sessionUser.email = '';
+            sessionUser.phone = null;
+            sessionUser.role = 'student';
+            return session;
           }
 
-          // If no stale session, use the token data
-          (session as AuthSession).user.id = token.id;
-          (session as AuthSession).user.name = token.name as string;
-          (session as AuthSession).user.email = token.email as string;
-          (session as AuthSession).user.phone = token.phone as string | null;
-          (session as AuthSession).user.role = currentRole;
+          sessionUser.id = tokenPayload.id;
+          sessionUser.name = tokenPayload.name as string;
+          sessionUser.email = tokenPayload.email as string;
+          sessionUser.phone = tokenPayload.phone as string | null;
+          sessionUser.role = currentRole;
         }
       }
       return session;
@@ -129,4 +146,3 @@ const nextAuth = NextAuth({
 
 export const { auth, signIn, signOut } = nextAuth;
 export const { GET, POST } = nextAuth.handlers;
-export const handlers = nextAuth.handlers;

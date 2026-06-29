@@ -29,7 +29,7 @@ function parseMongoQuery(
     if (Array.isArray(parsed)) {
       return { type: 'aggregate', collection: '', options: parsed };
     }
-    return { type: 'find', collection: '', options: parsed };
+    return { type: 'find', collection: '', options: { query: parsed } };
   } catch {
     // Try parsing as MongoDB shell syntax
     // Pattern: db.collection.find({...}) or db.collection.aggregate([{...}])
@@ -38,7 +38,7 @@ function parseMongoQuery(
       const [, collection, queryPart] = findMatch;
       try {
         const query = queryPart ? JSON.parse(queryPart) : {};
-        return { type: 'find', collection, options: query };
+        return { type: 'find', collection, options: { query } };
       } catch {
         return null;
       }
@@ -243,29 +243,33 @@ function matchesOperator(docValue: unknown, op: string, expected: unknown): bool
 /**
  * Execute $group aggregation stage.
  */
-function aggregateGroup(docs: Record<string, unknown>[], group: Record<string, unknown>): Record<string, unknown>[] {
-  const _id = group._id;
+function aggregateGroup(
+  docs: Record<string, unknown>[],
+  groupSpec: Record<string, unknown>,
+): Record<string, unknown>[] {
+  const idField = groupSpec._id;
   const groups = new Map<string, Record<string, unknown>[]>();
 
   for (const doc of docs) {
-    const key = typeof _id === 'string' ? String(getNestedValue(doc, _id.slice(1)) ?? 'null') : JSON.stringify(_id);
+    const key =
+      typeof idField === 'string' ? String(getNestedValue(doc, idField.slice(1)) ?? 'null') : JSON.stringify(idField);
     if (!groups.has(key)) groups.set(key, []);
-    const group = groups.get(key);
-    if (group) group.push(doc);
+    const groupDocs = groups.get(key);
+    if (groupDocs) groupDocs.push(doc);
   }
 
   const results: Record<string, unknown>[] = [];
   for (const [, groupDocs] of groups) {
     const result: Record<string, unknown> = {};
-    if (typeof _id === 'string' && _id !== '$_id') {
-      result._id = getNestedValue(groupDocs[0], _id.slice(1));
-    } else if (typeof _id === 'object') {
-      for (const [k, v] of Object.entries(_id as Record<string, string>)) {
+    if (typeof idField === 'string') {
+      result._id = getNestedValue(groupDocs[0], idField.slice(1));
+    } else if (typeof idField === 'object') {
+      for (const [k, v] of Object.entries(idField as Record<string, string>)) {
         result[k] = getNestedValue(groupDocs[0], v.slice(1));
       }
     }
 
-    for (const [field, expr] of Object.entries(group)) {
+    for (const [field, expr] of Object.entries(groupSpec)) {
       if (field === '_id') continue;
       const exprStr = typeof expr === 'object' ? JSON.stringify(expr) : '';
       if (exprStr.startsWith('{"$sum"')) {
@@ -341,7 +345,7 @@ export function executeMongoQuery(queryStr: string, schema: MongoSchema): MongoR
         success: false,
         columns: [],
         rows: [],
-        error: 'Не удалось распознать MongoDB запрос. Используйте db.collection.find() или db.collection.aggregate()',
+        error: 'Failed to parse MongoDB query. Use db.collection.find() or db.collection.aggregate()',
       };
     }
 
@@ -396,7 +400,7 @@ export async function executeMongoQueryReal(
         success: false,
         columns: [],
         rows: [],
-        error: 'Не удалось распознать MongoDB запрос',
+        error: 'Failed to parse MongoDB query',
       };
     }
 

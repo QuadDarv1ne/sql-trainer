@@ -17,8 +17,10 @@ export function validateBody<T extends z.ZodType>(
 
   if (!result.success) {
     const firstError = result.error.issues[0]?.message ?? t('export.error.invalidFormat');
+    // Sanitize error to prevent leaking internal field names
+    const safeError = firstError.replace(/[\n\r]/g, '').slice(0, 200);
     return {
-      response: NextResponse.json({ success: false, error: firstError }, { status: 400 }),
+      response: NextResponse.json({ success: false, error: safeError }, { status: 400 }),
     };
   }
 
@@ -48,24 +50,4 @@ export async function parseAndValidate<T extends z.ZodType>(
   }
 
   return validateBody(body, schema);
-}
-
-/**
- * Create a higher-order function that wraps a route handler with Zod validation.
- * Usage:
- *   export const POST = withValidation(sqlVerifySchema, async (req, data) => { ... });
- */
-export function withValidation<T extends z.ZodType>(
-  schema: T,
-  handler: (req: Request, data: z.infer<T>) => Promise<NextResponse>,
-) {
-  return async (req: Request): Promise<NextResponse> => {
-    const validation = await parseAndValidate(req, schema);
-
-    if ('response' in validation) {
-      return validation.response;
-    }
-
-    return handler(req, validation.data);
-  };
 }

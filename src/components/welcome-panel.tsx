@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { TRAINING_TASKS, DIFFICULTY_LABELS, DIFFICULTY_COLORS, type Difficulty } from '@/lib/training-tasks';
@@ -111,72 +110,92 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
   }, [completedTasks, firstIncompleteTask]);
 
   return (
-    <div className="flex h-full flex-col gap-4 p-4">
+    <div className="flex h-full flex-col gap-4 p-4 bg-gradient-to-br from-background via-background to-muted/20">
       {/* Welcome header */}
-      <div className="text-center">
-        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900/30">
-          <BookOpen className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+      <div className="text-center pt-2">
+        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-500/25">
+          <BookOpen className="h-8 w-8 text-white" />
         </div>
-        <h2 className="text-lg font-bold">{t('app.title')}</h2>
-        <p className="mt-1 text-xs text-muted-foreground">{t('app.subtitle')}</p>
+        <h2 className="text-xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+          {t('app.title')}
+        </h2>
+        <p className="mt-1.5 text-sm text-muted-foreground font-medium">{t('app.subtitle')}</p>
       </div>
 
       {/* Progress overview */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Target className="h-4 w-4 text-blue-500" />
-              <span className="text-sm font-medium">{t('welcome.progressLabel')}</span>
+      <div className="rounded-2xl bg-gradient-to-br from-muted/60 to-muted/40 border border-border/60 shadow-sm p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+              <Target className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
-            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-              {completedCount}/{totalCount}
-            </span>
+            <span className="text-sm font-semibold text-foreground">{t('welcome.progressLabel')}</span>
           </div>
-          <Progress value={progressPercent} className="h-3" />
-          <p className="mt-2 text-center text-xs text-muted-foreground">
-            {progressPercent === 100
-              ? t('progress.complete')
-              : `${Math.round(progressPercent)}% ${t('progress.percent')}`}
-          </p>
-        </CardContent>
-      </Card>
+          <Badge
+            variant="secondary"
+            className="text-sm px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-0 font-bold"
+          >
+            {completedCount}/{totalCount}
+          </Badge>
+        </div>
+        <div className="relative">
+          <Progress value={progressPercent} className="h-2.5" />
+          {progressPercent === 100 && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                100%
+              </span>
+            </div>
+          )}
+        </div>
+        <p className="mt-2 text-center text-xs text-muted-foreground font-medium">
+          {progressPercent === 100
+            ? t('progress.complete')
+            : `${Math.round(progressPercent)}% ${t('progress.percent')}`}
+        </p>
+      </div>
 
       {/* Stats by difficulty */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2.5">
         {statsByDifficulty.map((stat) => (
-          <Card key={stat.difficulty} className="overflow-hidden">
-            <CardContent className="p-3 text-center">
-              <Badge className={`${DIFFICULTY_COLORS[stat.difficulty]} mb-2 text-xs`}>
+          <div
+            key={stat.difficulty}
+            className="overflow-hidden rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border border-border/60 shadow-sm"
+          >
+            <div className="p-3 text-center">
+              <Badge className={`${DIFFICULTY_COLORS[stat.difficulty]} mb-2 text-[10px] px-2 py-0.5 shadow-sm`}>
                 {DIFFICULTY_LABELS[stat.difficulty]}
               </Badge>
-              <p className="text-base font-bold">
-                {stat.completed}/{stat.total}
+              <p className="text-lg font-bold text-foreground">
+                {stat.completed}
+                <span className="text-muted-foreground font-medium">/</span>
+                {stat.total}
               </p>
-              <div className="mt-1.5 h-1.5 w-full rounded-full bg-muted">
+              <div className="mt-2 h-1.5 w-full rounded-full bg-muted overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-blue-500 transition-all"
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all"
                   style={{
                     width: stat.total > 0 ? `${(stat.completed / stat.total) * 100}%` : '0%',
                   }}
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
 
       {/* Streak display */}
       {streak.currentStreak > 0 && (
-        <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 dark:border-amber-800 dark:from-amber-950/30 dark:to-orange-950/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
-                <Flame className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+        <div className="overflow-hidden rounded-2xl border border-amber-200/60 bg-gradient-to-br from-amber-50 to-orange-50 dark:border-amber-800/60 dark:from-amber-950/30 dark:to-orange-950/20 shadow-sm">
+          <div className="p-4">
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/25">
+                <Flame className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-amber-700 dark:text-amber-400">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xl font-bold text-amber-700 dark:text-amber-300">
                     {streak.currentStreak}{' '}
                     {plural(
                       streak.currentStreak,
@@ -185,69 +204,72 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
                       t('welcome.streak.daysMany'),
                     )}
                   </span>
-                  <span className="text-xs text-amber-600/70 dark:text-amber-500/70">{t('welcome.streak.label')}</span>
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400 font-medium"
+                  >
+                    {t('welcome.streak.label')}
+                  </Badge>
                 </div>
-                <div className="flex items-center gap-3 text-[10px] text-amber-600/60 dark:text-amber-500/60">
-                  <div className="flex items-center gap-1">
-                    <Award className="h-3 w-3" />
-                    {t('welcome.streak.record')}: {streak.longestStreak}{' '}
-                    {plural(
-                      streak.longestStreak,
-                      t('welcome.streak.day'),
-                      t('welcome.streak.days'),
-                      t('welcome.streak.daysMany'),
-                    )}
+                <div className="mt-1.5 flex items-center gap-4 text-[10px] text-amber-700/70 dark:text-amber-400/70">
+                  <div className="flex items-center gap-1.5">
+                    <Award className="h-3.5 w-3.5" />
+                    <span className="font-medium">
+                      {t('welcome.streak.record')}: <span className="font-bold">{streak.longestStreak}</span>
+                    </span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {t('welcome.streak.total')}: {streak.totalPracticeDays}{' '}
-                    {plural(
-                      streak.totalPracticeDays,
-                      t('welcome.streak.day'),
-                      t('welcome.streak.days'),
-                      t('welcome.streak.daysMany'),
-                    )}
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span className="font-medium">
+                      {t('welcome.streak.total')}: <span className="font-bold">{streak.totalPracticeDays}</span>
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Recommended task card */}
       {recommendedTask && (
-        <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-teal-50 dark:border-blue-800 dark:from-blue-950/30 dark:to-teal-950/20">
-          <CardContent className="p-4">
+        <div className="overflow-hidden rounded-2xl border border-blue-200/60 bg-gradient-to-br from-blue-50 to-teal-50 dark:border-blue-800/60 dark:from-blue-950/30 dark:to-teal-950/20 shadow-sm">
+          <div className="p-4">
             <div className="mb-3 flex items-center gap-2 flex-wrap">
-              <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              <span className="text-xs font-semibold text-blue-700 dark:text-blue-400">{t('welcome.recommend')}</span>
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                <Sparkles className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <span className="text-xs font-bold text-blue-700 dark:text-blue-300">{t('welcome.recommend')}</span>
               {missingConceptLabel && (
                 <Badge
                   variant="outline"
-                  className="text-[10px] border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400"
+                  className="text-[10px] border-amber-300/60 text-amber-700 dark:border-amber-700/60 dark:text-amber-400"
                 >
-                  {t('welcome.needPractice', { default: 'Нужно practice' })}: {missingConceptLabel}
+                  {t('welcome.needPractice', { default: 'Need practice' })}: {missingConceptLabel}
                 </Badge>
               )}
             </div>
-            <button onClick={() => setCurrentTaskId(recommendedTask.id)} className="w-full text-left">
-              <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">{recommendedTask.title}</p>
+            <button onClick={() => setCurrentTaskId(recommendedTask.id)} className="w-full text-left group">
+              <p className="text-sm font-bold text-blue-900 dark:text-blue-100 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                {recommendedTask.title}
+              </p>
               <p className="mt-1 text-xs text-blue-700/70 dark:text-blue-400/70 line-clamp-2">
                 {recommendedTask.description}
               </p>
             </button>
-            <Badge className={`${DIFFICULTY_COLORS[recommendedTask.difficulty]} mt-2 text-[10px]`}>
-              {DIFFICULTY_LABELS[recommendedTask.difficulty]}
-            </Badge>
-          </CardContent>
-        </Card>
+            <div className="mt-3">
+              <Badge className={`${DIFFICULTY_COLORS[recommendedTask.difficulty]} text-[10px] shadow-sm`}>
+                {DIFFICULTY_LABELS[recommendedTask.difficulty]}
+              </Badge>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Quick start buttons */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2.5">
         <Button
-          className="w-full h-10 bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700"
+          className="w-full h-11 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-700 hover:to-emerald-800 shadow-lg shadow-emerald-500/25 transition-all"
           onClick={() => {
             if (recommendedTask) {
               setCurrentTaskId(recommendedTask.id);
@@ -258,18 +280,18 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
             }
           }}
         >
-          <Rocket className="mr-2 h-4 w-4" />
-          {t('welcome.startTraining')}
+          <Rocket className="mr-2.5 h-4 w-4" />
+          <span className="font-semibold">{t('welcome.startTraining')}</span>
         </Button>
         {onStartTour && (
-          <Button variant="outline" className="w-full h-9" onClick={onStartTour}>
-            <Play className="mr-2 h-4 w-4" />
-            {t('welcome.startTour')}
+          <Button variant="outline" className="w-full h-10 hover:bg-muted/70 transition-all" onClick={onStartTour}>
+            <Play className="mr-2.5 h-4 w-4" />
+            <span className="font-medium">{t('welcome.startTour')}</span>
           </Button>
         )}
-        <Button variant="outline" className="w-full h-9" onClick={onFreeMode}>
-          <GraduationCap className="mr-2 h-4 w-4" />
-          {t('action.freeMode')}
+        <Button variant="outline" className="w-full h-10 hover:bg-muted/70 transition-all" onClick={onFreeMode}>
+          <GraduationCap className="mr-2.5 h-4 w-4" />
+          <span className="font-medium">{t('action.freeMode')}</span>
         </Button>
         <PracticeModeDialog />
       </div>
@@ -277,8 +299,10 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
       {/* Last completed */}
       {lastCompleted.length > 0 && (
         <div>
-          <h4 className="mb-2 text-xs font-medium text-muted-foreground flex items-center gap-2">
-            <Trophy className="h-4 w-4 text-amber-500" />
+          <h4 className="mb-2.5 text-xs font-bold text-foreground flex items-center gap-2">
+            <div className="flex h-5 w-5 items-center justify-center rounded bg-amber-100 dark:bg-amber-900/30">
+              <Trophy className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+            </div>
             {t('welcome.recent')}
           </h4>
           <div className="space-y-2">
@@ -288,14 +312,18 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
                 <button
                   key={task.id}
                   onClick={() => setCurrentTaskId(task.id)}
-                  className="flex w-full items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-left text-xs transition-colors hover:bg-muted/50"
+                  className="group flex w-full items-center gap-2.5 rounded-xl border border-border/60 bg-muted/30 px-3.5 py-2.5 text-left text-xs transition-all hover:bg-muted/50 hover:border-border/80"
                   aria-label={t('welcome.goToTask', { title: task.title })}
                 >
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{task.title}</p>
+                    <p className="truncate font-semibold text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {task.title}
+                    </p>
                     <p className="text-[10px] text-muted-foreground">
-                      {new Date(task.completedAt).toLocaleDateString('ru-RU', {
+                      {new Date(task.completedAt).toLocaleDateString(undefined, {
                         day: 'numeric',
                         month: 'short',
                         hour: '2-digit',
@@ -303,7 +331,10 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
                       })}
                     </p>
                   </div>
-                  <Badge variant="secondary" className="text-xs px-2 shrink-0">
+                  <Badge
+                    variant="secondary"
+                    className="text-[10px] px-2 py-0.5 bg-muted/70 border-0 font-medium shrink-0"
+                  >
                     {DIFFICULTY_LABELS[task.difficulty]}
                   </Badge>
                 </button>
@@ -315,34 +346,36 @@ export default function WelcomePanel({ onStartTraining, onFreeMode, onStartTour 
 
       {/* Tips */}
       <div>
-        <h4 className="mb-2 text-xs font-medium text-muted-foreground flex items-center gap-2">
-          <Keyboard className="h-4 w-4" />
+        <h4 className="mb-2.5 text-xs font-bold text-foreground flex items-center gap-2">
+          <div className="flex h-5 w-5 items-center justify-center rounded bg-muted">
+            <Keyboard className="h-3 w-3 text-muted-foreground" />
+          </div>
           {t('welcome.tips')}
         </h4>
-        <Card className="bg-muted/30">
-          <CardContent className="p-4 space-y-2">
-            <div className="flex items-start gap-2 text-xs">
-              <kbd className="shrink-0 rounded border border-border bg-background px-2 py-1 font-mono text-xs">
-                Ctrl+↵
-              </kbd>
-              <span className="text-muted-foreground">{t('shortcuts.execute')}</span>
-            </div>
-            <div className="flex items-start gap-2 text-xs">
-              <kbd className="shrink-0 rounded border border-border bg-background px-2 py-1 font-mono text-xs">
-                Ctrl+L
-              </kbd>
-              <span className="text-muted-foreground">{t('action.clear')}</span>
-            </div>
-            <div className="flex items-start gap-2 text-xs">
-              <kbd className="shrink-0 rounded border border-border bg-background px-2 py-1 font-mono text-xs">Tab</kbd>
-              <span className="text-muted-foreground">{t('shortcuts.indent')}</span>
-            </div>
-            <div className="flex items-start gap-2 text-xs">
-              <Sparkles className="h-4 w-4 shrink-0 mt-0.5 text-amber-500" />
-              <span className="text-muted-foreground">{t('welcome.tip')}</span>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl bg-muted/40 border border-border/50 p-3.5 space-y-2">
+          <div className="flex items-center gap-2.5 text-xs">
+            <kbd className="shrink-0 rounded-lg border border-border bg-background px-2 py-1.5 font-mono text-xs shadow-sm">
+              Ctrl+↵
+            </kbd>
+            <span className="text-muted-foreground font-medium">{t('shortcuts.execute')}</span>
+          </div>
+          <div className="flex items-center gap-2.5 text-xs">
+            <kbd className="shrink-0 rounded-lg border border-border bg-background px-2 py-1.5 font-mono text-xs shadow-sm">
+              Ctrl+L
+            </kbd>
+            <span className="text-muted-foreground font-medium">{t('action.clear')}</span>
+          </div>
+          <div className="flex items-center gap-2.5 text-xs">
+            <kbd className="shrink-0 rounded-lg border border-border bg-background px-2 py-1.5 font-mono text-xs shadow-sm">
+              Tab
+            </kbd>
+            <span className="text-muted-foreground font-medium">{t('shortcuts.indent')}</span>
+          </div>
+          <div className="flex items-center gap-2.5 text-xs">
+            <Sparkles className="h-4 w-4 shrink-0 text-amber-500" />
+            <span className="text-muted-foreground font-medium">{t('welcome.tip')}</span>
+          </div>
+        </div>
       </div>
     </div>
   );

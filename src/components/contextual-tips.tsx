@@ -14,24 +14,20 @@ interface ContextualTip {
   color: string;
 }
 
-/** Detect SQL concepts from a task and return relevant educational tips */
 export function getContextualTips(task: TrainingTask): ContextualTip[] {
   const tips: ContextualTip[] = [];
   const { taskText, sampleSolution, hint } = task;
   const combined = `${taskText} ${sampleSolution} ${hint}`.toLowerCase();
 
-  // JOIN tips
   if (combined.includes('join')) {
     tips.push({
       icon: <BookOpen className="h-3.5 w-3.5" />,
-      title: 'JOIN',
-      content:
-        'INNER JOIN возвращает только совпадающие строки из обеих таблиц. LEFT JOIN — все строки из левой таблицы + совпадения из правой (или NULL). RIGHT JOIN — наоборот.',
+      title: t('contextualTips.join.title'),
+      content: t('contextualTips.join.content'),
       color: 'text-blue-600 dark:text-blue-400',
     });
   }
 
-  // GROUP BY / Aggregation tips
   if (
     combined.includes('group by') ||
     combined.includes('count(') ||
@@ -40,58 +36,48 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <BookOpen className="h-3.5 w-3.5" />,
-      title: 'GROUP BY',
-      content:
-        'После GROUP BY в SELECT можно использовать только столбцы из GROUP BY и агрегатные функции (COUNT, SUM, AVG, MIN, MAX). Для фильтрации агрегатов используйте HAVING, а не WHERE.',
+      title: t('contextualTips.groupBy.title'),
+      content: t('contextualTips.groupBy.content'),
       color: 'text-emerald-600 dark:text-emerald-400',
     });
   }
 
-  // Window function tips
   if (combined.includes('over') && combined.includes('partition')) {
     tips.push({
       icon: <BookOpen className="h-3.5 w-3.5" />,
-      title: 'Оконные функции',
-      content:
-        'OVER (PARTITION BY ...) делит данные на группы, внутри которых применяется функция. В отличие от GROUP BY, оконные функции не «схлопывают» строки — каждая строка сохраняется.',
+      title: t('contextualTips.window.title'),
+      content: t('contextualTips.window.content'),
       color: 'text-violet-600 dark:text-violet-400',
     });
   }
 
-  // ROW_NUMBER / RANK tips
   if (combined.includes('row_number') || combined.includes('rank()') || combined.includes('dense_rank')) {
     tips.push({
       icon: <Code className="h-3.5 w-3.5" />,
-      title: 'ROW_NUMBER / RANK',
-      content:
-        'ROW_NUMBER() даёт уникальный номер каждой строке. RANK() пропускает номера при одинаковых значениях (1,2,2,4). DENSE_RANK() не пропускает (1,2,2,3). Всегда используйте ORDER BY внутри OVER().',
+      title: t('contextualTips.rowNumber.title'),
+      content: t('contextualTips.rowNumber.content'),
       color: 'text-purple-600 dark:text-purple-400',
     });
   }
 
-  // CTE / WITH tips
   if (combined.includes('with ') && combined.includes(' as')) {
     tips.push({
       icon: <Lightbulb className="h-3.5 w-3.5" />,
-      title: 'CTE (WITH)',
-      content:
-        'CTE (Common Table Expression) — именованный подзапрос, который можно использовать несколько раз. Делает сложный запрос читаемым. Несколько CTE разделяются запятой: WITH cte1 AS (...), cte2 AS (...)',
+      title: t('contextualTips.cte.title'),
+      content: t('contextualTips.cte.content'),
       color: 'text-amber-600 dark:text-amber-400',
     });
   }
 
-  // Subquery tips
   if (combined.includes('select') && combined.split('select').length > 2 && !combined.includes('with ')) {
     tips.push({
       icon: <Code className="h-3.5 w-3.5" />,
-      title: 'Подзапросы',
-      content:
-        'Подзапрос в WHERE (IN, EXISTS) выполняется для каждой строки внешнего запроса. EXISTS эффективнее IN, т.к. останавливается на первом совпадении. Подзапросы в SELECT вычисляются для каждой строки.',
+      title: t('contextualTips.subquery.title'),
+      content: t('contextualTips.subquery.content'),
       color: 'text-orange-600 dark:text-orange-400',
     });
   }
 
-  // COALESCE / NULL handling
   if (
     combined.includes('coalesce') ||
     combined.includes('is null') ||
@@ -100,47 +86,39 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      title: 'Работа с NULL',
-      content:
-        'NULL — это «отсутствие значения», он не равен ничему, даже другому NULL. Используйте COALESCE(col, default) для подстановки значения по умолчанию. Для сравнения: col IS NULL, а не col = NULL.',
+      title: t('contextualTips.null.title'),
+      content: t('contextualTips.null.content'),
       color: 'text-red-600 dark:text-red-400',
     });
   }
 
-  // CASE / Conditional
   if (combined.includes('case ') && combined.includes('when')) {
     tips.push({
       icon: <Code className="h-3.5 w-3.5" />,
-      title: 'CASE',
-      content:
-        'CASE позволяет ветвление в SQL: CASE WHEN condition THEN result [ELSE default] END. Можно использовать в SELECT, ORDER BY и даже GROUP BY. Всегда заканчивайте END!',
+      title: t('contextualTips.case.title'),
+      content: t('contextualTips.case.content'),
       color: 'text-indigo-600 dark:text-indigo-400',
     });
   }
 
-  // EXISTS
   if (combined.includes('exists')) {
     tips.push({
       icon: <Lightbulb className="h-3.5 w-3.5" />,
-      title: 'EXISTS',
-      content:
-        'EXISTS проверяет наличие хотя бы одной строки в подзапросе. Обычно быстрее IN, т.к. останавливается на первом совпадении. Часто используется с коррелированным подзапросом, ссылающимся на внешний запрос.',
+      title: t('contextualTips.exists.title'),
+      content: t('contextualTips.exists.content'),
       color: 'text-teal-600 dark:text-teal-400',
     });
   }
 
-  // DISTINCT
   if (combined.includes('distinct')) {
     tips.push({
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      title: 'DISTINCT',
-      content:
-        'DISTINCT убирает дубликаты из результата. DISTINCT применяется ко всем столбцам в SELECT одновременно — уникальность определяется комбинацией всех значений. DISTINCT может быть медленным на больших данных.',
+      title: t('contextualTips.distinct.title'),
+      content: t('contextualTips.distinct.content'),
       color: 'text-yellow-600 dark:text-yellow-400',
     });
   }
 
-  // Date/time functions
   if (
     combined.includes('date') ||
     combined.includes('strftime') ||
@@ -149,14 +127,12 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <BookOpen className="h-3.5 w-3.5" />,
-      title: 'Даты и время',
-      content:
-        "Функции работы с датами различаются в разных СУБД. SQLite: strftime('%Y-%m', date). PostgreSQL: DATE_TRUNC('month', date). MySQL: DATE_FORMAT(date, '%Y-%m'). ClickHouse: toYYYYMM(date).",
+      title: t('contextualTips.dates.title'),
+      content: t('contextualTips.dates.content'),
       color: 'text-cyan-600 dark:text-cyan-400',
     });
   }
 
-  // String functions
   if (
     combined.includes('concat') ||
     combined.includes('substr') ||
@@ -167,36 +143,30 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <Code className="h-3.5 w-3.5" />,
-      title: 'Строки',
-      content:
-        "LIKE с % — поиск по шаблону ('%test%' содержит «test»). CONCAT() объединяет строки. SUBSTR(str, start, len) извлекает подстроку. Обратите внимание: индексация строк начинается с 1 в большинстве СУБД.",
+      title: t('contextualTips.strings.title'),
+      content: t('contextualTips.strings.content'),
       color: 'text-pink-600 dark:text-pink-400',
     });
   }
 
-  // HAVING
   if (combined.includes('having')) {
     tips.push({
       icon: <Lightbulb className="h-3.5 w-3.5" />,
-      title: 'HAVING',
-      content:
-        'HAVING фильтрует результаты после GROUP BY, а WHERE — до. Используйте HAVING для условий с агрегатными функциями: HAVING COUNT(*) > 1. WHERE нельзя использовать с агрегатами.',
+      title: t('contextualTips.having.title'),
+      content: t('contextualTips.having.content'),
       color: 'text-lime-600 dark:text-lime-400',
     });
   }
 
-  // Limit/Top
   if (combined.includes('limit') || combined.includes('top ') || combined.includes('fetch first')) {
     tips.push({
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      title: 'Ограничение строк',
-      content:
-        'Синтаксис различается: SQLite/PostgreSQL/MySQL — LIMIT n. SQL Server — SELECT TOP n. Oracle — FETCH FIRST n ROWS ONLY или ROWNUM. Всегда используйте ORDER BY с LIMIT для предсказуемого результата.',
+      title: t('contextualTips.rowLimiting.title'),
+      content: t('contextualTips.rowLimiting.content'),
       color: 'text-rose-600 dark:text-rose-400',
     });
   }
 
-  // Self-join (detects same table aliased differently)
   if (
     combined.includes('join') &&
     combined.split(' as ').length > 2 &&
@@ -204,36 +174,31 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <Lightbulb className="h-3.5 w-3.5" />,
-      title: 'Самосоединение',
-      content:
-        'Самосоединение (self-join) позволяет соединить таблицу с самой собой. Необходимо использовать разные алиасы: FROM employees e1 JOIN employees e2 ON e1.manager_id = e2.id. Полезно для иерархий.',
+      title: t('contextualTips.selfJoin.title'),
+      content: t('contextualTips.selfJoin.content'),
       color: 'text-sky-600 dark:text-sky-400',
     });
   }
 
-  // ClickHouse-specific
   if (task.dbType === 'clickhouse' || combined.includes('clickhouse')) {
     tips.push({
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      title: 'ClickHouse',
-      content:
-        'ClickHouse оптимизирован для аналитических запросов на больших данных. Особенности: toYYYYMM() для группировки по месяцам, groupArray() для сбора значений в массив, arrayJoin() для раскрытия массивов.',
+      title: t('contextualTips.clickhouse.title'),
+      content: t('contextualTips.clickhouse.content'),
       color: 'text-fuchsia-600 dark:text-fuchsia-400',
     });
   }
 
-  // MySQL-specific
   if (task.dbType === 'mysql' || combined.includes('mysql')) {
     tips.push({
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      title: 'MySQL',
-      content:
-        'MySQL-специфичные функции: GROUP_CONCAT() для объединения строк, IF() для условной логики, FIELD() для сортировки по заданному порядку, ON DUPLICATE KEY UPDATE для upsert-операций.',
+      title: t('contextualTips.mysql.title'),
+      content: t('contextualTips.mysql.content'),
       color: 'text-amber-600 dark:text-amber-400',
     });
   }
 
-  return tips.slice(0, 2); // Show at most 2 tips to avoid overwhelming
+  return tips.slice(0, 2);
 }
 
 interface ContextualTipsProps {

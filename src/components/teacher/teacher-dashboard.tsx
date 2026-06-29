@@ -52,7 +52,7 @@ export default function TeacherDashboard() {
           <TabsTrigger value="grade">{t('teacher.tabs.grade')}</TabsTrigger>
           <TabsTrigger value="growth">{t('teacher.tabs.growth')}</TabsTrigger>
           <TabsTrigger value="deadlines">{t('teacher.tabs.deadlines')}</TabsTrigger>
-          <TabsTrigger value="groups">{t('teacher.tabs.groups', { default: 'Группы' })}</TabsTrigger>
+          <TabsTrigger value="groups">{t('teacher.tabs.groups', { default: 'Groups' })}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="progress" className="space-y-6">

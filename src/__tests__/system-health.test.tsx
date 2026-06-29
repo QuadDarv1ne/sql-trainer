@@ -58,7 +58,7 @@ describe('SystemHealth', () => {
 
     render(<SystemHealth />);
 
-    expect(screen.getByText(/Загрузка/i)).toBeTruthy();
+    expect(screen.getByText(/Loading analytics/i)).toBeTruthy();
   });
 
   it('displays system health data after loading', async () => {
@@ -83,7 +83,7 @@ describe('SystemHealth', () => {
     render(<SystemHealth />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Не удалось загрузить данные/i)).toBeTruthy();
+      expect(screen.getByText(/Failed to load system health data/i)).toBeTruthy();
     });
   });
 });

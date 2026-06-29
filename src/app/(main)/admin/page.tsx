@@ -3,8 +3,10 @@
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import dynamic from 'next/dynamic';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { t } from '@/lib/i18n';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,14 +16,22 @@ import {
 import UserTable from '@/components/admin/user-table';
 import DBStats from '@/components/admin/db-stats';
 import SystemHealth from '@/components/admin/system-health';
-import AnalyticsDashboard from '@/components/admin/analytics-dashboard';
-import LeaderboardTable from '@/components/admin/analytics/leaderboard-table';
 import { DeadlineManager } from '@/components/admin/deadline-manager';
 import AuditLog from '@/components/admin/audit-log';
-import { t } from '@/lib/i18n';
 import type { Role } from '@/lib/rbac';
-import AdminAnalytics from '@/components/admin/admin-analytics';
 import { Download } from 'lucide-react';
+
+const AnalyticsDashboard = dynamic(() => import('@/components/admin/analytics-dashboard'), {
+  loading: () => <div className="h-64 animate-pulse rounded-md bg-muted" />,
+});
+
+const LeaderboardTable = dynamic(() => import('@/components/admin/analytics/leaderboard-table'), {
+  loading: () => <div className="h-64 animate-pulse rounded-md bg-muted" />,
+});
+
+const AdminAnalytics = dynamic(() => import('@/components/admin/admin-analytics'), {
+  loading: () => <div className="h-64 animate-pulse rounded-md bg-muted" />,
+});
 
 export default function AdminPage() {
   const router = useRouter();
@@ -51,23 +61,35 @@ export default function AdminPage() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{t('admin.title')}</h1>
             <p className="text-sm text-muted-foreground">
-              {t('admin.subtitle', { default: 'Управление пользователями, аналитика и мониторинг системы' })}
+              {t('admin.subtitle', { default: 'User management, analytics and system monitoring' })}
             </p>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <Download className="h-4 w-4 mr-1" />
-                Экспорт
+                {t('admin.export', { default: 'Export' })}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleExport('users')}>Пользователи (CSV)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('leaderboard')}>Рейтинг (CSV)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('banned')}>Заблокированные (CSV)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('deleted')}>Удалённые (CSV)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('deadlines')}>Дедлайны (CSV)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('audit')}>Аудит (CSV)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('users')}>
+                {t('admin.exportUsers', { default: 'Users (CSV)' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('leaderboard')}>
+                {t('admin.exportLeaderboard', { default: 'Leaderboard (CSV)' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('banned')}>
+                {t('admin.exportBanned', { default: 'Banned (CSV)' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('deleted')}>
+                {t('admin.exportDeleted', { default: 'Deleted (CSV)' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('deadlines')}>
+                {t('admin.exportDeadlines', { default: 'Deadlines (CSV)' })}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('audit')}>
+                {t('admin.exportAudit', { default: 'Audit (CSV)' })}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -80,7 +102,7 @@ export default function AdminPage() {
             <TabsTrigger value="leaderboard">{t('admin.tabs.leaderboard')}</TabsTrigger>
             <TabsTrigger value="health">{t('admin.tabs.health')}</TabsTrigger>
             <TabsTrigger value="audit">{t('admin.tabs.audit')}</TabsTrigger>
-            <TabsTrigger value="metrics">{t('admin.tabs.metrics', { default: 'Метрики' })}</TabsTrigger>
+            <TabsTrigger value="metrics">{t('admin.tabs.metrics', { default: 'Metrics' })}</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-6">
             <DBStats />

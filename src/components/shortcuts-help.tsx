@@ -40,13 +40,23 @@ const SHORTCUTS = [
       { keys: 'Ctrl + D', description: t('shortcuts.selectNext') },
     ],
   },
+  {
+    category: t('shortcuts.interface', { default: 'Interface' }),
+    items: [
+      { keys: 'Ctrl + B', description: t('shortcuts.toggleSidebar', { default: 'Toggle sidebar' }) },
+      { keys: 'Ctrl + Shift + D', description: t('shortcuts.toggleTheme', { default: 'Toggle theme' }) },
+      { keys: 'Ctrl + Shift + B', description: t('shortcuts.bookmarkTask', { default: 'Bookmark task' }) },
+      { keys: 'Ctrl + Shift + E', description: t('shortcuts.executeAndVerify', { default: 'Execute & verify' }) },
+      { keys: 'Ctrl + Shift + X', description: t('shortcuts.clearHistory', { default: 'Clear history' }) },
+    ],
+  },
 ];
 
 export default function ShortcutsHelp() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={t('shortcuts.title')}>
           <HelpCircle className="h-4 w-4" />
         </Button>
       </DialogTrigger>

@@ -10,27 +10,27 @@ export const BEGINNER_TASKS: TrainingTask[] = [
   // ==================== BEGINNER TASKS ====================
   {
     id: 'beginner-1',
-    title: 'Базовый SELECT',
-    description: 'Выбрать все столбцы из таблицы',
+    title: 'Basic SELECT',
+    description: 'Select all columns from a table',
     difficulty: 'beginner',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Выведите все данные из таблицы departments (все столбцы, все строки).',
-    hint: 'Звёздочка (*) после SELECT означает "все столбцы". Это удобно для быстрого просмотра таблицы, но в реальных проектах лучше перечислять нужные столбцы явно.',
+    taskText: 'Retrieve all data from the departments table (all columns, all rows).',
+    hint: 'The asterisk (*) after SELECT means "all columns". It is convenient for quick table inspection, but in real projects it is better to list columns explicitly.',
     progressiveHints: [
       {
         level: 1,
-        text: 'Вам нужно выбрать все данные из таблицы departments',
+        text: 'You need to select all data from the departments table',
         xpPenalty: 0,
       },
       {
         level: 2,
-        text: 'Используйте оператор SELECT для выбора данных',
+        text: 'Use the SELECT statement to retrieve data',
         xpPenalty: 0,
       },
       {
         level: 3,
-        text: 'Звёздочка (*) после SELECT означает "все столбцы". Это удобно для быстрого просмотра таблицы, но в реальных проектах лучше перечислять нужные столбцы явно.',
+        text: 'The asterisk (*) after SELECT means "all columns". It is convenient for quick table inspection, but in real projects it is better to list columns explicitly.',
         xpPenalty: 0,
       },
     ],
@@ -40,27 +40,27 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'beginner-2',
-    title: 'Выбор столбцов',
-    description: 'Выбрать конкретные столбцы из таблицы',
+    title: 'Selecting Columns',
+    description: 'Select specific columns from a table',
     difficulty: 'beginner',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Выведите имена (first_name) и фамилии (last_name) всех сотрудников из таблицы employees.',
-    hint: 'Перечислите нужные столбцы через запятую после SELECT.',
+    taskText: 'Retrieve the first names and last names of all employees from the employees table.',
+    hint: 'List the required columns separated by commas after SELECT.',
     progressiveHints: [
       {
         level: 1,
-        text: 'Вам нужно выбрать конкретные столбцы из таблицы employees',
+        text: 'You need to select specific columns from the employees table',
         xpPenalty: 0,
       },
       {
         level: 2,
-        text: 'Используйте SELECT с перечислением столбцов через запятую',
+        text: 'Use SELECT with a comma-separated list of columns',
         xpPenalty: 0,
       },
       {
         level: 3,
-        text: 'Перечислите нужные столбцы через запятую после SELECT.',
+        text: 'List the required columns separated by commas after SELECT.',
         xpPenalty: 0,
       },
     ],
@@ -70,27 +70,27 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'beginner-3',
-    title: 'Фильтрация WHERE',
-    description: 'Отфильтровать строки с помощью WHERE',
+    title: 'WHERE Filtering',
+    description: 'Filter rows using WHERE',
     difficulty: 'beginner',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Найдите всех сотрудников с зарплатой больше 130000. Выведите их first_name, last_name и salary.',
-    hint: 'WHERE фильтрует строки ДО вывода результата — в результат попадут только те, где условие истинно. Операторы сравнения: =, !=, <, >, <=, >=.',
+    taskText: 'Find all employees with salary greater than 130000. Display their first_name, last_name and salary.',
+    hint: 'WHERE filters rows BEFORE returning results - only those where the condition is true. Comparison operators: =, !=, <, >, <=, >=.',
     progressiveHints: [
       {
         level: 1,
-        text: 'Вам нужно отфильтровать сотрудников по условию зарплаты',
+        text: 'You need to filter employees by a salary condition',
         xpPenalty: 0,
       },
       {
         level: 2,
-        text: 'Используйте WHERE с оператором > для фильтрации по зарплате',
+        text: 'Use WHERE with the > operator for salary filtering',
         xpPenalty: 0,
       },
       {
         level: 3,
-        text: 'WHERE фильтрует строки ДО вывода результата — в результат попадут только те, где условие истинно. Операторы сравнения: =, !=, <, >, <=, >=.',
+        text: 'WHERE filters rows BEFORE returning results - only those where the condition is true. Comparison operators: =, !=, <, >, <=, >=.',
         xpPenalty: 0,
       },
     ],
@@ -100,27 +100,27 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'beginner-4',
-    title: 'Сортировка ORDER BY',
-    description: 'Отсортировать результаты по столбцу',
+    title: 'ORDER BY Sorting',
+    description: 'Sort results by a column',
     difficulty: 'beginner',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Выведите список сотрудников (first_name, last_name, salary), отсортированный по зарплате по убыванию.',
-    hint: 'Используйте ORDER BY с DESC для сортировки по убыванию.',
+    taskText: 'Display the list of employees (first_name, last_name, salary), sorted by salary descending.',
+    hint: 'Use ORDER BY with DESC for descending order.',
     progressiveHints: [
       {
         level: 1,
-        text: 'Вам нужно отсортировать результаты запроса по определённому столбцу',
+        text: 'You need to sort query results by a specific column',
         xpPenalty: 0,
       },
       {
         level: 2,
-        text: 'Используйте ORDER BY для сортировки и DESC для убывания',
+        text: 'Use ORDER BY for sorting and DESC for descending',
         xpPenalty: 0,
       },
       {
         level: 3,
-        text: 'Используйте ORDER BY с DESC для сортировки по убыванию.',
+        text: 'Use ORDER BY with DESC for descending order.',
         xpPenalty: 0,
       },
     ],
@@ -130,27 +130,27 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'beginner-5',
-    title: 'Ограничение результатов LIMIT',
-    description: 'Ограничить количество выводимых строк',
+    title: 'LIMIT Results',
+    description: 'Limit the number of returned rows',
     difficulty: 'beginner',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Выведите 5 самых высокооплачиваемых сотрудников (first_name, last_name, salary).',
-    hint: 'Комбинируйте ORDER BY для сортировки и LIMIT для ограничения.',
+    taskText: 'Retrieve the 5 highest-paid employees (first_name, last_name, salary).',
+    hint: 'Combine ORDER BY for sorting and LIMIT for limiting.',
     progressiveHints: [
       {
         level: 1,
-        text: 'Вам нужно найти топ сотрудников по зарплате и ограничить количество строк',
+        text: 'You need to find top employees by salary and limit the number of rows',
         xpPenalty: 0,
       },
       {
         level: 2,
-        text: 'Отсортируйте по зарплате по убыванию и используйте LIMIT 5',
+        text: 'Sort by salary descending and use LIMIT 5',
         xpPenalty: 0,
       },
       {
         level: 3,
-        text: 'Комбинируйте ORDER BY для сортировки и LIMIT для ограничения.',
+        text: 'Combine ORDER BY for sorting and LIMIT for limiting.',
         xpPenalty: 0,
       },
     ],
@@ -160,27 +160,27 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'beginner-6',
-    title: 'Уникальные значения DISTINCT',
-    description: 'Получить уникальные значения столбца',
+    title: 'DISTINCT Values',
+    description: 'Get unique column values',
     difficulty: 'beginner',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Получите список всех уникальных городов (location) из таблицы departments.',
-    hint: 'Используйте DISTINCT перед именем столбца.',
+    taskText: 'Get a list of all unique cities (location) from the departments table.',
+    hint: 'Use DISTINCT before the column name.',
     progressiveHints: [
       {
         level: 1,
-        text: 'Вам нужно получить только уникальные значения из столбца',
+        text: 'You need to get only unique values from a column',
         xpPenalty: 0,
       },
       {
         level: 2,
-        text: 'Используйте ключевое слово DISTINCT для удаления дубликатов',
+        text: 'Use the DISTINCT keyword to remove duplicates',
         xpPenalty: 0,
       },
       {
         level: 3,
-        text: 'Используйте DISTINCT перед именем столбца.',
+        text: 'Use DISTINCT before the column name.',
         xpPenalty: 0,
       },
     ],
@@ -190,27 +190,27 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'beginner-7',
-    title: 'Агрегатные функции COUNT и SUM',
-    description: 'Использовать агрегатные функции для вычислений',
+    title: 'Aggregate Functions COUNT and SUM',
+    description: 'Use aggregate functions for calculations',
     difficulty: 'beginner',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Посчитайте общее количество сотрудников и сумму всех зарплат в компании.',
-    hint: 'Используйте COUNT(*) для подсчёта строк и SUM(column) для суммы.',
+    taskText: 'Count the total number of employees and the sum of all salaries in the company.',
+    hint: 'Use COUNT(*) to count rows and SUM(column) for the sum.',
     progressiveHints: [
       {
         level: 1,
-        text: 'Вам нужно вычислить итоговые значения для всей таблицы сотрудников',
+        text: 'You need to calculate aggregate values for the entire employees table',
         xpPenalty: 0,
       },
       {
         level: 2,
-        text: 'Используйте агрегатные функции для подсчёта и суммирования',
+        text: 'Use aggregate functions for counting and summing',
         xpPenalty: 0,
       },
       {
         level: 3,
-        text: 'Используйте COUNT(*) для подсчёта строк и SUM(column) для суммы.',
+        text: 'Use COUNT(*) to count rows and SUM(column) for the sum.',
         xpPenalty: 0,
       },
     ],
@@ -220,27 +220,27 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'beginner-8',
-    title: 'Среднее значение AVG',
-    description: 'Вычислить среднее значение столбца',
+    title: 'Average AVG',
+    description: 'Calculate the average value of a column',
     difficulty: 'beginner',
     dbType: 'sqlite',
     schema: EMPLOYEES_SCHEMA,
-    taskText: 'Вычислите среднюю зарплату сотрудников для каждого отдела. Выведите department_id и среднюю зарплату.',
-    hint: 'GROUP BY "схлопывает" строки с одинаковым значением столбца в одну группу. Агрегатные функции (AVG, COUNT, SUM) вычисляют результат внутри каждой группы. Если есть GROUP BY, то в SELECT можно использовать только столбцы из GROUP BY и агрегатные функции.',
+    taskText: 'Calculate the average employee salary for each department. Display department_id and average salary.',
+    hint: 'GROUP BY collapses rows with the same column value into one group. Aggregate functions (AVG, COUNT, SUM) compute results within each group. With GROUP BY, SELECT can only include GROUP BY columns or aggregate functions.',
     progressiveHints: [
       {
         level: 1,
-        text: 'Вам нужно сгруппировать сотрудников по отделам и вычислить среднее для каждой группы',
+        text: 'You need to group employees by department and calculate the average for each group',
         xpPenalty: 0,
       },
       {
         level: 2,
-        text: 'Используйте GROUP BY по department_id и AVG(salary) для расчёта',
+        text: 'Use GROUP BY department_id and AVG(salary) for calculation',
         xpPenalty: 0,
       },
       {
         level: 3,
-        text: 'GROUP BY "схлопывает" строки с одинаковым значением столбца в одну группу. Агрегатные функции (AVG, COUNT, SUM) вычисляют результат внутри каждой группы. Если есть GROUP BY, то в SELECT можно использовать только столбцы из GROUP BY и агрегатные функции.',
+        text: 'GROUP BY collapses rows with the same column value into one group. Aggregate functions (AVG, COUNT, SUM) compute results within each group. With GROUP BY, SELECT can only include GROUP BY columns or aggregate functions.',
         xpPenalty: 0,
       },
     ],
@@ -252,15 +252,15 @@ export const BEGINNER_TASKS: TrainingTask[] = [
   // ==================== SHOP TASKS ====================
   {
     id: 'ch-34',
-    title: 'ClickHouse: toYYYYMM и группировка по месяцам',
-    description: 'Помесячная статистика заказов',
+    title: 'ClickHouse: toYYYYMM and Monthly Grouping',
+    description: 'Monthly order statistics',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Сгруппируйте заказы по месяцам, используя функцию toYYYYMM(order_date). Для каждого месяца выведите month и order_count. Отсортируйте по month.',
-    hint: 'toYYYYMM(date) преобразует дату в число в формате YYYYMM, удобное для группировки по месяцам.',
+      'Group orders by month using the toYYYYMM(order_date) function. For each month, display month and order_count. Sort by month.',
+    hint: 'toYYYYMM(date) converts a date to a number in YYYYMM format, convenient for monthly grouping.',
     sampleSolution:
       'SELECT toYYYYMM(order_date) AS month, COUNT(*) AS order_count FROM orders GROUP BY month ORDER BY month;',
     verificationQuery: 'SELECT COUNT(*) as count FROM orders;',
@@ -269,14 +269,14 @@ export const BEGINNER_TASKS: TrainingTask[] = [
   {
     id: 'pg-23',
     title: 'PostgreSQL: CONCAT_WS',
-    description: 'Объединение строк с разделителем через CONCAT_WS',
+    description: 'Concatenate strings with a separator using CONCAT_WS',
     difficulty: 'beginner',
     dbType: 'postgresql',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      "Для каждого клиента выведите полное имя (first_name и last_name через пробел) и email. Используйте CONCAT_WS(' ', first_name, last_name) для объединения с разделителем. Выведите full_name и email. Отсортируйте по full_name.",
-    hint: 'CONCAT_WS(separator, str1, str2, ...) объединяет строки через разделитель, автоматически пропуская NULL значения.',
+      "For each customer display full name (first_name and last_name separated by space) and email. Use CONCAT_WS(' ', first_name, last_name) for concatenation with separator. Display full_name and email. Sort by full_name.",
+    hint: 'CONCAT_WS(separator, str1, str2, ...) joins strings with a separator, automatically skipping NULL values.',
     sampleSolution:
       "SELECT CONCAT_WS(' ', first_name, last_name) AS full_name, email FROM customers ORDER BY full_name;",
     verificationQuery: 'SELECT COUNT(*) as count FROM customers;',
@@ -284,56 +284,56 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-b1',
-    title: 'Каталог категорий',
-    description: 'Просмотр таблицы категорий магазина',
+    title: 'Category Catalog',
+    description: 'View store categories table',
     difficulty: 'beginner',
     dbType: 'sqlite',
     category: 'shop',
     schema: SHOP_SCHEMA,
-    taskText: 'Выведите все категории товаров (name, description) из таблицы categories.',
-    hint: 'Используйте SELECT с нужными столбцами FROM categories.',
+    taskText: 'Retrieve all product categories (name, description) from the categories table.',
+    hint: 'Use SELECT with the required columns FROM categories.',
     sampleSolution: 'SELECT name, description FROM categories;',
     verificationQuery: 'SELECT COUNT(*) as count FROM categories;',
   },
 
   {
     id: 'shop-b2',
-    title: 'Товары и цены',
-    description: 'Выборка товаров с ценами',
+    title: 'Products and Prices',
+    description: 'Retrieve products with prices',
     difficulty: 'beginner',
     dbType: 'sqlite',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Выведите названия товаров (name), цены (price) и остаток на складе (stock_quantity) из таблицы products. Отсортируйте по убыванию цены.',
-    hint: 'SELECT с ORDER BY price DESC для сортировки по убыванию.',
+      'Display product names (name), prices (price) and stock quantity (stock_quantity) from the products table. Sort by price descending.',
+    hint: 'SELECT with ORDER BY price DESC for descending sort.',
     sampleSolution: 'SELECT name, price, stock_quantity FROM products ORDER BY price DESC;',
     verificationQuery: 'SELECT COUNT(*) as count FROM products;',
   },
 
   {
     id: 'shop-b3',
-    title: 'Дорогие товары',
-    description: 'Фильтрация товаров по цене',
+    title: 'Expensive Products',
+    description: 'Filter products by price',
     difficulty: 'beginner',
     dbType: 'sqlite',
     category: 'shop',
     schema: SHOP_SCHEMA,
-    taskText: 'Найдите все товары дороже 10000 рублей. Выведите name, price и category_id.',
-    hint: 'Используйте WHERE price > 10000.',
+    taskText: 'Find all products costing more than 10000 rubles. Display name, price, and category_id.',
+    hint: 'Use WHERE price > 10000.',
     sampleSolution: 'SELECT name, price, category_id FROM products WHERE price > 10000 ORDER BY price DESC;',
     verificationQuery: 'SELECT COUNT(*) as count FROM products WHERE price > 10000;',
   },
 
   {
     id: 'shop-b4',
-    title: 'Топ-5 самых дорогих',
-    description: 'LIMIT с сортировкой',
+    title: 'Top 5 Most Expensive',
+    description: 'LIMIT with sorting',
     difficulty: 'beginner',
     dbType: 'sqlite',
     category: 'shop',
     schema: SHOP_SCHEMA,
-    taskText: 'Выведите 5 самых дорогих товаров: name, price. Отсортируйте по убыванию цены.',
+    taskText: 'Display the 5 most expensive products: name, price. Sort by price descending.',
     hint: 'ORDER BY price DESC LIMIT 5.',
     sampleSolution: 'SELECT name, price FROM products ORDER BY price DESC LIMIT 5;',
     verificationQuery: 'SELECT price FROM products ORDER BY price DESC LIMIT 1;',
@@ -341,29 +341,29 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-b5',
-    title: 'Заказы по статусам',
-    description: 'GROUP BY для подсчёта заказов',
+    title: 'Orders by Status',
+    description: 'GROUP BY for counting orders',
     difficulty: 'beginner',
     dbType: 'sqlite',
     category: 'shop',
     schema: SHOP_SCHEMA,
-    taskText: 'Посчитайте количество заказов для каждого статуса (status). Выведите status и количество заказов.',
-    hint: 'GROUP BY status с COUNT(*).',
+    taskText: 'Count the number of orders for each status. Display status and order count.',
+    hint: 'GROUP BY status with COUNT(*).',
     sampleSolution: 'SELECT status, COUNT(*) as order_count FROM orders GROUP BY status ORDER BY order_count DESC;',
     verificationQuery: 'SELECT COUNT(DISTINCT status) as count FROM orders;',
   },
 
   {
     id: 'shop-b6',
-    title: 'Средняя цена по категориям',
-    description: 'AVG + GROUP BY по категориям',
+    title: 'Average Price by Category',
+    description: 'AVG + GROUP BY by category',
     difficulty: 'beginner',
     dbType: 'sqlite',
     category: 'shop',
     schema: SHOP_SCHEMA,
     taskText:
-      'Вычислите среднюю цену и количество товаров для каждой категории. Выведите category_id, среднюю цену и количество.',
-    hint: 'AVG(price) и COUNT(*) с GROUP BY category_id.',
+      'Calculate the average price and product count for each category. Display category_id, average price, and count.',
+    hint: 'AVG(price) and COUNT(*) with GROUP BY category_id.',
     sampleSolution:
       'SELECT category_id, ROUND(AVG(price)) as avg_price, COUNT(*) as product_count FROM products GROUP BY category_id ORDER BY avg_price DESC;',
     verificationQuery: 'SELECT COUNT(DISTINCT category_id) as count FROM products;',
@@ -371,13 +371,13 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'shop-b7',
-    title: 'Уникальные города клиентов',
-    description: 'DISTINCT для городов',
+    title: 'Unique Customer Cities',
+    description: 'DISTINCT for cities',
     difficulty: 'beginner',
     dbType: 'sqlite',
     category: 'shop',
     schema: SHOP_SCHEMA,
-    taskText: 'Выведите список уникальных городов клиентов (city) из таблицы customers. Отсортируйте по алфавиту.',
+    taskText: 'Display a list of unique customer cities (city) from the customers table. Sort alphabetically.',
     hint: 'SELECT DISTINCT city FROM customers ORDER BY city.',
     sampleSolution: 'SELECT DISTINCT city FROM customers ORDER BY city;',
     verificationQuery: 'SELECT COUNT(DISTINCT city) as count FROM customers;',
@@ -386,15 +386,15 @@ export const BEGINNER_TASKS: TrainingTask[] = [
   // ==================== COMPANY TASKS (PostgreSQL/ClickHouse) ====================
   {
     id: 'ch-40',
-    title: 'ClickHouse: bar() для визуализации',
-    description: 'Визуальное сравнение бюджетов отделов',
+    title: 'ClickHouse: bar() for Visualization',
+    description: 'Visual department budget comparison',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Выведите бюджет каждого отдела с визуальной полоской. Используйте bar(budget / 500000, 0, 10, 20) — параметр 20 задаёт ширину полоски в символах. Выведите name, budget и budget_bar. Отсортируйте по budget DESC.',
-    hint: 'bar(value, min, max, width) рисует текстовую полоску из символов ▏..▉ пропорционально значению. Полезно для визуализации в консоли.',
+      'Display each department budget with a visual bar. Use bar(budget / 500000, 0, 10, 20) — parameter 20 sets the bar width in characters. Display name, budget and budget_bar. Sort by budget DESC.',
+    hint: 'bar(value, min, max, width) draws a text bar using ▏..▉ characters proportional to the value. Useful for console visualization.',
     sampleSolution:
       'SELECT name, budget, bar(budget / 500000, 0, 10, 20) AS budget_bar FROM departments ORDER BY budget DESC;',
     verificationQuery: 'SELECT COUNT(*) as count FROM departments;',
@@ -403,14 +403,14 @@ export const BEGINNER_TASKS: TrainingTask[] = [
   {
     id: 'pg-22',
     title: 'PostgreSQL: NULLIF',
-    description: 'Предотвращение деления на ноль с NULLIF',
+    description: 'Prevent division by zero with NULLIF',
     difficulty: 'beginner',
     dbType: 'postgresql',
     category: 'company',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Для каждого отдела вычислите бюджет на одного сотрудника (budget / количество сотрудников). Используйте NULLIF(COUNT(e.id), 0), чтобы избежать деления на ноль, если в отделе нет сотрудников. Выведите name отдела, budget, emp_count и budget_per_employee. Отсортируйте по budget_per_employee DESC.',
-    hint: 'NULLIF(col, 0) возвращает NULL, если col = 0. Деление на NULL даёт NULL вместо ошибки деления на ноль.',
+      'For each department, calculate budget per employee (budget / number of employees). Use NULLIF(COUNT(e.id), 0) to avoid division by zero if a department has no employees. Display department name, budget, emp_count and budget_per_employee. Sort by budget_per_employee DESC.',
+    hint: 'NULLIF(col, 0) returns NULL if col = 0. Dividing by NULL yields NULL instead of a division by zero error.',
     sampleSolution:
       'SELECT d.name, d.budget, COUNT(e.id) AS emp_count, ROUND(d.budget / NULLIF(COUNT(e.id), 0), 2) AS budget_per_employee FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name, d.budget ORDER BY budget_per_employee DESC;',
     verificationQuery: 'SELECT COUNT(*) as count FROM departments;',
@@ -419,30 +419,29 @@ export const BEGINNER_TASKS: TrainingTask[] = [
   // ==================== ANALYTICS TASKS (ClickHouse) ====================
   {
     id: 'analytics-b1',
-    title: 'Выборка событий с LIMIT',
-    description: 'Базовый SELECT из таблицы событий',
+    title: 'Sampling Events with LIMIT',
+    description: 'Basic SELECT from events table',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText:
-      'Выведите все события из таблицы events, ограничив результат 10 строками. Используйте ClickHouse-синтаксис.',
-    hint: 'Используйте SELECT * FROM events LIMIT 10.',
+    taskText: 'Display all events from the events table, limiting the result to 10 rows. Use ClickHouse syntax.',
+    hint: 'Use SELECT * FROM events LIMIT 10.',
     sampleSolution: 'SELECT * FROM events LIMIT 10;',
     verificationQuery: 'SELECT COUNT(*) as count FROM events;',
   },
 
   {
     id: 'analytics-b2',
-    title: 'Фильтрация по устройству',
-    description: 'WHERE с фильтром по device',
+    title: 'Filter by Device',
+    description: 'WHERE filter by device',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
     taskText:
-      "Найдите все события с устройства 'mobile'. Выведите event_id, user_id, event_type и event_time. Отсортируйте по event_time.",
-    hint: "Используйте WHERE device = 'mobile' и ORDER BY event_time.",
+      "Find all events from 'mobile' device. Display event_id, user_id, event_type and event_time. Sort by event_time.",
+    hint: "Use WHERE device = 'mobile' and ORDER BY event_time.",
     sampleSolution:
       "SELECT event_id, user_id, event_type, event_time FROM events WHERE device = 'mobile' ORDER BY event_time;",
     verificationQuery: "SELECT COUNT(*) as count FROM events WHERE device = 'mobile';",
@@ -450,14 +449,14 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'analytics-b3',
-    title: 'Группировка по типу события',
-    description: 'GROUP BY с count() для подсчёта событий',
+    title: 'Group by Event Type',
+    description: 'GROUP BY with count() for counting events',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
     taskText:
-      'Посчитайте количество событий каждого типа (event_type). Выведите event_type и количество. Используйте ClickHouse-функцию count().',
+      'Count the number of events of each type (event_type). Display event_type and count. Use the ClickHouse count() function.',
     hint: 'SELECT event_type, count(*) as event_count FROM events GROUP BY event_type ORDER BY event_count DESC.',
     sampleSolution:
       'SELECT event_type, count(*) as event_count FROM events GROUP BY event_type ORDER BY event_count DESC;',
@@ -466,15 +465,15 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'analytics-b4',
-    title: 'Топ стран по событиям',
-    description: 'ORDER BY + LIMIT для топ-результата',
+    title: 'Top Countries by Events',
+    description: 'ORDER BY + LIMIT for top results',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
     taskText:
-      'Найдите топ-3 страны по количеству событий. Выведите country и count. Используйте GROUP BY, ORDER BY DESC и LIMIT.',
-    hint: 'Сгруппируйте по country, отсортируйте по убыванию и ограничьте 3 строками.',
+      'Find the top 3 countries by number of events. Display country and count. Use GROUP BY, ORDER BY DESC and LIMIT.',
+    hint: 'Group by country, sort descending, and limit to 3 rows.',
     sampleSolution:
       'SELECT country, count(*) as event_count FROM events GROUP BY country ORDER BY event_count DESC LIMIT 3;',
     verificationQuery: 'SELECT COUNT(DISTINCT country) as count FROM events;',
@@ -482,15 +481,15 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'analytics-b5',
-    title: 'uniq — уникальные пользователи',
-    description: 'ClickHouse-функция uniq() для подсчёта уникальных значений',
+    title: 'uniq - Unique Users',
+    description: 'ClickHouse uniq() for counting unique values',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
     taskText:
-      'Посчитайте количество уникальных пользователей (user_id) для каждого устройства (device). Используйте ClickHouse-функцию uniq().',
-    hint: 'uniq(user_id) считает количество уникальных значений user_id в каждой группе.',
+      'Count the number of unique users (user_id) for each device (device). Use the ClickHouse uniq() function.',
+    hint: 'uniq(user_id) counts unique user_id values in each group.',
     sampleSolution:
       'SELECT device, uniq(user_id) as unique_users, count(*) as total_events FROM events GROUP BY device ORDER BY unique_users DESC;',
     verificationQuery: 'SELECT COUNT(DISTINCT device) as count FROM events;',
@@ -498,15 +497,15 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-32',
-    title: 'ClickHouse: neighbour() для рядов рядом',
-    description: 'Поиск событий с длительностью, близкой к предыдущему событию',
+    title: 'ClickHouse: neighbour() for Adjacent Rows',
+    description: 'Find events with duration close to previous event',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: CLICKHOUSE_EVENTS_SCHEMA,
     taskText:
-      'Для каждого события (кроме первого) найдите предыдущую длительность с помощью функции neighbour(duration, -1). Выведите id, event_type, duration и prev_duration. Отфильтруйте только события, у которых duration > 0, prev_duration > 0 и ABS(duration - prev_duration) < 10. Отсортируйте по id.',
-    hint: 'neighbour(col, offset) позволяет получить значение из соседней строки: offset = -1 — предыдущая строка, offset = 1 — следующая.',
+      'For each event (except the first), find the previous duration using neighbour(duration, -1). Display id, event_type, duration and prev_duration. Filter where duration > 0, prev_duration > 0 and ABS(duration - prev_duration) < 10. Sort by id.',
+    hint: 'neighbour(col, offset) returns the value from the adjacent row: offset = -1 for previous row, offset = 1 for next row.',
     sampleSolution:
       'SELECT id, event_type, duration, neighbour(duration, -1) AS prev_duration FROM events WHERE duration > 0 AND neighbour(duration, -1) > 0 AND abs(duration - neighbour(duration, -1)) < 10 ORDER BY id;',
     verificationQuery: 'SELECT COUNT(*) as count FROM events WHERE duration > 0;',
@@ -514,15 +513,15 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-38',
-    title: 'ClickHouse: formatDateTime для красивых дат',
-    description: 'Форматирование даты и времени события',
+    title: 'ClickHouse: formatDateTime for Pretty Dates',
+    description: 'Format event date and time',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: CLICKHOUSE_EVENTS_SCHEMA,
     taskText:
-      "Выведите события с форматированной датой: id, event_type и formatted_time в формате 'DD.MM.YYYY HH:MM'. Используйте formatDateTime(event_time, '%d.%m.%Y %H:%i'). Отсортируйте по event_time.",
-    hint: 'formatDateTime(date, format) форматирует DateTime по шаблону. %d — день, %m — месяц, %Y — год, %H — часы, %i — минуты.',
+      "Display events with formatted date: id, event_type and formatted_time in 'DD.MM.YYYY HH:MM' format. Use formatDateTime(event_time, '%d.%m.%Y %H:%i'). Sort by event_time.",
+    hint: 'formatDateTime(date, format) formats DateTime per template. %d = day, %m = month, %Y = year, %H = hours, %i = minutes.',
     sampleSolution:
       "SELECT id, event_type, formatDateTime(event_time, '%d.%m.%Y %H:%i') AS formatted_time FROM events ORDER BY event_time;",
     verificationQuery: 'SELECT COUNT(*) as count FROM events;',
@@ -530,57 +529,55 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-beginner-1',
-    title: 'Базовый SELECT',
-    description: 'Выбрать данные из таблицы',
+    title: 'Basic SELECT',
+    description: 'Select data from a table',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText: 'Выведите все события из таблицы events (первые 10).',
-    hint: 'Используйте SELECT * FROM events LIMIT 10.',
+    taskText: 'Display all events from the events table (first 10).',
+    hint: 'Use SELECT * FROM events LIMIT 10.',
     sampleSolution: 'SELECT * FROM events LIMIT 10;',
     verificationQuery: 'SELECT COUNT(*) as count FROM events;',
   },
 
   {
     id: 'ch-beginner-2',
-    title: 'toDate и toDateTime',
-    description: 'Работа с функциями дат',
+    title: 'toDate and toDateTime',
+    description: 'Working with date functions',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText:
-      'Выведите user_id, event_type и дату события (только дата, без времени) для всех событий. Используйте toDate().',
-    hint: 'toDate(event_time) преобразует DateTime в дату.',
+    taskText: 'Display user_id, event_type and event date (date only, no time) for all events. Use toDate().',
+    hint: 'toDate(event_time) converts DateTime to a date.',
     sampleSolution: 'SELECT user_id, event_type, toDate(event_time) as event_date FROM events LIMIT 20;',
     verificationQuery: 'SELECT COUNT(*) as count FROM events;',
   },
 
   {
     id: 'ch-beginner-3',
-    title: 'Фильтрация WHERE',
-    description: 'Фильтрация с условиями',
+    title: 'WHERE Filtering',
+    description: 'Filtering with conditions',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
-    taskText: 'Найдите все события с device = "mobile". Выведите event_id, user_id, event_type.',
-    hint: "Используйте WHERE device = 'mobile'.",
+    taskText: 'Find all events with device = "mobile". Display event_id, user_id, event_type.',
+    hint: "Use WHERE device = 'mobile'.",
     sampleSolution: "SELECT event_id, user_id, event_type FROM events WHERE device = 'mobile';",
     verificationQuery: "SELECT COUNT(*) as count FROM events WHERE device = 'mobile';",
   },
 
   {
     id: 'pg-14',
-    title: 'BOOLEAN тип и TRUE/FALSE',
+    title: 'BOOLEAN Type and TRUE/FALSE',
     description: 'PostgreSQL boolean type usage',
     difficulty: 'beginner',
     dbType: 'postgresql',
     category: 'analytics',
     schema: EMPLOYEES_SCHEMA,
-    taskText:
-      'Найдите всех активных сотрудников с помощью IS TRUE. Выведите first_name и last_name. Отсортируйте по last_name.',
+    taskText: 'Find all active employees using IS TRUE. Display first_name and last_name. Sort by last_name.',
     hint: 'PostgreSQL supports native BOOLEAN type with TRUE/FALSE values.',
     sampleSolution: 'SELECT first_name, last_name FROM employees WHERE is_active IS TRUE ORDER BY last_name;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees WHERE is_active = 1;',
@@ -589,16 +586,16 @@ export const BEGINNER_TASKS: TrainingTask[] = [
   // ==================== EXAM TASKS ====================
   {
     id: 'ch-exam-1',
-    title: 'Экзамен ClickHouse: toStartOfMonth',
-    description: 'Количество сотрудников по месяцу найма',
+    title: 'Exam: ClickHouse toStartOfMonth',
+    description: 'Employee count by hire month',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'exam',
     examGroup: 'ch-exam-beginner',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Сгруппируйте сотрудников по месяцу найма с помощью toStartOfMonth(toDate(hire_date)). Выведите hire_month и emp_count. Отсортируйте по hire_month.',
-    hint: 'toStartOfMonth(date) приводит дату к первому дню месяца. Удобно для помесячной группировки.',
+      'Group employees by hire month using toStartOfMonth(toDate(hire_date)). Display hire_month and emp_count. Sort by hire_month.',
+    hint: 'toStartOfMonth(date) returns the first day of the month. Useful for monthly grouping.',
     sampleSolution:
       'SELECT toStartOfMonth(toDate(hire_date)) AS hire_month, COUNT(*) AS emp_count FROM employees GROUP BY hire_month ORDER BY hire_month;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
@@ -606,33 +603,33 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-exam-2',
-    title: 'Экзамен ClickHouse: if() для категоризации',
-    description: 'Категоризация зарплат с помощью if()',
+    title: 'Exam: ClickHouse if() for Categorization',
+    description: 'Salary categorization using if()',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'exam',
     examGroup: 'ch-exam-beginner',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Для каждого сотрудника определите категорию зарплаты с помощью вложенных if(): «низкая» (< 110000), «средняя» (110000–140000), «высокая» (> 140000). Выведите first_name, last_name, salary и salary_category. Отсортируйте по salary DESC.',
-    hint: 'if(condition, then, else) — условное выражение. Для множественных условий вкладывайте: if(c1, v1, if(c2, v2, else)). Или используйте multiIf.',
+      'For each employee, determine salary category using nested if(): low (< 110000), medium (110000-140000), high (> 140000). Display first_name, last_name, salary and salary_category. Sort by salary DESC.',
+    hint: 'if(condition, then, else) is a conditional expression. For multiple conditions, nest: if(c1, v1, if(c2, v2, else)). Or use multiIf.',
     sampleSolution:
-      "SELECT first_name, last_name, salary, if(salary < 110000, 'низкая', if(salary < 140000, 'средняя', 'высокая')) AS salary_category FROM employees ORDER BY salary DESC;",
+      "SELECT first_name, last_name, salary, if(salary < 110000, 'low', if(salary < 140000, 'medium', 'high')) AS salary_category FROM employees ORDER BY salary DESC;",
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
   },
 
   {
     id: 'ch-exam-3',
-    title: 'Экзамен ClickHouse: formatDateTime',
-    description: 'Форматирование даты найма',
+    title: 'Exam: ClickHouse formatDateTime',
+    description: 'Format hire date',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'exam',
     examGroup: 'ch-exam-beginner',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      "Выведите сотрудников: first_name, last_name и formatted_date — hire_date в формате 'YYYY-MM-DD'. Используйте formatDateTime(toDateTime(hire_date), '%Y-%m-%d'). Отсортируйте по hire_date.",
-    hint: 'formatDateTime(datetime, format) форматирует DateTime. %Y — 4-значный год, %m — месяц (01-12), %d — день (01-31).',
+      "Display employees: first_name, last_name and formatted_date — hire_date in 'YYYY-MM-DD' format. Use formatDateTime(toDateTime(hire_date), '%Y-%m-%d'). Sort by hire_date.",
+    hint: 'formatDateTime(datetime, format) formats DateTime. %Y = 4-digit year, %m = month (01-12), %d = day (01-31).',
     sampleSolution:
       "SELECT first_name, last_name, formatDateTime(toDateTime(hire_date), '%Y-%m-%d') AS formatted_date FROM employees ORDER BY hire_date;",
     verificationQuery: 'SELECT COUNT(*) as count FROM employees;',
@@ -640,16 +637,16 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-b1',
-    title: 'Экзамен: Фильтрация данных',
-    description: 'Проверочная работа — WHERE, операторы сравнения',
+    title: 'Exam: Data Filtering',
+    description: 'Test - WHERE, comparison operators',
     difficulty: 'beginner',
     dbType: 'sqlite',
     category: 'exam',
     examGroup: 'exam-beginner',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Найдите всех сотрудников, чья зарплата от 100000 до 130000 включительно. Выведите first_name, last_name, salary. Отсортируйте по зарплате.',
-    hint: 'Используйте WHERE salary BETWEEN 100000 AND 130000.',
+      'Find all employees with salary from 100000 to 130000 inclusive. Display first_name, last_name, salary. Sort by salary.',
+    hint: 'Use WHERE salary BETWEEN 100000 AND 130000.',
     sampleSolution:
       'SELECT first_name, last_name, salary FROM employees WHERE salary BETWEEN 100000 AND 130000 ORDER BY salary;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees WHERE salary BETWEEN 100000 AND 130000;',
@@ -657,15 +654,15 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-b2',
-    title: 'Экзамен: Сортировка и ограничение',
-    description: 'Проверочная работа — ORDER BY, LIMIT, OFFSET',
+    title: 'Exam: Sorting and Limiting',
+    description: 'Test - ORDER BY, LIMIT, OFFSET',
     difficulty: 'beginner',
     dbType: 'sqlite',
     category: 'exam',
     examGroup: 'exam-beginner',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Выведите 3-х самых низкооплачиваемых сотрудников (first_name, last_name, salary) из отдела "HR" (department_id = 4).',
+      'Display the 3 lowest-paid employees (first_name, last_name, salary) from the "HR" department (department_id = 4).',
     hint: 'WHERE department_id = 4, ORDER BY salary ASC, LIMIT 3.',
     sampleSolution:
       'SELECT first_name, last_name, salary FROM employees WHERE department_id = 4 ORDER BY salary ASC LIMIT 3;',
@@ -674,32 +671,30 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-b3',
-    title: 'Экзамен: Поиск по шаблону',
-    description: 'Проверочная работа — LIKE, паттерны',
+    title: 'Exam: Pattern Search',
+    description: 'Test - LIKE patterns',
     difficulty: 'beginner',
     dbType: 'sqlite',
     category: 'exam',
     examGroup: 'exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText:
-      'Найдите всех сотрудников, чья фамилия заканчивается на "ова". Выведите first_name, last_name. Отсортируйте по фамилии.',
-    hint: "Используйте WHERE last_name LIKE '%ова'.",
-    sampleSolution: "SELECT first_name, last_name FROM employees WHERE last_name LIKE '%ова' ORDER BY last_name;",
-    verificationQuery: "SELECT COUNT(*) as count FROM employees WHERE last_name LIKE '%ова';",
+    taskText: 'Find all employees whose last name ends in "ova". Display first_name, last_name. Sort by last name.',
+    hint: "Use WHERE last_name LIKE '%ova'.",
+    sampleSolution: "SELECT first_name, last_name FROM employees WHERE last_name LIKE '%ova' ORDER BY last_name;",
+    verificationQuery: "SELECT COUNT(*) as count FROM employees WHERE last_name LIKE '%ova';",
   },
 
   {
     id: 'exam-b4',
-    title: 'Экзамен: Агрегация с фильтром',
-    description: 'Проверочная работа — COUNT, SUM с WHERE',
+    title: 'Exam: Aggregation with Filter',
+    description: 'Test - COUNT, SUM with WHERE',
     difficulty: 'beginner',
     dbType: 'sqlite',
     category: 'exam',
     examGroup: 'exam-beginner',
     schema: EMPLOYEES_SCHEMA,
-    taskText:
-      'Посчитайте количество активных сотрудников (is_active = 1) и среднюю зарплату среди них в одном запросе.',
-    hint: 'WHERE is_active = 1, затем COUNT(*) и AVG(salary).',
+    taskText: 'Count active employees (is_active = 1) and their average salary in one query.',
+    hint: 'WHERE is_active = 1, then COUNT(*) and AVG(salary).',
     sampleSolution:
       'SELECT COUNT(*) as active_count, ROUND(AVG(salary)) as avg_salary FROM employees WHERE is_active = 1;',
     verificationQuery: 'SELECT 22 as expected_count;',
@@ -707,16 +702,16 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'exam-b5',
-    title: 'Экзамен: Группировка',
-    description: 'Проверочная работа — GROUP BY с несколькими агрегатами',
+    title: 'Exam: Grouping',
+    description: 'Test - GROUP BY with multiple aggregates',
     difficulty: 'beginner',
     dbType: 'sqlite',
     category: 'exam',
     examGroup: 'exam-beginner',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Для каждого города departments выведите: количество отделов и суммарный бюджет. Выведите location, count, total_budget.',
-    hint: 'GROUP BY location с COUNT(*) и SUM(budget).',
+      'For each department city, display: number of departments and total budget. Display location, count, total_budget.',
+    hint: 'GROUP BY location with COUNT(*) and SUM(budget).',
     sampleSolution:
       'SELECT location, COUNT(*) as dept_count, SUM(budget) as total_budget FROM departments GROUP BY location ORDER BY total_budget DESC;',
     verificationQuery: 'SELECT COUNT(DISTINCT location) as count FROM departments;',
@@ -724,16 +719,16 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-exam-1',
-    title: 'Экзамен PostgreSQL: TRUE/FALSE условия',
-    description: 'Поиск сотрудников с зарплатой выше порога',
+    title: 'Exam: PostgreSQL TRUE/FALSE Conditions',
+    description: 'Find employees with salary above threshold',
     difficulty: 'beginner',
     dbType: 'postgresql',
     category: 'exam',
     examGroup: 'pg-exam-beginner',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Выведите first_name, last_name и salary сотрудников, у которых зарплата больше 120000. Добавьте столбец high_salary со значением TRUE или FALSE (salary > 120000). Отсортируйте по salary DESC.',
-    hint: 'В PostgreSQL выражение (salary > 120000) возвращает TRUE или FALSE. Можно использовать прямо в SELECT как вычисляемый столбец.',
+      'Display first_name, last_name and salary of employees with salary > 120000. Add a high_salary column with TRUE or FALSE (salary > 120000). Sort by salary DESC.',
+    hint: 'In PostgreSQL, (salary > 120000) returns TRUE or FALSE. Use it directly in SELECT as a computed column.',
     sampleSolution:
       'SELECT first_name, last_name, salary, (salary > 120000) AS high_salary FROM employees WHERE salary > 120000 ORDER BY salary DESC;',
     verificationQuery: 'SELECT COUNT(*) as count FROM employees WHERE salary > 120000;',
@@ -741,64 +736,64 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'pg-exam-2',
-    title: 'Экзамен PostgreSQL: ILIKE для поиска',
-    description: 'Поиск сотрудников с буквой «а» в имени',
+    title: 'Exam: PostgreSQL ILIKE Search',
+    description: 'Find employees with letter "a" in name',
     difficulty: 'beginner',
     dbType: 'postgresql',
     category: 'exam',
     examGroup: 'pg-exam-beginner',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      'Найдите всех сотрудников, у которых в first_name есть буква «а» (русская, строчная). Используйте ILIKE для регистронезависимого поиска. Выведите first_name и last_name. Отсортируйте по first_name.',
-    hint: 'ILIKE выполняет регистронезависимый поиск с шаблонами: % — любая последовательность символов, _ — один символ.',
-    sampleSolution: "SELECT first_name, last_name FROM employees WHERE first_name ILIKE '%а%' ORDER BY first_name;",
-    verificationQuery: "SELECT COUNT(*) as count FROM employees WHERE first_name LIKE '%а%' OR first_name LIKE '%А%';",
+      'Find all employees with the letter "a" in first_name (case-insensitive). Use ILIKE for case-insensitive search. Display first_name and last_name. Sort by first_name.',
+    hint: 'ILIKE performs case-insensitive pattern search: % = any character sequence, _ = single character.',
+    sampleSolution: "SELECT first_name, last_name FROM employees WHERE first_name ILIKE '%a%' ORDER BY first_name;",
+    verificationQuery: "SELECT COUNT(*) as count FROM employees WHERE first_name LIKE '%a%' OR first_name LIKE '%A%';",
   },
 
   {
     id: 'pg-exam-3',
-    title: 'Экзамен PostgreSQL: COALESCE для замены NULL',
-    description: 'Замена NULL значений на текст по умолчанию',
+    title: 'Exam: PostgreSQL COALESCE for NULL',
+    description: 'Replace NULL values with default text',
     difficulty: 'beginner',
     dbType: 'postgresql',
     category: 'exam',
     examGroup: 'pg-exam-beginner',
     schema: EMPLOYEES_SCHEMA,
     taskText:
-      "Выведите проекты: name, start_date, end_date и status. Замените NULL в end_date на текст 'В процессе' с помощью COALESCE. Отсортируйте по name.",
-    hint: 'COALESCE(val1, val2, ...) возвращает первый не-NULL аргумент. Полезно для замены NULL на значения по умолчанию.',
+      "Display projects: name, start_date, end_date and status. Replace NULL in end_date with 'In Progress' using COALESCE. Sort by name.",
+    hint: 'COALESCE(val1, val2, ...) returns the first non-NULL argument. Useful for replacing NULL with default values.',
     sampleSolution:
-      "SELECT name, start_date, COALESCE(end_date, 'В процессе') AS end_date, status FROM projects ORDER BY name;",
+      "SELECT name, start_date, COALESCE(end_date, 'In Progress') AS end_date, status FROM projects ORDER BY name;",
     verificationQuery: 'SELECT COUNT(*) as count FROM projects;',
   },
 
   // ==================== CLICKHOUSE REAL-WORLD ANALYTICS ====================
   {
     id: 'ch-analytics-real-1',
-    title: 'ClickHouse: Ежедневные активные пользователи (DAU)',
-    description: 'Подсчёт уникальных пользователей по дням',
+    title: 'ClickHouse: Daily Active Users (DAU)',
+    description: 'Count unique users per day',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
     taskText:
-      'Посчитайте количество уникальных пользователей (user_id) для каждого дня. Используйте toDate(event_time) для группировки по дням и uniq() для подсчёта уникальных. Выведите day и dau. Отсортируйте по day.',
-    hint: 'uniq(user_id) — быстрая аппроксимация количества уникальных значений в ClickHouse. toDate(event_time) извлекает дату из DateTime.',
+      'Count unique users (user_id) for each day. Use toDate(event_time) for daily grouping and uniq() for counting uniques. Display day and dau. Sort by day.',
+    hint: 'uniq(user_id) is a fast approximate count of unique values in ClickHouse. toDate(event_time) extracts the date from DateTime.',
     sampleSolution: 'SELECT toDate(event_time) AS day, uniq(user_id) AS dau FROM events GROUP BY day ORDER BY day;',
     verificationQuery: 'SELECT COUNT(*) as count FROM events;',
   },
 
   {
     id: 'ch-analytics-real-2',
-    title: 'ClickHouse: Распределение по устройствам',
-    description: 'Доля событий по типам устройств',
+    title: 'ClickHouse: Distribution by Device',
+    description: 'Event share by device type',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
     taskText:
-      'Посчитайте количество событий и долю (%) для каждого устройства (device). Используйте count() для подсчёта и count() * 100.0 / (SELECT count() FROM events) для доли. Выведите device, events_count и events_pct.',
-    hint: 'Для доли можно использовать оконную функцию: count() * 100.0 / sum(count()) OVER () — это даст процент от общего числа.',
+      'Count events and percentage (%) for each device. Use count() for counting and count() * 100.0 / (SELECT count() FROM events) for percentage. Display device, events_count and events_pct.',
+    hint: 'For percentage, use a window function: count() * 100.0 / sum(count()) OVER () gives the percentage of the total.',
     sampleSolution:
       'SELECT device, count(*) AS events_count, round(count(*) * 100.0 / sum(count()) OVER (), 1) AS events_pct FROM events GROUP BY device ORDER BY events_count DESC;',
     verificationQuery: 'SELECT COUNT(DISTINCT device) as count FROM events;',
@@ -806,15 +801,15 @@ export const BEGINNER_TASKS: TrainingTask[] = [
 
   {
     id: 'ch-analytics-real-3',
-    title: 'ClickHouse: Конверсия по типам событий',
-    description: 'Воронка: просмотры → клики → покупки',
+    title: 'ClickHouse: Conversion by Event Type',
+    description: 'Funnel: views, clicks, purchases',
     difficulty: 'beginner',
     dbType: 'clickhouse',
     category: 'analytics',
     schema: ANALYTICS_SCHEMA,
     taskText:
-      'Посчитайте количество событий для каждого типа (event_type) с помощью countIf(). Выведите page_views (event_type = "page_view"), clicks (event_type = "click") и purchases (event_type = "purchase").',
-    hint: 'countIf(event_type = "page_view") считает только просмотры. Используйте несколько countIf в одном запросе для воронки.',
+      'Count the number of events for each type using countIf(). Display page_views (event_type = "page_view"), clicks (event_type = "click"), and purchases (event_type = "purchase").',
+    hint: 'countIf(event_type = "page_view") counts only page views. Use multiple countIf in one query for a funnel.',
     sampleSolution:
       "SELECT countIf(event_type = 'page_view') AS page_views, countIf(event_type = 'click') AS clicks, countIf(event_type = 'purchase') AS purchases FROM events;",
     verificationQuery: 'SELECT COUNT(*) as count FROM events;',

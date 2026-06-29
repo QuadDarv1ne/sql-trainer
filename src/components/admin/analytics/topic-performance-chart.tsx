@@ -27,10 +27,10 @@ interface TopicPerformanceEntry {
 const topicLabels: Record<string, string> = {
   select: 'SELECT',
   joins: 'JOINs',
-  aggregation: 'Агрегация',
-  subqueries: 'Подзапросы',
+  aggregation: 'Aggregation',
+  subqueries: 'Subqueries',
   dml: 'DML',
-  advanced: 'Продвинутый',
+  advanced: 'Advanced',
 };
 
 export default function TopicPerformanceChart() {
@@ -40,18 +40,26 @@ export default function TopicPerformanceChart() {
   const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
+    const controller = new AbortController();
     const params = new URLSearchParams();
     if (startDate) params.set('startDate', String(startDate));
     if (endDate) params.set('endDate', String(endDate));
 
-    fetch(`/api/admin/analytics/topic-performance?${params}`)
+    fetch(`/api/admin/analytics/topic-performance?${params}`, { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((data) => setData(data.topics))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
+      .then((data) => {
+        if (!controller.signal.aborted) setData(data.topics);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') setError(t('analytics.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
   }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;

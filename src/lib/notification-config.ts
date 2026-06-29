@@ -1,3 +1,5 @@
+import 'server-only';
+
 /**
  * Notification configuration — SMTP and VAPID settings loaded from environment variables.
  */
@@ -29,19 +31,19 @@ export function isPushConfigured(): boolean {
  * Available reminder intervals in milliseconds.
  */
 export const REMINDER_INTERVALS = [
-  { label: '30 мин', value: 1800000 },
-  { label: '1 час', value: 3600000 },
-  { label: '3 часа', value: 10800000 },
-  { label: '12 часов', value: 43200000 },
-  { label: '1 день', value: 86400000 },
-  { label: '3 дня', value: 259200000 },
+  { label: '30 min', value: 1800000 },
+  { label: '1 hour', value: 3600000 },
+  { label: '3 hours', value: 10800000 },
+  { label: '12 hours', value: 43200000 },
+  { label: '1 day', value: 86400000 },
+  { label: '3 days', value: 259200000 },
 ] as const;
 
 /**
  * Available notification channels.
  */
 export const NOTIFICATION_CHANNELS = [
-  { id: 'in_app', label: 'В приложении' },
-  { id: 'push', label: 'Push-уведомления' },
+  { id: 'in_app', label: 'In-App' },
+  { id: 'push', label: 'Push Notifications' },
   { id: 'email', label: 'Email' },
 ] as const;

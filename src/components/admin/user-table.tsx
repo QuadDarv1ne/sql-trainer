@@ -37,7 +37,6 @@ import {
 } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { logger } from '@/lib/logger';
-import { csrfHeaders } from '@/lib/safe-fetch';
 
 interface User {
   id: string;
@@ -162,7 +161,7 @@ export default function UserTable() {
       if (typeof aVal === 'number' && typeof bVal === 'number') return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
       const aStr = String(aVal ?? '');
       const bStr = String(bVal ?? '');
-      return sortDir === 'asc' ? aStr.localeCompare(bStr, 'ru') : bStr.localeCompare(aStr, 'ru');
+      return sortDir === 'asc' ? aStr.localeCompare(bStr, undefined) : bStr.localeCompare(aStr, undefined);
     });
     return result;
   }, [users, search, sortKey, sortDir]);
@@ -177,10 +176,10 @@ export default function UserTable() {
     try {
       const res = await fetch(`/api/admin/users/${userId}/role`, {
         method: 'PUT',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: newRole }),
       });
-      if (!res.ok) throw new Error('Failed to update role');
+      if (!res.ok) throw new Error(t('admin.users.roleUpdateFailed'));
       setSuccess(t('admin.users.roleUpdated'));
       fetchUsers();
     } catch (e) {
@@ -194,10 +193,10 @@ export default function UserTable() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE', headers: csrfHeaders() });
+      const res = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to delete user');
+        throw new Error(data.error || t('admin.users.deleteFailed'));
       }
       setSuccess(t('admin.users.deleted'));
       setSelectedIds((prev) => {
@@ -236,7 +235,7 @@ export default function UserTable() {
     try {
       const res = await fetch('/api/admin/users/bulk', {
         method: 'POST',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: bulkAction === 'delete' ? 'delete' : 'role',
           userIds: [...selectedIds],
@@ -270,7 +269,7 @@ export default function UserTable() {
     try {
       const res = await fetch('/api/admin/users/create', {
         method: 'POST',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newUser),
       });
       if (!res.ok) {
@@ -294,7 +293,7 @@ export default function UserTable() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch(`/api/admin/users/${userId}/restore`, { method: 'POST', headers: csrfHeaders() });
+      const res = await fetch(`/api/admin/users/${userId}/restore`, { method: 'POST' });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Failed to restore user');
@@ -308,43 +307,43 @@ export default function UserTable() {
   };
 
   const handleBan = async (userId: string, userName: string) => {
-    const reason = prompt(t('admin.users.banReasonPrompt', { name: userName, default: `Enter ban reason for ${userName} (optional):` }));
+    const reason = prompt(`Enter ban reason for ${userName} (optional):`);
     if (reason === null) return;
     setError('');
     setSuccess('');
     try {
       const res = await fetch(`/api/admin/users/${userId}/ban`, {
         method: 'POST',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: reason || null }),
       });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Failed to ban user');
       }
-      setSuccess(t('admin.users.banned', { name: userName, default: `${userName} banned` }));
+      setSuccess(`User ${userName} banned`);
       fetchUsers();
     } catch (e) {
       logger.error('Failed to ban user:', e);
-      setError(e instanceof Error ? e.message : t('admin.users.banError', { default: 'Failed to ban user' }));
+      setError(e instanceof Error ? e.message : t('admin.users.banError', { default: 'Error banning user' }));
     }
   };
 
   const handleUnban = async (userId: string, userName: string) => {
-    if (!confirm(t('admin.users.unbanConfirm', { name: userName, default: `Unban user ${userName}?` }))) return;
+    if (!confirm(`Unban user ${userName}?`)) return;
     setError('');
     setSuccess('');
     try {
-      const res = await fetch(`/api/admin/users/${userId}/unban`, { method: 'POST', headers: csrfHeaders() });
+      const res = await fetch(`/api/admin/users/${userId}/unban`, { method: 'POST' });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Failed to unban user');
       }
-      setSuccess(t('admin.users.unbanned', { name: userName, default: `${userName} unbanned` }));
+      setSuccess(`User ${userName} unbanned`);
       fetchUsers();
     } catch (e) {
       logger.error('Failed to unban user:', e);
-      setError(e instanceof Error ? e.message : t('admin.users.unbanError', { default: 'Failed to unban user' }));
+      setError(e instanceof Error ? e.message : t('admin.users.unbanError', { default: 'Error unbanning user' }));
     }
   };
 
@@ -365,7 +364,7 @@ export default function UserTable() {
     try {
       const res = await fetch(`/api/admin/users/${editUser.id}`, {
         method: 'PUT',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editForm),
       });
       if (!res.ok) {
@@ -434,7 +433,7 @@ export default function UserTable() {
               {t('admin.users.tabs.active')} ({users.length})
             </TabsTrigger>
             <TabsTrigger value="banned">
-              {t('admin.users.tabs.banned', { default: 'Заблокированные' })} ({bannedUsers.length})
+              {t('admin.users.tabs.banned', { default: 'Banned' })} ({bannedUsers.length})
             </TabsTrigger>
             <TabsTrigger value="deleted">
               {t('admin.users.tabs.deleted')} ({deletedUsers.length})
@@ -520,7 +519,13 @@ export default function UserTable() {
                       { key: 'tasks_completed' as SortKey, label: t('admin.users.tasks') },
                       { key: 'created_at' as SortKey, label: t('admin.users.registered') },
                     ].map(({ key, label }) => (
-                      <TableHead key={key} className="cursor-pointer select-none" onClick={() => handleSort(key)}>
+                      <TableHead
+                        key={key}
+                        className="cursor-pointer select-none"
+                        onClick={() => handleSort(key)}
+                        aria-label={`Sort by ${label}`}
+                        aria-sort={sortKey === key ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                      >
                         <div className="flex items-center gap-1">
                           {label}
                           {sortKey === key &&
@@ -597,8 +602,8 @@ export default function UserTable() {
                               size="sm"
                               onClick={() => handleUnban(user.id, user.name)}
                               className="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950"
-aria-label={t('admin.users.unban', { default: 'Unban' })}
-                            title={user.ban_reason || ''}
+                              aria-label={t('admin.users.unban')}
+                              title={`Banned: ${user.ban_reason || 'no reason'}`}
                             >
                               <Ban className="h-4 w-4" />
                             </Button>
@@ -608,7 +613,7 @@ aria-label={t('admin.users.unban', { default: 'Unban' })}
                               size="sm"
                               onClick={() => handleBan(user.id, user.name)}
                               className="text-slate-600 dark:text-slate-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950"
-                              aria-label={t('admin.users.ban', { default: 'Ban' })}
+                              aria-label={t('admin.users.ban')}
                             >
                               <Ban className="h-4 w-4" />
                             </Button>
@@ -664,7 +669,7 @@ aria-label={t('admin.users.unban', { default: 'Unban' })}
         {activeTab === 'banned' && (
           <>
             {bannedUsers.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">{t('admin.users.noBanned', { default: 'No banned users' })}</p>
+              <p className="text-center text-muted-foreground py-8">{t('admin.users.noBannedUsers')}</p>
             ) : (
               <div className="rounded-md border">
                 <Table>
@@ -672,9 +677,9 @@ aria-label={t('admin.users.unban', { default: 'Unban' })}
                     <TableRow>
                       <TableHead>{t('admin.users.name')}</TableHead>
                       <TableHead>{t('admin.users.email')}</TableHead>
-                      <TableHead>{t('admin.users.banReason', { default: 'Ban Reason' })}</TableHead>
-                      <TableHead>{t('admin.users.bannedBy', { default: 'Banned By' })}</TableHead>
-                      <TableHead>{t('admin.users.bannedAt', { default: 'Ban Date' })}</TableHead>
+                      <TableHead>{t('admin.users.banReason')}</TableHead>
+                      <TableHead>{t('admin.users.bannedBy')}</TableHead>
+                      <TableHead>{t('admin.users.banDate')}</TableHead>
                       <TableHead>{t('admin.users.actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -696,7 +701,7 @@ aria-label={t('admin.users.unban', { default: 'Unban' })}
                             className="text-emerald-600"
                           >
                             <CheckCircle className="h-4 w-4 mr-1" />
-                            {t('admin.users.unban', { default: 'Unban' })}
+                            Unban
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -765,7 +770,7 @@ aria-label={t('admin.users.unban', { default: 'Unban' })}
                 id="name"
                 value={newUser.name}
                 onChange={(e) => setNewUser((prev) => ({ ...prev, name: e.target.value }))}
-                placeholder="John Doe"
+                placeholder={t('admin.users.namePlaceholder')}
               />
             </div>
             <div className="grid gap-2">

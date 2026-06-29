@@ -44,7 +44,9 @@ import AchievementsGrid from '@/components/profile/achievements-grid';
 import LeaderboardTable from '@/components/profile/leaderboard';
 import { useSQLTrainerStore } from '@/lib/store';
 import { t } from '@/lib/i18n';
-import { csrfHeaders } from '@/lib/safe-fetch';
+import { logger } from '@/lib/logger';
+
+import { evaluatePasswordStrength } from '@/lib/password-strength';
 
 interface UserProfile {
   id: string;
@@ -61,16 +63,14 @@ function getPasswordStrength(password: string): {
   color: string;
   requirements: { met: boolean; text: string }[];
 } {
+  const { score, checks } = evaluatePasswordStrength(password);
   const requirements = [
-    { met: password.length >= 6, text: t('profile.req.minChars') },
-    { met: /[A-Z]/.test(password), text: t('profile.req.uppercase') },
-    { met: /[a-z]/.test(password), text: t('profile.req.lowercase') },
-    { met: /\d/.test(password), text: t('profile.req.digit') },
-    { met: /[^A-Za-z0-9]/.test(password), text: t('profile.req.special') },
+    { met: checks.minLength, text: t('profile.req.minChars') },
+    { met: checks.uppercase, text: t('profile.req.uppercase') },
+    { met: checks.lowercase, text: t('profile.req.lowercase') },
+    { met: checks.digit, text: t('profile.req.digit') },
+    { met: checks.special, text: t('profile.req.special') },
   ];
-
-  const metCount = requirements.filter((r) => r.met).length;
-  const score = Math.round((metCount / requirements.length) * 100);
 
   let label = t('profile.strength.weak');
   let color = 'text-red-500';
@@ -105,12 +105,12 @@ function SavedQueriesSection() {
   const handleResetAll = () => {
     resetAllProgress();
     toast.success(t('profile.resetSuccess'), {
-      description: t('profile.resetUndoDesc', { default: 'Прогресс сброшен. Можно отменить в течение 30 секунд.' }),
+      description: t('profile.resetUndoDesc', { default: 'Progress reset. Can undo within 30 seconds.' }),
       action: {
-        label: t('profile.resetUndo', { default: 'Отменить' }),
+        label: t('profile.resetUndo', { default: 'Undo' }),
         onClick: () => {
           undoReset();
-          toast.success(t('profile.resetUndone', { default: 'Прогресс восстановлен' }));
+          toast.success(t('profile.resetUndone', { default: 'Progress restored' }));
         },
       },
       duration: 30000,
@@ -134,7 +134,7 @@ function SavedQueriesSection() {
 
   return (
     <div className="space-y-4">
-      {savedQueries.map((query) => (
+      {savedQueries.map((query: import('@/lib/store').SavedQuery) => (
         <Card key={query.id}>
           <CardContent className="p-4">
             <div className="flex items-start justify-between gap-3">
@@ -144,7 +144,7 @@ function SavedQueriesSection() {
                   <h4 className="font-medium truncate">{query.title}</h4>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {new Date(query.createdAt).toLocaleDateString('ru-RU', {
+                  {new Date(query.createdAt).toLocaleDateString(undefined, {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric',
@@ -289,7 +289,7 @@ export default function ProfilePage() {
     try {
       const res = await fetch('/api/user/profile', {
         method: 'PUT',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: editName, phone: editPhone || null }),
       });
       const data = await res.json();
@@ -301,7 +301,8 @@ export default function ProfilePage() {
       } else {
         toast.error(data.error);
       }
-    } catch {
+    } catch (err) {
+      logger.error('[Profile] Save error', err);
       toast.error(t('profile.saveError'));
     } finally {
       setSaving(false);
@@ -323,7 +324,7 @@ export default function ProfilePage() {
     try {
       const res = await fetch('/api/user/change-password', {
         method: 'POST',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword, newPassword }),
       });
       const data = await res.json();
@@ -335,7 +336,8 @@ export default function ProfilePage() {
       } else {
         toast.error(data.error);
       }
-    } catch {
+    } catch (err) {
+      logger.error('[Profile] Password change error', err);
       toast.error(t('profile.passwordChangeError'));
     } finally {
       setChangingPassword(false);
@@ -353,7 +355,7 @@ export default function ProfilePage() {
     try {
       const res = await fetch('/api/user/change-email', {
         method: 'POST',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newEmail, password: emailPassword }),
       });
       const data = await res.json();
@@ -365,7 +367,8 @@ export default function ProfilePage() {
       } else {
         toast.error(data.error);
       }
-    } catch {
+    } catch (err) {
+      logger.error('[Profile] Email change error', err);
       toast.error(t('profile.emailChangeError'));
     } finally {
       setChangingEmail(false);
@@ -382,7 +385,7 @@ export default function ProfilePage() {
     try {
       const res = await fetch('/api/user/delete', {
         method: 'DELETE',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ confirmPassword: deletePassword }),
       });
       const data = await res.json();
@@ -393,7 +396,8 @@ export default function ProfilePage() {
       } else {
         toast.error(data.error);
       }
-    } catch {
+    } catch (err) {
+      logger.error('[Profile] Account deletion error', err);
       toast.error(t('profile.deleteError'));
     } finally {
       setDeletingAccount(false);
@@ -429,7 +433,7 @@ export default function ProfilePage() {
     .toUpperCase()
     .slice(0, 2);
 
-  const createdDate = new Date(profile.created_at).toLocaleDateString('ru-RU', {
+  const createdDate = new Date(profile.created_at).toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -442,9 +446,9 @@ export default function ProfilePage() {
       <div className="mx-auto max-w-5xl space-y-6 p-6">
         {/* Page Header */}
         <div className="mb-2">
-          <h1 className="text-2xl font-bold tracking-tight">{t('profile.title', { default: 'Профиль' })}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('profile.title', { default: 'Profile' })}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {t('profile.subtitle', { default: 'Управляйте своим профилем и отслеживайте прогресс' })}
+            {t('profile.subtitle', { default: 'Manage your profile and track progress' })}
           </p>
         </div>
 

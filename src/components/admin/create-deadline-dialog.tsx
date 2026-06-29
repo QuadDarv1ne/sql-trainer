@@ -72,7 +72,7 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess, deadline }
 
     setLoading(true);
     try {
-      if (isEdit && !deadline) throw new Error('Deadline not found');
+      if (isEdit && !deadline) throw new Error(t('admin.deadline.notFound'));
       const url = isEdit ? `/api/admin/deadlines/${deadline.id}` : '/api/admin/deadlines';
       const method = isEdit ? 'PUT' : 'POST';
       const res = await fetch(url, {
@@ -82,7 +82,7 @@ export function CreateDeadlineDialog({ open, onOpenChange, onSuccess, deadline }
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed');
+      if (!res.ok) throw new Error(data.error || t('admin.deadline.genericFailed'));
 
       toast.success(isEdit ? t('deadline.updated') : t('deadline.created'));
       onSuccess();

@@ -7,7 +7,7 @@ import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
 
 const initTrainingSchema = z.object({
-  taskId: z.string().min(1, 'taskId обязателен'),
+  taskId: z.string().min(1, 'taskId is required'),
   dbType: z.enum(['sqlite', 'postgresql', 'clickhouse', 'mongodb']).optional(),
 });
 
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const clientId = getClientIdentifier(request);
     const limitResult = await rateLimit(`init-training:${clientId}`, { max: 20, windowMs: 60_000 });
     if (!limitResult.success) {
-      return NextResponse.json({ success: false, error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
+      return NextResponse.json({ success: false, error: 'Too many requests. Please wait' }, { status: 429 });
     }
 
     const body = await request.json();
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     const task = getTaskById(taskId);
     if (!task) {
-      return NextResponse.json({ success: false, error: 'Задание не найдено' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Task not found' }, { status: 404 });
     }
 
     const effectiveDbType = dbType || task.dbType;
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err: unknown) {
     logger.error('SQL init-training POST error:', err);
-    return NextResponse.json({ success: false, error: 'Произошла внутренняя ошибка' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -77,7 +77,7 @@ export async function GET(request: Request) {
     const clientId = getClientIdentifier(request);
     const limitResult = await rateLimit(`init-training-list:${clientId}`, { max: 10, windowMs: 60_000 });
     if (!limitResult.success) {
-      return NextResponse.json({ success: false, error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
+      return NextResponse.json({ success: false, error: 'Too many requests. Please wait' }, { status: 429 });
     }
 
     // Return all tasks (without schema to reduce payload)
@@ -92,6 +92,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: true, tasks: tasksList });
   } catch (err: unknown) {
     logger.error('SQL init-training GET error:', err);
-    return NextResponse.json({ success: false, error: 'Произошла внутренняя ошибка' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }

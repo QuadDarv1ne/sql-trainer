@@ -24,20 +24,24 @@ export default function StudentGroupsChart() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     const loadData = async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/admin/analytics/groups');
+        const res = await fetch('/api/admin/analytics/groups', { signal: controller.signal });
         const json = await res.json();
-        setData(json.groups || []);
+        if (!controller.signal.aborted) setData(json.groups || []);
       } catch (err) {
-        logger.error('Student groups fetch failed', err);
-        setError(t('analytics.error'));
+        if (!(err instanceof DOMException && err.name === 'AbortError')) {
+          logger.error('Student groups fetch failed', err);
+          setError(t('analytics.error'));
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
     loadData();
+    return () => controller.abort();
   }, []);
 
   if (loading) return <div className="flex justify-center py-8">{t('analytics.loading')}</div>;

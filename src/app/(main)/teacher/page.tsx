@@ -30,7 +30,7 @@ export default function TeacherPage() {
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">{t('teacher.title')}</h1>
           <p className="text-sm text-muted-foreground">
-            {t('teacher.subtitle', { default: 'Отслеживание прогресса студентов и аналитика класса' })}
+            {t('teacher.subtitle', { default: 'Student progress tracking and class analytics' })}
           </p>
         </div>
         <TeacherDashboard />

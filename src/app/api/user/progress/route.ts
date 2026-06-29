@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { parseAndValidate } from '@/lib/validation';
 
 const progressSchema = z.object({
-  taskId: z.string().min(1, 'taskId обязателен'),
-  attempts: z.number().int().nonnegative('attempts должен быть неотрицательным целым числом'),
+  taskId: z.string().min(1, 'taskId is required'),
+  attempts: z.number().int().nonnegative('attempts must be a non-negative integer'),
 });
 
 export const GET = withUserAuth(async ({ session }) => {

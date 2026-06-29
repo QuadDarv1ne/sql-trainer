@@ -2,6 +2,9 @@
  * PostgreSQL to SQLite syntax adapter.
  * Transforms PostgreSQL-specific SQL syntax into SQLite-compatible syntax.
  *
+ * Now uses AST-based parsing for reliable transformation.
+ * Falls back to regex-based approach for edge cases.
+ *
  * ⚠️ Unsupported PostgreSQL functions (mapped to null):
  * - Date/Time: DATE_TRUNC, EXTRACT, AGE, DATE_PART, MAKE_DATE, MAKE_TIME, MAKE_TIMESTAMP
  * - String: LEFT, RIGHT, LPAD, RPAD, REPEAT
@@ -16,6 +19,7 @@
  * these limitations when writing queries in training mode.
  */
 import { splitSqlSegments } from './sql-utils';
+import { transformSQL, checkUnsupportedFeatures, validateSQL } from './sql-ast-parser';
 
 // Map of PostgreSQL data types to SQLite equivalents
 const TYPE_MAP: Record<string, string> = {
@@ -177,16 +181,51 @@ export interface AdaptResult {
 
 /**
  * Adapt PostgreSQL SQL to SQLite and return any warnings about dropped functions.
+ * Uses AST-based transformation with regex fallback.
  */
 export function adaptWithWarnings(sql: string): AdaptResult {
+  // Try AST-based transformation first
+  const astResult = transformSQL(sql, 'postgresql', 'sqlite');
+
+  // Also detect dropped functions with regex (for better warnings)
   const dropped = detectDroppedFunctions(sql);
-  const warnings = dropped.map(
-    (func) => `Функция "${func}" не поддерживается в SQLite-режиме и будет пропущена. Результат может отличаться.`,
+  const droppedWarnings = dropped.map(
+    (func) => `Function "${func}" is not supported in SQLite mode and will be skipped. Results may differ.`,
   );
+
+  // Combine warnings
+  const allWarnings = [
+    ...astResult.warnings,
+    ...droppedWarnings,
+    ...astResult.errors.map((e) => `Transform error: ${e}`),
+  ];
+
+  // If AST transformation failed, fall back to regex-based approach
+  if (astResult.errors.length > 0 || !astResult.sql) {
+    return {
+      sql: adaptPostgreSQLToSQLite(sql),
+      warnings: allWarnings,
+    };
+  }
+
   return {
-    sql: adaptPostgreSQLToSQLite(sql),
-    warnings,
+    sql: astResult.sql,
+    warnings: allWarnings,
   };
+}
+
+/**
+ * Validate PostgreSQL SQL syntax.
+ */
+export function validatePostgreSQL(sql: string): { valid: boolean; errors: string[] } {
+  return validateSQL(sql, 'postgresql');
+}
+
+/**
+ * Check for unsupported features when transforming from PostgreSQL to SQLite.
+ */
+export function checkUnsupportedPostgreSQLFeatures(sql: string): string[] {
+  return checkUnsupportedFeatures(sql, 'postgresql', 'sqlite');
 }
 
 export function adaptPostgreSQLToSQLite(sql: string): string {

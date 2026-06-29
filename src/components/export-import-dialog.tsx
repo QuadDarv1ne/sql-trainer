@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { useSQLTrainerStore, type ExportData } from '@/lib/store';
 import { Download, Upload, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { logger } from '@/lib/logger';
 import { toast } from 'sonner';
 import { t } from '@/lib/i18n';
 
@@ -67,7 +68,8 @@ export default function ExportImportDialog() {
           setImportError(result.error || t('exportImport.importError'));
           toast.error(t('exportImport.importError'), { description: result.error });
         }
-      } catch {
+      } catch (err) {
+        logger.error('[ExportImport] Import parse error', err);
         setImportStatus('error');
         setImportError(t('exportImport.invalidFormat'));
         toast.error(t('exportImport.importError'), {

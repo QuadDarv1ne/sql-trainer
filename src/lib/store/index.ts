@@ -17,6 +17,8 @@ import { createGamificationSlice, type GamificationSlice, type Achievement } fro
 import { createPracticeModeSlice, type PracticeModeSlice } from './practice-mode-slice';
 import { createUISlice, type UISlice } from './ui-slice';
 import { createOnboardingSlice, type OnboardingSlice } from './onboarding-slice';
+import { createTimerSlice } from './timer-slice';
+import type { TimerSlice } from './timer-slice-types';
 import { TRAINING_TASKS, getTaskById } from '@/lib/training-tasks';
 import { calculateLevel } from './level-calculator';
 
@@ -60,7 +62,8 @@ type CombinedState = DatabaseSlice &
   GamificationSlice &
   PracticeModeSlice &
   UISlice &
-  OnboardingSlice & {
+  OnboardingSlice &
+  TimerSlice & {
     exportProgress: () => ExportData;
     importProgress: (data: ExportData) => { success: boolean; error?: string };
     undoReset: () => void;
@@ -94,12 +97,16 @@ export const useSQLTrainerStore = create<CombinedState>()(
             { taskId, completedAt: Date.now(), attempts },
           ];
 
+          const wasHintFree = state.hintLevel === 0;
+          const newHintFreeCount = wasHintFree ? state.userStats.hintFreeCount + 1 : state.userStats.hintFreeCount;
+
           const { xpGained } = state.checkAndUnlockAchievements({
             completedTasks: updatedCompletedTasks,
             queryHistoryLength: state.queryHistory.length,
             currentStreak: state.streak.currentStreak,
             taskId,
             attempts,
+            hintFreeCount: newHintFreeCount,
           });
 
           const xpToAdd = xpGained > 0 ? xpGained : 0;
@@ -113,6 +120,7 @@ export const useSQLTrainerStore = create<CombinedState>()(
               xp: newXp,
               level,
               levelProgress: progress,
+              hintFreeCount: newHintFreeCount,
             },
           };
         });
@@ -129,6 +137,9 @@ export const useSQLTrainerStore = create<CombinedState>()(
 
       // Onboarding slice
       ...createOnboardingSlice(set as SliceSet, get as SliceGet, store as SliceStore),
+
+      // Timer slice
+      ...(createTimerSlice(set as SliceSet, get as SliceGet, store as SliceStore) as TimerSlice),
 
       // Override setCurrentTaskId to also clear UI state
       setCurrentTaskId: (id: string | null) => {
@@ -266,10 +277,10 @@ export const useSQLTrainerStore = create<CombinedState>()(
       },
       importProgress: (data: ExportData) => {
         if (!data || typeof data !== 'object') {
-          return { success: false, error: 'Неверный формат данных' };
+          return { success: false, error: 'Invalid data format' };
         }
         if (data.version !== 1) {
-          return { success: false, error: 'Несовместимая версия' };
+          return { success: false, error: 'Incompatible version' };
         }
 
         set({

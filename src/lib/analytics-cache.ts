@@ -43,41 +43,28 @@ export function getCached<T>(
 export function setCached<T>(
   endpoint: string,
   params: Record<string, string | number | boolean | null>,
-  value: T,
+  data: T,
   ttlMs: number = DEFAULT_TTL_MS,
 ): void {
-  // Evict least recently used entry if at capacity
+  const key = buildKey(endpoint, params);
+
+  // Evict LRU entry if cache is full
   if (cache.size >= MAX_ENTRIES) {
     let oldestKey: string | undefined;
     let oldestTime = Infinity;
-    for (const [key, entry] of cache) {
-      if (entry.lastAccessed < oldestTime) {
-        oldestTime = entry.lastAccessed;
-        oldestKey = key;
+    for (const [k, v] of cache) {
+      if (v.lastAccessed < oldestTime) {
+        oldestTime = v.lastAccessed;
+        oldestKey = k;
       }
     }
     if (oldestKey) cache.delete(oldestKey);
   }
 
-  const key = buildKey(endpoint, params);
-  cache.set(key, { value, expiresAt: Date.now() + ttlMs, lastAccessed: Date.now() });
-}
-
-export function invalidateCache(endpoint?: string): void {
-  if (endpoint) {
-    for (const key of cache.keys()) {
-      if (key.startsWith(endpoint)) {
-        cache.delete(key);
-      }
-    }
-  } else {
-    cache.clear();
-  }
+  cache.set(key, { value: data, expiresAt: Date.now() + ttlMs, lastAccessed: Date.now() });
 }
 
 /** Short TTL for live/frequently-changing data */
 export const SHORT_TTL = SHORT_TTL_MS;
 /** Standard TTL for analytics queries */
 export const STANDARD_TTL = DEFAULT_TTL_MS;
-/** Long TTL for static/slow-changing data */
-export const LONG_TTL = 300_000;

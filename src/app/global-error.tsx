@@ -12,7 +12,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
   }, [error]);
 
   return (
-    <html lang="ru">
+    <html lang="en">
       <body>
         <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background p-8 text-center">
           <AlertTriangle className="h-16 w-16 text-destructive" />

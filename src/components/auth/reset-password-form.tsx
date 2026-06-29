@@ -10,9 +10,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
-import { Loader2, Mail, Lock, AlertCircle, CheckCircle2, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Mail, Lock, AlertCircle, CheckCircle2, KeyRound, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { t } from '@/lib/i18n';
-import { csrfHeaders } from '@/lib/safe-fetch';
+import { evaluatePasswordStrength } from '@/lib/password-strength';
+import { logger } from '@/lib/logger';
 
 type Step = 'request' | 'verify' | 'done';
 
@@ -22,16 +23,14 @@ function getPasswordStrength(password: string): {
   color: string;
   requirements: { met: boolean; text: string }[];
 } {
+  const { score, checks } = evaluatePasswordStrength(password);
   const requirements = [
-    { met: password.length >= 6, text: t('auth.passwordPlaceholder') },
-    { met: /[A-Z]/.test(password), text: t('profile.req.uppercase') },
-    { met: /[a-z]/.test(password), text: t('profile.req.lowercase') },
-    { met: /\d/.test(password), text: t('profile.req.digit') },
-    { met: /[^A-Za-z0-9]/.test(password), text: t('profile.req.special') },
+    { met: checks.minLength, text: t('auth.passwordPlaceholder') },
+    { met: checks.uppercase, text: t('profile.req.uppercase') },
+    { met: checks.lowercase, text: t('profile.req.lowercase') },
+    { met: checks.digit, text: t('profile.req.digit') },
+    { met: checks.special, text: t('profile.req.special') },
   ];
-
-  const metCount = requirements.filter((r) => r.met).length;
-  const score = Math.round((metCount / requirements.length) * 100);
 
   let label = t('auth.strength.weak');
   let colorClasses = { light: 'text-red-500', dark: 'dark:text-red-400' };
@@ -89,7 +88,7 @@ export default function ResetPasswordForm() {
     try {
       const res = await fetch('/api/auth/reset-password', {
         method: 'POST',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
 
@@ -105,7 +104,8 @@ export default function ResetPasswordForm() {
       setCodeSent(true);
       setCooldown(60);
       setStep('verify');
-    } catch {
+    } catch (err) {
+      logger.error('[ResetPasswordForm] Request code error', err);
       setError(t('auth.registerError'));
     } finally {
       setLoading(false);
@@ -121,7 +121,7 @@ export default function ResetPasswordForm() {
       return;
     }
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       setError(t('auth.passwordTooShort'));
       return;
     }
@@ -131,7 +131,7 @@ export default function ResetPasswordForm() {
     try {
       const res = await fetch('/api/auth/reset-password', {
         method: 'PUT',
-        headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, newPassword }),
       });
 
@@ -142,7 +142,8 @@ export default function ResetPasswordForm() {
       }
 
       setStep('done');
-    } catch {
+    } catch (err) {
+      logger.error('[ResetPasswordForm] Reset password error', err);
       setError(t('auth.registerError'));
     } finally {
       setLoading(false);
@@ -157,6 +158,15 @@ export default function ResetPasswordForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1">
+        <div className="flex items-start w-full -ml-2">
+          <Link
+            href="/login"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+            {t('action.back')}
+          </Link>
+        </div>
         <CardTitle className="text-2xl font-bold">{t('auth.resetPassword')}</CardTitle>
         <CardDescription>
           {step === 'request' && t('auth.resetPasswordDesc')}
@@ -181,7 +191,7 @@ export default function ResetPasswordForm() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
@@ -234,14 +244,14 @@ export default function ResetPasswordForm() {
                     onClick={handleResendCode}
                     disabled={cooldown > 0}
                   >
-                    {cooldown > 0 ? `${t('auth.sendCode')} ${cooldown}с` : t('auth.sendCode')}
+                    {cooldown > 0 ? `${t('auth.sendCode')} ${cooldown}s` : t('auth.sendCode')}
                   </Button>
                 )}
               </div>
               <Input
                 ref={codeInputRef}
                 id="code"
-                placeholder="123456"
+                placeholder={t('auth.codePlaceholder')}
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                 maxLength={6}

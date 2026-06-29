@@ -45,7 +45,7 @@ export function ReminderBell() {
       const res = await fetch('/api/user/reminders');
       const data = await res.json();
       if (res.ok) setReminders(data.reminders || []);
-      else throw new Error(data.error || 'Failed to load reminders');
+      else throw new Error(data.error || t('reminder.loadFailed'));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t('teacher.error'));
     }
@@ -62,7 +62,7 @@ export function ReminderBell() {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative" aria-label={t('notification.title')}>
           <Bell className="h-5 w-5" />
           {reminders.length > 0 && (
             <Badge

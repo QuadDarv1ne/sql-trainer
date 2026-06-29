@@ -25,7 +25,14 @@ const eslintConfig = [
     rules: {
       // TypeScript rules
       '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/no-non-null-assertion': 'warn',
       '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/prefer-as-const': 'warn',
@@ -88,11 +95,18 @@ const eslintConfig = [
     },
   },
   {
-    // db-users.ts is a large legacy file — warn instead of error
+    // db-users.ts has legacy analytics code — warn instead of error
     files: ['src/lib/db-users.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
     },
   },
   {

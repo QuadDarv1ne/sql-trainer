@@ -1,8 +1,5 @@
-/**
- * Tests for string-utils.ts
- */
 import { describe, it, expect } from 'vitest';
-import { toTitleCase, shuffleArray } from '../lib/string-utils';
+import { toTitleCase } from '../lib/string-utils';
 
 describe('toTitleCase', () => {
   it('converts kebab-case to Title Case', () => {
@@ -29,26 +26,5 @@ describe('toTitleCase', () => {
 
   it('handles multiple hyphens', () => {
     expect(toTitleCase('select-basic-queries')).toBe('Select Basic Queries');
-  });
-});
-
-describe('shuffleArray', () => {
-  it('returns the same array reference', () => {
-    const arr = [1, 2, 3];
-    expect(shuffleArray(arr)).toBe(arr);
-  });
-
-  it('preserves all elements', () => {
-    const arr = [1, 2, 3, 4, 5];
-    const shuffled = shuffleArray([...arr]);
-    expect(shuffled.sort((a, b) => a - b)).toEqual(arr);
-  });
-
-  it('handles empty array', () => {
-    expect(shuffleArray([])).toEqual([]);
-  });
-
-  it('handles single element', () => {
-    expect(shuffleArray([42])).toEqual([42]);
   });
 });

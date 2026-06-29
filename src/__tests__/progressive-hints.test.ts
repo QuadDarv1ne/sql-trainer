@@ -23,11 +23,11 @@ describe('generateProgressiveHints', () => {
   });
 
   it('should generate default hints from task description', () => {
-    const taskText = 'Найдите всех пользователей с возрастом больше 25 лет.';
+    const taskText = 'Find all users with age greater than 25.';
     const result = generateProgressiveHints('task-2', 'Use SELECT and WHERE', taskText);
     expect(result[0].level).toBe(1);
     expect(result[0].xpPenalty).toBe(0);
-    expect(result[0].text).toContain('найдите');
+    expect(result[0].text).toContain('find');
   });
 
   it('should generate level 2 hint from old hint with SQL keywords', () => {
@@ -48,13 +48,13 @@ describe('generateProgressiveHints', () => {
   it('should generate fallback when task has no recognizable keywords', () => {
     const result = generateProgressiveHints('task-5', 'Some hint', '');
     expect(result[0].level).toBe(1);
-    expect(result[0].text).toContain('Внимательно прочитайте');
+    expect(result[0].text).toContain('Read the task carefully');
     expect(result[0].xpPenalty).toBe(0);
   });
 
   it('should generate fallback level 2 when hint has no SQL keywords', () => {
     const result = generateProgressiveHints('task-6', 'Just a hint', 'Task description');
-    expect(result[1].text).toContain('Определите');
+    expect(result[1].text).toContain('Identify');
   });
 });
 

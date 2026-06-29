@@ -88,6 +88,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
   const fetchGroups = useCallback(async () => {
     try {
       const res = await fetch('/api/teacher/groups');
+      if (!res.ok) return;
       const data = await res.json();
       if (data.success) {
         setGroups(data.groups || []);
@@ -105,6 +106,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     if (!groupIdParam) return;
     try {
       const res = await fetch(`/api/teacher/groups/${groupIdParam}/members`);
+      if (!res.ok) return;
       const data = await res.json();
       if (data.success) {
         setStudents(data.students || []);
@@ -127,8 +129,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
   const handleCreateGroup = async () => {
     if (!newGroupName.trim()) {
       toast({
-        title: 'Ошибка',
-        description: 'Введите название группы',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.enterName'),
         variant: 'destructive',
       });
       return;
@@ -144,11 +146,19 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         }),
       });
 
+      if (!res.ok) {
+        toast({
+          title: t('teacher.group.error'),
+          description: t('teacher.group.createFailed'),
+          variant: 'destructive',
+        });
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         toast({
-          title: 'Группа создана',
-          description: `Группа "${newGroupName}" успешно создана`,
+          title: t('teacher.group.created'),
+          description: t('teacher.group.createdDesc', { name: newGroupName }),
         });
         setNewGroupName('');
         setNewGroupDescription('');
@@ -158,8 +168,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     } catch (error) {
       logger.error('Failed to create group:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось создать группу',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.createFailed'),
         variant: 'destructive',
       });
     }
@@ -168,8 +178,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
   const handleAddStudents = async () => {
     if (!selectedGroup || !studentEmails.trim()) {
       toast({
-        title: 'Ошибка',
-        description: 'Введите email адреса студентов',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.enterEmails'),
         variant: 'destructive',
       });
       return;
@@ -187,11 +197,15 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         body: JSON.stringify({ emails }),
       });
 
+      if (!res.ok) {
+        toast({ title: t('teacher.group.error'), description: t('teacher.group.addFailed'), variant: 'destructive' });
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         toast({
-          title: 'Студенты добавлены',
-          description: `${emails.length} студент(а) добавлено в группу`,
+          title: t('teacher.group.added'),
+          description: t('teacher.group.addedDesc'),
         });
         setStudentEmails('');
         setIsAddStudentDialogOpen(false);
@@ -200,8 +214,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     } catch (error) {
       logger.error('Failed to add students:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось добавить студентов',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.addFailed'),
         variant: 'destructive',
       });
     }
@@ -217,19 +231,27 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         body: JSON.stringify({ studentIds: [studentId] }),
       });
 
+      if (!res.ok) {
+        toast({
+          title: t('teacher.group.error'),
+          description: t('teacher.group.removeFailed'),
+          variant: 'destructive',
+        });
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         toast({
-          title: 'Студент удалён',
-          description: 'Студент удалён из группы',
+          title: t('teacher.group.removed'),
+          description: t('teacher.group.removedDesc'),
         });
         fetchStudents(selectedGroup.id);
       }
     } catch (error) {
       logger.error('Failed to remove student:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось удалить студента',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.removeFailed'),
         variant: 'destructive',
       });
     }
@@ -245,11 +267,19 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         body: JSON.stringify({ studentIds: Array.from(selectedStudents) }),
       });
 
+      if (!res.ok) {
+        toast({
+          title: t('teacher.group.error'),
+          description: t('teacher.group.removeManyFailed'),
+          variant: 'destructive',
+        });
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         toast({
-          title: 'Студенты удалены',
-          description: `${selectedStudents.size} студент(а) удалено из группы`,
+          title: t('teacher.group.removedMany'),
+          description: t('teacher.group.removedManyDesc'),
         });
         setSelectedStudents(new Set());
         fetchStudents(selectedGroup.id);
@@ -257,8 +287,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     } catch (error) {
       logger.error('Failed to remove students:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось удалить студентов',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.removeManyFailed'),
         variant: 'destructive',
       });
     }
@@ -269,6 +299,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
 
     try {
       const res = await fetch(`/api/teacher/export?groupId=${selectedGroup.id}`);
+      if (!res.ok) throw new Error('Export failed');
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -278,14 +309,14 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       window.URL.revokeObjectURL(url);
 
       toast({
-        title: 'Экспорт завершён',
-        description: 'Данные группы экспортированы в CSV',
+        title: t('teacher.group.exportComplete'),
+        description: t('teacher.group.exportDesc'),
       });
     } catch (error) {
       logger.error('Failed to export group data:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось экспортировать данные',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.exportFailed'),
         variant: 'destructive',
       });
     }
@@ -323,48 +354,48 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Users className="h-6 w-6 text-blue-600" />
-          <h2 className="text-2xl font-bold">{t('groups.title', { default: 'Управление группами' })}</h2>
+          <h2 className="text-2xl font-bold">{t('groups.title', { default: 'Group Management' })}</h2>
         </div>
         <div className="flex items-center gap-2">
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                {t('groups.create', { default: 'Создать группу' })}
+                {t('groups.create', { default: 'Create Group' })}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{t('groups.createTitle', { default: 'Создание группы' })}</DialogTitle>
+                <DialogTitle>{t('groups.createTitle', { default: 'Creating Group' })}</DialogTitle>
                 <DialogDescription>
-                  {t('groups.createDesc', { default: 'Создайте новую группу для управления студентами' })}
+                  {t('groups.createDesc', { default: 'Create a new group to manage students' })}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">{t('groups.name', { default: 'Название' })}</Label>
+                  <Label htmlFor="name">{t('groups.name', { default: 'Name' })}</Label>
                   <Input
                     id="name"
                     value={newGroupName}
                     onChange={(e) => setNewGroupName(e.target.value)}
-                    placeholder={t('groups.namePlaceholder', { default: 'Например: ПИ-2024' })}
+                    placeholder={t('groups.namePlaceholder', { default: 'For example: CS-2024' })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="description">{t('groups.description', { default: 'Описание' })}</Label>
+                  <Label htmlFor="description">{t('groups.description', { default: 'Description' })}</Label>
                   <Input
                     id="description"
                     value={newGroupDescription}
                     onChange={(e) => setNewGroupDescription(e.target.value)}
-                    placeholder={t('groups.descPlaceholder', { default: 'Описание группы' })}
+                    placeholder={t('groups.descPlaceholder', { default: 'Group description' })}
                   />
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                  {t('common.cancel', { default: 'Отмена' })}
+                  {t('common.cancel', { default: 'Cancel' })}
                 </Button>
-                <Button onClick={handleCreateGroup}>{t('common.create', { default: 'Создать' })}</Button>
+                <Button onClick={handleCreateGroup}>{t('common.create', { default: 'Create' })}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -390,7 +421,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                   <CardTitle className="text-lg">{group.name}</CardTitle>
                 </div>
                 <Badge variant="outline">
-                  {group.studentCount} {t('groups.students', { default: 'студ.' })}
+                  {group.studentCount} {t('groups.students', { default: 'stud.' })}
                 </Badge>
               </div>
               {group.description && <CardDescription className="line-clamp-2">{group.description}</CardDescription>}
@@ -406,7 +437,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            {t('groups.noGroups', { default: 'Нет групп. Создайте первую группу для начала работы.' })}
+            {t('groups.noGroups', { default: 'No groups. Create the first group to get started.' })}
           </AlertDescription>
         </Alert>
       )}
@@ -423,22 +454,22 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                     {selectedGroup.name}
                   </CardTitle>
                   <CardDescription>
-                    {selectedGroup.studentCount} {t('groups.enrolled', { default: 'студентов в группе' })}
+                    {selectedGroup.studentCount} {t('groups.enrolled', { default: 'students in group' })}
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setIsAddStudentDialogOpen(true)}>
                     <UserPlus className="h-4 w-4 mr-2" />
-                    {t('groups.addStudents', { default: 'Добавить' })}
+                    {t('groups.addStudents', { default: 'Add' })}
                   </Button>
                   <Button variant="outline" size="sm" onClick={handleExportGroup}>
                     <Download className="h-4 w-4 mr-2" />
-                    {t('groups.export', { default: 'Экспорт' })}
+                    {t('groups.export', { default: 'Export' })}
                   </Button>
                   {selectedStudents.size > 0 && (
                     <Button variant="destructive" size="sm" onClick={handleBulkRemove}>
                       <Trash2 className="h-4 w-4 mr-2" />
-                      {t('groups.removeSelected', { default: `Удалить ${selectedStudents.size}` })}
+                      {t('groups.removeSelected', { default: `Remove ${selectedStudents.size}` })}
                     </Button>
                   )}
                 </div>
@@ -450,7 +481,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder={t('groups.search', { default: 'Поиск студентов...' })}
+                    placeholder={t('groups.search', { default: 'Search students...' })}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
@@ -461,7 +492,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                     </button>
                   )}
                 </div>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" aria-label={t('common.filter')}>
                   <Filter className="h-4 w-4" />
                 </Button>
               </div>
@@ -473,11 +504,11 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                     <TableHead className="w-12">
                       <Checkbox checked={allSelected} onCheckedChange={toggleSelectAll} />
                     </TableHead>
-                    <TableHead>{t('groups.student', { default: 'Студент' })}</TableHead>
-                    <TableHead>{t('groups.level', { default: 'Уровень' })}</TableHead>
-                    <TableHead>{t('groups.progress', { default: 'Прогресс' })}</TableHead>
-                    <TableHead>{t('groups.lastActive', { default: 'Был(а)' })}</TableHead>
-                    <TableHead className="text-right">{t('common.actions', { default: 'Действия' })}</TableHead>
+                    <TableHead>{t('groups.student', { default: 'Student' })}</TableHead>
+                    <TableHead>{t('groups.level', { default: 'Level' })}</TableHead>
+                    <TableHead>{t('groups.progress', { default: 'Progress' })}</TableHead>
+                    <TableHead>{t('groups.lastActive', { default: 'Last Seen' })}</TableHead>
+                    <TableHead className="text-right">{t('common.actions', { default: 'Actions' })}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -513,7 +544,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                             />
                           </div>
                           <span className="text-sm text-muted-foreground">
-                            {student.completedTasks} {t('groups.tasks', { default: 'зад.' })}
+                            {student.completedTasks} {t('groups.tasks', { default: 'ago' })}
                           </span>
                         </div>
                       </TableCell>
@@ -529,18 +560,18 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" aria-label={t('common.actions')}>
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem>
                               <Mail className="h-4 w-4 mr-2" />
-                              {t('groups.email', { default: 'Написать' })}
+                              {t('groups.email', { default: 'Message' })}
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                               <Edit className="h-4 w-4 mr-2" />
-                              {t('groups.edit', { default: 'Редактировать' })}
+                              {t('groups.edit', { default: 'Edit' })}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -548,7 +579,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                               onClick={() => handleRemoveStudent(student.id)}
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
-                              {t('groups.remove', { default: 'Удалить' })}
+                              {t('groups.remove', { default: 'Delete' })}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -561,7 +592,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
               {filteredStudents.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   <Users className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                  <p>{t('groups.noStudents', { default: 'В группе пока нет студентов' })}</p>
+                  <p>{t('groups.noStudents', { default: 'No students in group yet' })}</p>
                 </div>
               )}
             </CardContent>
@@ -573,16 +604,16 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       <Dialog open={isAddStudentDialogOpen} onOpenChange={setIsAddStudentDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('groups.addStudentsTitle', { default: 'Добавить студентов' })}</DialogTitle>
+            <DialogTitle>{t('groups.addStudentsTitle', { default: 'Add Students' })}</DialogTitle>
             <DialogDescription>
               {t('groups.addStudentsDesc', {
-                default: 'Введите email адреса студентов (через запятую или каждый с новой строки)',
+                default: 'Enter student email addresses (comma-separated or one per line)',
               })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="emails">{t('groups.emails', { default: 'Email адреса' })}</Label>
+              <Label htmlFor="emails">{t('groups.emails', { default: 'Email Addresses' })}</Label>
               <textarea
                 id="emails"
                 value={studentEmails}
@@ -594,9 +625,9 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddStudentDialogOpen(false)}>
-              {t('common.cancel', { default: 'Отмена' })}
+              {t('common.cancel', { default: 'Cancel' })}
             </Button>
-            <Button onClick={handleAddStudents}>{t('groups.add', { default: 'Добавить' })}</Button>
+            <Button onClick={handleAddStudents}>{t('groups.add', { default: 'Add' })}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

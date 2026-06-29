@@ -228,14 +228,16 @@ export default function NotificationAnalytics() {
               </TableBody>
             </Table>
           ) : (
-            <p className="text-center text-muted-foreground py-4">Нет ошибок</p>
+            <p className="text-center text-muted-foreground py-4">
+              {t('analytics.notifications.noErrors', { default: 'No errors' })}
+            </p>
           )}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Тренд доставки (30 дней)</CardTitle>
+          <CardTitle>{t('analytics.notifications.deliveryTrend', { default: 'Delivery Trend (30 days)' })}</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={200}>

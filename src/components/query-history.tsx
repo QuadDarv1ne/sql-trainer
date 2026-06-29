@@ -24,7 +24,7 @@ export default function QueryHistory({ onRestoreQuery }: QueryHistoryProps) {
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString('ru-RU', {
+    return date.toLocaleTimeString(undefined, {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
@@ -64,7 +64,7 @@ export default function QueryHistory({ onRestoreQuery }: QueryHistoryProps) {
         {recentHistory.length === 0 ? (
           <div className="px-3 py-6 text-center text-sm text-muted-foreground">{t('history.empty')}</div>
         ) : (
-          recentHistory.map((entry, idx) => (
+          recentHistory.map((entry: import('@/lib/store').QueryHistoryEntry, idx: number) => (
             <DropdownMenuItem
               key={entry.timestamp + '-' + idx}
               className="flex flex-col items-start gap-1.5 py-2.5 px-3 cursor-pointer"
@@ -89,7 +89,7 @@ export default function QueryHistory({ onRestoreQuery }: QueryHistoryProps) {
                 </span>
                 {entry.rowCount !== undefined && (
                   <span>
-                    • {entry.rowCount} {plural(entry.rowCount, 'строка', 'строки', 'строк')}
+                    • {entry.rowCount} {plural(entry.rowCount, 'row', 'rows', 'rows')}
                   </span>
                 )}
               </div>

@@ -81,20 +81,18 @@ export function exportToJSON(data: Record<string, unknown>[], filename: string):
   if (!data?.length) return;
 
   const json = JSON.stringify(data, null, 2);
-  const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
-  const link = document.createElement('a');
+  const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  link.setAttribute('href', url);
-  link.setAttribute('download', `${filename}.json`);
-  link.style.visibility = 'hidden';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
   URL.revokeObjectURL(url);
 }
 
 export function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('ru-RU');
+  const d = new Date(timestamp);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 export function formatPercent(value: number): string {

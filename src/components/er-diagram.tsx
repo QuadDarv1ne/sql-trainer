@@ -4,6 +4,7 @@ import type * as React from 'react';
 import { useState, useCallback, useRef } from 'react';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { t } from '@/lib/i18n';
 import type { DatabaseInfo, TableInfo } from '@/lib/sql-engine';
 
 interface ERDiagramProps {
@@ -205,13 +206,34 @@ export default function ERDiagram({ schema }: ERDiagramProps) {
     <div className="relative w-full">
       {/* Zoom controls */}
       <div className="absolute right-2 top-2 z-10 flex flex-col gap-1">
-        <Button variant="outline" size="icon" className="h-7 w-7" onClick={handleZoomIn} title="Zoom in">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-7 w-7"
+          onClick={handleZoomIn}
+          title={t('er.zoomIn')}
+          aria-label={t('er.zoomIn')}
+        >
           <ZoomIn className="h-3.5 w-3.5" />
         </Button>
-        <Button variant="outline" size="icon" className="h-7 w-7" onClick={handleZoomOut} title="Zoom out">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-7 w-7"
+          onClick={handleZoomOut}
+          title={t('er.zoomOut')}
+          aria-label={t('er.zoomOut')}
+        >
           <ZoomOut className="h-3.5 w-3.5" />
         </Button>
-        <Button variant="outline" size="icon" className="h-7 w-7" onClick={handleReset} title="Reset view">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-7 w-7"
+          onClick={handleReset}
+          title={t('er.resetView')}
+          aria-label={t('er.resetView')}
+        >
           <Maximize2 className="h-3.5 w-3.5" />
         </Button>
       </div>

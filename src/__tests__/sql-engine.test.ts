@@ -100,7 +100,7 @@ describeIf('sql-engine', () => {
       `;
       const result = executeQuery(sql);
       expect(result.success).toBe(true);
-      expect(result.message).toBe('Операция DDL выполнена успешно');
+      expect(result.message).toBe('DDL operation completed successfully');
       expect(result.rows).toEqual([]);
     });
   });
@@ -343,7 +343,7 @@ describeIf('sql-engine', () => {
     it('should create a table and return DDL success message', () => {
       const result = executeQuery('CREATE TABLE test_ddl (id INTEGER PRIMARY KEY, name TEXT)');
       expect(result.success).toBe(true);
-      expect(result.message).toBe('Операция DDL выполнена успешно');
+      expect(result.message).toBe('DDL operation completed successfully');
       expect(result.columns).toEqual([]);
       expect(result.rows).toEqual([]);
     });
@@ -355,7 +355,7 @@ describeIf('sql-engine', () => {
       `;
       const result = executeQuery(sql);
       expect(result.success).toBe(true);
-      expect(result.message).toBe('Операция DDL выполнена успешно');
+      expect(result.message).toBe('DDL operation completed successfully');
     });
 
     it('should truncate a table', () => {

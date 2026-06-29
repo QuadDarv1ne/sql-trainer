@@ -9,8 +9,6 @@ import { tWithLocale, type Locale } from './i18n';
 import { getDb, getDueEmails, markEmailSent, markEmailFailed } from './db-users';
 import { escapeHtml as _escapeHtml } from './html-utils';
 
-export { _escapeHtml as escapeHtml };
-
 let _transporter: Transporter | null = null;
 
 export function getTransporter(): Transporter | null {

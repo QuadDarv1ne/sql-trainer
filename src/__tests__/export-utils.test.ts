@@ -2,9 +2,9 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { exportToCSV, exportToJSON, formatDate, formatPercent, formatNumber } from '@/lib/export-utils';
 
 const columns = [
-  { key: 'name', label: 'Имя' },
-  { key: 'age', label: 'Возраст' },
-  { key: 'score', label: 'Очки' },
+  { key: 'name', label: 'Name' },
+  { key: 'age', label: 'Age' },
+  { key: 'score', label: 'Score' },
 ];
 
 const data = [
@@ -67,7 +67,7 @@ describe('exportToJSON', () => {
     exportToJSON(data, 'test-file');
     expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
     const blobArg = vi.mocked(URL.createObjectURL).mock.calls[0][0] as Blob;
-    expect(blobArg.type).toBe('application/json;charset=utf-8;');
+    expect(blobArg.type).toBe('application/json');
   });
 
   it('should not generate JSON for empty data', () => {

@@ -26,19 +26,27 @@ export default function OnboardingFunnel() {
   const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
+    const controller = new AbortController();
     const params = new URLSearchParams();
     if (startDate) params.set('startDate', String(startDate));
     if (endDate) params.set('endDate', String(endDate));
 
-    fetch(`/api/admin/analytics/onboarding?${params}`)
+    fetch(`/api/admin/analytics/onboarding?${params}`, { signal: controller.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch onboarding funnel'))))
       .then((data) => {
-        setFunnel(data.funnel || []);
-        setWeeklyTrend(data.weekly_trend || []);
-        setSummary(data.summary);
+        if (!controller.signal.aborted) {
+          setFunnel(data.funnel || []);
+          setWeeklyTrend(data.weekly_trend || []);
+          setSummary(data.summary);
+        }
       })
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        if (err.name !== 'AbortError') setError(t('analytics.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
   }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
@@ -66,7 +74,7 @@ export default function OnboardingFunnel() {
     },
     {
       label: t('analytics.onboarding.avgTimeFirst'),
-      value: `${summary.avg_time_to_first_completion_hours}ч`,
+      value: `${summary.avg_time_to_first_completion_hours}h`,
       icon: Clock,
       color: 'text-amber-600',
     },

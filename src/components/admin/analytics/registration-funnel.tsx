@@ -57,9 +57,9 @@ function FunnelStage({
 
 function formatDuration(ms: number): string {
   const hours = ms / (1000 * 60 * 60);
-  if (hours < 24) return `${Math.round(hours)}ч`;
+  if (hours < 24) return `${Math.round(hours)}h`;
   const days = hours / 24;
-  return `${Math.round(days)}д`;
+  return `${Math.round(days)}d`;
 }
 
 export default function RegistrationFunnel() {
@@ -82,7 +82,7 @@ export default function RegistrationFunnel() {
 
   const f = data.funnel;
   const chartData = data.daily_registrations.map((d) => ({
-    date: new Date(d.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }),
+    date: new Date(d.date).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' }),
     count: d.count,
   }));
 

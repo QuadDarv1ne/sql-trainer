@@ -6,9 +6,9 @@ import { toast } from 'sonner';
 import { getLocale, tWithLocale } from '@/lib/i18n';
 
 /**
- * Компонент для автоматического переключения темы по времени суток.
- * Светлая тема с 7:00 до 20:00, тёмная — в остальное время.
- * Работает только когда пользователь выбрал системную тему (theme=system).
+ * Component for automatic theme switching based on time of day.
+ * Light theme from 7:00 to 20:00, dark theme the rest of the time.
+ * Only works when the user has selected the system theme (theme=system).
  */
 export function ThemeTimeSync() {
   const { setTheme, resolvedTheme, theme } = useTheme();

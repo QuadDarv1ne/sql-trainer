@@ -21,7 +21,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer as RechartsResponsiveContainer,
 } from 'recharts';
 
 interface ComparisonStudent {
@@ -52,14 +51,20 @@ export default function StudentComparisonDashboard() {
 
   // Load student list
   useEffect(() => {
-    fetch('/api/admin/analytics/students')
+    const controller = new AbortController();
+    fetch('/api/admin/analytics/students', { signal: controller.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch student comparison'))))
-      .then((data) =>
-        setStudents(
-          (data.students || []).map((s: { user_id: string; name: string }) => ({ id: s.user_id, name: s.name })),
-        ),
-      )
-      .catch(() => setError(t('analytics.error')));
+      .then((data) => {
+        if (!controller.signal.aborted) {
+          setStudents(
+            (data.students || []).map((s: { user_id: string; name: string }) => ({ id: s.user_id, name: s.name })),
+          );
+        }
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') setError(t('analytics.error'));
+      });
+    return () => controller.abort();
   }, []);
 
   const handleCompare = async () => {
@@ -134,6 +139,9 @@ export default function StudentComparisonDashboard() {
                 variant={selectedIds.includes(student.id) ? 'default' : 'outline'}
                 className="cursor-pointer select-none"
                 onClick={() => handleSelect(student.id)}
+                role="button"
+                aria-pressed={selectedIds.includes(student.id)}
+                aria-label={`${selectedIds.includes(student.id) ? 'Deselect' : 'Select'} ${student.name}`}
               >
                 {student.name}
               </Badge>
@@ -227,7 +235,7 @@ export default function StudentComparisonDashboard() {
                 <CardTitle>{t('analytics.studentComparison.categoryTitle')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <RechartsResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={categoryData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="category" />
@@ -238,7 +246,7 @@ export default function StudentComparisonDashboard() {
                       <Bar key={student.user_id} dataKey={student.name} fill={COLORS[idx % COLORS.length]} />
                     ))}
                   </BarChart>
-                </RechartsResponsiveContainer>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
           )}

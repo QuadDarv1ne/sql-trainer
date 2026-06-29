@@ -88,7 +88,7 @@ export default function SavedQueries({ onLoadQuery }: SavedQueriesProps) {
               </div>
             ) : (
               <ScrollArea className="max-h-64">
-                {savedQueries.map((query) => (
+                {savedQueries.map((query: import('@/lib/store').SavedQuery) => (
                   <DropdownMenuItem
                     key={query.id}
                     className="flex items-start gap-2 px-3 py-2 cursor-pointer"
@@ -101,7 +101,7 @@ export default function SavedQueries({ onLoadQuery }: SavedQueriesProps) {
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <Clock className="h-2.5 w-2.5 text-muted-foreground" />
                         <span className="text-[10px] text-muted-foreground">
-                          {new Date(query.createdAt).toLocaleDateString('ru-RU')}
+                          {new Date(query.createdAt).toLocaleDateString(undefined)}
                         </span>
                         <code className="text-[10px] text-muted-foreground/60 truncate ml-1">
                           {query.sql.slice(0, 40)}
@@ -113,6 +113,7 @@ export default function SavedQueries({ onLoadQuery }: SavedQueriesProps) {
                       variant="ghost"
                       size="icon"
                       className="h-5 w-5 shrink-0 text-muted-foreground hover:text-destructive"
+                      aria-label={t('common.delete')}
                       onClick={(e) => {
                         e.stopPropagation();
                         deleteSavedQuery(query.id);
