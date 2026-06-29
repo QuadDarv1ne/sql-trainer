@@ -133,6 +133,9 @@ export default function StudentComparisonDashboard() {
                 variant={selectedIds.includes(student.id) ? 'default' : 'outline'}
                 className="cursor-pointer select-none"
                 onClick={() => handleSelect(student.id)}
+                role="button"
+                aria-pressed={selectedIds.includes(student.id)}
+                aria-label={`${selectedIds.includes(student.id) ? 'Deselect' : 'Select'} ${student.name}`}
               >
                 {student.name}
               </Badge>

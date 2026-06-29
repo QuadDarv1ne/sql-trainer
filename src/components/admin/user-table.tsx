@@ -519,7 +519,13 @@ export default function UserTable() {
                       { key: 'tasks_completed' as SortKey, label: t('admin.users.tasks') },
                       { key: 'created_at' as SortKey, label: t('admin.users.registered') },
                     ].map(({ key, label }) => (
-                      <TableHead key={key} className="cursor-pointer select-none" onClick={() => handleSort(key)}>
+                      <TableHead
+                        key={key}
+                        className="cursor-pointer select-none"
+                        onClick={() => handleSort(key)}
+                        aria-label={`Sort by ${label}`}
+                        aria-sort={sortKey === key ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                      >
                         <div className="flex items-center gap-1">
                           {label}
                           {sortKey === key &&
