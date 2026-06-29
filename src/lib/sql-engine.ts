@@ -476,19 +476,22 @@ function executeStatements(db: Database.Database, statements: string[], batchSta
       if (isSelectQuery(stmt)) {
         const statement = db.prepare(stmt);
         const columns = statement.columns().map((col) => col.name);
-        let rows = statement.all() as Record<string, unknown>[];
+        const iter = statement.iterate() as IterableIterator<Record<string, unknown>>;
+        const rows: Record<string, unknown>[] = [];
+        let count = 0;
+        for (const row of iter) {
+          if (count > MAX_ROWS) break;
+          rows.push(row);
+          count++;
+        }
 
-        // Check timeout after execution
         const executionTime = performance.now() - stmtStartTime;
         if (executionTime > MAX_EXECUTION_TIME_MS) {
           throw new Error(t('sql.error.timeout', { seconds: String(MAX_EXECUTION_TIME_MS / 1000) }));
         }
 
-        // Enforce row limit
-        const truncated = rows.length > MAX_ROWS;
-        if (truncated) {
-          rows = rows.slice(0, MAX_ROWS);
-        }
+        const truncated = count > MAX_ROWS;
+        if (truncated) rows.length = MAX_ROWS;
 
         lastResult = {
           success: true,
