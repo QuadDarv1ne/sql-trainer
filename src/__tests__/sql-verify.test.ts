@@ -24,6 +24,7 @@ const describeIf = sqliteAvailable ? describe : describe.skip;
 // Mock dependencies
 vi.mock('@/lib/rate-limit', () => ({
   rateLimit: vi.fn(() => ({ success: true })),
+  getClientIdentifier: vi.fn(() => 'test-client'),
 }));
 
 vi.mock('@/lib/validation', () => ({

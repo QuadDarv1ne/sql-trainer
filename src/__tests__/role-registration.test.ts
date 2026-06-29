@@ -21,6 +21,7 @@ vi.mock('../lib/db-users', () => ({
 
 vi.mock('../lib/rate-limit', () => ({
   rateLimit: () => ({ success: true }),
+  getClientIdentifier: () => 'test-client',
 }));
 
 vi.mock('../lib/logger', () => ({

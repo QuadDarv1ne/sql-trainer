@@ -43,7 +43,7 @@
 3. **[x] Double XP grant fix** — удалить дублирующий `checkAndUnlockAchievements` + `addXP` из `executeVerify`. `markTaskCompleted` уже начисляет XP внутри.
 4. **[x] ThemeTimeSync setTimeout leak** — добавить ref для setTimeout, очищать при unmount и перед новым таймером. Предотвращает утечку до 13ч.
 5. **[x] SQL engine memory bound** — заменить `statement.all()` на `iterate()` в SELECT выполнении, лимит MAX_ROWS (1000) теперь не загружает всё в память.
-6. **[ ] Тесты на `getClientIdentifier`** — написать unit-тесты для нового utility: разные комбинации заголовков, хеширование, fallback на anonymous.
+6. **[x] Тесты на `getClientIdentifier`** — написать unit-тесты для нового utility: разные комбинации заголовков, хеширование, fallback на anonymous. + Исправлены 23 падающих теста: `sql-verify.test.ts` и `role-registration.test.ts` — добавлен `getClientIdentifier` в mock `@/lib/rate-limit`.
 7. **[ ] Исправить `db-users.ts` (309 КБ)** — разбить на модули `src/lib/db/*.ts` (connection, users, auth, progress, achievements, admin, teacher).
 8. **[ ] Исправить `i18n.ts` (327 КБ)** — вынести в JSON-файлы `src/locales/{ru,en,zh}.json`, добавить lazy-loading.
 9. **[ ] E2E тесты** — добавить Firefox/WebKit в Playwright, написать 5 сценариев (студент, учитель, админ, свободный режим, тема).
