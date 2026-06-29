@@ -46,14 +46,22 @@ export default function SessionAnalysisChart() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/admin/analytics/sessions')
+    const controller = new AbortController();
+    fetch('/api/admin/analytics/sessions', { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((data) => setData(data.sessions))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
+      .then((data) => {
+        if (!controller.signal.aborted) setData(data.sessions);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') setError(t('analytics.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
   }, []);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;

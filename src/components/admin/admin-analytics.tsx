@@ -69,42 +69,45 @@ export default function AdminAnalytics() {
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchMetrics = useCallback(async () => {
+  const fetchMetrics = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await fetch('/api/admin/system');
+      const res = await fetch('/api/admin/system', { signal });
       if (!res.ok) return;
       const data = await res.json();
       if (data.success) {
         setMetrics(data.metrics);
       }
     } catch (error) {
-      logger.error('Failed to fetch metrics:', error);
+      if (!(error instanceof DOMException && error.name === 'AbortError'))
+        logger.error('Failed to fetch metrics:', error);
     }
   }, []);
 
-  const fetchUserActivity = useCallback(async () => {
+  const fetchUserActivity = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await fetch(`/api/admin/users?limit=20`);
+      const res = await fetch(`/api/admin/users?limit=20`, { signal });
       if (!res.ok) return;
       const data = await res.json();
       if (data.success) {
         setUserActivity(data.users || []);
       }
     } catch (error) {
-      logger.error('Failed to fetch user activity:', error);
+      if (!(error instanceof DOMException && error.name === 'AbortError'))
+        logger.error('Failed to fetch user activity:', error);
     }
   }, []);
 
-  const fetchAuditLogs = useCallback(async () => {
+  const fetchAuditLogs = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await fetch('/api/admin/audit-logs?limit=20');
+      const res = await fetch('/api/admin/audit-logs?limit=20', { signal });
       if (!res.ok) return;
       const data = await res.json();
       if (data.success) {
         setAuditLogs(data.logs || []);
       }
     } catch (error) {
-      logger.error('Failed to fetch audit logs:', error);
+      if (!(error instanceof DOMException && error.name === 'AbortError'))
+        logger.error('Failed to fetch audit logs:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -112,11 +115,17 @@ export default function AdminAnalytics() {
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
     const loadData = async () => {
       setLoading(true);
-      await Promise.all([fetchMetrics(), fetchUserActivity(), fetchAuditLogs()]);
+      await Promise.all([
+        fetchMetrics(controller.signal),
+        fetchUserActivity(controller.signal),
+        fetchAuditLogs(controller.signal),
+      ]);
     };
     loadData();
+    return () => controller.abort();
   }, [fetchMetrics, fetchUserActivity, fetchAuditLogs]);
 
   const handleRefresh = async () => {

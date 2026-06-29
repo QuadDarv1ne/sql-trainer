@@ -77,14 +77,22 @@ export default function StudentAcademicProfile({ studentId, open, onOpenChange }
 
   useEffect(() => {
     if (!open || !studentId) return;
+    const controller = new AbortController();
     setLoading(true);
     setError('');
     setData(null);
-    fetch(`/api/admin/analytics/student/${studentId}/academic-summary`)
+    fetch(`/api/admin/analytics/student/${studentId}/academic-summary`, { signal: controller.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch student academic profile'))))
-      .then((d) => setData(d.academicSummary))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
+      .then((d) => {
+        if (!controller.signal.aborted) setData(d.academicSummary);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') setError(t('analytics.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
   }, [studentId, open]);
 
   if (!studentId) return null;

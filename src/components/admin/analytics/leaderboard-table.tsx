@@ -51,18 +51,26 @@ export default function LeaderboardTable() {
   const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
+    const controller = new AbortController();
     const params = new URLSearchParams();
     if (startDate) params.set('startDate', String(startDate));
     if (endDate) params.set('endDate', String(endDate));
 
-    fetch(`/api/admin/analytics/leaderboard?${params}`)
+    fetch(`/api/admin/analytics/leaderboard?${params}`, { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load');
         return r.json();
       })
-      .then((data) => setData(data.leaderboard))
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
+      .then((data) => {
+        if (!controller.signal.aborted) setData(data.leaderboard);
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') setError(t('analytics.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
   }, [startDate, endDate]);
 
   const handleSort = (key: SortKey) => {

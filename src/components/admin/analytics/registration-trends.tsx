@@ -22,18 +22,26 @@ export default function RegistrationTrends() {
   const { startDate, endDate } = useDateRange();
 
   useEffect(() => {
+    const controller = new AbortController();
     const params = new URLSearchParams();
     if (startDate) params.set('startDate', String(startDate));
     if (endDate) params.set('endDate', String(endDate));
 
-    fetch(`/api/admin/analytics/registrations?${params}`)
+    fetch(`/api/admin/analytics/registrations?${params}`, { signal: controller.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('Failed to fetch registration trends'))))
       .then((data) => {
-        setDaily(data.daily || []);
-        setSummary(data.summary);
+        if (!controller.signal.aborted) {
+          setDaily(data.daily || []);
+          setSummary(data.summary);
+        }
       })
-      .catch(() => setError(t('analytics.error')))
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        if (err.name !== 'AbortError') setError(t('analytics.error'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
   }, [startDate, endDate]);
 
   if (loading) return <p className="text-center py-4">{t('analytics.loading')}</p>;
