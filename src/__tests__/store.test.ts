@@ -248,14 +248,42 @@ describe('store — gamification slice', () => {
 
   it('should track hint-free completions', () => {
     useSQLTrainerStore.getState().resetAllProgress();
+    useSQLTrainerStore.getState().setHintLevel(0);
 
-    const before = useSQLTrainerStore.getState().userStats.hintFreeCount;
+    // hintLevel is 0 → incrementHintFreeCount should fire
+    useSQLTrainerStore.getState().markTaskCompleted('beginner-3', 2);
+    expect(useSQLTrainerStore.getState().userStats.hintFreeCount).toBe(1);
+  });
+
+  it('should not count hint-assisted completions as hint-free', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+    useSQLTrainerStore.getState().setHintLevel(2);
+
+    // hintLevel > 0 → should NOT increment hintFreeCount
     useSQLTrainerStore.getState().markTaskCompleted('beginner-3', 1);
+    expect(useSQLTrainerStore.getState().userStats.hintFreeCount).toBe(0);
+  });
 
-    // hintFreeCount should increment when task is completed without hints
-    // (depends on hint level being 0 at completion time)
-    const after = useSQLTrainerStore.getState().userStats.hintFreeCount;
-    expect(after).toBeGreaterThanOrEqual(before);
+  it('should unlock HINT_FREE achievement after 5 hint-free completions', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+    useSQLTrainerStore.getState().setHintLevel(0);
+
+    for (let i = 0; i < 5; i++) {
+      useSQLTrainerStore.getState().markTaskCompleted(`task-${i}`, 1);
+    }
+
+    expect(useSQLTrainerStore.getState().achievements).toContain('hint_free');
+  });
+
+  it('should NOT unlock HINT_FREE achievement if hints were used', () => {
+    useSQLTrainerStore.getState().resetAllProgress();
+    useSQLTrainerStore.getState().setHintLevel(1);
+
+    for (let i = 0; i < 5; i++) {
+      useSQLTrainerStore.getState().markTaskCompleted(`task-${i}`, 1);
+    }
+
+    expect(useSQLTrainerStore.getState().achievements).not.toContain('hint_free');
   });
 });
 

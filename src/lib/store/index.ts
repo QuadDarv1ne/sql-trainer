@@ -97,12 +97,16 @@ export const useSQLTrainerStore = create<CombinedState>()(
             { taskId, completedAt: Date.now(), attempts },
           ];
 
+          const wasHintFree = state.hintLevel === 0;
+          const newHintFreeCount = wasHintFree ? state.userStats.hintFreeCount + 1 : state.userStats.hintFreeCount;
+
           const { xpGained } = state.checkAndUnlockAchievements({
             completedTasks: updatedCompletedTasks,
             queryHistoryLength: state.queryHistory.length,
             currentStreak: state.streak.currentStreak,
             taskId,
             attempts,
+            hintFreeCount: newHintFreeCount,
           });
 
           const xpToAdd = xpGained > 0 ? xpGained : 0;
@@ -116,6 +120,7 @@ export const useSQLTrainerStore = create<CombinedState>()(
               xp: newXp,
               level,
               levelProgress: progress,
+              hintFreeCount: newHintFreeCount,
             },
           };
         });

@@ -229,7 +229,14 @@ export const createGamificationSlice: StateCreator<GamificationSlice, [], [], Ga
   achievements: [],
   unlockedAchievements: [],
 
-  checkAndUnlockAchievements: ({ completedTasks, queryHistoryLength, currentStreak, taskId, attempts }) => {
+  checkAndUnlockAchievements: ({
+    completedTasks,
+    queryHistoryLength,
+    currentStreak,
+    taskId,
+    attempts,
+    hintFreeCount,
+  }) => {
     const { achievements, unlockedAchievements } = get();
     const newAchievementIds: string[] = [];
     const achievementSet = new Set(achievements);
@@ -405,8 +412,7 @@ export const createGamificationSlice: StateCreator<GamificationSlice, [], [], Ga
     }
 
     // Hint-free solver
-    const hintFreeCount = completedTasks.filter((t) => t.attempts === 1).length;
-    if (hintFreeCount >= 5 && !achievementSet.has(ACHIEVEMENTS.HINT_FREE.id)) {
+    if ((hintFreeCount ?? get().userStats.hintFreeCount) >= 5 && !achievementSet.has(ACHIEVEMENTS.HINT_FREE.id)) {
       newAchievementIds.push(ACHIEVEMENTS.HINT_FREE.id);
       achievementSet.add(ACHIEVEMENTS.HINT_FREE.id);
     }
