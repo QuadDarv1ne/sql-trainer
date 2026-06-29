@@ -42,12 +42,12 @@
 2. **[x] Merge upstream** — синхронизировать с `upstream/main`, разрешить 13 конфликтов, удалить мёртвый `safe-fetch`.
 3. **[x] Double XP grant fix** — удалить дублирующий `checkAndUnlockAchievements` + `addXP` из `executeVerify`. `markTaskCompleted` уже начисляет XP внутри.
 4. **[x] ThemeTimeSync setTimeout leak** — добавить ref для setTimeout, очищать при unmount и перед новым таймером. Предотвращает утечку до 13ч.
-5. **[ ] Тесты на `getClientIdentifier`** — написать unit-тесты для нового utility: разные комбинации заголовков, хеширование, fallback на anonymous.
-6. **[ ] Исправить `db-users.ts` (309 КБ)** — разбить на модули `src/lib/db/*.ts` (connection, users, auth, progress, achievements, admin, teacher).
-7. **[ ] Исправить `i18n.ts` (327 КБ)** — вынести в JSON-файлы `src/locales/{ru,en,zh}.json`, добавить lazy-loading.
-8. **[ ] E2E тесты** — добавить Firefox/WebKit в Playwright, написать 5 сценариев (студент, учитель, админ, свободный режим, тема).
-9. **[ ] API документация** — добавить OpenAPI 3.0 spec для ключевых эндпоинтов, Swagger UI на `/api/docs`.
-10. **[ ] Mobile адаптация** — аудит текущих страниц, адаптивный layout для SQL редактора, touch-friendly кнопки.
+5. **[x] SQL engine memory bound** — заменить `statement.all()` на `iterate()` в SELECT выполнении, лимит MAX_ROWS (1000) теперь не загружает всё в память.
+6. **[ ] Тесты на `getClientIdentifier`** — написать unit-тесты для нового utility: разные комбинации заголовков, хеширование, fallback на anonymous.
+7. **[ ] Исправить `db-users.ts` (309 КБ)** — разбить на модули `src/lib/db/*.ts` (connection, users, auth, progress, achievements, admin, teacher).
+8. **[ ] Исправить `i18n.ts` (327 КБ)** — вынести в JSON-файлы `src/locales/{ru,en,zh}.json`, добавить lazy-loading.
+9. **[ ] E2E тесты** — добавить Firefox/WebKit в Playwright, написать 5 сценариев (студент, учитель, админ, свободный режим, тема).
+10. **[ ] API документация** — добавить OpenAPI 3.0 spec для ключевых эндпоинтов, Swagger UI на `/api/docs`.
 
 ---
 
