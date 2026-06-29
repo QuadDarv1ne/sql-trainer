@@ -78,7 +78,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.19.19",
-    "@types/nodemailer": "^7.0.0",
+    "@types/nodemailer": "^7.0.12",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
