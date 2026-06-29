@@ -14,24 +14,20 @@ interface ContextualTip {
   color: string;
 }
 
-/** Detect SQL concepts from a task and return relevant educational tips */
 export function getContextualTips(task: TrainingTask): ContextualTip[] {
   const tips: ContextualTip[] = [];
   const { taskText, sampleSolution, hint } = task;
   const combined = `${taskText} ${sampleSolution} ${hint}`.toLowerCase();
 
-  // JOIN tips
   if (combined.includes('join')) {
     tips.push({
       icon: <BookOpen className="h-3.5 w-3.5" />,
-      title: 'JOIN',
-      content:
-        'INNER JOIN returns only matching rows from both tables. LEFT JOIN returns all rows from the left table + matches from the right (or NULL). RIGHT JOIN is the opposite.',
+      title: t('contextualTips.join.title'),
+      content: t('contextualTips.join.content'),
       color: 'text-blue-600 dark:text-blue-400',
     });
   }
 
-  // GROUP BY / Aggregation tips
   if (
     combined.includes('group by') ||
     combined.includes('count(') ||
@@ -40,58 +36,48 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <BookOpen className="h-3.5 w-3.5" />,
-      title: 'GROUP BY',
-      content:
-        'After GROUP BY, SELECT can only use columns from GROUP BY and aggregate functions (COUNT, SUM, AVG, MIN, MAX). To filter aggregates use HAVING, not WHERE.',
+      title: t('contextualTips.groupBy.title'),
+      content: t('contextualTips.groupBy.content'),
       color: 'text-emerald-600 dark:text-emerald-400',
     });
   }
 
-  // Window function tips
   if (combined.includes('over') && combined.includes('partition')) {
     tips.push({
       icon: <BookOpen className="h-3.5 w-3.5" />,
-      title: 'Window Functions',
-      content:
-        'OVER (PARTITION BY ...) divides data into groups, within which the function is applied. Unlike GROUP BY, window functions do not collapse rows — each row is preserved.',
+      title: t('contextualTips.window.title'),
+      content: t('contextualTips.window.content'),
       color: 'text-violet-600 dark:text-violet-400',
     });
   }
 
-  // ROW_NUMBER / RANK tips
   if (combined.includes('row_number') || combined.includes('rank()') || combined.includes('dense_rank')) {
     tips.push({
       icon: <Code className="h-3.5 w-3.5" />,
-      title: 'ROW_NUMBER / RANK',
-      content:
-        'ROW_NUMBER() assigns a unique number to each row. RANK() skips numbers on equal values (1,2,2,4). DENSE_RANK() does not skip (1,2,2,3). Always use ORDER BY inside OVER().',
+      title: t('contextualTips.rowNumber.title'),
+      content: t('contextualTips.rowNumber.content'),
       color: 'text-purple-600 dark:text-purple-400',
     });
   }
 
-  // CTE / WITH tips
   if (combined.includes('with ') && combined.includes(' as')) {
     tips.push({
       icon: <Lightbulb className="h-3.5 w-3.5" />,
-      title: 'CTE (WITH)',
-      content:
-        'CTE (Common Table Expression) — a named subquery that can be used multiple times. Makes complex queries readable. Multiple CTEs are separated by commas: WITH cte1 AS (...), cte2 AS (...).',
+      title: t('contextualTips.cte.title'),
+      content: t('contextualTips.cte.content'),
       color: 'text-amber-600 dark:text-amber-400',
     });
   }
 
-  // Subquery tips
   if (combined.includes('select') && combined.split('select').length > 2 && !combined.includes('with ')) {
     tips.push({
       icon: <Code className="h-3.5 w-3.5" />,
-      title: 'Subqueries',
-      content:
-        'A subquery in WHERE (IN, EXISTS) executes for each row of the outer query. EXISTS is more efficient than IN because it stops on the first match. Subqueries in SELECT are computed for each row.',
+      title: t('contextualTips.subquery.title'),
+      content: t('contextualTips.subquery.content'),
       color: 'text-orange-600 dark:text-orange-400',
     });
   }
 
-  // COALESCE / NULL handling
   if (
     combined.includes('coalesce') ||
     combined.includes('is null') ||
@@ -100,47 +86,39 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      title: 'Working with NULL',
-      content:
-        'NULL means "absence of value" — it is not equal to anything, not even another NULL. Use COALESCE(col, default) to substitute a default value. For comparison: col IS NULL, not col = NULL.',
+      title: t('contextualTips.null.title'),
+      content: t('contextualTips.null.content'),
       color: 'text-red-600 dark:text-red-400',
     });
   }
 
-  // CASE / Conditional
   if (combined.includes('case ') && combined.includes('when')) {
     tips.push({
       icon: <Code className="h-3.5 w-3.5" />,
-      title: 'CASE',
-      content:
-        'CASE enables branching in SQL: CASE WHEN condition THEN result [ELSE default] END. Can be used in SELECT, ORDER BY and even GROUP BY. Always end with END!',
+      title: t('contextualTips.case.title'),
+      content: t('contextualTips.case.content'),
       color: 'text-indigo-600 dark:text-indigo-400',
     });
   }
 
-  // EXISTS
   if (combined.includes('exists')) {
     tips.push({
       icon: <Lightbulb className="h-3.5 w-3.5" />,
-      title: 'EXISTS',
-      content:
-        'EXISTS checks for at least one row in a subquery. Usually faster than IN because it stops on the first match. Often used with correlated subqueries referencing the outer query.',
+      title: t('contextualTips.exists.title'),
+      content: t('contextualTips.exists.content'),
       color: 'text-teal-600 dark:text-teal-400',
     });
   }
 
-  // DISTINCT
   if (combined.includes('distinct')) {
     tips.push({
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      title: 'DISTINCT',
-      content:
-        'DISTINCT removes duplicates from the result. DISTINCT applies to all columns in SELECT simultaneously — uniqueness is determined by the combination of all values. DISTINCT can be slow on large data.',
+      title: t('contextualTips.distinct.title'),
+      content: t('contextualTips.distinct.content'),
       color: 'text-yellow-600 dark:text-yellow-400',
     });
   }
 
-  // Date/time functions
   if (
     combined.includes('date') ||
     combined.includes('strftime') ||
@@ -149,14 +127,12 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <BookOpen className="h-3.5 w-3.5" />,
-      title: 'Dates and Time',
-      content:
-        "Date/time functions differ across DBMS. SQLite: strftime('%Y-%m', date). PostgreSQL: DATE_TRUNC('month', date). MySQL: DATE_FORMAT(date, '%Y-%m'). ClickHouse: toYYYYMM(date).",
+      title: t('contextualTips.dates.title'),
+      content: t('contextualTips.dates.content'),
       color: 'text-cyan-600 dark:text-cyan-400',
     });
   }
 
-  // String functions
   if (
     combined.includes('concat') ||
     combined.includes('substr') ||
@@ -167,36 +143,30 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <Code className="h-3.5 w-3.5" />,
-      title: 'Strings',
-      content:
-        "LIKE with % — pattern matching ('%test%' contains 'test'). CONCAT() joins strings. SUBSTR(str, start, len) extracts a substring. Note: string indexing starts at 1 in most DBMS.",
+      title: t('contextualTips.strings.title'),
+      content: t('contextualTips.strings.content'),
       color: 'text-pink-600 dark:text-pink-400',
     });
   }
 
-  // HAVING
   if (combined.includes('having')) {
     tips.push({
       icon: <Lightbulb className="h-3.5 w-3.5" />,
-      title: 'HAVING',
-      content:
-        'HAVING filters results after GROUP BY, while WHERE filters before. Use HAVING for conditions with aggregate functions: HAVING COUNT(*) > 1. WHERE cannot be used with aggregates.',
+      title: t('contextualTips.having.title'),
+      content: t('contextualTips.having.content'),
       color: 'text-lime-600 dark:text-lime-400',
     });
   }
 
-  // Limit/Top
   if (combined.includes('limit') || combined.includes('top ') || combined.includes('fetch first')) {
     tips.push({
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      title: 'Row Limiting',
-      content:
-        'Syntax varies: SQLite/PostgreSQL/MySQL — LIMIT n. SQL Server — SELECT TOP n. Oracle — FETCH FIRST n ROWS ONLY or ROWNUM. Always use ORDER BY with LIMIT for predictable results.',
+      title: t('contextualTips.rowLimiting.title'),
+      content: t('contextualTips.rowLimiting.content'),
       color: 'text-rose-600 dark:text-rose-400',
     });
   }
 
-  // Self-join (detects same table aliased differently)
   if (
     combined.includes('join') &&
     combined.split(' as ').length > 2 &&
@@ -204,36 +174,31 @@ export function getContextualTips(task: TrainingTask): ContextualTip[] {
   ) {
     tips.push({
       icon: <Lightbulb className="h-3.5 w-3.5" />,
-      title: 'Self-Join',
-      content:
-        'A self-join allows joining a table with itself. Use different aliases: FROM employees e1 JOIN employees e2 ON e1.manager_id = e2.id. Useful for hierarchies.',
+      title: t('contextualTips.selfJoin.title'),
+      content: t('contextualTips.selfJoin.content'),
       color: 'text-sky-600 dark:text-sky-400',
     });
   }
 
-  // ClickHouse-specific
   if (task.dbType === 'clickhouse' || combined.includes('clickhouse')) {
     tips.push({
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      title: 'ClickHouse',
-      content:
-        'ClickHouse is optimized for analytical queries on big data. Features: toYYYYMM() for monthly grouping, groupArray() for collecting values into arrays, arrayJoin() for expanding arrays.',
+      title: t('contextualTips.clickhouse.title'),
+      content: t('contextualTips.clickhouse.content'),
       color: 'text-fuchsia-600 dark:text-fuchsia-400',
     });
   }
 
-  // MySQL-specific
   if (task.dbType === 'mysql' || combined.includes('mysql')) {
     tips.push({
       icon: <AlertCircle className="h-3.5 w-3.5" />,
-      title: 'MySQL',
-      content:
-        'MySQL-specific functions: GROUP_CONCAT() for string concatenation, IF() for conditional logic, FIELD() for custom sort order, ON DUPLICATE KEY UPDATE for upsert operations.',
+      title: t('contextualTips.mysql.title'),
+      content: t('contextualTips.mysql.content'),
       color: 'text-amber-600 dark:text-amber-400',
     });
   }
 
-  return tips.slice(0, 2); // Show at most 2 tips to avoid overwhelming
+  return tips.slice(0, 2);
 }
 
 interface ContextualTipsProps {
