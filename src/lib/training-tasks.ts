@@ -29,6 +29,7 @@ import { INTERMEDIATE_TASKS } from './tasks/intermediate';
 import { ADVANCED_TASKS } from './tasks/advanced';
 import { MONGODB_TASKS } from './tasks/mongodb';
 import { MYSQL_TASKS } from './tasks/mysql';
+import { logger } from './logger';
 
 // Validate task IDs for uniqueness at module load time
 function validateTaskUniqueness(tasks: import('./tasks/types').TrainingTask[]): void {
@@ -61,8 +62,7 @@ try {
     ...MYSQL_TASKS,
   ]);
 } catch (err) {
-  // eslint-disable-next-line no-console
-  console.error('[TRAINING-TASKS] Validation failed:', err);
+  logger.error('[TRAINING-TASKS] Validation failed:', err);
   throw err;
 }
 

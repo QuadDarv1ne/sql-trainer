@@ -1,6 +1,5 @@
 'use client';
 
-import type * as React from 'react';
 import { useSQLTrainerStore, ACHIEVEMENTS } from '@/lib/store';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

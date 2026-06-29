@@ -269,49 +269,52 @@ function replaceClickHouseFunctions(sql: string): string {
   result = result.replace(/\btoSecond\s*\(/gi, "CAST(STRFTIME('%S', ");
 
   // dateDiff
-  result = result.replace(/\bdateDiff\s*\(\s*['"](\w+)['"]\s*,\s*([^,]+),\s*([^)]+)\)/gi, (match, unit, start, end) => {
-    const unitLower = unit.toLowerCase();
-    switch (unitLower) {
-      case 'second':
-      case 'seconds':
-      case 'ss':
-        return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) * 86400 AS INTEGER)`;
-      case 'minute':
-      case 'minutes':
-      case 'mi':
-      case 'n':
-        return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) * 1440 AS INTEGER)`;
-      case 'hour':
-      case 'hours':
-      case 'hh':
-        return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) * 24 AS INTEGER)`;
-      case 'day':
-      case 'days':
-      case 'dd':
-        return `CAST(JULIANDAY(${end}) - JULIANDAY(${start}) AS INTEGER)`;
-      case 'week':
-      case 'weeks':
-      case 'ww':
-        return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) / 7 AS INTEGER)`;
-      case 'month':
-      case 'months':
-      case 'mm':
-      case 'm':
-        return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) / 30.4375 AS INTEGER)`;
-      case 'quarter':
-      case 'quarters':
-      case 'qq':
-      case 'q':
-        return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) / 91.3125 AS INTEGER)`;
-      case 'year':
-      case 'years':
-      case 'yyyy':
-      case 'yy':
-        return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) / 365.25 AS INTEGER)`;
-      default:
-        return `CAST(JULIANDAY(${end}) - JULIANDAY(${start}) AS INTEGER)`;
-    }
-  });
+  result = result.replace(
+    /\bdateDiff\s*\(\s*['"](\w+)['"]\s*,\s*([^,]+),\s*([^)]+)\)/gi,
+    (_match, unit, start, end) => {
+      const unitLower = unit.toLowerCase();
+      switch (unitLower) {
+        case 'second':
+        case 'seconds':
+        case 'ss':
+          return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) * 86400 AS INTEGER)`;
+        case 'minute':
+        case 'minutes':
+        case 'mi':
+        case 'n':
+          return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) * 1440 AS INTEGER)`;
+        case 'hour':
+        case 'hours':
+        case 'hh':
+          return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) * 24 AS INTEGER)`;
+        case 'day':
+        case 'days':
+        case 'dd':
+          return `CAST(JULIANDAY(${end}) - JULIANDAY(${start}) AS INTEGER)`;
+        case 'week':
+        case 'weeks':
+        case 'ww':
+          return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) / 7 AS INTEGER)`;
+        case 'month':
+        case 'months':
+        case 'mm':
+        case 'm':
+          return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) / 30.4375 AS INTEGER)`;
+        case 'quarter':
+        case 'quarters':
+        case 'qq':
+        case 'q':
+          return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) / 91.3125 AS INTEGER)`;
+        case 'year':
+        case 'years':
+        case 'yyyy':
+        case 'yy':
+          return `CAST((JULIANDAY(${end}) - JULIANDAY(${start})) / 365.25 AS INTEGER)`;
+        default:
+          return `CAST(JULIANDAY(${end}) - JULIANDAY(${start}) AS INTEGER)`;
+      }
+    },
+  );
 
   // age
   result = result.replace(
@@ -320,7 +323,7 @@ function replaceClickHouseFunctions(sql: string): string {
   );
 
   // formatDateTime
-  result = result.replace(/\bformatDateTime\s*\(\s*([^,]+),\s*['"]([^'"]+)['"]/gi, (match, expr, fmt) => {
+  result = result.replace(/\bformatDateTime\s*\(\s*([^,]+),\s*['"]([^'"]+)['"]/gi, (_match, expr, fmt) => {
     const chToSqliteFmt = fmt
       .replace(/%T/g, '%H:%M:%S')
       .replace(/%F/g, '%Y-%m-%d')

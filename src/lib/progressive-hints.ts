@@ -23,7 +23,7 @@ export interface ProgressiveHintsConfig {
  * Otherwise, generate from the old hint field as a fallback.
  */
 export function generateProgressiveHints(
-  taskId: string,
+  _taskId: string,
   oldHint: string,
   taskText: string,
   progressiveHints?: ProgressiveHint[],
