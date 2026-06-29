@@ -41,13 +41,13 @@
 1. **[x] Rate limit bypass fix** — заменить `x-forwarded-for` на composite fingerprint через `getClientIdentifier()`. 5 API маршрутов обновлены.
 2. **[x] Merge upstream** — синхронизировать с `upstream/main`, разрешить 13 конфликтов, удалить мёртвый `safe-fetch`.
 3. **[x] Double XP grant fix** — удалить дублирующий `checkAndUnlockAchievements` + `addXP` из `executeVerify`. `markTaskCompleted` уже начисляет XP внутри.
-4. **[ ] Тесты на `getClientIdentifier`** — написать unit-тесты для нового utility: разные комбинации заголовков, хеширование, fallback на anonymous.
-5. **[ ] Исправить `db-users.ts` (309 КБ)** — разбить на модули `src/lib/db/*.ts` (connection, users, auth, progress, achievements, admin, teacher).
-6. **[ ] Исправить `i18n.ts` (327 КБ)** — вынести в JSON-файлы `src/locales/{ru,en,zh}.json`, добавить lazy-loading.
-7. **[ ] E2E тесты** — добавить Firefox/WebKit в Playwright, написать 5 сценариев (студент, учитель, админ, свободный режим, тема).
-8. **[ ] API документация** — добавить OpenAPI 3.0 spec для ключевых эндпоинтов, Swagger UI на `/api/docs`.
-9. **[ ] Mobile адаптация** — аудит текущих страниц, адаптивный layout для SQL редактора, touch-friendly кнопки.
-10. **[ ] Performance audit** — Lighthouse, Core Web Vitals, lazy-load тяжёлых компонентов (CodeMirror, Recharts).
+4. **[x] ThemeTimeSync setTimeout leak** — добавить ref для setTimeout, очищать при unmount и перед новым таймером. Предотвращает утечку до 13ч.
+5. **[ ] Тесты на `getClientIdentifier`** — написать unit-тесты для нового utility: разные комбинации заголовков, хеширование, fallback на anonymous.
+6. **[ ] Исправить `db-users.ts` (309 КБ)** — разбить на модули `src/lib/db/*.ts` (connection, users, auth, progress, achievements, admin, teacher).
+7. **[ ] Исправить `i18n.ts` (327 КБ)** — вынести в JSON-файлы `src/locales/{ru,en,zh}.json`, добавить lazy-loading.
+8. **[ ] E2E тесты** — добавить Firefox/WebKit в Playwright, написать 5 сценариев (студент, учитель, админ, свободный режим, тема).
+9. **[ ] API документация** — добавить OpenAPI 3.0 spec для ключевых эндпоинтов, Swagger UI на `/api/docs`.
+10. **[ ] Mobile адаптация** — аудит текущих страниц, адаптивный layout для SQL редактора, touch-friendly кнопки.
 
 ---
 
