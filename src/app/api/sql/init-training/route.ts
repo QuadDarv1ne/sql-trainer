@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTaskById, TRAINING_TASKS } from '@/lib/training-tasks';
 import { getSchemaInfo } from '@/lib/sql-engine';
-import { rateLimit } from '@/lib/rate-limit';
+import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
@@ -13,9 +13,9 @@ const initTrainingSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limit: 20 init requests per minute per IP
-    const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
-    const limitResult = await rateLimit(`init-training:${ip}`, { max: 20, windowMs: 60_000 });
+    // Rate limit: 20 init requests per minute per client
+    const clientId = getClientIdentifier(request);
+    const limitResult = await rateLimit(`init-training:${clientId}`, { max: 20, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json({ success: false, error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
     }
@@ -73,9 +73,9 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: Request) {
   try {
-    // Rate limit: 10 task list requests per minute per IP
-    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
-    const limitResult = await rateLimit(`init-training-list:${ip}`, { max: 10, windowMs: 60_000 });
+    // Rate limit: 10 task list requests per minute per client
+    const clientId = getClientIdentifier(request);
+    const limitResult = await rateLimit(`init-training-list:${clientId}`, { max: 10, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json({ success: false, error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
     }

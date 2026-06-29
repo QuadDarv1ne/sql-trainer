@@ -1,25 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery, executeWithSchema } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
-import { rateLimit } from '@/lib/rate-limit';
+import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { z } from 'zod';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { logger } from '@/lib/logger';
 import { auth } from '@/lib/auth';
 import type { MongoSchema } from '@/lib/mongodb-engine';
 import { validateBody } from '@/lib/validation';
-
-/**
- * Extract client IP from request using x-forwarded-for header for proxy reliability.
- * Returns 'unknown' if header is not present.
- */
-function getIpFromRequest(request: NextRequest): string {
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim();
-  }
-  return 'unknown';
-}
 
 const sqlExecuteSchema = z.object({
   sql: z
@@ -155,7 +143,8 @@ export async function POST(request: NextRequest) {
     const isAuthenticated = !!session?.user?.id;
 
     // Rate limit: 30/min for anonymous, 60/min for authenticated
-    const rateKey = isAuthenticated ? `sql:user:${session.user.id}` : `sql:ip:${getIpFromRequest(request)}`;
+    const clientId = getClientIdentifier(request, isAuthenticated ? session.user.id : undefined);
+    const rateKey = `sql:${clientId}`;
 
     const maxQueries = isAuthenticated ? 60 : 30;
     const limitResult = await rateLimit(rateKey, { max: maxQueries, windowMs: 60_000 });

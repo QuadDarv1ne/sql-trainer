@@ -3,7 +3,7 @@ import { explainQuery } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
-import { rateLimit } from '@/lib/rate-limit';
+import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 
 const sqlExplainSchema = z.object({
@@ -62,9 +62,9 @@ function analyzePlan(plan: string, sql: string): string[] {
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limit: 15 explain requests per minute per IP
-    const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
-    const limitResult = await rateLimit(`explain:${ip}`, { max: 15, windowMs: 60_000 });
+    // Rate limit: 15 explain requests per minute per client
+    const clientId = getClientIdentifier(request);
+    const limitResult = await rateLimit(`explain:${clientId}`, { max: 15, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json({ success: false, error: 'Слишком много запросов. Подождите немного' }, { status: 429 });
     }

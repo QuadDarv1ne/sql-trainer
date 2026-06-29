@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createUser } from '@/lib/db-users';
 import type { UserRole } from '@/lib/db-users';
-import { rateLimit } from '@/lib/rate-limit';
+import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 import { logger } from '@/lib/logger';
 import { validateBody } from '@/lib/validation';
@@ -22,9 +22,9 @@ const registerSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limit: max 5 registrations per 10 minutes per IP
-    const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
-    const limitResult = await rateLimit(`register:${ip}`, { max: 5, windowMs: 10 * 60 * 1000 });
+    // Rate limit: max 5 registrations per 10 minutes per client
+    const clientId = getClientIdentifier(request);
+    const limitResult = await rateLimit(`register:${clientId}`, { max: 5, windowMs: 10 * 60 * 1000 });
     if (!limitResult.success) {
       return NextResponse.json(
         { success: false, error: 'Слишком много попыток регистрации. Попробуйте позже' },

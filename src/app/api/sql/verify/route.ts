@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeWithSchema, executeWithSchemaMulti, splitStatements } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
-import { rateLimit } from '@/lib/rate-limit';
+import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
@@ -49,9 +49,9 @@ function extractLastSelect(sql: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limit: 20 verification attempts per minute per IP
-    const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
-    const limitResult = await rateLimit(`verify:${ip}`, { max: 20, windowMs: 60_000 });
+    // Rate limit: 20 verification attempts per minute per client
+    const clientId = getClientIdentifier(request);
+    const limitResult = await rateLimit(`verify:${clientId}`, { max: 20, windowMs: 60_000 });
     if (!limitResult.success) {
       return NextResponse.json(
         { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Слишком много попыток. Попробуйте позже' },

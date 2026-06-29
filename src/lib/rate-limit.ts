@@ -4,9 +4,30 @@
  * falls back to in-memory for single-server deployments.
  */
 
+import { createHash } from 'crypto';
 import { getRateLimiter, type RateLimitOptions, type RateLimitResult } from './rate-limiter-distributed';
 
 export type { RateLimitOptions, RateLimitResult };
+
+/**
+ * Build a rate-limit key from the request that is resistant to header spoofing.
+ *
+ * For authenticated callers pass the userId — that is unforgeable (comes from the
+ * JWT).  For anonymous traffic we combine several client-controlled signals and
+ * hash the result so rotating a single header no longer resets the bucket.
+ */
+export function getClientIdentifier(request: Request, userId?: string): string {
+  if (userId) return `user:${userId}`;
+
+  const forwarded = request.headers.get('x-forwarded-for') || '';
+  const realIp = request.headers.get('x-real-ip') || '';
+  const cf = request.headers.get('cf-connecting-ip') || '';
+  const ua = request.headers.get('user-agent') || '';
+  const accept = request.headers.get('accept-language') || '';
+
+  const raw = [realIp, cf, forwarded.split(',')[0].trim(), ua, accept].join('|');
+  return createHash('sha256').update(raw).digest('hex').slice(0, 16);
+}
 
 // In-memory store (kept for direct use in tests and as ultimate fallback)
 interface RateLimitEntry {
