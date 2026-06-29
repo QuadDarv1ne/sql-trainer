@@ -44,6 +44,7 @@ import AchievementsGrid from '@/components/profile/achievements-grid';
 import LeaderboardTable from '@/components/profile/leaderboard';
 import { useSQLTrainerStore } from '@/lib/store';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 
 import { evaluatePasswordStrength } from '@/lib/password-strength';
 
@@ -300,7 +301,8 @@ export default function ProfilePage() {
       } else {
         toast.error(data.error);
       }
-    } catch {
+    } catch (err) {
+      logger.error('[Profile] Save error', err);
       toast.error(t('profile.saveError'));
     } finally {
       setSaving(false);
@@ -334,7 +336,8 @@ export default function ProfilePage() {
       } else {
         toast.error(data.error);
       }
-    } catch {
+    } catch (err) {
+      logger.error('[Profile] Password change error', err);
       toast.error(t('profile.passwordChangeError'));
     } finally {
       setChangingPassword(false);
@@ -364,7 +367,8 @@ export default function ProfilePage() {
       } else {
         toast.error(data.error);
       }
-    } catch {
+    } catch (err) {
+      logger.error('[Profile] Email change error', err);
       toast.error(t('profile.emailChangeError'));
     } finally {
       setChangingEmail(false);
@@ -392,7 +396,8 @@ export default function ProfilePage() {
       } else {
         toast.error(data.error);
       }
-    } catch {
+    } catch (err) {
+      logger.error('[Profile] Account deletion error', err);
       toast.error(t('profile.deleteError'));
     } finally {
       setDeletingAccount(false);

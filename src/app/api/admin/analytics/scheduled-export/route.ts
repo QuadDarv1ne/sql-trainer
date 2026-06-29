@@ -94,7 +94,7 @@ export const POST = withAdminAuth(async ({ session, request }) => {
 
   const { reportType, format, schedule, emailRecipients } = parsed.data;
 
-  const id = `sr_${Date.now()}_${globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 8)}`;
+  const id = `sr_${Date.now()}_${crypto.randomUUID()}`;
   const now = Date.now();
 
   db.prepare(

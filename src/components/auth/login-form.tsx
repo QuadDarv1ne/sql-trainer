@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
 import { Loader2, Lock, AlertCircle, Eye, EyeOff, GraduationCap, Mail, ArrowLeft } from 'lucide-react';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -43,7 +44,8 @@ export default function LoginForm() {
 
       router.push(callbackUrl);
       router.refresh();
-    } catch {
+    } catch (err) {
+      logger.error('[LoginForm] Sign-in error', err);
       setError(t('auth.login.error'));
     } finally {
       setLoading(false);

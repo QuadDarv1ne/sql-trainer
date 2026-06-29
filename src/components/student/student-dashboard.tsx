@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { t } from '@/lib/i18n';
+import { logger } from '@/lib/logger';
 import {
   BookOpen,
   Target,
@@ -111,7 +112,8 @@ export default function StudentDashboard() {
       if (remindersData.success) {
         setReminders(remindersData.reminders || []);
       }
-    } catch {
+    } catch (err) {
+      logger.error('[StudentDashboard] Fetch data error', err);
       setError(t('dashboard.loadError', { default: 'Failed to load data' }));
     } finally {
       setLoading(false);

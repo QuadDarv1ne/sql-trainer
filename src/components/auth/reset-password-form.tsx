@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { Loader2, Mail, Lock, AlertCircle, CheckCircle2, KeyRound, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { evaluatePasswordStrength } from '@/lib/password-strength';
+import { logger } from '@/lib/logger';
 
 type Step = 'request' | 'verify' | 'done';
 
@@ -103,7 +104,8 @@ export default function ResetPasswordForm() {
       setCodeSent(true);
       setCooldown(60);
       setStep('verify');
-    } catch {
+    } catch (err) {
+      logger.error('[ResetPasswordForm] Request code error', err);
       setError(t('auth.registerError'));
     } finally {
       setLoading(false);
@@ -140,7 +142,8 @@ export default function ResetPasswordForm() {
       }
 
       setStep('done');
-    } catch {
+    } catch (err) {
+      logger.error('[ResetPasswordForm] Reset password error', err);
       setError(t('auth.registerError'));
     } finally {
       setLoading(false);

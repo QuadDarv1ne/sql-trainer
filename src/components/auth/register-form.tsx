@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { t } from '@/lib/i18n';
 import { ROLE_LABELS } from '@/lib/rbac';
+import { logger } from '@/lib/logger';
 import type { Role } from '@/lib/rbac';
 
 export default function RegisterForm() {
@@ -90,7 +91,8 @@ export default function RegisterForm() {
 
       // Auto sign in via useEffect with proper cleanup
       pendingSignIn.current = { email, password };
-    } catch {
+    } catch (err) {
+      logger.error('[RegisterForm] Registration error', err);
       setError(t('auth.registerError'));
     } finally {
       setLoading(false);

@@ -1,3 +1,5 @@
+import 'server-only';
+
 /**
  * Notification configuration — SMTP and VAPID settings loaded from environment variables.
  */

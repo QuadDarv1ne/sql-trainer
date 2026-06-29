@@ -21,7 +21,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer as RechartsResponsiveContainer,
 } from 'recharts';
 
 interface ComparisonStudent {
@@ -227,7 +226,7 @@ export default function StudentComparisonDashboard() {
                 <CardTitle>{t('analytics.studentComparison.categoryTitle')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <RechartsResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={categoryData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="category" />
@@ -238,7 +237,7 @@ export default function StudentComparisonDashboard() {
                       <Bar key={student.user_id} dataKey={student.name} fill={COLORS[idx % COLORS.length]} />
                     ))}
                   </BarChart>
-                </RechartsResponsiveContainer>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
           )}
