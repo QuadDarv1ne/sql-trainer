@@ -113,6 +113,7 @@ export default function SavedQueries({ onLoadQuery }: SavedQueriesProps) {
                       variant="ghost"
                       size="icon"
                       className="h-5 w-5 shrink-0 text-muted-foreground hover:text-destructive"
+                      aria-label={t('common.delete')}
                       onClick={(e) => {
                         e.stopPropagation();
                         deleteSavedQuery(query.id);

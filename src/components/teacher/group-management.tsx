@@ -491,7 +491,7 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
                     </button>
                   )}
                 </div>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" aria-label={t('common.filter')}>
                   <Filter className="h-4 w-4" />
                 </Button>
               </div>
