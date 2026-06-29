@@ -36,6 +36,15 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Advanced: <Star className="h-4 w-4" />,
 };
 
+const CATEGORY_LOCALE_MAP: Record<string, string> = {
+  'SQL Basics': 'learningPath.category.sqlBasics',
+  Filtering: 'learningPath.category.filtering',
+  Sorting: 'learningPath.category.sorting',
+  Aggregation: 'learningPath.category.aggregation',
+  Joins: 'learningPath.category.joins',
+  Advanced: 'learningPath.category.advanced',
+};
+
 const XP_PER_DIFFICULTY: Record<Difficulty, number> = {
   beginner: 10,
   intermediate: 25,
@@ -178,7 +187,7 @@ export default function LearningPath({ completedTasks = [], userLevel = 1, onTas
                       <CardHeader className="pb-3 bg-muted/30">
                         <div className="flex items-center gap-2">
                           {CATEGORY_ICONS[category] || <Target className="h-4 w-4" />}
-                          <CardTitle className="text-base">{category}</CardTitle>
+                          <CardTitle className="text-base">{t(CATEGORY_LOCALE_MAP[category] || category)}</CardTitle>
                           <Badge variant="outline" className="ml-auto">
                             {tasks.filter((t) => t.completed).length} / {tasks.length}
                           </Badge>

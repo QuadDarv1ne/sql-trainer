@@ -191,7 +191,7 @@ export default function ResetPasswordForm() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
@@ -251,7 +251,7 @@ export default function ResetPasswordForm() {
               <Input
                 ref={codeInputRef}
                 id="code"
-                placeholder="123456"
+                placeholder={t('auth.codePlaceholder')}
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                 maxLength={6}

@@ -63,12 +63,6 @@ const priorityColors = {
   low: 'border-l-blue-500 bg-blue-50 dark:bg-blue-950/20',
 };
 
-const priorityLabels: Record<string, string> = {
-  high: 'High',
-  medium: 'Medium',
-  low: 'Low',
-};
-
 export default function StudentDashboard() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -400,7 +394,7 @@ export default function StudentDashboard() {
                               <div className="flex items-center gap-2 mb-1">
                                 {rec.task_id && <Badge variant="outline">{rec.task_id}</Badge>}
                                 <Badge variant="outline" className="text-xs">
-                                  {priorityLabels[rec.priority]}
+                                  {t(`dashboard.priority.${rec.priority}`)}
                                 </Badge>
                               </div>
                               <p className="text-sm">{rec.description}</p>

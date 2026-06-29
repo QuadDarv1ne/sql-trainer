@@ -262,7 +262,7 @@ export default function ActionBar({
         {editorContent.length > 0 && (
           <div className="hidden lg:flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 rounded bg-muted/50">
             <span className="font-mono">{editorContent.length}</span>
-            <span>chars</span>
+            <span>{t('actionBar.chars')}</span>
           </div>
         )}
 
@@ -270,7 +270,9 @@ export default function ActionBar({
         {queryHistory.length > 0 && (
           <div className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground px-2 py-1 rounded bg-muted/50">
             <span className="font-semibold">{queryHistory.length}</span>
-            <span className="hidden lg:inline">{queryHistory.length === 1 ? 'query' : 'queries'}</span>
+            <span className="hidden lg:inline">
+              {queryHistory.length === 1 ? t('actionBar.query') : t('actionBar.queries')}
+            </span>
           </div>
         )}
 
