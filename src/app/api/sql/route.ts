@@ -9,6 +9,7 @@ import { auth } from '@/lib/auth';
 import type { MongoSchema } from '@/lib/mongodb-engine';
 import { validateBody } from '@/lib/validation';
 import { sqlExecuteSchema, VALID_DB_TYPES } from '@/lib/sql-schema';
+import { recordQuery, recordError } from '@/lib/db-monitor';
 
 /**
  * Extract client IP from request using x-forwarded-for header for proxy reliability.
@@ -211,6 +212,9 @@ export async function POST(request: NextRequest) {
     }
     const elapsed = performance.now() - start;
 
+    // Record query metrics for monitoring
+    recordQuery(elapsed, sql);
+
     if (elapsed > 1000) {
       const sqlPreview = sql.length > 100 ? sql.slice(0, 100) + '...' : sql;
       logger.warn(`Slow query (${Math.round(elapsed)}ms): ${sqlPreview}`);
@@ -218,6 +222,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (err: unknown) {
+    recordError();
     return apiServerError('SQL execute', undefined, err);
   }
 }

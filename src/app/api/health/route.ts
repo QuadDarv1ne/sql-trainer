@@ -3,6 +3,7 @@ import { getDb } from '@/lib/db-users';
 import { getRateLimiter } from '@/lib/rate-limiter-distributed';
 import { logger } from '@/lib/logger';
 import { withTiming } from '@/lib/api-timing';
+import { getMetrics as getDbMetrics, getRedisMetrics } from '@/lib/db-monitor';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,8 +30,21 @@ interface HealthStatus {
     status: 'connected' | 'disconnected' | 'error';
     queryTimeMs: number;
     tableCount: number;
+    metrics: {
+      totalQueries: number;
+      slowQueries: number;
+      totalErrors: number;
+      avgQueryTimeMs: number;
+      p95QueryTimeMs: number;
+      uptimeSeconds: number;
+    };
   };
   redis: 'connected' | 'disconnected' | 'not_configured';
+  redisMetrics: {
+    isConnected: boolean;
+    connectionFailures: number;
+    lastError?: string;
+  };
 }
 
 export const GET = withTiming(async () => {
@@ -56,8 +70,20 @@ export const GET = withTiming(async () => {
       status: 'disconnected',
       queryTimeMs: 0,
       tableCount: 0,
+      metrics: {
+        totalQueries: 0,
+        slowQueries: 0,
+        totalErrors: 0,
+        avgQueryTimeMs: 0,
+        p95QueryTimeMs: 0,
+        uptimeSeconds: 0,
+      },
     },
     redis: 'disconnected',
+    redisMetrics: {
+      isConnected: false,
+      connectionFailures: 0,
+    },
   };
 
   // Memory
@@ -105,6 +131,23 @@ export const GET = withTiming(async () => {
   } catch {
     status.redis = 'not_configured';
   }
+
+  // DB pool metrics
+  const dbMetrics = getDbMetrics();
+  const redisMetrics = getRedisMetrics();
+  status.database.metrics = {
+    totalQueries: dbMetrics.totalQueries,
+    slowQueries: dbMetrics.slowQueries,
+    totalErrors: dbMetrics.totalErrors,
+    avgQueryTimeMs: dbMetrics.avgQueryTimeMs,
+    p95QueryTimeMs: dbMetrics.p95QueryTimeMs,
+    uptimeSeconds: dbMetrics.uptimeSeconds,
+  };
+  status.redisMetrics = {
+    isConnected: redisMetrics.isConnected,
+    connectionFailures: redisMetrics.connectionFailures,
+    lastError: redisMetrics.lastError,
+  };
 
   status.version = process.env.NEXT_PUBLIC_APP_VERSION || undefined;
 
