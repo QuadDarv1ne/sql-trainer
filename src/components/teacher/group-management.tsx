@@ -128,8 +128,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
   const handleCreateGroup = async () => {
     if (!newGroupName.trim()) {
       toast({
-        title: 'Error',
-        description: 'Enter a group name',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.enterName'),
         variant: 'destructive',
       });
       return;
@@ -146,14 +146,18 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       });
 
       if (!res.ok) {
-        toast({ title: 'Error', description: 'Failed to create group', variant: 'destructive' });
+        toast({
+          title: t('teacher.group.error'),
+          description: t('teacher.group.createFailed'),
+          variant: 'destructive',
+        });
         return;
       }
       const data = await res.json();
       if (data.success) {
         toast({
-          title: 'Group Created',
-          description: `Group "${newGroupName}" created successfully`,
+          title: t('teacher.group.created'),
+          description: t('teacher.group.createdDesc', { name: newGroupName }),
         });
         setNewGroupName('');
         setNewGroupDescription('');
@@ -163,8 +167,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     } catch (error) {
       logger.error('Failed to create group:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to create group',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.createFailed'),
         variant: 'destructive',
       });
     }
@@ -173,8 +177,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
   const handleAddStudents = async () => {
     if (!selectedGroup || !studentEmails.trim()) {
       toast({
-        title: 'Error',
-        description: 'Enter student email addresses',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.enterEmails'),
         variant: 'destructive',
       });
       return;
@@ -193,14 +197,14 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       });
 
       if (!res.ok) {
-        toast({ title: 'Error', description: 'Failed to add students', variant: 'destructive' });
+        toast({ title: t('teacher.group.error'), description: t('teacher.group.addFailed'), variant: 'destructive' });
         return;
       }
       const data = await res.json();
       if (data.success) {
         toast({
-          title: 'Students Added',
-          description: `${emails.length} student(s) added to group`,
+          title: t('teacher.group.added'),
+          description: t('teacher.group.addedDesc'),
         });
         setStudentEmails('');
         setIsAddStudentDialogOpen(false);
@@ -209,8 +213,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     } catch (error) {
       logger.error('Failed to add students:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to add students',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.addFailed'),
         variant: 'destructive',
       });
     }
