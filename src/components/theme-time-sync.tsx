@@ -15,6 +15,7 @@ export function ThemeTimeSync() {
   const [mounted, setMounted] = useState(false);
   const themeValueRef = useRef(theme);
   const resolvedRef = useRef(resolvedTheme);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -55,23 +56,29 @@ export function ThemeTimeSync() {
         // After auto-switching, schedule a reset back to 'system'
         // so the system theme can take over again at the next time boundary
         const minutesToBoundary = shouldDark ? ((7 - hour + 24) % 24) * 60 : ((20 - hour + 24) % 24) * 60;
+        if (timeoutRef.current !== null) {
+          clearTimeout(timeoutRef.current);
+        }
         if (minutesToBoundary > 0) {
-          setTimeout(
-            () => {
-              // Reset to system — OS or next time boundary will handle the switch
-              if (themeValueRef.current !== 'system') {
-                setTheme('system');
-              }
-            },
-            minutesToBoundary * 60 * 1000,
-          );
+          timeoutRef.current = setTimeout(() => {
+            if (themeValueRef.current !== 'system') {
+              setTheme('system');
+            }
+            timeoutRef.current = null;
+          }, minutesToBoundary * 60 * 1000);
         }
       }
     };
 
     updateTheme();
     const interval = setInterval(updateTheme, 60000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (timeoutRef.current !== null) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
   }, [mounted, setTheme, theme, resolvedTheme]);
 
   return null;
