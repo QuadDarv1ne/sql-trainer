@@ -179,7 +179,7 @@ export default function UserTable() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: newRole }),
       });
-      if (!res.ok) throw new Error('Failed to update role');
+      if (!res.ok) throw new Error(t('admin.users.roleUpdateFailed'));
       setSuccess(t('admin.users.roleUpdated'));
       fetchUsers();
     } catch (e) {
@@ -196,7 +196,7 @@ export default function UserTable() {
       const res = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to delete user');
+        throw new Error(data.error || t('admin.users.deleteFailed'));
       }
       setSuccess(t('admin.users.deleted'));
       setSelectedIds((prev) => {

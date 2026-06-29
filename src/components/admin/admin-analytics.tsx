@@ -136,7 +136,7 @@ export default function AdminAnalytics() {
   const handleExport = async () => {
     try {
       const res = await fetch('/api/admin/export-analytics');
-      if (!res.ok) throw new Error('Export failed');
+      if (!res.ok) throw new Error(t('admin.exportFailed'));
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');

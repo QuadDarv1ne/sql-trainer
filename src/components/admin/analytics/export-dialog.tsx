@@ -66,7 +66,7 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
       if (endDate) params.set('endDate', String(endDate));
 
       const res = await fetch(`/api/admin/analytics/export?${params}`);
-      if (!res.ok) throw new Error('Export failed');
+      if (!res.ok) throw new Error(t('export.failed'));
       const { data } = await res.json();
 
       const filename = `analytics-export-${new Date().toISOString().slice(0, 10)}`;
@@ -96,8 +96,11 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
         }
 
         generateAnalyticsPDF(pdfData, pdfSections, {
-          title: 'Analytics Report',
-          subtitle: `Date range: ${startDate ? new Date(startDate).toLocaleDateString() : 'All'} — ${endDate ? new Date(endDate).toLocaleDateString() : 'All'}`,
+          title: t('export.analyticsReport'),
+          subtitle: t('export.dateRange', {
+            start: startDate ? new Date(startDate).toLocaleDateString() : t('export.all'),
+            end: endDate ? new Date(endDate).toLocaleDateString() : t('export.all'),
+          }),
           generatedAt: new Date(),
           locale: t('locale') === 'ru' ? 'ru' : 'en',
         });
@@ -138,7 +141,7 @@ export default function ExportDialog({ open, onOpenChange, startDate, endDate }:
       });
 
       const res = await fetch(`/api/admin/analytics/lms-export?${params}`);
-      if (!res.ok) throw new Error('LMS export failed');
+      if (!res.ok) throw new Error(t('export.failed'));
 
       const blob = await res.blob();
       const contentDisposition = res.headers.get('Content-Disposition');

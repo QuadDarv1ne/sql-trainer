@@ -65,7 +65,7 @@ export function DeadlineManager() {
     try {
       setError(null);
       const res = await fetch('/api/admin/deadlines?scope=all');
-      if (!res.ok) throw new Error('Failed to load deadlines');
+      if (!res.ok) throw new Error(t('admin.deadline.loadFailed'));
       const data = await res.json();
       setDeadlines(data.deadlines || []);
     } catch (err) {
@@ -86,7 +86,7 @@ export function DeadlineManager() {
       const res = await fetch(`/api/admin/deadlines/${deleteId}`, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || 'Failed to delete deadline');
+        throw new Error(data.error || t('admin.deadline.deleteFailed'));
       }
       toast.success(t('deadline.deleted'));
       fetchDeadlines();

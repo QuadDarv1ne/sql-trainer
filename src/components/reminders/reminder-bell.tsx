@@ -45,7 +45,7 @@ export function ReminderBell() {
       const res = await fetch('/api/user/reminders');
       const data = await res.json();
       if (res.ok) setReminders(data.reminders || []);
-      else throw new Error(data.error || 'Failed to load reminders');
+      else throw new Error(data.error || t('reminder.loadFailed'));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t('teacher.error'));
     }

@@ -232,8 +232,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
 
       if (!res.ok) {
         toast({
-          title: 'Error',
-          description: 'Failed to remove student',
+          title: t('teacher.group.error'),
+          description: t('teacher.group.removeFailed'),
           variant: 'destructive',
         });
         return;
@@ -241,16 +241,16 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       const data = await res.json();
       if (data.success) {
         toast({
-          title: 'Student Removed',
-          description: 'Student removed from group',
+          title: t('teacher.group.removed'),
+          description: t('teacher.group.removedDesc'),
         });
         fetchStudents(selectedGroup.id);
       }
     } catch (error) {
       logger.error('Failed to remove student:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to remove student',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.removeFailed'),
         variant: 'destructive',
       });
     }
@@ -268,8 +268,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
 
       if (!res.ok) {
         toast({
-          title: 'Error',
-          description: 'Failed to remove students',
+          title: t('teacher.group.error'),
+          description: t('teacher.group.removeManyFailed'),
           variant: 'destructive',
         });
         return;
@@ -277,8 +277,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       const data = await res.json();
       if (data.success) {
         toast({
-          title: 'Students Removed',
-          description: `${selectedStudents.size} student(s) removed from group`,
+          title: t('teacher.group.removedMany'),
+          description: t('teacher.group.removedManyDesc'),
         });
         setSelectedStudents(new Set());
         fetchStudents(selectedGroup.id);
@@ -286,8 +286,8 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
     } catch (error) {
       logger.error('Failed to remove students:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to remove students',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.removeManyFailed'),
         variant: 'destructive',
       });
     }
@@ -308,14 +308,14 @@ export default function GroupManagement({ groupId }: GroupManagementProps) {
       window.URL.revokeObjectURL(url);
 
       toast({
-        title: 'Export Complete',
-        description: 'Group data exported to CSV',
+        title: t('teacher.group.exportComplete'),
+        description: t('teacher.group.exportDesc'),
       });
     } catch (error) {
       logger.error('Failed to export group data:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to export data',
+        title: t('teacher.group.error'),
+        description: t('teacher.group.exportFailed'),
         variant: 'destructive',
       });
     }
