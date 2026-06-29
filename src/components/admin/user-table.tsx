@@ -602,7 +602,7 @@ export default function UserTable() {
                               size="sm"
                               onClick={() => handleUnban(user.id, user.name)}
                               className="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950"
-                              aria-label="Unban"
+                              aria-label={t('admin.users.unban')}
                               title={`Banned: ${user.ban_reason || 'no reason'}`}
                             >
                               <Ban className="h-4 w-4" />
@@ -613,7 +613,7 @@ export default function UserTable() {
                               size="sm"
                               onClick={() => handleBan(user.id, user.name)}
                               className="text-slate-600 dark:text-slate-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950"
-                              aria-label="Ban"
+                              aria-label={t('admin.users.ban')}
                             >
                               <Ban className="h-4 w-4" />
                             </Button>
@@ -669,7 +669,7 @@ export default function UserTable() {
         {activeTab === 'banned' && (
           <>
             {bannedUsers.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No banned users</p>
+              <p className="text-center text-muted-foreground py-8">{t('admin.users.noBannedUsers')}</p>
             ) : (
               <div className="rounded-md border">
                 <Table>
@@ -677,9 +677,9 @@ export default function UserTable() {
                     <TableRow>
                       <TableHead>{t('admin.users.name')}</TableHead>
                       <TableHead>{t('admin.users.email')}</TableHead>
-                      <TableHead>Ban Reason</TableHead>
-                      <TableHead>Banned By</TableHead>
-                      <TableHead>Ban Date</TableHead>
+                      <TableHead>{t('admin.users.banReason')}</TableHead>
+                      <TableHead>{t('admin.users.bannedBy')}</TableHead>
+                      <TableHead>{t('admin.users.banDate')}</TableHead>
                       <TableHead>{t('admin.users.actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -770,7 +770,7 @@ export default function UserTable() {
                 id="name"
                 value={newUser.name}
                 onChange={(e) => setNewUser((prev) => ({ ...prev, name: e.target.value }))}
-                placeholder="John Doe"
+                placeholder={t('admin.users.namePlaceholder')}
               />
             </div>
             <div className="grid gap-2">

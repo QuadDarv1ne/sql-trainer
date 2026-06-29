@@ -71,7 +71,7 @@ export default function LearningPlan() {
                 id="userId"
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
-                placeholder="Enter student ID"
+                placeholder={t('analytics.learningPlan.studentIdPlaceholder')}
                 onKeyDown={(e) => e.key === 'Enter' && fetchPlan()}
               />
             </div>
