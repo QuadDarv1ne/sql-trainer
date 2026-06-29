@@ -45,11 +45,6 @@ export function useQueryExecutor({
     practiceMode,
     nextPracticeTask,
     incrementExplainCount,
-    checkAndUnlockAchievements,
-    completedTasks,
-    queryHistory,
-    streak,
-    addXP,
   } = useSQLTrainerStore();
 
   const executeQuery = useCallback(async () => {
@@ -253,29 +248,9 @@ export function useQueryExecutor({
         markTaskCompleted(currentTaskId, attemptCountRef.current);
         updateStreak();
         toast.success(t('task.completed'), {
-          description: `+${verifyData.xp ?? 0} XP`,
+          description: `${attemptCountRef.current} ${plural(attemptCountRef.current, t('task.attempts'), t('task.attemptsFew'), t('task.attemptsMany'))} • +${useSQLTrainerStore.getState().userStats.xp} XP`,
+          duration: 4000,
         });
-
-        const { newAchievements, xpGained } = checkAndUnlockAchievements({
-          completedTasks: [
-            ...completedTasks,
-            { taskId: currentTaskId, completedAt: Date.now(), attempts: attemptCountRef.current },
-          ],
-          queryHistoryLength: queryHistory.length,
-          currentStreak: streak.currentStreak,
-          taskId: currentTaskId,
-          attempts: attemptCountRef.current,
-        });
-
-        if (xpGained > 0) {
-          addXP(xpGained);
-        }
-
-        if (newAchievements.length > 0) {
-          newAchievements.forEach((a: { icon: string; title: string; description: string }) => {
-            toast.success(`${a.icon} ${a.title}`, { description: a.description });
-          });
-        }
       } else if (!verifyData.verified) {
         toast.error(t('task.notVerified'), {
           description: verifyData.message || t('task.notVerifiedDetail'),
@@ -292,14 +267,9 @@ export function useQueryExecutor({
     isExecuting,
     currentTaskId,
     dbType,
-    completedTasks,
-    queryHistory,
-    streak,
     setIsExecuting,
     markTaskCompleted,
     updateStreak,
-    checkAndUnlockAchievements,
-    addXP,
     isTaskCompleted,
     setVerification,
   ]);
