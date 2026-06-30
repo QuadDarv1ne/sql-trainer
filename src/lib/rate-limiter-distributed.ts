@@ -168,18 +168,60 @@ export class RedisRateLimiter implements RateLimiter {
 }
 
 // In-memory fallback implementation
-const memoryStore = new Map<string, { count: number; resetAt: number }>();
+interface InMemoryEntry {
+  count: number;
+  resetAt: number;
+}
+
+const memoryStore = new Map<string, InMemoryEntry>();
+const MAX_ENTRIES = 10_000;
+
+let cleanupTimer: ReturnType<typeof setInterval> | null = null;
+
+function startCleanupInterval(): void {
+  if (cleanupTimer) return;
+  cleanupTimer = setInterval(
+    () => {
+      const now = Date.now();
+      for (const [key, entry] of memoryStore) {
+        if (now > entry.resetAt) {
+          memoryStore.delete(key);
+        }
+      }
+    },
+    5 * 60 * 1000,
+  );
+  if (typeof cleanupTimer.unref === 'function') {
+    cleanupTimer.unref();
+  }
+}
+
+startCleanupInterval();
 
 function checkInMemory(key: string, { max, windowMs = 60_000 }: RateLimitOptions): RateLimitResult {
   const now = Date.now();
   const entry = memoryStore.get(key);
 
   if (!entry || now > entry.resetAt) {
-    memoryStore.set(key, { count: 1, resetAt: now + windowMs });
+    // Evict oldest entry when at capacity
+    if (!entry && memoryStore.size >= MAX_ENTRIES) {
+      let oldestKey: string | null = null;
+      let oldestResetAt = Infinity;
+      for (const [k, v] of memoryStore) {
+        if (v.resetAt < oldestResetAt) {
+          oldestResetAt = v.resetAt;
+          oldestKey = k;
+        }
+      }
+      if (oldestKey) memoryStore.delete(oldestKey);
+    }
+
+    const resetAt = now + windowMs;
+    memoryStore.set(key, { count: 1, resetAt });
     return {
       success: true,
       remaining: max - 1,
-      resetAt: now + windowMs,
+      resetAt,
       limit: max,
     };
   }
@@ -200,6 +242,10 @@ function clearInMemoryKey(key: string): void {
   memoryStore.delete(key);
 }
 
+export function clearInMemoryStore(): void {
+  memoryStore.clear();
+}
+
 // Singleton instance
 let globalRateLimiter: RedisRateLimiter | null = null;
 
@@ -212,7 +258,7 @@ export function getRateLimiter(): RateLimiter {
 
 export function resetGlobalRateLimiter(): void {
   globalRateLimiter = null;
-  memoryStore.clear();
+  clearInMemoryStore();
 }
 
 // Helper function to create Redis client (lazy-loaded, optional dependency)
