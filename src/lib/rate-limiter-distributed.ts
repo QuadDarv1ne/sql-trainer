@@ -223,7 +223,10 @@ function createRedisClient(redisUrl?: string): any | null {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Redis = require(/* turbopackIgnore: true */ 'io' + 'redis');
-    return new Redis(redisUrl || process.env.REDIS_URL || 'redis://localhost:6379');
+    const client = new Redis(redisUrl || process.env.REDIS_URL || 'redis://localhost:6379');
+    // Suppress unhandled error events (connection failures are handled by initRedis)
+    client.on('error', () => {});
+    return client;
   } catch {
     logger.warn('ioredis is not installed — distributed rate limiting will use in-memory fallback');
     return null;
