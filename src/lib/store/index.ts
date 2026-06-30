@@ -73,12 +73,11 @@ type CombinedState = DatabaseSlice &
 // Each slice creator is typed against its own narrow state, but the composed
 // store passes the full CombinedState's set/get/store. These casts bridge that gap.
 // This is the recommended Zustand pattern for slice composition.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SliceSet = (...args: any[]) => void;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SliceGet = (...args: any[]) => any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SliceStore = any;
+import type { StoreApi } from 'zustand';
+
+type SliceSet = StoreApi<CombinedState>['setState'];
+type SliceGet = StoreApi<CombinedState>['getState'];
+type SliceStore = StoreApi<CombinedState>;
 
 export const useSQLTrainerStore = create<CombinedState>()(
   persist(
