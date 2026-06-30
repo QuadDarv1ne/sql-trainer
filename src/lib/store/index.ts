@@ -12,8 +12,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createDatabaseSlice, type DatabaseSlice } from './database-slice';
-import { createProgressSlice, type ProgressSlice } from './progress-slice';
-import { createGamificationSlice, type GamificationSlice, type Achievement } from './gamification-slice';
+import { createProgressSlice, type ProgressSlice, defaultStreak } from './progress-slice';
+import { createGamificationSlice, type GamificationSlice, type Achievement, defaultStats } from './gamification-slice';
 import { createPracticeModeSlice, type PracticeModeSlice } from './practice-mode-slice';
 import { createUISlice, type UISlice } from './ui-slice';
 import { createOnboardingSlice, type OnboardingSlice } from './onboarding-slice';
@@ -225,19 +225,8 @@ export const useSQLTrainerStore = create<CombinedState>()(
           bookmarkedTasks: [],
           queryHistory: [],
           savedQueries: [],
-          streak: {
-            currentStreak: 0,
-            longestStreak: 0,
-            lastPracticeDate: '',
-            totalPracticeDays: 0,
-          },
-          userStats: {
-            xp: 0,
-            level: 1,
-            levelProgress: 0,
-            explainCount: 0,
-            hintFreeCount: 0,
-          },
+          streak: { ...defaultStreak },
+          userStats: { ...defaultStats },
           achievements: [],
           unlockedAchievements: [],
         });

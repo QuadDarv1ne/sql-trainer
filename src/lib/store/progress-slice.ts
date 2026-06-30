@@ -60,7 +60,7 @@ export interface ProgressSlice {
   resetAllProgress: () => void;
 }
 
-const defaultStreak: StreakInfo = {
+export const defaultStreak: StreakInfo = {
   currentStreak: 0,
   longestStreak: 0,
   lastPracticeDate: '',

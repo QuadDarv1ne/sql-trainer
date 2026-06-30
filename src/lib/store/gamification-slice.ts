@@ -183,7 +183,7 @@ export interface GamificationSlice {
   resetGamification: () => void;
 }
 
-const defaultStats: UserStats = {
+export const defaultStats: UserStats = {
   xp: 0,
   level: 1,
   levelProgress: 0,
