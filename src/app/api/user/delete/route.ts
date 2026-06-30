@@ -30,7 +30,12 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Too many attempts. Please try later' }, { status: 429 });
     }
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
+    }
     const result = validateBody(body, deleteAccountSchema);
     if ('response' in result) return result.response;
 

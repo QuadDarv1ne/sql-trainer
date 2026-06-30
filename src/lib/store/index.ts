@@ -122,6 +122,7 @@ export const useSQLTrainerStore = create<CombinedState>()(
             },
           };
         });
+        get().updateStreak();
       },
 
       // Gamification slice

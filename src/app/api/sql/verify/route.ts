@@ -4,7 +4,7 @@ import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { validateBody } from '@/lib/validation';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
-import { apiServerError } from '@/lib/api-error';
+import { logger } from '@/lib/logger';
 import type { MongoSchema } from '@/lib/mongodb-engine';
 import { sqlVerifySchema } from '@/lib/sql-schema';
 
@@ -50,7 +50,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Invalid JSON in request body' },
+        { status: 400 },
+      );
+    }
     const parsed = validateBody(body, sqlVerifySchema);
     if ('response' in parsed) return parsed.response;
 
@@ -83,7 +91,11 @@ export async function POST(request: NextRequest) {
     // For pure SELECT queries, use the original approach
     return verifySelectOnly(sql, task, effectiveDbType);
   } catch (err: unknown) {
-    return apiServerError('SQL verify', undefined, err);
+    logger.error('SQL verify error:', err);
+    return NextResponse.json(
+      { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Internal server error' },
+      { status: 500 },
+    );
   }
 }
 

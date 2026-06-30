@@ -29,7 +29,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Too many requests. Try again later' }, { status: 429 });
     }
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
+    }
     const result = validateBody(body, pushSubscribeSchema);
     if ('response' in result) return result.response;
 

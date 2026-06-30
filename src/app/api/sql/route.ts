@@ -151,7 +151,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Invalid JSON in request body', columns: [], rows: [], executionTime: 0 },
+        { status: 400 },
+      );
+    }
     const parsed = validateBody(body, sqlExecuteSchema);
     if ('response' in parsed) return parsed.response;
 

@@ -31,7 +31,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Too many attempts. Please try later' }, { status: 429 });
     }
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
+    }
     const validation = validateBody(body, changeEmailSchema);
     if ('response' in validation) return validation.response;
 
