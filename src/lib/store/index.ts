@@ -34,9 +34,6 @@ type ProgressSnapshot = {
   unlockedAchievements: import('./gamification-slice').Achievement[];
 };
 
-let _resetSnapshot: ProgressSnapshot | null = null;
-let _resetSnapshotTime = 0;
-
 // Export types for consumers
 export type { QueryHistoryEntry, CompletedTask, StreakInfo, SavedQuery } from './progress-slice';
 export type { QueryResult, VerificationResult } from './database-slice';
@@ -64,6 +61,8 @@ type CombinedState = DatabaseSlice &
   UISlice &
   OnboardingSlice &
   TimerSlice & {
+    _resetSnapshot: ProgressSnapshot | null;
+    _resetSnapshotTime: number;
     exportProgress: () => ExportData;
     importProgress: (data: ExportData) => { success: boolean; error?: string };
     undoReset: () => void;
@@ -140,6 +139,10 @@ export const useSQLTrainerStore = create<CombinedState>()(
       // Timer slice
       ...(createTimerSlice(set as SliceSet, get as SliceGet, store as SliceStore) as TimerSlice),
 
+      // Reset snapshot state (stored in-store rather than module-level for SSR safety)
+      _resetSnapshot: null as ProgressSnapshot | null,
+      _resetSnapshotTime: 0,
+
       // Override setCurrentTaskId to also clear UI state
       setCurrentTaskId: (id: string | null) => {
         set({
@@ -207,20 +210,19 @@ export const useSQLTrainerStore = create<CombinedState>()(
         });
       },
       resetAllProgress: () => {
-        // Save snapshot for potential undo (stored in a module-level variable)
-        _resetSnapshot = {
-          completedTasks: get().completedTasks,
-          bookmarkedTasks: get().bookmarkedTasks,
-          queryHistory: get().queryHistory,
-          savedQueries: get().savedQueries,
-          streak: get().streak,
-          userStats: get().userStats,
-          achievements: get().achievements,
-          unlockedAchievements: get().unlockedAchievements,
-        };
-        _resetSnapshotTime = Date.now();
-
+        const state = get();
         set({
+          _resetSnapshot: {
+            completedTasks: state.completedTasks,
+            bookmarkedTasks: state.bookmarkedTasks,
+            queryHistory: state.queryHistory,
+            savedQueries: state.savedQueries,
+            streak: state.streak,
+            userStats: state.userStats,
+            achievements: state.achievements,
+            unlockedAchievements: state.unlockedAchievements,
+          },
+          _resetSnapshotTime: Date.now(),
           completedTasks: [],
           bookmarkedTasks: [],
           queryHistory: [],
@@ -232,19 +234,20 @@ export const useSQLTrainerStore = create<CombinedState>()(
         });
       },
       undoReset: () => {
-        if (!_resetSnapshot || Date.now() - _resetSnapshotTime > 30_000) return;
+        const { _resetSnapshot: snapshot, _resetSnapshotTime: snapshotTime } = get();
+        if (!snapshot || Date.now() - snapshotTime > 30_000) return;
         set({
-          completedTasks: _resetSnapshot.completedTasks,
-          bookmarkedTasks: _resetSnapshot.bookmarkedTasks,
-          queryHistory: _resetSnapshot.queryHistory,
-          savedQueries: _resetSnapshot.savedQueries,
-          streak: _resetSnapshot.streak,
-          userStats: _resetSnapshot.userStats,
-          achievements: _resetSnapshot.achievements,
-          unlockedAchievements: _resetSnapshot.unlockedAchievements,
+          completedTasks: snapshot.completedTasks,
+          bookmarkedTasks: snapshot.bookmarkedTasks,
+          queryHistory: snapshot.queryHistory,
+          savedQueries: snapshot.savedQueries,
+          streak: snapshot.streak,
+          userStats: snapshot.userStats,
+          achievements: snapshot.achievements,
+          unlockedAchievements: snapshot.unlockedAchievements,
+          _resetSnapshot: null,
+          _resetSnapshotTime: 0,
         });
-        _resetSnapshot = null;
-        _resetSnapshotTime = 0;
       },
 
       // Export/Import

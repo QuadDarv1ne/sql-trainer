@@ -101,7 +101,7 @@ export const createProgressSlice: StateCreator<ProgressSlice, [], [], ProgressSl
     let newCurrentStreak = streak.currentStreak;
     if (streak.lastPracticeDate === yesterdayStr) {
       newCurrentStreak += 1;
-    } else if (streak.lastPracticeDate !== today) {
+    } else {
       newCurrentStreak = 1;
     }
 

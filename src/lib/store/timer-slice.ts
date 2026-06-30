@@ -3,20 +3,7 @@ import type { TimerSlice } from './timer-slice-types';
 
 export type { TimerSlice };
 
-export interface TimerSliceTypes {
-  timer: {
-    isActive: boolean;
-    timeRemaining: number; // seconds
-    totalDuration: number;
-    isPaused: boolean;
-  };
-  timerSettings: {
-    defaultDuration: number; // 15 minutes by default
-    warningThreshold: number; // warn 1 minute before
-  };
-}
-
-export const createTimerSlice: StateCreator<TimerSlice, [], [], TimerSliceTypes> = (set, get) => ({
+export const createTimerSlice: StateCreator<TimerSlice, [], [], TimerSlice> = (set, get) => ({
   timer: {
     isActive: false,
     timeRemaining: 900, // 15 minutes default
@@ -90,7 +77,7 @@ export const createTimerSlice: StateCreator<TimerSlice, [], [], TimerSliceTypes>
     }));
   },
 
-  setTimerSettings: (settings: Partial<TimerSliceTypes['timerSettings']>) => {
+  setTimerSettings: (settings: Partial<TimerSlice['timerSettings']>) => {
     set((state) => ({
       timerSettings: {
         ...state.timerSettings,

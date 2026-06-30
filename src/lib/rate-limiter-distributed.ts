@@ -4,6 +4,7 @@
  * Falls back to in-memory store if Redis is unavailable.
  */
 
+import type Redis from 'ioredis';
 import { logger } from './logger';
 
 export interface RateLimitOptions {
@@ -264,8 +265,7 @@ export function resetGlobalRateLimiter(): void {
 // Helper function to create Redis client (lazy-loaded, optional dependency)
 // The module name is constructed dynamically to prevent bundlers from
 // trying to resolve it at build time when ioredis is not installed.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createRedisClient(redisUrl?: string): any | null {
+function createRedisClient(redisUrl?: string): Redis | null {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Redis = require(/* turbopackIgnore: true */ 'io' + 'redis');
