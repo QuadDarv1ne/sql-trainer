@@ -67,21 +67,21 @@
 3. [x] **Consolidate manual auth routes** — rewrite `user/delete`, `user/change-password`, `user/change-email`, `push/subscribe`, `push/unsubscribe` to use `withUserAuthStrict` wrapper (removes CSRF gap + duplicated boilerplate, -73 lines)
 4. [x] **Add CSRF validation to `/api/auth/register`** — added `validateCsrfTokenEdge` + `csrfErrorResponse` to register endpoint
 5. [x] **Add rate-limit headers to manual routes** — now injected by `withRoleAuth` wrapper on all routes including `withUserAuthStrict`
-6. **Type-safe Zustand store** — replace `SliceSet = (...args: any[]) => void`, `SliceGet`, `SliceStore = any` with proper generic types in `src/lib/store/index.ts`
+6. [x] **Type-safe Zustand store** — already fixed by upstream (e7c2aec) with proper `StoreApi<CombinedState>` types
 7. **Standardize API response envelope** — ensure all routes return `{ success: boolean, error?: string }` consistently; fix routes returning raw `{ metrics }` or `{ stats }` without `success` field
-8. **Consolidate rate-limit window constants** — extract `15 * 60 * 1000` repeated across routes into a shared constant in `src/lib/rate-limit.ts`
+8. [x] **Consolidate rate-limit window constants** — extracted 17 magic numbers into `RATE_LIMIT_WINDOWS` constants in `src/lib/rate-limit.ts`
 9. [x] **Replace manual `as UserRole` casts** — simplified Zod-validated role narrowing in `auth/register` (removed redundant `ALLOWED_SELF_ROLES.includes()`)
 10. [x] **Audit push subscription endpoints for auth consistency** — now use `withUserAuthStrict` from `@/lib/auth-internal` (was `@/lib/auth` Edge-only)
 
 ## Phase 5 — Next 10 Quality Improvements
 
-1. **Type-safe Zustand store** — replace `SliceSet = (...args: any[]) => void`, `SliceGet`, `SliceStore = any` with proper generic types in `src/lib/store/index.ts`
-2. **Standardize API response envelope** — ensure all routes return `{ success: boolean, error?: string }` consistently; fix routes returning raw `{ metrics }` or `{ stats }` without `success` field
-3. **Consolidate rate-limit window constants** — extract magic numbers (`15 * 60 * 1000`, `60_000`) into named constants in `src/lib/rate-limit.ts`
-4. **Add `parseAndValidate` to remaining manual routes** — replace inline `request.json()` + `validateBody` two-step with single `parseAndValidate(req, schema)` call
-5. **Input sanitization audit** — review all user-facing inputs for XSS, ensure consistent escaping across components
-6. **Dead code elimination** — run `ts-prune` to find and remove unused exports across the codebase
-7. **API response compression** — enable gzip/brotli compression for API responses to reduce payload sizes
-8. **Automated dependency updates** — configure Renovate or Dependabot for automated security patches
-9. **Database connection pool monitoring** — add metrics for active/idle connections, connection wait time, and pool exhaustion events
-10. **Image optimization audit** — ensure all images use next/image with proper sizes, formats (WebP/AVIF), and lazy loading
+1. **Standardize API response envelope** — ensure all routes return `{ success: boolean, error?: string }` consistently; fix routes returning raw `{ metrics }` or `{ stats }` without `success` field
+2. **Add `parseAndValidate` to remaining manual routes** — replace inline `request.json()` + `validateBody` two-step with single `parseAndValidate(req, schema)` call
+3. **Input sanitization audit** — review all user-facing inputs for XSS, ensure consistent escaping across components
+4. **Dead code elimination** — run `ts-prune` to find and remove unused exports across the codebase
+5. **API response compression** — enable gzip/brotli compression for API responses to reduce payload sizes
+6. **Automated dependency updates** — configure Renovate or Dependabot for automated security patches
+7. **Database connection pool monitoring** — add metrics for active/idle connections, connection wait time, and pool exhaustion events
+8. **Image optimization audit** — ensure all images use next/image with proper sizes, formats (WebP/AVIF), and lazy loading
+9. **CSP nonce for inline scripts** — implement dynamic nonce generation for Content Security Policy to allow necessary inline scripts
+10. **Bundle analysis automation** — add `@next/bundle-analyzer` with CI step to catch size regressions before merge
