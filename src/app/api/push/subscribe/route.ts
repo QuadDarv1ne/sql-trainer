@@ -1,10 +1,9 @@
-import { auth } from '@/lib/auth';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { withUserAuthStrict } from '@/lib/api-auth';
 import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
 import { savePushSubscription } from '@/lib/db-users';
 import { logger } from '@/lib/logger';
-import { rateLimit } from '@/lib/rate-limit';
 
 const pushSubscribeSchema = z.object({
   subscription: z.object({
@@ -16,19 +15,8 @@ const pushSubscribeSchema = z.object({
   }),
 });
 
-export async function POST(request: NextRequest) {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Rate limit: 10 subscriptions per hour per user
-    const limit = await rateLimit(`push-subscribe:${session.user.id}`, { max: 10, windowMs: 60 * 60 * 1000 });
-    if (!limit.success) {
-      return NextResponse.json({ error: 'Too many requests. Try again later' }, { status: 429 });
-    }
-
+export const POST = withUserAuthStrict(
+  async ({ session, request }) => {
     let body: unknown;
     try {
       body = await request.json();
@@ -52,8 +40,6 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    logger.error('POST /api/push/subscribe:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
-}
+  },
+  { max: 10, windowMs: 60 * 60 * 1000 },
+);

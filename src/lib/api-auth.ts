@@ -116,16 +116,27 @@ async function resolveParams(context?: {
 }
 
 /**
+ * Rate limit configuration for withRoleAuth.
+ */
+interface RateLimitConfig {
+  max: number;
+  windowMs: number;
+}
+
+/**
  * Factory that creates a role-scoped auth wrapper with rate limiting and error handling.
  * Eliminates the near-identical withAdminAuth / withTeacherAuth implementations.
  */
 function withRoleAuth(
   roleCheck: () => Promise<{ error: NextResponse | null; session: AuthSession | null }>,
   rateLimitPrefix: string,
-  rateLimitMax: number,
+  defaultRateLimit: RateLimitConfig,
   errorLabel: string,
 ) {
-  return function (handler: (ctx: RouteHandlerContext) => NextResponse | Promise<NextResponse>) {
+  return function (
+    handler: (ctx: RouteHandlerContext) => NextResponse | Promise<NextResponse>,
+    overrideRateLimit?: RateLimitConfig,
+  ) {
     return async (
       request: Request,
       context?: { params?: Promise<Record<string, string>> | Record<string, string> },
@@ -143,7 +154,8 @@ function withRoleAuth(
       }
 
       const userId = authResult.session.user.id;
-      const limitResult = await rateLimit(`${rateLimitPrefix}:${userId}`, { max: rateLimitMax, windowMs: 60_000 });
+      const rl = overrideRateLimit ?? defaultRateLimit;
+      const limitResult = await rateLimit(`${rateLimitPrefix}:${userId}`, rl);
       if (!limitResult.success) {
         return withRateLimitHeaders(NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 }), limitResult);
       }
@@ -161,8 +173,8 @@ function withRoleAuth(
   };
 }
 
-export const withAdminAuth = withRoleAuth(requireAdmin, 'admin', 30, 'Admin');
-export const withTeacherAuth = withRoleAuth(requireTeacher, 'teacher', 30, 'Teacher');
+export const withAdminAuth = withRoleAuth(requireAdmin, 'admin', { max: 30, windowMs: 60_000 }, 'Admin');
+export const withTeacherAuth = withRoleAuth(requireTeacher, 'teacher', { max: 30, windowMs: 60_000 }, 'Teacher');
 
 /**
  * Check that user is authenticated (no specific role required).
@@ -179,7 +191,14 @@ async function requireUser() {
  * Higher-order wrapper for any authenticated user (no specific role required).
  * Replaces manual `const session = await auth()` checks in user-facing routes.
  */
-export const withUserAuth = withRoleAuth(requireUser, 'user', 60, 'User');
+export const withUserAuth = withRoleAuth(requireUser, 'user', { max: 60, windowMs: 60_000 }, 'User');
+
+/**
+ * Strict variant of withUserAuth for sensitive operations (password change, account deletion, etc).
+ * Pass as first argument to override the default rate limit:
+ *   export const POST = withUserAuthStrict(handler, { max: 5, windowMs: 15 * 60 * 1000 });
+ */
+export const withUserAuthStrict = withRoleAuth(requireUser, 'user', { max: 60, windowMs: 60_000 }, 'User');
 
 /**
  * Higher-order wrapper for analytics GET routes.
