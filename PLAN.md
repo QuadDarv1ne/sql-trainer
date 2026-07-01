@@ -68,7 +68,7 @@
 4. [x] **Add CSRF validation to `/api/auth/register`** — added `validateCsrfTokenEdge` + `csrfErrorResponse` to register endpoint
 5. [x] **Add rate-limit headers to manual routes** — now injected by `withRoleAuth` wrapper on all routes including `withUserAuthStrict`
 6. [x] **Type-safe Zustand store** — already fixed by upstream (e7c2aec) with proper `StoreApi<CombinedState>` types
-7. **Standardize API response envelope** — ensure all routes return `{ success: boolean, error?: string }` consistently; fix routes returning raw `{ metrics }` or `{ stats }` without `success` field
+7. [x] **Standardize API response envelope** — added `success: false` to all error responses across 22 admin/teacher/user/push/web-vitals routes; all routes now return `{ success: boolean, error?: string }` consistently
 8. [x] **Consolidate rate-limit window constants** — extracted 17 magic numbers into `RATE_LIMIT_WINDOWS` constants in `src/lib/rate-limit.ts`
 9. [x] **Replace manual `as UserRole` casts** — simplified Zod-validated role narrowing in `auth/register` (removed redundant `ALLOWED_SELF_ROLES.includes()`)
 10. [x] **Audit push subscription endpoints for auth consistency** — now use `withUserAuthStrict` from `@/lib/auth-internal` (was `@/lib/auth` Edge-only)
@@ -79,7 +79,7 @@
 
 ## Phase 5 — Next 10 Quality Improvements
 
-1. **Standardize API response envelope** — ensure all routes return `{ success: boolean, error?: string }` consistently; fix routes returning raw `{ metrics }` or `{ stats }` without `success` field
+1. [x] **Standardize API response envelope** — completed in Phase 4 #7 (22 routes fixed)
 2. **Add `parseAndValidate` to remaining manual routes** — replace inline `request.json()` + `validateBody` two-step with single `parseAndValidate(req, schema)` call
 3. **Input sanitization audit** — review all user-facing inputs for XSS, ensure consistent escaping across components
 4. **Dead code elimination** — run `ts-prune` to find and remove unused exports across the codebase

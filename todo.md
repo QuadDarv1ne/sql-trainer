@@ -36,7 +36,7 @@
 
 ---
 
-## План из 10 пунктов (2026-06-29)
+## План из 10 пунктов (2026-07-01)
 
 1. **[x] Rate limit bypass fix** — заменить `x-forwarded-for` на composite fingerprint через `getClientIdentifier()`. 5 API маршрутов обновлены.
 2. **[x] Merge upstream** — синхронизировать с `upstream/main`, разрешить 13 конфликтов, удалить мёртвый `safe-fetch`.
@@ -45,9 +45,9 @@
 5. **[x] SQL engine memory bound** — заменить `statement.all()` на `iterate()` в SELECT выполнении, лимит MAX_ROWS (1000) теперь не загружает всё в память.
 6. **[x] Тесты на `getClientIdentifier`** — написать unit-тесты для нового utility: разные комбинации заголовков, хеширование, fallback на anonymous. + Исправлены 23 падающих теста: `sql-verify.test.ts` и `role-registration.test.ts` — добавлен `getClientIdentifier` в mock `@/lib/rate-limit`.
 7. **[x] Исправить 26 падающих тестов** — добавить `RATE_LIMIT_WINDOWS`, CSRF и sanitization моки в `sql-verify.test.ts`, `role-registration.test.ts`, `api-routes-integration.test.ts` (755/755 тестов зелёные).
-8. **[ ] Исправить `i18n.ts` (327 КБ)** — вынести в JSON-файлы `src/locales/{ru,en,zh}.json`, добавить lazy-loading.
-9. **[ ] E2E тесты** — добавить Firefox/WebKit в Playwright, написать 5 сценариев (студент, учитель, админ, свободный режим, тема).
-10. **[ ] API документация** — добавить OpenAPI 3.0 spec для ключевых эндпоинтов, Swagger UI на `/api/docs`.
+8. **[x] Standardize API response envelope** — добавить `success: false` во все error-ответы в 22 API маршрутах (admin/teacher/user/push/web-vitals). Все ответы теперь `{ success: boolean, error?: string }`.
+9. **[ ] Исправить `i18n.ts` (327 КБ)** — вынести в JSON-файлы `src/locales/{ru,en,zh}.json`, добавить lazy-loading.
+10. **[ ] E2E тесты** — добавить Firefox/WebKit в Playwright, написать 5 сценариев (студент, учитель, админ, свободный режим, тема).
 
 ---
 
