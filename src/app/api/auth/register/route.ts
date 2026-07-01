@@ -6,6 +6,7 @@ import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 import { apiServerError } from '@/lib/api-error';
 import { validateBody } from '@/lib/validation';
+import { validateCsrfTokenEdge, csrfErrorResponse } from '@/lib/csrf';
 
 const ALLOWED_SELF_ROLES: UserRole[] = ['student', 'teacher'];
 
@@ -32,6 +33,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // CSRF protection — registration is a state-changing operation
+    if (!validateCsrfTokenEdge(request)) {
+      return csrfErrorResponse();
+    }
+
     let body: unknown;
     try {
       body = await request.json();
@@ -53,8 +59,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: sanitizedPhone.error }, { status: 400 });
     }
 
-    // Use requested role or default to 'student'; only allow self-registration roles
-    const userRole: UserRole = role && ALLOWED_SELF_ROLES.includes(role as UserRole) ? (role as UserRole) : 'student';
+    // Use requested role or default to 'student'; Zod schema already validates enum values
+    const userRole = (role as UserRole) ?? 'student';
 
     const user = await createUser(email, sanitizedName.value, password, sanitizedPhone.value || undefined, userRole);
     if (!user) {
