@@ -104,7 +104,7 @@ export const POST = withAdminAuth(async ({ session, request }) => {
   `,
   ).run(id, session.user.id, reportType, format, schedule, JSON.stringify(emailRecipients), now);
 
-  return NextResponse.json({ id, message: 'Scheduled report created' }, { status: 201 });
+  return NextResponse.json({ success: true, id, message: 'Scheduled report created' }, { status: 201 });
 });
 
 export const DELETE = withAdminAuth(async ({ request }) => {
@@ -121,5 +121,5 @@ export const DELETE = withAdminAuth(async ({ request }) => {
     return NextResponse.json({ success: false, error: 'Report not found' }, { status: 404 });
   }
 
-  return NextResponse.json({ message: 'Scheduled report deleted' });
+  return NextResponse.json({ success: true, message: 'Scheduled report deleted' });
 });

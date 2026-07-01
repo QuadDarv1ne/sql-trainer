@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { logger } from './logger';
 
 export interface ApiErrorResponse {
+  success: false;
   error: string;
   correlationId: string;
   details?: string;
@@ -31,7 +32,7 @@ export function apiError(
   const id = correlationId || generateCorrelationId();
   logger.error(`[${id}] ${message}`, error);
   return NextResponse.json(
-    { error: message, correlationId: id, details: error instanceof Error ? error.message : undefined },
+    { success: false, error: message, correlationId: id, details: error instanceof Error ? error.message : undefined },
     { status },
   );
 }
@@ -46,7 +47,7 @@ export function apiServerError(
   const message = formatErrorMessage(context, error, isDev);
   logger.error(`[${id}] ${context} failed`, error);
   return NextResponse.json(
-    { error: 'Internal server error', correlationId: id, details: isDev ? message : undefined },
+    { success: false, error: 'Internal server error', correlationId: id, details: isDev ? message : undefined },
     { status: 500 },
   );
 }

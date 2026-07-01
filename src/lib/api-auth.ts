@@ -37,11 +37,11 @@ interface AuthSession {
 export async function requireAdmin() {
   const session = (await auth()) as AuthSession | null;
   if (!session?.user?.id) {
-    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }), session: null };
+    return { error: NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 }), session: null };
   }
   const userRole = session.user.role;
   if (!userRole || !hasRole(userRole, 'admin')) {
-    return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }), session: null };
+    return { error: NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 }), session: null };
   }
   return { error: null, session };
 }
@@ -49,11 +49,11 @@ export async function requireAdmin() {
 export async function requireTeacher() {
   const session = (await auth()) as AuthSession | null;
   if (!session?.user?.id) {
-    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }), session: null };
+    return { error: NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 }), session: null };
   }
   const userRole = session.user.role;
   if (!userRole || !hasRole(userRole, 'teacher')) {
-    return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }), session: null };
+    return { error: NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 }), session: null };
   }
   return { error: null, session };
 }
@@ -143,7 +143,7 @@ function withRoleAuth(
     ): Promise<NextResponse> => {
       const authResult = await roleCheck();
       if (!authResult.session) {
-        return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
+        return authResult.error ?? NextResponse.json({ success: false, error: 'Internal error' }, { status: 500 });
       }
 
       const method = request.method.toUpperCase();
@@ -157,7 +157,7 @@ function withRoleAuth(
       const rl = overrideRateLimit ?? defaultRateLimit;
       const limitResult = await rateLimit(`${rateLimitPrefix}:${userId}`, rl);
       if (!limitResult.success) {
-        return withRateLimitHeaders(NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 }), limitResult);
+        return withRateLimitHeaders(NextResponse.json({ success: false, error: t(RATE_LIMIT_MESSAGE) }, { status: 429 }), limitResult);
       }
 
       const params = await resolveParams(context);
@@ -167,7 +167,7 @@ function withRoleAuth(
         return withRateLimitHeaders(response, limitResult);
       } catch (error) {
         logger.error(`${errorLabel} handler error:`, error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
       }
     };
   };
@@ -182,7 +182,7 @@ export const withTeacherAuth = withRoleAuth(requireTeacher, 'teacher', { max: 30
 async function requireUser() {
   const session = (await auth()) as AuthSession | null;
   if (!session?.user?.id) {
-    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }), session: null };
+    return { error: NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 }), session: null };
   }
   return { error: null, session };
 }
@@ -209,14 +209,14 @@ export function withAnalyticsAuth(handler: (ctx: AnalyticsHandlerContext) => Nex
   return async (request: Request): Promise<NextResponse> => {
     const authResult = await requireAdmin();
     if (!authResult.session) {
-      return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
+      return authResult.error ?? NextResponse.json({ success: false, error: 'Internal error' }, { status: 500 });
     }
 
     // Rate limit analytics requests: 30 per minute per user
     const userId = authResult.session.user.id;
     const limitResult = await rateLimit(`analytics:${userId}`, { max: 30, windowMs: 60_000 });
     if (!limitResult.success) {
-      return withRateLimitHeaders(NextResponse.json({ error: t(RATE_LIMIT_MESSAGE) }, { status: 429 }), limitResult);
+      return withRateLimitHeaders(NextResponse.json({ success: false, error: t(RATE_LIMIT_MESSAGE) }, { status: 429 }), limitResult);
     }
 
     const url = new URL(request.url);
@@ -224,7 +224,7 @@ export function withAnalyticsAuth(handler: (ctx: AnalyticsHandlerContext) => Nex
     const { startDate, endDate, error } = parseDateParams(searchParams);
 
     if (error) {
-      return NextResponse.json({ error }, { status: 400 });
+      return NextResponse.json({ success: false, error }, { status: 400 });
     }
 
     try {
@@ -237,7 +237,7 @@ export function withAnalyticsAuth(handler: (ctx: AnalyticsHandlerContext) => Nex
       return withRateLimitHeaders(response, limitResult);
     } catch (error) {
       logger.error('Analytics handler error:', error);
-      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+      return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
     }
   };
 }
