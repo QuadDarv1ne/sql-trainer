@@ -49,14 +49,24 @@ export const PUT = withAdminAuth(async ({ session, request, params }) => {
   const { name, email, phone } = result.data;
 
   // Sanitize name and phone fields
-  const sanitizedName = name ? sanitizeName(name).value : undefined;
-  const sanitizedPhone = phone !== undefined ? sanitizePhone(phone).value : undefined;
+  const sanitizedName = name !== undefined ? sanitizeName(name) : null;
+  if (sanitizedName?.error) {
+    return NextResponse.json({ error: sanitizedName.error }, { status: 400 });
+  }
+  const sanitizedPhone = phone !== undefined ? sanitizePhone(phone) : null;
+  if (sanitizedPhone?.error) {
+    return NextResponse.json({ error: sanitizedPhone.error }, { status: 400 });
+  }
 
   if (id === session.user.id && email) {
     return NextResponse.json({ error: 'Cannot change your own email' }, { status: 400 });
   }
 
-  const success = updateUserDetails(id, { name: sanitizedName, email, phone: sanitizedPhone }, session.user.id);
+  const success = updateUserDetails(
+    id,
+    { name: sanitizedName?.value, email, phone: sanitizedPhone?.value },
+    session.user.id,
+  );
   if (!success) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }

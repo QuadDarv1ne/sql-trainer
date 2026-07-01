@@ -12,8 +12,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createDatabaseSlice, type DatabaseSlice } from './database-slice';
-import { createProgressSlice, type ProgressSlice } from './progress-slice';
-import { createGamificationSlice, type GamificationSlice, type Achievement } from './gamification-slice';
+import { createProgressSlice, type ProgressSlice, defaultStreak } from './progress-slice';
+import { createGamificationSlice, type GamificationSlice, type Achievement, defaultStats } from './gamification-slice';
 import { createPracticeModeSlice, type PracticeModeSlice } from './practice-mode-slice';
 import { createUISlice, type UISlice } from './ui-slice';
 import { createOnboardingSlice, type OnboardingSlice } from './onboarding-slice';
@@ -33,9 +33,6 @@ type ProgressSnapshot = {
   achievements: string[];
   unlockedAchievements: import('./gamification-slice').Achievement[];
 };
-
-let _resetSnapshot: ProgressSnapshot | null = null;
-let _resetSnapshotTime = 0;
 
 // Export types for consumers
 export type { QueryHistoryEntry, CompletedTask, StreakInfo, SavedQuery } from './progress-slice';
@@ -64,6 +61,8 @@ type CombinedState = DatabaseSlice &
   UISlice &
   OnboardingSlice &
   TimerSlice & {
+    _resetSnapshot: ProgressSnapshot | null;
+    _resetSnapshotTime: number;
     exportProgress: () => ExportData;
     importProgress: (data: ExportData) => { success: boolean; error?: string };
     undoReset: () => void;
@@ -73,12 +72,11 @@ type CombinedState = DatabaseSlice &
 // Each slice creator is typed against its own narrow state, but the composed
 // store passes the full CombinedState's set/get/store. These casts bridge that gap.
 // This is the recommended Zustand pattern for slice composition.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SliceSet = (...args: any[]) => void;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SliceGet = (...args: any[]) => any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SliceStore = any;
+import type { StoreApi } from 'zustand';
+
+type SliceSet = StoreApi<CombinedState>['setState'];
+type SliceGet = StoreApi<CombinedState>['getState'];
+type SliceStore = StoreApi<CombinedState>;
 
 export const useSQLTrainerStore = create<CombinedState>()(
   persist(
@@ -124,6 +122,7 @@ export const useSQLTrainerStore = create<CombinedState>()(
             },
           };
         });
+        get().updateStreak();
       },
 
       // Gamification slice
@@ -140,6 +139,10 @@ export const useSQLTrainerStore = create<CombinedState>()(
 
       // Timer slice
       ...(createTimerSlice(set as SliceSet, get as SliceGet, store as SliceStore) as TimerSlice),
+
+      // Reset snapshot state (stored in-store rather than module-level for SSR safety)
+      _resetSnapshot: null as ProgressSnapshot | null,
+      _resetSnapshotTime: 0,
 
       // Override setCurrentTaskId to also clear UI state
       setCurrentTaskId: (id: string | null) => {
@@ -208,55 +211,44 @@ export const useSQLTrainerStore = create<CombinedState>()(
         });
       },
       resetAllProgress: () => {
-        // Save snapshot for potential undo (stored in a module-level variable)
-        _resetSnapshot = {
-          completedTasks: get().completedTasks,
-          bookmarkedTasks: get().bookmarkedTasks,
-          queryHistory: get().queryHistory,
-          savedQueries: get().savedQueries,
-          streak: get().streak,
-          userStats: get().userStats,
-          achievements: get().achievements,
-          unlockedAchievements: get().unlockedAchievements,
-        };
-        _resetSnapshotTime = Date.now();
-
+        const state = get();
         set({
+          _resetSnapshot: {
+            completedTasks: state.completedTasks,
+            bookmarkedTasks: state.bookmarkedTasks,
+            queryHistory: state.queryHistory,
+            savedQueries: state.savedQueries,
+            streak: state.streak,
+            userStats: state.userStats,
+            achievements: state.achievements,
+            unlockedAchievements: state.unlockedAchievements,
+          },
+          _resetSnapshotTime: Date.now(),
           completedTasks: [],
           bookmarkedTasks: [],
           queryHistory: [],
           savedQueries: [],
-          streak: {
-            currentStreak: 0,
-            longestStreak: 0,
-            lastPracticeDate: '',
-            totalPracticeDays: 0,
-          },
-          userStats: {
-            xp: 0,
-            level: 1,
-            levelProgress: 0,
-            explainCount: 0,
-            hintFreeCount: 0,
-          },
+          streak: { ...defaultStreak },
+          userStats: { ...defaultStats },
           achievements: [],
           unlockedAchievements: [],
         });
       },
       undoReset: () => {
-        if (!_resetSnapshot || Date.now() - _resetSnapshotTime > 30_000) return;
+        const { _resetSnapshot: snapshot, _resetSnapshotTime: snapshotTime } = get();
+        if (!snapshot || Date.now() - snapshotTime > 30_000) return;
         set({
-          completedTasks: _resetSnapshot.completedTasks,
-          bookmarkedTasks: _resetSnapshot.bookmarkedTasks,
-          queryHistory: _resetSnapshot.queryHistory,
-          savedQueries: _resetSnapshot.savedQueries,
-          streak: _resetSnapshot.streak,
-          userStats: _resetSnapshot.userStats,
-          achievements: _resetSnapshot.achievements,
-          unlockedAchievements: _resetSnapshot.unlockedAchievements,
+          completedTasks: snapshot.completedTasks,
+          bookmarkedTasks: snapshot.bookmarkedTasks,
+          queryHistory: snapshot.queryHistory,
+          savedQueries: snapshot.savedQueries,
+          streak: snapshot.streak,
+          userStats: snapshot.userStats,
+          achievements: snapshot.achievements,
+          unlockedAchievements: snapshot.unlockedAchievements,
+          _resetSnapshot: null,
+          _resetSnapshotTime: 0,
         });
-        _resetSnapshot = null;
-        _resetSnapshotTime = 0;
       },
 
       // Export/Import
