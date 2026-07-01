@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withUserAuthStrict } from '@/lib/api-auth';
+import { RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { deletePushSubscription } from '@/lib/db-users';
 import { z } from 'zod';
 import { validateBody } from '@/lib/validation';
@@ -24,5 +25,5 @@ export const POST = withUserAuthStrict(
     deletePushSubscription(session.user.id, endpoint);
     return NextResponse.json({ success: true });
   },
-  { max: 10, windowMs: 60 * 60 * 1000 },
+  { max: 10, windowMs: RATE_LIMIT_WINDOWS.oneHour },
 );

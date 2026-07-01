@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyResetCode } from '@/lib/db-users';
-import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { rateLimit, getClientIdentifier, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     // Rate limit: max 5 attempts per 15 minutes per client
     const clientId = getClientIdentifier(request);
     const rateLimitKey = `reset-verify:${clientId}`;
-    const limitResult = await rateLimit(rateLimitKey, { max: 5, windowMs: 15 * 60 * 1000 });
+    const limitResult = await rateLimit(rateLimitKey, { max: 5, windowMs: RATE_LIMIT_WINDOWS.fifteenMinutes });
     if (!limitResult.success) {
       return NextResponse.json({ success: false, error: 'Too many attempts. Try again later' }, { status: 429 });
     }

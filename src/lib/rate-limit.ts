@@ -10,6 +10,16 @@ import { getRateLimiter, type RateLimitOptions, type RateLimitResult } from './r
 export type { RateLimitOptions, RateLimitResult };
 
 /**
+ * Named rate-limit window constants — replace magic numbers in route handlers.
+ */
+export const RATE_LIMIT_WINDOWS = {
+  oneMinute: 60_000,
+  tenMinutes: 10 * 60 * 1000,
+  fifteenMinutes: 15 * 60 * 1000,
+  oneHour: 60 * 60 * 1000,
+} as const;
+
+/**
  * Build a rate-limit key from the request that is resistant to header spoofing.
  *
  * For authenticated callers pass the userId — that is unforgeable (comes from the

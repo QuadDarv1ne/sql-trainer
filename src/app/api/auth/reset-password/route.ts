@@ -8,7 +8,7 @@ import {
   getUserById,
   queueEmail,
 } from '@/lib/db-users';
-import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { rateLimit, getClientIdentifier, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { escapeHtml } from '@/lib/html-utils';
 import { getUserEmail } from '@/lib/email';
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     // Rate limit: max 3 requests per 15 minutes per email
     const rateLimitKey = `reset:${email}`;
-    const limitResult = await rateLimit(rateLimitKey, { max: 3, windowMs: 15 * 60 * 1000 });
+    const limitResult = await rateLimit(rateLimitKey, { max: 3, windowMs: RATE_LIMIT_WINDOWS.fifteenMinutes });
     if (!limitResult.success) {
       return NextResponse.json({ success: false, error: 'Too many requests. Try again later' }, { status: 429 });
     }
@@ -120,7 +120,7 @@ export async function PUT(request: NextRequest) {
     // Rate limit: max 5 attempts per 15 minutes per client
     const clientId = getClientIdentifier(request);
     const rateLimitKey = `reset-verify:${clientId}`;
-    const limitResult = await rateLimit(rateLimitKey, { max: 5, windowMs: 15 * 60 * 1000 });
+    const limitResult = await rateLimit(rateLimitKey, { max: 5, windowMs: RATE_LIMIT_WINDOWS.fifteenMinutes });
     if (!limitResult.success) {
       return NextResponse.json({ success: false, error: 'Too many attempts. Try again later' }, { status: 429 });
     }

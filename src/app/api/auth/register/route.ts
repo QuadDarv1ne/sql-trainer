@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createUser } from '@/lib/db-users';
 import type { UserRole } from '@/lib/db-users';
-import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { rateLimit, getClientIdentifier, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 import { apiServerError } from '@/lib/api-error';
 import { validateBody } from '@/lib/validation';
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: max 5 registrations per 10 minutes per client
     const clientId = getClientIdentifier(request);
-    const limitResult = await rateLimit(`register:${clientId}`, { max: 5, windowMs: 10 * 60 * 1000 });
+    const limitResult = await rateLimit(`register:${clientId}`, { max: 5, windowMs: RATE_LIMIT_WINDOWS.tenMinutes });
     if (!limitResult.success) {
       return NextResponse.json(
         { success: false, error: 'Too many registration attempts. Please try later' },

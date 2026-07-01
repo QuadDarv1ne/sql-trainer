@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { explainQuery } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { validateBody } from '@/lib/validation';
-import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { rateLimit, getClientIdentifier, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { sqlExplainSchema, VALID_DB_TYPES } from '@/lib/sql-schema';
 import { validateTrainingSql } from '@/lib/sql-safety';
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: 15 explain requests per minute per client
     const clientId = getClientIdentifier(request);
-    const limitResult = await rateLimit(`explain:${clientId}`, { max: 15, windowMs: 60_000 });
+    const limitResult = await rateLimit(`explain:${clientId}`, { max: 15, windowMs: RATE_LIMIT_WINDOWS.oneMinute });
     if (!limitResult.success) {
       return NextResponse.json({ success: false, error: 'Too many requests. Please wait' }, { status: 429 });
     }

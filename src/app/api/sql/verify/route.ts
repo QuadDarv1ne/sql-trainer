@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeWithSchema, executeWithSchemaMulti, splitStatements } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
-import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { rateLimit, getClientIdentifier, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { validateBody } from '@/lib/validation';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { logger } from '@/lib/logger';
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: 20 verification attempts per minute per client
     const clientId = getClientIdentifier(request);
-    const limitResult = await rateLimit(`verify:${clientId}`, { max: 20, windowMs: 60_000 });
+    const limitResult = await rateLimit(`verify:${clientId}`, { max: 20, windowMs: RATE_LIMIT_WINDOWS.oneMinute });
     if (!limitResult.success) {
       return NextResponse.json(
         { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Too many attempts. Try again later' },

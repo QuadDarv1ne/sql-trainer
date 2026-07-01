@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTaskById, TRAINING_TASKS } from '@/lib/training-tasks';
 import { getSchemaInfo } from '@/lib/sql-engine';
-import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { rateLimit, getClientIdentifier, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { validateBody } from '@/lib/validation';
 import { z } from 'zod';
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: 20 init requests per minute per client
     const clientId = getClientIdentifier(request);
-    const limitResult = await rateLimit(`init-training:${clientId}`, { max: 20, windowMs: 60_000 });
+    const limitResult = await rateLimit(`init-training:${clientId}`, { max: 20, windowMs: RATE_LIMIT_WINDOWS.oneMinute });
     if (!limitResult.success) {
       return NextResponse.json({ success: false, error: 'Too many requests. Please wait' }, { status: 429 });
     }
@@ -80,7 +80,7 @@ export async function GET(request: Request) {
   try {
     // Rate limit: 10 task list requests per minute per client
     const clientId = getClientIdentifier(request);
-    const limitResult = await rateLimit(`init-training-list:${clientId}`, { max: 10, windowMs: 60_000 });
+    const limitResult = await rateLimit(`init-training-list:${clientId}`, { max: 10, windowMs: RATE_LIMIT_WINDOWS.oneMinute });
     if (!limitResult.success) {
       return NextResponse.json({ success: false, error: 'Too many requests. Please wait' }, { status: 429 });
     }

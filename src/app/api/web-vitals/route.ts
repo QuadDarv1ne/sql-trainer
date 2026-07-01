@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { rateLimit } from '@/lib/rate-limit';
+import { rateLimit, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +17,7 @@ interface WebVitalMetric {
 export async function POST(request: Request) {
   try {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    const limitResult = await rateLimit(`web-vitals:${ip}`, { max: 60, windowMs: 60_000 });
+    const limitResult = await rateLimit(`web-vitals:${ip}`, { max: 60, windowMs: RATE_LIMIT_WINDOWS.oneMinute });
     if (!limitResult.success) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }

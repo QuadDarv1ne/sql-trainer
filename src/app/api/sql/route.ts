@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery, executeWithSchema } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
-import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { rateLimit, getClientIdentifier, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { apiServerError } from '@/lib/api-error';
 import { logger } from '@/lib/logger';
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const rateKey = `sql:${clientId}`;
 
     const maxQueries = isAuthenticated ? 60 : 30;
-    const limitResult = await rateLimit(rateKey, { max: maxQueries, windowMs: 60_000 });
+    const limitResult = await rateLimit(rateKey, { max: maxQueries, windowMs: RATE_LIMIT_WINDOWS.oneMinute });
     if (!limitResult.success) {
       return NextResponse.json(
         { success: false, error: 'Too many requests. Please wait', columns: [], rows: [], executionTime: 0 },

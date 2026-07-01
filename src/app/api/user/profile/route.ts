@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getUserById, updateUser } from '@/lib/db-users';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
-import { rateLimit } from '@/lib/rate-limit';
+import { rateLimit, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { validateBody } from '@/lib/validation';
 
 const profileUpdateSchema = z.object({
@@ -21,7 +21,7 @@ export const GET = withUserAuth(async ({ session }) => {
 
 export const PUT = withUserAuth(async ({ request, session }) => {
   // Stricter rate limit for profile updates: 10 per 15 minutes
-  const limit = await rateLimit(`profile-update:${session.user.id}`, { max: 10, windowMs: 15 * 60 * 1000 });
+  const limit = await rateLimit(`profile-update:${session.user.id}`, { max: 10, windowMs: RATE_LIMIT_WINDOWS.fifteenMinutes });
   if (!limit.success) {
     return NextResponse.json({ success: false, error: 'Too many attempts. Please try later' }, { status: 429 });
   }

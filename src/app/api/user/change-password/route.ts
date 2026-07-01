@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { withUserAuthStrict } from '@/lib/api-auth';
+import { RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { findUserByIdWithHash, updatePassword } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
 import { validateBody } from '@/lib/validation';
@@ -52,5 +53,5 @@ export const POST = withUserAuthStrict(
 
     return NextResponse.json({ success: true, message: 'Password changed successfully' });
   },
-  { max: 5, windowMs: 15 * 60 * 1000 },
+  { max: 5, windowMs: RATE_LIMIT_WINDOWS.fifteenMinutes },
 );

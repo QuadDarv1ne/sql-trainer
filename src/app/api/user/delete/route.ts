@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { withUserAuthStrict } from '@/lib/api-auth';
+import { RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { findUserByIdWithHash, softDeleteUser } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
 import { validateBody } from '@/lib/validation';
@@ -41,5 +42,5 @@ export const DELETE = withUserAuthStrict(
 
     return NextResponse.json({ success: true, message: 'Account deleted' });
   },
-  { max: 3, windowMs: 15 * 60 * 1000 },
+  { max: 3, windowMs: RATE_LIMIT_WINDOWS.fifteenMinutes },
 );
