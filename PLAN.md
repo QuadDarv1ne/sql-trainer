@@ -73,6 +73,10 @@
 9. [x] **Replace manual `as UserRole` casts** — simplified Zod-validated role narrowing in `auth/register` (removed redundant `ALLOWED_SELF_ROLES.includes()`)
 10. [x] **Audit push subscription endpoints for auth consistency** — now use `withUserAuthStrict` from `@/lib/auth-internal` (was `@/lib/auth` Edge-only)
 
+## Additional Fixes (Phase 4 continued)
+
+- [x] Fix 26 broken tests — add missing `RATE_LIMIT_WINDOWS` to mocks in `sql-verify.test.ts`, `role-registration.test.ts`, `api-routes-integration.test.ts`; add CSRF + sanitization mocks for register route tests
+
 ## Phase 5 — Next 10 Quality Improvements
 
 1. **Standardize API response envelope** — ensure all routes return `{ success: boolean, error?: string }` consistently; fix routes returning raw `{ metrics }` or `{ stats }` without `success` field

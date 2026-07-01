@@ -19,6 +19,22 @@ vi.mock('@/lib/i18n', () => ({
   t: (key: string) => key,
 }));
 
+vi.mock('@/lib/rate-limit', () => ({
+  rateLimit: vi.fn(() => ({ success: true })),
+  getClientIdentifier: vi.fn(() => 'test-client'),
+  RATE_LIMIT_WINDOWS: { oneMinute: 60_000, tenMinutes: 600_000, fifteenMinutes: 900_000, oneHour: 3_600_000 },
+}));
+
+vi.mock('@/lib/csrf', () => ({
+  validateCsrfTokenEdge: () => true,
+  csrfErrorResponse: () => new Response(JSON.stringify({ success: false, error: 'CSRF validation failed' }), { status: 403 }),
+}));
+
+vi.mock('@/lib/sanitization', () => ({
+  sanitizeName: (name: string) => ({ value: name }),
+  sanitizePhone: (phone: string) => ({ value: phone }),
+}));
+
 beforeAll(async () => {
   process.env.DATABASE_PATH = TEST_DB;
   const { initDatabase } = await import('@/lib/db/schema');

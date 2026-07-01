@@ -22,6 +22,12 @@ vi.mock('../lib/db-users', () => ({
 vi.mock('../lib/rate-limit', () => ({
   rateLimit: () => ({ success: true }),
   getClientIdentifier: () => 'test-client',
+  RATE_LIMIT_WINDOWS: { oneMinute: 60_000, tenMinutes: 600_000, fifteenMinutes: 900_000, oneHour: 3_600_000 },
+}));
+
+vi.mock('../lib/csrf', () => ({
+  validateCsrfTokenEdge: () => true,
+  csrfErrorResponse: () => new Response(JSON.stringify({ success: false, error: 'CSRF validation failed' }), { status: 403 }),
 }));
 
 vi.mock('../lib/logger', () => ({

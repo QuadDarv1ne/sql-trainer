@@ -25,6 +25,7 @@ const describeIf = sqliteAvailable ? describe : describe.skip;
 vi.mock('@/lib/rate-limit', () => ({
   rateLimit: vi.fn(() => ({ success: true })),
   getClientIdentifier: vi.fn(() => 'test-client'),
+  RATE_LIMIT_WINDOWS: { oneMinute: 60_000, tenMinutes: 600_000, fifteenMinutes: 900_000, oneHour: 3_600_000 },
 }));
 
 vi.mock('@/lib/validation', () => ({
