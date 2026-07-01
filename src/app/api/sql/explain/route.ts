@@ -4,10 +4,8 @@ import { getTaskById } from '@/lib/training-tasks';
 import { validateBody } from '@/lib/validation';
 import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
-import { sqlExplainSchema } from '@/lib/sql-schema';
+import { sqlExplainSchema, VALID_DB_TYPES } from '@/lib/sql-schema';
 import { validateTrainingSql } from '@/lib/sql-safety';
-
-const VALID_DB_TYPES = ['sqlite', 'postgresql', 'mongodb'] as const;
 
 /**
  * Analyze EXPLAIN plan and return performance suggestions.
