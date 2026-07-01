@@ -10,23 +10,23 @@ const banSchema = z.object({
 
 export const POST = withAdminAuth(async ({ session, request, params }) => {
   if (!params?.id) {
-    return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'User ID is required' }, { status: 400 });
   }
   const { id } = params;
 
   if (id === session.user.id) {
-    return NextResponse.json({ error: 'Cannot ban your own account' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Cannot ban your own account' }, { status: 400 });
   }
 
   if (isUserBanned(id)) {
-    return NextResponse.json({ error: 'User is already banned' }, { status: 409 });
+    return NextResponse.json({ success: false, error: 'User is already banned' }, { status: 409 });
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
   }
 
   const result = validateBody(body, banSchema);
@@ -35,7 +35,7 @@ export const POST = withAdminAuth(async ({ session, request, params }) => {
   const reason = result.data.reason || null;
   const success = banUser(id, reason, session.user.id);
   if (!success) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
   }
 
   return NextResponse.json({ success: true });

@@ -7,18 +7,18 @@ import { validateBody } from '@/lib/validation';
 
 export const DELETE = withAdminAuth(async ({ session, params }) => {
   if (!params?.id) {
-    return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'User ID is required' }, { status: 400 });
   }
   const { id } = params;
 
   // Prevent admin from deleting themselves
   if (id === session.user.id) {
-    return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Cannot delete your own account' }, { status: 400 });
   }
 
   const success = softDeleteUser(id, session.user.id);
   if (!success) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
   }
 
   return NextResponse.json({ success: true });
@@ -32,7 +32,7 @@ const adminUpdateUserSchema = z.object({
 
 export const PUT = withAdminAuth(async ({ session, request, params }) => {
   if (!params?.id) {
-    return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'User ID is required' }, { status: 400 });
   }
   const { id } = params;
 
@@ -40,7 +40,7 @@ export const PUT = withAdminAuth(async ({ session, request, params }) => {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
   }
 
   const result = validateBody(body, adminUpdateUserSchema);
@@ -51,15 +51,15 @@ export const PUT = withAdminAuth(async ({ session, request, params }) => {
   // Sanitize name and phone fields
   const sanitizedName = name !== undefined ? sanitizeName(name) : null;
   if (sanitizedName?.error) {
-    return NextResponse.json({ error: sanitizedName.error }, { status: 400 });
+    return NextResponse.json({ success: false, error: sanitizedName.error }, { status: 400 });
   }
   const sanitizedPhone = phone !== undefined ? sanitizePhone(phone) : null;
   if (sanitizedPhone?.error) {
-    return NextResponse.json({ error: sanitizedPhone.error }, { status: 400 });
+    return NextResponse.json({ success: false, error: sanitizedPhone.error }, { status: 400 });
   }
 
   if (id === session.user.id && email) {
-    return NextResponse.json({ error: 'Cannot change your own email' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Cannot change your own email' }, { status: 400 });
   }
 
   const success = updateUserDetails(
@@ -68,7 +68,7 @@ export const PUT = withAdminAuth(async ({ session, request, params }) => {
     session.user.id,
   );
   if (!success) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
   }
 
   return NextResponse.json({ success: true });

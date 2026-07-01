@@ -8,7 +8,7 @@ export const GET = withAdminAuth(async ({ request }) => {
   const ids = url.searchParams.get('ids');
 
   if (!ids) {
-    return NextResponse.json({ error: 'ids query param required (comma-separated)' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'ids query param required (comma-separated)' }, { status: 400 });
   }
 
   const studentIds = ids

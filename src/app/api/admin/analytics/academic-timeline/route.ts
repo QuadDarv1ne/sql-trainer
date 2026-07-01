@@ -8,7 +8,7 @@ export const GET = withAdminAuth(async ({ request }) => {
   const userId = url.searchParams.get('userId');
 
   if (!userId) {
-    return NextResponse.json({ error: 'userId required' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'userId required' }, { status: 400 });
   }
 
   const cacheKey = { userId };

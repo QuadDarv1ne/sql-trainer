@@ -21,7 +21,7 @@ export const POST = withAdminAuth(async ({ request, session }) => {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
   }
   const validation = validateBody(body, createUserSchema);
   if ('response' in validation) return validation.response;
@@ -31,13 +31,13 @@ export const POST = withAdminAuth(async ({ request, session }) => {
   // Sanitize name
   const sanitizedName = sanitizeName(name);
   if (sanitizedName.error) {
-    return NextResponse.json({ error: sanitizedName.error }, { status: 400 });
+    return NextResponse.json({ success: false, error: sanitizedName.error }, { status: 400 });
   }
 
   // Sanitize phone (optional field)
   const sanitizedPhone = phone ? sanitizePhone(phone) : { value: '' };
   if (sanitizedPhone.error) {
-    return NextResponse.json({ error: sanitizedPhone.error }, { status: 400 });
+    return NextResponse.json({ success: false, error: sanitizedPhone.error }, { status: 400 });
   }
 
   const user = await createUser(
@@ -49,7 +49,7 @@ export const POST = withAdminAuth(async ({ request, session }) => {
     session.user.id,
   );
   if (!user) {
-    return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
+    return NextResponse.json({ success: false, error: 'User with this email already exists' }, { status: 409 });
   }
 
   return NextResponse.json({

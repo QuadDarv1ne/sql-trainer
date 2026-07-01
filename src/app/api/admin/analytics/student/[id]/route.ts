@@ -5,11 +5,11 @@ import { withAdminAuth } from '@/lib/api-auth';
 export const GET = withAdminAuth(async ({ params }) => {
   const id = params?.['id'];
   if (!id) {
-    return NextResponse.json({ error: 'Student ID required' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Student ID required' }, { status: 400 });
   }
   const student = getStudentDetail(id);
   if (!student) {
-    return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'Student not found' }, { status: 404 });
   }
   const userAchievements = await getUserAchievements(id);
   const achievementDetails = await getAchievementDetails(userAchievements.map((a) => a.id));

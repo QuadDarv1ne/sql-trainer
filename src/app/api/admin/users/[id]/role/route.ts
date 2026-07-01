@@ -15,7 +15,7 @@ const roleUpdateSchema = z.object({
 
 export const PUT = withAdminAuth(async ({ session, request, params }) => {
   if (!params?.id) {
-    return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'User ID is required' }, { status: 400 });
   }
   const { id } = params;
 
@@ -23,7 +23,7 @@ export const PUT = withAdminAuth(async ({ session, request, params }) => {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
   }
 
   const validation = validateBody(body, roleUpdateSchema);
@@ -33,7 +33,7 @@ export const PUT = withAdminAuth(async ({ session, request, params }) => {
 
   const success = updateUserRole(id, role as UserRole, session.user.id);
   if (!success) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
   }
 
   return NextResponse.json({ success: true, role });

@@ -6,7 +6,7 @@ import { getCached, setCached, SHORT_TTL } from '@/lib/analytics-cache';
 export const GET = withAdminAuth(async ({ params }) => {
   const id = params?.['id'];
   if (!id) {
-    return NextResponse.json({ error: 'Student ID required' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Student ID required' }, { status: 400 });
   }
   const cacheKey = { studentId: id };
   const cached = getCached('/api/admin/analytics/student/academic-summary', cacheKey);
@@ -14,7 +14,7 @@ export const GET = withAdminAuth(async ({ params }) => {
 
   const data = getStudentAcademicSummary(id);
   if (!data) {
-    return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'Student not found' }, { status: 404 });
   }
   const result = { academicSummary: data };
   setCached('/api/admin/analytics/student/academic-summary', cacheKey, result, SHORT_TTL);

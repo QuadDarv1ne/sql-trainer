@@ -87,7 +87,7 @@ export const POST = withAdminAuth(async ({ session, request }) => {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
   }
   const parsed = validateBody(body, scheduledExportSchema);
   if ('response' in parsed) return parsed.response;
@@ -113,12 +113,12 @@ export const DELETE = withAdminAuth(async ({ request }) => {
   const id = url.searchParams.get('id');
 
   if (!id || !id.startsWith('sr_')) {
-    return NextResponse.json({ error: 'Invalid report id' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid report id' }, { status: 400 });
   }
 
   const result = db.prepare('DELETE FROM scheduled_reports WHERE id = ?').run(id);
   if (result.changes === 0) {
-    return NextResponse.json({ error: 'Report not found' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'Report not found' }, { status: 404 });
   }
 
   return NextResponse.json({ message: 'Scheduled report deleted' });

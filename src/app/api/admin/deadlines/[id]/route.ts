@@ -17,26 +17,26 @@ const updateDeadlineSchema = z
 
 export const PUT = withTeacherAuth(async ({ session, request, params }) => {
   if (!params?.id) {
-    return NextResponse.json({ error: 'Deadline ID is required' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Deadline ID is required' }, { status: 400 });
   }
   const { id } = params;
   const existing = getDeadlineById(id);
   if (!existing) {
-    return NextResponse.json({ error: 'Deadline not found' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'Deadline not found' }, { status: 404 });
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
   }
   const validation = validateBody(body, updateDeadlineSchema);
   if ('response' in validation) return validation.response;
 
   const success = updateDeadline(id, validation.data, session.user.id, session.user.id);
   if (!success) {
-    return NextResponse.json({ error: 'Forbidden or not found' }, { status: 403 });
+    return NextResponse.json({ success: false, error: 'Forbidden or not found' }, { status: 403 });
   }
 
   const updated = getDeadlineById(id);
@@ -45,12 +45,12 @@ export const PUT = withTeacherAuth(async ({ session, request, params }) => {
 
 export const DELETE = withTeacherAuth(async ({ session, params }) => {
   if (!params?.id) {
-    return NextResponse.json({ error: 'Deadline ID is required' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Deadline ID is required' }, { status: 400 });
   }
   const { id } = params;
   const success = deleteDeadline(id, session.user.id, session.user.id);
   if (!success) {
-    return NextResponse.json({ error: 'Deadline not found or forbidden' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'Deadline not found or forbidden' }, { status: 404 });
   }
 
   return NextResponse.json({ success: true });

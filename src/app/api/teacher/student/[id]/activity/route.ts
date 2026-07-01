@@ -5,13 +5,13 @@ import { getDb, isStudentInTeacherGroup } from '@/lib/db-users';
 export const GET = withTeacherAuth(async ({ session, params }) => {
   const id = params?.id as string | undefined;
   if (!id) {
-    return NextResponse.json({ error: 'Student ID is required' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Student ID is required' }, { status: 400 });
   }
 
   // Verify that the student belongs to one of the teacher's groups
   const teacherId = session.user.id;
   if (!isStudentInTeacherGroup(id, teacherId)) {
-    return NextResponse.json({ error: 'Access denied: student not in your groups' }, { status: 403 });
+    return NextResponse.json({ success: false, error: 'Access denied: student not in your groups' }, { status: 403 });
   }
 
   const db = getDb();

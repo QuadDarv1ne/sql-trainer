@@ -51,7 +51,7 @@ function csvResponse(data: string, filename: string): Response {
 export async function GET(request: Request): Promise<Response> {
   const authResult = await requireAdmin();
   if (!authResult.session) {
-    return authResult.error ?? NextResponse.json({ error: 'Internal error' }, { status: 500 });
+    return authResult.error ?? NextResponse.json({ success: false, error: 'Internal error' }, { status: 500 });
   }
 
   const url = new URL(request.url);
@@ -170,10 +170,10 @@ export async function GET(request: Request): Promise<Response> {
         });
       }
       default:
-        return NextResponse.json({ error: 'Invalid section' }, { status: 400 });
+        return NextResponse.json({ success: false, error: 'Invalid section' }, { status: 400 });
     }
   } catch (error) {
     logger.error('Admin export failed', error);
-    return NextResponse.json({ error: 'Export failed' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Export failed' }, { status: 500 });
   }
 }

@@ -19,19 +19,19 @@ export async function POST(request: Request) {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
     const limitResult = await rateLimit(`web-vitals:${ip}`, { max: 60, windowMs: RATE_LIMIT_WINDOWS.oneMinute });
     if (!limitResult.success) {
-      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+      return NextResponse.json({ success: false, error: 'Too many requests' }, { status: 429 });
     }
 
     const metric: WebVitalMetric = await request.json();
 
     if (!metric.name || typeof metric.value !== 'number') {
-      return NextResponse.json({ error: 'Invalid metric' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Invalid metric' }, { status: 400 });
     }
 
     logger.info(`[WebVitals] ${metric.name}=${Math.round(metric.value)} (${metric.rating}) page=${metric.page}`);
 
     return NextResponse.json({ ok: true });
   } catch {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid request' }, { status: 400 });
   }
 }

@@ -7,18 +7,18 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
 export const GET = withTeacherAuth(async ({ session, params }) => {
   const id = params?.id as string | undefined;
   if (!id || !UUID_REGEX.test(id)) {
-    return NextResponse.json({ error: 'Invalid student ID format' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid student ID format' }, { status: 400 });
   }
 
   // Verify that the student belongs to one of the teacher's groups
   const teacherId = session.user.id;
   if (!isStudentInTeacherGroup(id, teacherId)) {
-    return NextResponse.json({ error: 'Access denied: student not in your groups' }, { status: 403 });
+    return NextResponse.json({ success: false, error: 'Access denied: student not in your groups' }, { status: 403 });
   }
 
   const student = getStudentDetail(id);
   if (!student) {
-    return NextResponse.json({ error: 'Student not found' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'Student not found' }, { status: 404 });
   }
   const achievements = await getUserAchievements(id);
   return NextResponse.json({ student, achievements });

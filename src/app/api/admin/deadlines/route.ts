@@ -43,7 +43,7 @@ export const POST = withTeacherAuth(async ({ session, request }) => {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
   }
 
   const parsed = validateBody(body, deadlineSchema);

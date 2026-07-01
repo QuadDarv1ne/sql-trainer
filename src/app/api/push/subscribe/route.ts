@@ -37,7 +37,7 @@ export const POST = withUserAuthStrict(
       });
     } catch (dbError) {
       logger.error('savePushSubscription failed:', dbError);
-      return NextResponse.json({ error: 'Failed to save subscription' }, { status: 500 });
+      return NextResponse.json({ success: false, error: 'Failed to save subscription' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });

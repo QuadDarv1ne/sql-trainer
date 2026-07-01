@@ -22,7 +22,7 @@ export const POST = withAdminAuth(async ({ session, request }) => {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
   }
 
   const result = validateBody(body, bulkActionSchema);
@@ -36,7 +36,7 @@ export const POST = withAdminAuth(async ({ session, request }) => {
   }
 
   if (data.userIds.includes(session.user.id)) {
-    return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 });
+    return NextResponse.json({ success: false, error: 'Cannot delete your own account' }, { status: 400 });
   }
 
   const deleted = bulkSoftDelete(data.userIds, session.user.id);
