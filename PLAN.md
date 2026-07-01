@@ -59,3 +59,16 @@
 8. **CSP nonce for inline scripts** — implement dynamic nonce generation for Content Security Policy to allow necessary inline scripts
 9. **API response compression** — enable gzip/brotli compression for API responses to reduce payload sizes
 10. **Automated dependency updates** — configure Renovate or Dependabot for automated security patches
+
+## Phase 4 — Next 10 Quality Improvements
+
+1. [x] **Extract SQL safety into shared module** — move `validateTrainingSql` from `route.ts` to `src/lib/sql-safety.ts`, secure `/api/sql/explain` endpoint (was missing DDL/DML validation)
+2. [x] **Fix duplicate VALID_DB_TYPES** — remove local `VALID_DB_TYPES` from `explain/route.ts`, use shared export from `sql-schema.ts` (was silently falling back to sqlite for clickhouse)
+3. **Consolidate manual auth routes** — rewrite `user/delete`, `user/change-password`, `user/change-email`, `push/subscribe`, `push/unsubscribe` to use `withUserAuth` wrapper (removes CSRF gap + duplicated boilerplate)
+4. **Add CSRF validation to `/api/auth/register`** — state-mutating endpoint currently skips CSRF check while all other mutating routes enforce it
+5. **Add rate-limit headers to manual routes** — inject `X-RateLimit-Limit/Remaining/Reset` headers in routes that bypass `withUserAuth` wrappers (currently only wrapper-based routes get them)
+6. **Type-safe Zustand store** — replace `SliceSet = (...args: any[]) => void`, `SliceGet`, `SliceStore = any` with proper generic types in `src/lib/store/index.ts`
+7. **Standardize API response envelope** — ensure all routes return `{ success: boolean, error?: string }` consistently; fix routes returning raw `{ metrics }` or `{ stats }` without `success` field
+8. **Consolidate rate-limit window constants** — extract `15 * 60 * 1000` repeated 7 times across routes into a shared `RATE_LIMIT_WINDOWS` constant in `src/lib/rate-limit.ts`
+9. **Replace manual `as UserRole` casts** — use Zod discriminated unions or runtime narrowing in `auth/register` instead of double `as UserRole` assertion
+10. **Audit push subscription endpoints for auth consistency** — `push/subscribe` and `push/unsubscribe` use different auth import paths (`@/lib/auth` vs `@/lib/auth-internal` via wrappers); align to single auth strategy
