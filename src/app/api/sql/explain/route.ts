@@ -5,6 +5,7 @@ import { validateBody } from '@/lib/validation';
 import { rateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { sqlExplainSchema } from '@/lib/sql-schema';
+import { validateTrainingSql } from '@/lib/sql-safety';
 
 const VALID_DB_TYPES = ['sqlite', 'postgresql', 'mongodb'] as const;
 
@@ -65,6 +66,12 @@ export async function POST(request: NextRequest) {
     if ('response' in parsed) return parsed.response;
 
     const { sql, dbType, taskId } = parsed.data;
+
+    // Validate SQL safety — same rules as the execute endpoint
+    const blockReason = validateTrainingSql(sql);
+    if (blockReason) {
+      return NextResponse.json({ success: false, error: blockReason }, { status: 403 });
+    }
 
     const task = getTaskById(taskId);
     if (!task) {
