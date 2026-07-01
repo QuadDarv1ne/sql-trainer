@@ -65,23 +65,23 @@
 1. [x] **Extract SQL safety into shared module** — move `validateTrainingSql` from `route.ts` to `src/lib/sql-safety.ts`, secure `/api/sql/explain` endpoint (was missing DDL/DML validation)
 2. [x] **Fix duplicate VALID_DB_TYPES** — remove local `VALID_DB_TYPES` from `explain/route.ts`, use shared export from `sql-schema.ts` (was silently falling back to sqlite for clickhouse)
 3. [x] **Consolidate manual auth routes** — rewrite `user/delete`, `user/change-password`, `user/change-email`, `push/subscribe`, `push/unsubscribe` to use `withUserAuthStrict` wrapper (removes CSRF gap + duplicated boilerplate, -73 lines)
-4. **Add CSRF validation to `/api/auth/register`** — state-mutating endpoint currently skips CSRF check while all other mutating routes enforce it
+4. [x] **Add CSRF validation to `/api/auth/register`** — added `validateCsrfTokenEdge` + `csrfErrorResponse` to register endpoint
 5. [x] **Add rate-limit headers to manual routes** — now injected by `withRoleAuth` wrapper on all routes including `withUserAuthStrict`
 6. **Type-safe Zustand store** — replace `SliceSet = (...args: any[]) => void`, `SliceGet`, `SliceStore = any` with proper generic types in `src/lib/store/index.ts`
 7. **Standardize API response envelope** — ensure all routes return `{ success: boolean, error?: string }` consistently; fix routes returning raw `{ metrics }` or `{ stats }` without `success` field
 8. **Consolidate rate-limit window constants** — extract `15 * 60 * 1000` repeated across routes into a shared constant in `src/lib/rate-limit.ts`
-9. **Replace manual `as UserRole` casts** — use Zod discriminated unions or runtime narrowing in `auth/register` instead of double `as UserRole` assertion
+9. [x] **Replace manual `as UserRole` casts** — simplified Zod-validated role narrowing in `auth/register` (removed redundant `ALLOWED_SELF_ROLES.includes()`)
 10. [x] **Audit push subscription endpoints for auth consistency** — now use `withUserAuthStrict` from `@/lib/auth-internal` (was `@/lib/auth` Edge-only)
 
 ## Phase 5 — Next 10 Quality Improvements
 
-1. **Add CSRF validation to `/api/auth/register`** — state-mutating endpoint currently skips CSRF check while all other mutating routes enforce it
-2. **Type-safe Zustand store** — replace `SliceSet = (...args: any[]) => void`, `SliceGet`, `SliceStore = any` with proper generic types in `src/lib/store/index.ts`
-3. **Standardize API response envelope** — ensure all routes return `{ success: boolean, error?: string }` consistently; fix routes returning raw `{ metrics }` or `{ stats }` without `success` field
-4. **Consolidate rate-limit window constants** — extract magic numbers (`15 * 60 * 1000`, `60_000`) into named constants in `src/lib/rate-limit.ts`
-5. **Replace manual `as UserRole` casts** — use Zod discriminated unions or runtime narrowing in `auth/register` instead of double `as UserRole` assertion
-6. **Add `parseAndValidate` to remaining manual routes** — replace inline `request.json()` + `validateBody` two-step with single `parseAndValidate(req, schema)` call
-7. **Input sanitization audit** — review all user-facing inputs for XSS, ensure consistent escaping across components
-8. **Dead code elimination** — run `ts-prune` to find and remove unused exports across the codebase
-9. **API response compression** — enable gzip/brotli compression for API responses to reduce payload sizes
-10. **Automated dependency updates** — configure Renovate or Dependabot for automated security patches
+1. **Type-safe Zustand store** — replace `SliceSet = (...args: any[]) => void`, `SliceGet`, `SliceStore = any` with proper generic types in `src/lib/store/index.ts`
+2. **Standardize API response envelope** — ensure all routes return `{ success: boolean, error?: string }` consistently; fix routes returning raw `{ metrics }` or `{ stats }` without `success` field
+3. **Consolidate rate-limit window constants** — extract magic numbers (`15 * 60 * 1000`, `60_000`) into named constants in `src/lib/rate-limit.ts`
+4. **Add `parseAndValidate` to remaining manual routes** — replace inline `request.json()` + `validateBody` two-step with single `parseAndValidate(req, schema)` call
+5. **Input sanitization audit** — review all user-facing inputs for XSS, ensure consistent escaping across components
+6. **Dead code elimination** — run `ts-prune` to find and remove unused exports across the codebase
+7. **API response compression** — enable gzip/brotli compression for API responses to reduce payload sizes
+8. **Automated dependency updates** — configure Renovate or Dependabot for automated security patches
+9. **Database connection pool monitoring** — add metrics for active/idle connections, connection wait time, and pool exhaustion events
+10. **Image optimization audit** — ensure all images use next/image with proper sizes, formats (WebP/AVIF), and lazy loading
