@@ -433,10 +433,12 @@ export const createGamificationSlice: StateCreator<GamificationSlice, [], [], Ga
       xpGained = Math.round(xpBase * xpMultiplier);
     }
 
-    const newAchievements = newAchievementIds.map((id) => ({
-      ...ACHIEVEMENTS[id],
-      unlockedAt: Date.now(),
-    }));
+    const achievementsById = Object.fromEntries(Object.values(ACHIEVEMENTS).map((a) => [a.id, a]));
+    const newAchievements = newAchievementIds.map((id) => {
+      const def = achievementsById[id];
+      if (!def) throw new Error(`Unknown achievement id: ${id}`);
+      return { ...def, unlockedAt: Date.now() };
+    });
 
     if (newAchievementIds.length > 0 || xpGained > 0) {
       set({

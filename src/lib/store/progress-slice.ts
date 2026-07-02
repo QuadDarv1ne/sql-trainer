@@ -145,6 +145,7 @@ export const createProgressSlice: StateCreator<ProgressSlice, [], [], ProgressSl
   resetTaskProgress: (taskId) => {
     set((state) => ({
       completedTasks: state.completedTasks.filter((t) => t.taskId !== taskId),
+      bookmarkedTasks: state.bookmarkedTasks.filter((id) => id !== taskId),
     }));
   },
   resetAllProgress: () => {

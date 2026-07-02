@@ -185,6 +185,7 @@ export const useSQLTrainerStore = create<CombinedState>()(
           totalHintPenalty: 0,
           solutionVisible: false,
         });
+        return shuffled[0]?.id || null;
       },
 
       // Reset methods that affect multiple slices
@@ -201,6 +202,8 @@ export const useSQLTrainerStore = create<CombinedState>()(
           const { level, progress } = calculateLevel(totalXp);
           return {
             completedTasks: newCompletedTasks,
+            bookmarkedTasks: state.bookmarkedTasks.filter((id) => id !== taskId),
+            savedQueries: state.savedQueries.filter((q) => q.taskId !== taskId),
             userStats: {
               ...state.userStats,
               xp: totalXp,

@@ -90,6 +90,10 @@ export function useAnalyticsQuery<T = unknown>({
       })
       .then((json: Record<string, unknown>) => {
         if (!controller.signal.aborted) {
+          if (!transformRef.current && !dataKey) {
+            setError('Either dataKey or transform is required');
+            return;
+          }
           const extracted = transformRef.current ? transformRef.current(json) : (json[dataKey ?? ''] as T);
           setData(extracted);
         }
