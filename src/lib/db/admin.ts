@@ -100,12 +100,6 @@ export function softDeleteUser(userId: string, actorId?: string): boolean {
   return result.changes > 0;
 }
 
-export function deleteUser(userId: string): boolean {
-  const db = getDb();
-  const result = db.prepare('DELETE FROM users WHERE id = ?').run(userId);
-  return result.changes > 0;
-}
-
 export function restoreUser(userId: string, actorId?: string): boolean {
   const db = getDb();
   const result = db

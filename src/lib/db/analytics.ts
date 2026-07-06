@@ -2800,11 +2800,6 @@ export function deletePushSubscription(userId: string, endpoint: string): boolea
   return result.changes > 0;
 }
 
-export function getAllPushSubscriptions(): PushSubRow[] {
-  const db = getDb();
-  return db.prepare('SELECT * FROM push_subscriptions').all() as PushSubRow[];
-}
-
 // ==================== Notification Preferences ====================
 
 export interface NotificationPreferences {
