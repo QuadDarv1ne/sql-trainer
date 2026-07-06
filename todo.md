@@ -545,7 +545,7 @@
 
 ---
 
-> **Последнее обновление плана:** 2026-07-01
+> **Последнее обновление плана:** 2026-07-06
 > 
 > **Как использовать этот файл:**
 > 1. Отмечай выполненные пункты `[x]`
@@ -563,12 +563,12 @@
 
 | Показатель | Значение |
 |------------|----------|
-| Тестов | **755/755** в 48 файлах (0 failed, все зелёные) |
+| Тестов | **763/763** в 54 файлах (0 failed, все зелёные) |
 | Покрытие | ~60%+ statements |
 | Лайнт | 0 ошибок, 0 предупреждений |
 | Сборка | Next.js 16, Turbopack, standalone |
 | CI/CD | Multi-browser E2E, кэширование, Dependabot |
-| Последнее обновление | 2026-07-15 (startPracticeMode fix, API success field) |
+| Последнее обновление | 2026-07-06 (Phase 5 complete, code splitting, dead code removal) |
 
 ### Выполненные пункты плана
 
@@ -585,6 +585,12 @@
 - [x] Dependabot — улучшен с группами зависимостей и Docker поддержкой
 - [x] **API success field** — добавлено `success` в api-auth, api-error, web-vitals, scheduled-export
 - [x] **startPracticeMode** — исправлен return, achievement lookup, resetTaskProgress stale data, analytics query guard
+- [x] **parseAndValidate** — заменён ручной `request.json()` + `validateBody` на единый `parseAndValidate` в 22 API маршрутах (净 -127 строк)
+- [x] **date-utils.ts** — создан общий модуль `formatDateDisplay` / `formatDateDisplayWithYear`, удалены 3 дубля formatDate из компонентов
+- [x] **Dead code elimination** — удалены `checkDbAccessibility`, `getStudentCompletedTasks`, `deleteUser`, `getAllPushSubscriptions`
+- [x] **Code splitting** — admin/teacher/dashboard/profile страницы переведены на dynamic imports
+- [x] **date-utils.test.ts** — добавлены 8 тестов для форматирования дат
+- [x] **CHANGELOG.md** — обновлён с описанием всех улучшений
 
 ### Архитектурные решения
 
