@@ -3,6 +3,7 @@
 import { useSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -39,14 +40,19 @@ import {
   Bookmark,
   Copy,
 } from 'lucide-react';
-import ProgressStats from '@/components/profile/progress-stats';
-import AchievementsGrid from '@/components/profile/achievements-grid';
-import LeaderboardTable from '@/components/profile/leaderboard';
 import { useSQLTrainerStore } from '@/lib/store';
 import { t } from '@/lib/i18n';
 import { logger } from '@/lib/logger';
 
 import { evaluatePasswordStrength } from '@/lib/password-strength';
+
+const loadingSkeleton = <div className="h-64 animate-pulse rounded-md bg-muted" />;
+
+const ProgressStats = dynamic(() => import('@/components/profile/progress-stats'), { loading: () => loadingSkeleton });
+const AchievementsGrid = dynamic(() => import('@/components/profile/achievements-grid'), {
+  loading: () => loadingSkeleton,
+});
+const LeaderboardTable = dynamic(() => import('@/components/profile/leaderboard'), { loading: () => loadingSkeleton });
 
 interface UserProfile {
   id: string;

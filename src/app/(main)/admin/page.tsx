@@ -13,25 +13,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import UserTable from '@/components/admin/user-table';
-import DBStats from '@/components/admin/db-stats';
-import SystemHealth from '@/components/admin/system-health';
-import { DeadlineManager } from '@/components/admin/deadline-manager';
-import AuditLog from '@/components/admin/audit-log';
 import type { Role } from '@/lib/rbac';
 import { Download } from 'lucide-react';
 
+const loadingSkeleton = <div className="h-64 animate-pulse rounded-md bg-muted" />;
+
+const UserTable = dynamic(() => import('@/components/admin/user-table'), { loading: () => loadingSkeleton });
+const DBStats = dynamic(() => import('@/components/admin/db-stats'), { loading: () => loadingSkeleton });
+const SystemHealth = dynamic(() => import('@/components/admin/system-health'), { loading: () => loadingSkeleton });
+const DeadlineManager = dynamic(
+  () => import('@/components/admin/deadline-manager').then((m) => ({ default: m.DeadlineManager })),
+  { loading: () => loadingSkeleton },
+);
+const AuditLog = dynamic(() => import('@/components/admin/audit-log'), { loading: () => loadingSkeleton });
+
 const AnalyticsDashboard = dynamic(() => import('@/components/admin/analytics-dashboard'), {
-  loading: () => <div className="h-64 animate-pulse rounded-md bg-muted" />,
+  loading: () => loadingSkeleton,
 });
 
 const LeaderboardTable = dynamic(() => import('@/components/admin/analytics/leaderboard-table'), {
-  loading: () => <div className="h-64 animate-pulse rounded-md bg-muted" />,
+  loading: () => loadingSkeleton,
 });
 
-const AdminAnalytics = dynamic(() => import('@/components/admin/admin-analytics'), {
-  loading: () => <div className="h-64 animate-pulse rounded-md bg-muted" />,
-});
+const AdminAnalytics = dynamic(() => import('@/components/admin/admin-analytics'), { loading: () => loadingSkeleton });
 
 export default function AdminPage() {
   const router = useRouter();

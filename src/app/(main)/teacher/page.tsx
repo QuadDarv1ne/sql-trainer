@@ -3,9 +3,13 @@
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import TeacherDashboard from '@/components/teacher/teacher-dashboard';
+import dynamic from 'next/dynamic';
 import { t } from '@/lib/i18n';
 import type { Role } from '@/lib/rbac';
+
+const TeacherDashboard = dynamic(() => import('@/components/teacher/teacher-dashboard'), {
+  loading: () => <div className="h-64 animate-pulse rounded-md bg-muted" />,
+});
 
 export default function TeacherPage() {
   const router = useRouter();
