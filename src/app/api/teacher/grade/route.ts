@@ -4,5 +4,5 @@ import { NextResponse } from 'next/server';
 
 export const GET = withTeacherAuth(() => {
   const distribution = getStudentGradeDistribution();
-  return NextResponse.json({ distribution });
+  return NextResponse.json({ success: true, distribution });
 });

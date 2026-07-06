@@ -46,5 +46,5 @@ export const GET = withTeacherAuth((ctx) => {
     data.mastery = getMasteryProgression();
   }
 
-  return NextResponse.json({ data });
+  return NextResponse.json({ success: true, data });
 });

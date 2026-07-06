@@ -9,7 +9,7 @@ async function POST(request: Request) {
   const limitResult = await rateLimit(`login:${ip}`, { max: 10, windowMs: RATE_LIMIT_WINDOWS.fifteenMinutes });
   if (!limitResult.success) {
     return NextResponse.json(
-      { error: 'Too many login attempts. Please try again later.' },
+      { success: false, error: 'Too many login attempts. Please try again later.' },
       {
         status: 429,
         headers: {

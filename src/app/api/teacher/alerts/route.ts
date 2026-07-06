@@ -82,5 +82,5 @@ export const GET = withTeacherAuth(async ({ request }) => {
   const severityOrder = { high: 0, medium: 1, low: 2 };
   alerts.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
 
-  return NextResponse.json({ alerts });
+  return NextResponse.json({ success: true, alerts });
 });

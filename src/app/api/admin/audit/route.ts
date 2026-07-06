@@ -8,5 +8,5 @@ export const GET = withAdminAuth(async ({ request }) => {
   const offset = positiveIntParam(searchParams, 'offset') ?? 0;
 
   const logs = getAuditTrail(Math.min(limit, 500), offset);
-  return NextResponse.json({ logs });
+  return NextResponse.json({ success: true, logs });
 });

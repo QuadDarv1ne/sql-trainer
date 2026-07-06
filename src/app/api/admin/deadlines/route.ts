@@ -35,7 +35,7 @@ export const GET = withTeacherAuth(async ({ session, request }) => {
     deadlines = getDeadlinesForCreator(session.user.id);
   }
 
-  return NextResponse.json({ deadlines });
+  return NextResponse.json({ success: true, deadlines });
 });
 
 export const POST = withTeacherAuth(async ({ session, request }) => {

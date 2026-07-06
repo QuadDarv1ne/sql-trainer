@@ -9,5 +9,5 @@ export const GET = withUserAuth(async ({ session }) => {
     logReminderDelivery(reminder.deadline_id, session.user.id, 'in_app');
   }
 
-  return NextResponse.json({ reminders, count: reminders.length });
+  return NextResponse.json({ success: true, reminders, count: reminders.length });
 });

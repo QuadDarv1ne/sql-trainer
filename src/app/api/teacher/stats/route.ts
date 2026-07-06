@@ -24,6 +24,7 @@ export const GET = withTeacherAuth(async () => {
       : 0;
 
   return NextResponse.json({
+    success: true,
     stats: {
       totalStudents,
       activeStudents,
