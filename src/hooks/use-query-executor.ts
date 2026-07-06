@@ -47,6 +47,67 @@ export function useQueryExecutor({
     incrementExplainCount,
   } = useSQLTrainerStore();
 
+  const handleVerifiedTask = useCallback(
+    (verifyData: { verified: boolean; message?: string }) => {
+      if (verifyData.verified && currentTaskId && !isTaskCompleted(currentTaskId)) {
+        markTaskCompleted(currentTaskId, attemptCountRef.current);
+        updateStreak();
+        toast.success(t('task.completed'), {
+          description: `${attemptCountRef.current} ${plural(attemptCountRef.current, t('task.attempts'), t('task.attemptsFew'), t('task.attemptsMany'))} • +${useSQLTrainerStore.getState().userStats.xp} XP`,
+          duration: 4000,
+        });
+
+        if (practiceMode.active) {
+          practiceTimerRef.current = setTimeout(() => {
+            practiceTimerRef.current = null;
+            nextPracticeTask();
+          }, 1500);
+        }
+
+        if (session?.user && currentTaskId) {
+          progressSyncRef.current?.abort();
+          progressSyncRef.current = new AbortController();
+          const taskId = currentTaskId;
+          const attempts = attemptCountRef.current;
+          fetch('/api/user/progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ taskId, attempts }),
+            signal: progressSyncRef.current.signal,
+          })
+            .then((res) => {
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              return fetch('/api/user/achievements?check=true', { signal: progressSyncRef.current?.signal });
+            })
+            .then((res) => {
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              return res.json();
+            })
+            .then((data) => {
+              if (data.success && data.newAchievements?.length > 0) {
+                data.newAchievements.forEach((achievement: { id: string; title: string }) => {
+                  toast.success(t('achievement.toast.title'), {
+                    description: t('achievement.toast.description', { title: achievement.title }),
+                    duration: 5000,
+                  });
+                });
+              }
+            })
+            .catch((e) => {
+              if (e.name !== 'AbortError') {
+                logger.error('Failed to check achievements', e);
+              }
+            });
+        }
+      } else if (!verifyData.verified) {
+        toast.error(t('task.notVerified'), {
+          description: verifyData.message || t('task.notVerifiedDetail'),
+        });
+      }
+    },
+    [currentTaskId, isTaskCompleted, markTaskCompleted, updateStreak, session, practiceMode.active, nextPracticeTask],
+  );
+
   const executeQuery = useCallback(async () => {
     if (!editorContent.trim() || isExecuting) return;
 
@@ -96,59 +157,7 @@ export function useQueryExecutor({
             message: verifyData.message,
           });
 
-          if (verifyData.verified && !isTaskCompleted(currentTaskId)) {
-            markTaskCompleted(currentTaskId, attemptCountRef.current);
-            updateStreak();
-            toast.success(t('task.completed'), {
-              description: `${attemptCountRef.current} ${plural(attemptCountRef.current, t('task.attempts'), t('task.attemptsFew'), t('task.attemptsMany'))} • +${useSQLTrainerStore.getState().userStats.xp} XP`,
-              duration: 4000,
-            });
-
-            if (practiceMode.active) {
-              practiceTimerRef.current = setTimeout(() => {
-                practiceTimerRef.current = null;
-                nextPracticeTask();
-              }, 1500);
-            }
-
-            if (session?.user) {
-              progressSyncRef.current?.abort();
-              progressSyncRef.current = new AbortController();
-              fetch('/api/user/progress', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  taskId: currentTaskId,
-                  attempts: attemptCountRef.current,
-                }),
-                signal: progressSyncRef.current.signal,
-              })
-                .then((res) => {
-                  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                  const signal = progressSyncRef.current;
-                  return fetch('/api/user/achievements?check=true', { signal: signal ? signal.signal : undefined });
-                })
-                .then((res) => {
-                  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                  return res.json();
-                })
-                .then((data) => {
-                  if (data.success && data.newAchievements?.length > 0) {
-                    data.newAchievements.forEach((achievement: { id: string; title: string }) => {
-                      toast.success(t('achievement.toast.title'), {
-                        description: t('achievement.toast.description', { title: achievement.title }),
-                        duration: 5000,
-                      });
-                    });
-                  }
-                })
-                .catch((e) => {
-                  if (e.name !== 'AbortError') {
-                    logger.error('Failed to check achievements', e);
-                  }
-                });
-            }
-          }
+          handleVerifiedTask(verifyData);
         } catch (e) {
           logger.error('Task verification failed', e);
           toast.error(t('task.verificationError', { default: 'Failed to verify query result' }));
@@ -174,13 +183,8 @@ export function useQueryExecutor({
     setIsExecuting,
     setLastResult,
     addQueryHistory,
-    isTaskCompleted,
-    markTaskCompleted,
-    updateStreak,
     setVerification,
-    session,
-    practiceMode.active,
-    nextPracticeTask,
+    handleVerifiedTask,
   ]);
 
   const executeExplain = useCallback(async () => {
@@ -244,35 +248,14 @@ export function useQueryExecutor({
         message: verifyData.message,
       });
 
-      if (verifyData.verified && !isTaskCompleted(currentTaskId)) {
-        markTaskCompleted(currentTaskId, attemptCountRef.current);
-        updateStreak();
-        toast.success(t('task.completed'), {
-          description: `${attemptCountRef.current} ${plural(attemptCountRef.current, t('task.attempts'), t('task.attemptsFew'), t('task.attemptsMany'))} • +${useSQLTrainerStore.getState().userStats.xp} XP`,
-          duration: 4000,
-        });
-      } else if (!verifyData.verified) {
-        toast.error(t('task.notVerified'), {
-          description: verifyData.message || t('task.notVerifiedDetail'),
-        });
-      }
+      handleVerifiedTask(verifyData);
     } catch (e) {
       logger.error('Verify request failed', e);
       toast.error(t('task.verifyError'));
     } finally {
       setIsExecuting(false);
     }
-  }, [
-    editorContent,
-    isExecuting,
-    currentTaskId,
-    dbType,
-    setIsExecuting,
-    markTaskCompleted,
-    updateStreak,
-    isTaskCompleted,
-    setVerification,
-  ]);
+  }, [editorContent, isExecuting, currentTaskId, dbType, setIsExecuting, setVerification, handleVerifiedTask]);
 
   return {
     executeQuery,
