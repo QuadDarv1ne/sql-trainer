@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { t } from '@/lib/i18n';
 import { Deadline } from '@/lib/db-users';
+import { formatDateDisplayWithYear } from '@/lib/date-utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,16 +33,6 @@ const targetLabels: Record<Deadline['target_type'], string> = {
   group: 'deadline.target.group',
   individual: 'deadline.target.individual',
 };
-
-function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString(typeof navigator !== 'undefined' ? navigator.language : 'en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
 
 function getTimeStatus(dueAt: number): { label: string; variant: 'destructive' | 'default' | 'secondary' } {
   const now = Date.now();
@@ -148,7 +139,7 @@ export function TeacherDeadlineManager() {
                       <Badge variant="outline">{t(typeLabels[d.type])}</Badge>
                     </TableCell>
                     <TableCell>{t(targetLabels[d.target_type])}</TableCell>
-                    <TableCell>{formatDate(d.due_at)}</TableCell>
+                    <TableCell>{formatDateDisplayWithYear(d.due_at)}</TableCell>
                     <TableCell>
                       <Badge variant={status.variant}>{status.label}</Badge>
                     </TableCell>
