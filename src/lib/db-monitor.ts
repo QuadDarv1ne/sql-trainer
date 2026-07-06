@@ -94,14 +94,6 @@ export function recordError(): void {
 }
 
 /**
- * Check if the database is accessible.
- * Note: actual accessibility tracking is done via recordError() on failures.
- */
-export async function checkDbAccessibility(): Promise<boolean> {
-  return true;
-}
-
-/**
  * Get current pool metrics snapshot.
  */
 export function getMetrics(): DbPoolMetrics {

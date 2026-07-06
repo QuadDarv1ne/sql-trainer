@@ -178,12 +178,6 @@ export function getStudentDetail(userId: string): StudentDetail | null {
   return user;
 }
 
-export function getStudentCompletedTasks(userId: string): string[] {
-  const db = getDb();
-  const rows = db.prepare('SELECT task_id FROM user_progress WHERE user_id = ?').all(userId) as { task_id: string }[];
-  return rows.map((r) => r.task_id);
-}
-
 export interface AchievementStatsEntry {
   id: string;
   title: string;
