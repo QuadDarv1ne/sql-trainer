@@ -4,7 +4,7 @@ import { withUserAuthStrict } from '@/lib/api-auth';
 import { RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { findUserByIdWithHash, softDeleteUser } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 
 const deleteAccountSchema = z.object({
   confirmPassword: z.string().min(1, 'Password confirmation is required'),
@@ -12,13 +12,7 @@ const deleteAccountSchema = z.object({
 
 export const DELETE = withUserAuthStrict(
   async ({ session, request }) => {
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-    const result = validateBody(body, deleteAccountSchema);
+    const result = await parseAndValidate(request, deleteAccountSchema);
     if ('response' in result) return result.response;
 
     const { confirmPassword } = result.data;

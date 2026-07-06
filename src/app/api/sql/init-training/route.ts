@@ -3,7 +3,7 @@ import { getTaskById, TRAINING_TASKS } from '@/lib/training-tasks';
 import { getSchemaInfo } from '@/lib/sql-engine';
 import { rateLimit, getClientIdentifier, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 import { z } from 'zod';
 
 const initTrainingSchema = z.object({
@@ -15,18 +15,15 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit: 20 init requests per minute per client
     const clientId = getClientIdentifier(request);
-    const limitResult = await rateLimit(`init-training:${clientId}`, { max: 20, windowMs: RATE_LIMIT_WINDOWS.oneMinute });
+    const limitResult = await rateLimit(`init-training:${clientId}`, {
+      max: 20,
+      windowMs: RATE_LIMIT_WINDOWS.oneMinute,
+    });
     if (!limitResult.success) {
       return NextResponse.json({ success: false, error: 'Too many requests. Please wait' }, { status: 429 });
     }
 
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-    const validation = validateBody(body, initTrainingSchema);
+    const validation = await parseAndValidate(request, initTrainingSchema);
     if ('response' in validation) return validation.response;
 
     const { taskId, dbType } = validation.data;
@@ -80,7 +77,10 @@ export async function GET(request: Request) {
   try {
     // Rate limit: 10 task list requests per minute per client
     const clientId = getClientIdentifier(request);
-    const limitResult = await rateLimit(`init-training-list:${clientId}`, { max: 10, windowMs: RATE_LIMIT_WINDOWS.oneMinute });
+    const limitResult = await rateLimit(`init-training-list:${clientId}`, {
+      max: 10,
+      windowMs: RATE_LIMIT_WINDOWS.oneMinute,
+    });
     if (!limitResult.success) {
       return NextResponse.json({ success: false, error: 'Too many requests. Please wait' }, { status: 429 });
     }

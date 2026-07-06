@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { withTeacherAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { getGroupById, notifyGroupMembers } from '@/lib/db-users';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 
 const notifySchema = z.object({
   subject: z.string().min(1, 'Subject is required').max(200),
@@ -26,14 +26,7 @@ export const POST = withTeacherAuth(async ({ session, request, params }) => {
     return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const validation = validateBody(body, notifySchema);
+  const validation = await parseAndValidate(request, notifySchema);
   if ('response' in validation) return validation.response;
 
   const { subject, message, channel } = validation.data;

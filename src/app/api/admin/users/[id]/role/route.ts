@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { updateUserRole } from '@/lib/db-users';
 import type { UserRole } from '@/lib/db-users';
 import { z } from 'zod';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 
 const VALID_ROLES: UserRole[] = ['student', 'teacher', 'admin'];
 
@@ -19,14 +19,7 @@ export const PUT = withAdminAuth(async ({ session, request, params }) => {
   }
   const { id } = params;
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const validation = validateBody(body, roleUpdateSchema);
+  const validation = await parseAndValidate(request, roleUpdateSchema);
   if ('response' in validation) return validation.response;
 
   const { role } = validation.data;

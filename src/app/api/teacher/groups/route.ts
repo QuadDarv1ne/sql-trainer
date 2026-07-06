@@ -2,7 +2,7 @@ import { withTeacherAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { getGroupsByTeacherId, createGroup } from '@/lib/db-users';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 import { z } from 'zod';
 
 const createGroupSchema = z.object({
@@ -18,8 +18,7 @@ export const GET = withTeacherAuth(async ({ session }) => {
 
 export const POST = withTeacherAuth(async ({ session, request }) => {
   try {
-    const body = await request.json();
-    const parsed = validateBody(body, createGroupSchema);
+    const parsed = await parseAndValidate(request, createGroupSchema);
     if ('response' in parsed) return parsed.response;
 
     const { name, description, memberIds } = parsed.data;

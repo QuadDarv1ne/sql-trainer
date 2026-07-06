@@ -82,7 +82,7 @@
 1. [x] **Standardize API response envelope** — completed in Phase 4 #7 (22 routes fixed)
 2. [x] **Add success field to remaining API routes** — api-auth, api-error, web-vitals, scheduled-export
 3. [x] **Fix startPracticeMode** — return value, achievement lookup, resetTaskProgress stale data, analytics query guard
-4. **Add `parseAndValidate` to remaining manual routes** — replace inline `request.json()` + `validateBody` two-step with single `parseAndValidate(req, schema)` call
+4. [x] **Add `parseAndValidate` to remaining manual routes** — replaced manual `request.json()` + `validateBody` two-step with single `parseAndValidate(req, schema)` call in 22 routes
 3. **Input sanitization audit** — review all user-facing inputs for XSS, ensure consistent escaping across components
 4. **Dead code elimination** — run `ts-prune` to find and remove unused exports across the codebase
 5. **API response compression** — enable gzip/brotli compression for API responses to reduce payload sizes

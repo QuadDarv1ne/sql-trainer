@@ -3,7 +3,7 @@ import { withUserAuthStrict } from '@/lib/api-auth';
 import { RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { deletePushSubscription } from '@/lib/db-users';
 import { z } from 'zod';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 
 const unsubscribeSchema = z.object({
   endpoint: z.string().url('Invalid endpoint format'),
@@ -11,13 +11,7 @@ const unsubscribeSchema = z.object({
 
 export const POST = withUserAuthStrict(
   async ({ session, request }) => {
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-    const validation = validateBody(body, unsubscribeSchema);
+    const validation = await parseAndValidate(request, unsubscribeSchema);
     if ('response' in validation) return validation.response;
 
     const { endpoint } = validation.data;

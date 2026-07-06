@@ -9,7 +9,7 @@ import {
   deleteDeadline,
   buildReminderSchedule,
 } from '@/lib/db-users';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 
 const createDeadlineSchema = z.object({
   type: z.enum(['course', 'exam', 'task', 'inactivity']),
@@ -55,14 +55,7 @@ export const POST = withTeacherAuth(async ({ session, request, params }) => {
     return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const validation = validateBody(body, createDeadlineSchema);
+  const validation = await parseAndValidate(request, createDeadlineSchema);
   if ('response' in validation) return validation.response;
 
   const { type, title, description, taskId, dueAt } = validation.data;
@@ -100,14 +93,7 @@ export const PATCH = withTeacherAuth(async ({ session, request, params }) => {
     return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const validation = validateBody(body, createDeadlineSchema.partial());
+  const validation = await parseAndValidate(request, createDeadlineSchema.partial());
   if ('response' in validation) return validation.response;
 
   const updated = updateDeadline(
