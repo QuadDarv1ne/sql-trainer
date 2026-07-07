@@ -3920,7 +3920,6 @@ export function getLearningTimePatterns(
   }
 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const dayNamesEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   const dailyRaw = db
     .prepare(
@@ -3948,7 +3947,7 @@ export function getLearningTimePatterns(
     const existing = dailyRaw.find((row) => row.day_num === d);
     daily.push({
       day: String(d),
-      day_name: existing ? dayNames[d] || dayNamesEn[d] : dayNames[d] || dayNamesEn[d],
+      day_name: dayNames[d],
       completions: existing?.completions || 0,
       unique_students: existing?.unique_students || 0,
       avg_attempts: existing?.avg_attempts || 0,
@@ -4475,7 +4474,7 @@ export function getBottleneckAnalysis(filters?: TimeRangeFilters): BottleneckEnt
     `,
         )
         .get(
-          difficulty === 'beginner' ? 'beginner-%' : difficulty === 'intermediate' ? 'beginner-%' : 'beginner-%',
+          difficulty === 'beginner' ? 'beginner-%' : difficulty === 'intermediate' ? 'intermediate-%' : 'advanced-%',
           ...baseDateParams,
         ) as { count: number };
 
@@ -5018,7 +5017,7 @@ export function getDeadlineCompliance(filters?: TimeRangeFilters): DeadlineCompl
   const deadlines = db
     .prepare(
       `
-    SELECT d.id as deadline_id, d.title, d.due_at, d.task_id, d.target_type
+    SELECT d.id as deadline_id, d.title, d.due_at, d.task_id, d.target_type, d.group_id
     FROM deadlines d
     WHERE 1=1${dateCondition}
     ORDER BY d.due_at DESC
@@ -5030,6 +5029,7 @@ export function getDeadlineCompliance(filters?: TimeRangeFilters): DeadlineCompl
     due_at: number;
     task_id: string | null;
     target_type: string;
+    group_id: string | null;
   }>;
 
   const deadlineEntries: DeadlineComplianceEntry[] = [];
@@ -5065,16 +5065,19 @@ export function getDeadlineCompliance(filters?: TimeRangeFilters): DeadlineCompl
       `,
         )
         .all(deadline.task_id) as Array<{ id: string; name: string; email: string }>;
-    } else {
+    } else if (deadline.target_type === 'group' && deadline.group_id) {
       targetedStudents = db
         .prepare(
           `
         SELECT u.id, u.name, u.email
         FROM users u
-        WHERE u.role = 'student'
+        INNER JOIN group_members gm ON u.id = gm.user_id
+        WHERE gm.group_id = ?
       `,
         )
-        .all() as Array<{ id: string; name: string; email: string }>;
+        .all(deadline.group_id) as Array<{ id: string; name: string; email: string }>;
+    } else {
+      targetedStudents = [] as Array<{ id: string; name: string; email: string }>;
     }
 
     let completedOnTime = 0;
@@ -5134,7 +5137,7 @@ export function getDeadlineCompliance(filters?: TimeRangeFilters): DeadlineCompl
       targeted_students: total,
       completed_on_time: completedOnTime,
       completed_late: completedLate,
-      missed: totalMissed,
+      missed: total - completedOnTime - completedLate,
       compliance_rate: complianceRate,
       avg_days_overdue: avgOverdue,
     });
@@ -6727,13 +6730,7 @@ export function generateLearningPlan(userId: string): {
   const completedCount = completedTaskIds.length;
 
   // Count by difficulty
-  const allTasks = db
-    .prepare(
-      `
-    SELECT id, title, difficulty FROM tasks ORDER BY difficulty, title
-  `,
-    )
-    .all() as Array<{ id: string; title: string; difficulty: string }>;
+  const allTasks = TRAINING_TASKS as Array<{ id: string; title: string; difficulty: string }>;
 
   const completedByDiff = { beginner: 0, intermediate: 0, advanced: 0 };
   const remainingByDiff: Array<{ id: string; title: string; difficulty: string }> = [];
@@ -7110,7 +7107,7 @@ export function getTeacherEffectiveness(): {
         ? parseFloat((students.reduce((s, st) => s + st.avg_attempts, 0) / students.length).toFixed(2))
         : 0;
 
-    const totalTasks = 48; // Total training tasks
+    const totalTasks = TRAINING_TASKS.length;
     const avgCompletionRate =
       students.length > 0
         ? parseFloat(
@@ -7539,10 +7536,16 @@ export function getContentPerformance(filters?: TimeRangeFilters) {
   const db = getDb();
   const tasks = TRAINING_TASKS as Array<{ id: string; title: string; difficulty: string; category?: string }>;
 
-  const dateCondition =
-    filters?.start_date && filters?.end_date
-      ? `WHERE completed_at >= ${filters.start_date} AND completed_at <= ${filters.end_date}`
-      : '';
+  let dateClause = '';
+  const dateParams: unknown[] = [];
+  if (filters?.start_date) {
+    dateClause += ' AND completed_at >= ?';
+    dateParams.push(filters.start_date);
+  }
+  if (filters?.end_date) {
+    dateClause += ' AND completed_at <= ?';
+    dateParams.push(filters.end_date);
+  }
 
   const taskStats = tasks.map((task) => {
     const stat = db
@@ -7553,10 +7556,10 @@ export function getContentPerformance(filters?: TimeRangeFilters) {
              CAST(SUM(CASE WHEN attempts = 1 THEN 1 ELSE 0 END) AS FLOAT) / MAX(COUNT(*), 1) * 100 as first_attempt_rate,
              COUNT(DISTINCT user_id) as unique_students
       FROM user_progress
-      WHERE task_id = ? ${dateCondition ? `AND ${dateCondition.replace('WHERE ', '')}` : ''}
+      WHERE task_id = ?${dateClause}
     `,
       )
-      .get(task.id) as {
+      .get(task.id, ...dateParams) as {
       completions: number;
       avg_attempts: number | null;
       first_attempt_rate: number | null;
