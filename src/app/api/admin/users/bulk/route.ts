@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import { bulkUpdateRole, bulkSoftDelete } from '@/lib/db-users';
 import { withAdminAuth } from '@/lib/api-auth';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 
 const bulkRoleSchema = z.object({
   action: z.literal('role'),
@@ -18,14 +18,7 @@ const bulkDeleteSchema = z.object({
 const bulkActionSchema = z.discriminatedUnion('action', [bulkRoleSchema, bulkDeleteSchema]);
 
 export const POST = withAdminAuth(async ({ session, request }) => {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-  }
-
-  const result = validateBody(body, bulkActionSchema);
+  const result = await parseAndValidate(request, bulkActionSchema);
   if ('response' in result) return result.response;
 
   const data = result.data;

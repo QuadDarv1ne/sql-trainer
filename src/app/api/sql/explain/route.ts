@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { explainQuery } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 import { rateLimit, getClientIdentifier, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { sqlExplainSchema, VALID_DB_TYPES } from '@/lib/sql-schema';
@@ -59,13 +59,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Too many requests. Please wait' }, { status: 429 });
     }
 
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-    const parsed = validateBody(body, sqlExplainSchema);
+    const parsed = await parseAndValidate(request, sqlExplainSchema);
     if ('response' in parsed) return parsed.response;
 
     const { sql, dbType, taskId } = parsed.data;

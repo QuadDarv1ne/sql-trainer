@@ -37,7 +37,6 @@ export {
   updateUserRole,
   updateUserDetails,
   softDeleteUser,
-  deleteUser,
   restoreUser,
   banUser,
   unbanUser,

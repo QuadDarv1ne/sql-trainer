@@ -12,7 +12,7 @@ import { rateLimit, getClientIdentifier, RATE_LIMIT_WINDOWS } from '@/lib/rate-l
 import { logger } from '@/lib/logger';
 import { escapeHtml } from '@/lib/html-utils';
 import { getUserEmail } from '@/lib/email';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 import { validateCsrfTokenEdge, csrfErrorResponse } from '@/lib/csrf';
 
 const resetRequestSchema = z.object({
@@ -35,13 +35,7 @@ export async function POST(request: NextRequest) {
       return csrfErrorResponse();
     }
 
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-    const result = validateBody(body, resetRequestSchema);
+    const result = await parseAndValidate(request, resetRequestSchema);
     if ('response' in result) return result.response;
 
     const { email } = result.data;
@@ -106,13 +100,7 @@ export async function PUT(request: NextRequest) {
       return csrfErrorResponse();
     }
 
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-    const result = validateBody(body, resetConfirmSchema);
+    const result = await parseAndValidate(request, resetConfirmSchema);
     if ('response' in result) return result.response;
 
     const { code, newPassword } = result.data;

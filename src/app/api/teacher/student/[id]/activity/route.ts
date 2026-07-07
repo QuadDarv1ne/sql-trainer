@@ -30,5 +30,5 @@ export const GET = withTeacherAuth(async ({ session, params }) => {
     )
     .all(id) as Array<{ date: string; completions: number }>;
 
-  return NextResponse.json({ activity });
+  return NextResponse.json({ success: true, activity });
 });

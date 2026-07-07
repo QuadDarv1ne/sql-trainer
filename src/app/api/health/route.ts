@@ -111,8 +111,8 @@ export const GET = withTiming(async () => {
           .prepare("SELECT COUNT(*) as count FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
           .get() as { count: number } | undefined;
         status.database.tableCount = tables?.count ?? 0;
-      } catch {
-        // table count is optional
+      } catch (tableErr) {
+        logger.debug('Health check: table count query failed', { error: String(tableErr) });
       }
     } else {
       status.database.status = 'error';
@@ -128,8 +128,9 @@ export const GET = withTiming(async () => {
   try {
     const limiter = getRateLimiter();
     status.redis = limiter.isHealthy() ? 'connected' : 'disconnected';
-  } catch {
+  } catch (redisErr) {
     status.redis = 'not_configured';
+    logger.debug('Health check: Redis not available', { error: String(redisErr) });
   }
 
   // DB pool metrics

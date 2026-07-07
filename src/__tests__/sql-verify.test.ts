@@ -36,6 +36,23 @@ vi.mock('@/lib/validation', () => ({
     }
     return { response: new Response(JSON.stringify({ error: 'Validation failed' }), { status: 400 }) };
   }),
+  parseAndValidate: vi.fn(
+    async (
+      request: Request,
+      schema: { safeParse: (body: unknown) => { success: boolean; data: unknown; error?: unknown } },
+    ) => {
+      try {
+        const body = await request.json();
+        const result = schema.safeParse(body);
+        if (result.success) {
+          return { data: result.data };
+        }
+        return { response: new Response(JSON.stringify({ error: 'Validation failed' }), { status: 400 }) };
+      } catch {
+        return { response: new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400 }) };
+      }
+    },
+  ),
 }));
 
 vi.mock('@/lib/training-tasks', () => ({

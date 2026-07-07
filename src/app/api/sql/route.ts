@@ -7,7 +7,7 @@ import { apiServerError } from '@/lib/api-error';
 import { logger } from '@/lib/logger';
 import { auth } from '@/lib/auth';
 import type { MongoSchema } from '@/lib/mongodb-engine';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 import { sqlExecuteSchema, VALID_DB_TYPES } from '@/lib/sql-schema';
 import { recordQuery, recordError } from '@/lib/db-monitor';
 import { validateTrainingSql } from '@/lib/sql-safety';
@@ -31,16 +31,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json(
-        { success: false, error: 'Invalid JSON in request body', columns: [], rows: [], executionTime: 0 },
-        { status: 400 },
-      );
-    }
-    const parsed = validateBody(body, sqlExecuteSchema);
+    const parsed = await parseAndValidate(request, sqlExecuteSchema);
     if ('response' in parsed) return parsed.response;
 
     const { sql, dbType, taskId } = parsed.data;

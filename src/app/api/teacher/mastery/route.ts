@@ -4,5 +4,5 @@ import { NextResponse } from 'next/server';
 
 export const GET = withTeacherAuth(() => {
   const progression = getMasteryProgression();
-  return NextResponse.json({ progression });
+  return NextResponse.json({ success: true, progression });
 });

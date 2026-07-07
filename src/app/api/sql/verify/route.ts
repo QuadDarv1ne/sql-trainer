@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { executeWithSchema, executeWithSchemaMulti, splitStatements } from '@/lib/sql-engine';
 import { getTaskById } from '@/lib/training-tasks';
 import { rateLimit, getClientIdentifier, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { logger } from '@/lib/logger';
 import type { MongoSchema } from '@/lib/mongodb-engine';
@@ -50,16 +50,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json(
-        { verified: false, userRowCount: 0, expectedRowCount: 0, message: 'Invalid JSON in request body' },
-        { status: 400 },
-      );
-    }
-    const parsed = validateBody(body, sqlVerifySchema);
+    const parsed = await parseAndValidate(request, sqlVerifySchema);
     if ('response' in parsed) return parsed.response;
 
     const { sql, taskId, dbType } = parsed.data;

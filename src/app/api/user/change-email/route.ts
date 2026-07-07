@@ -4,7 +4,7 @@ import { withUserAuthStrict } from '@/lib/api-auth';
 import { RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { findUserByIdWithHash, findUserByEmail, updateUser } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 
 const changeEmailSchema = z.object({
   newEmail: z.string().email('Invalid email format'),
@@ -13,13 +13,7 @@ const changeEmailSchema = z.object({
 
 export const POST = withUserAuthStrict(
   async ({ session, request }) => {
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-    const validation = validateBody(body, changeEmailSchema);
+    const validation = await parseAndValidate(request, changeEmailSchema);
     if ('response' in validation) return validation.response;
 
     const { newEmail, password } = validation.data;

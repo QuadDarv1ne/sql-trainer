@@ -4,5 +4,5 @@ import { getSystemHealth } from '@/lib/db-users';
 
 export const GET = withAdminAuth(async () => {
   const health = getSystemHealth();
-  return NextResponse.json({ health });
+  return NextResponse.json({ success: true, health });
 });

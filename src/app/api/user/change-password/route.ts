@@ -4,7 +4,7 @@ import { withUserAuthStrict } from '@/lib/api-auth';
 import { RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { findUserByIdWithHash, updatePassword } from '@/lib/db-users';
 import bcrypt from 'bcryptjs';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
@@ -16,13 +16,7 @@ const changePasswordSchema = z.object({
 
 export const POST = withUserAuthStrict(
   async ({ session, request }) => {
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-    const result = validateBody(body, changePasswordSchema);
+    const result = await parseAndValidate(request, changePasswordSchema);
     if ('response' in result) return result.response;
 
     const { currentPassword, newPassword } = result.data;

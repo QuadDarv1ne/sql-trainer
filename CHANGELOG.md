@@ -23,11 +23,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.env.example` with comprehensive documentation
 - `CONTRIBUTING.md` for contributors
 - `.dockerignore` for faster Docker builds
+- Shared `date-utils.ts` with locale-aware `formatDateDisplay` / `formatDateDisplayWithYear`
+- `date-utils.test.ts` with 8 tests for date formatting
 
 ### Changed
 - Upgraded to Next.js 16, React 19, Tailwind CSS 4
 - Modularized database layer (`src/lib/db/`)
 - Modularized Zustand store slices
+- API routes: replaced manual `request.json()` + `validateBody` with `parseAndValidate` in 22 routes (net -127 lines)
+- Admin/teacher/dashboard/profile pages: converted static imports to dynamic imports for code splitting
+- Deduplicated 3 inline `formatDate` functions into shared `date-utils.ts`
+
+### Removed
+- Dead code: `checkDbAccessibility` (db-monitor), `getStudentCompletedTasks` (db/analytics), `deleteUser` (dangerous hard delete), `getAllPushSubscriptions` (zero callers)
 - Enhanced CSP headers in Next.js config
 - Improved ESLint configuration with strict rules
 - CI/CD: added multi-browser E2E testing, bundle analyzer support

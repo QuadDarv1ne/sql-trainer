@@ -31,7 +31,8 @@ export async function POST(request: Request) {
     logger.info(`[WebVitals] ${metric.name}=${Math.round(metric.value)} (${metric.rating}) page=${metric.page}`);
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (err) {
+    logger.error('WebVitals POST error', err);
     return NextResponse.json({ success: false, error: 'Invalid request' }, { status: 400 });
   }
 }

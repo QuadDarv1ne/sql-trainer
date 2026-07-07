@@ -149,6 +149,7 @@ export async function GET(request: Request): Promise<Response> {
         const stats = getDBStats();
         const health = getSystemHealth();
         return NextResponse.json({
+          success: true,
           ...stats,
           dbSizeMB: (stats.dbSizeBytes / (1024 * 1024)).toFixed(2),
           db_wal_size_bytes: health.db_wal_size_bytes,
@@ -164,6 +165,7 @@ export async function GET(request: Request): Promise<Response> {
         const health = getSystemHealth();
         const stats = getDBStats();
         return NextResponse.json({
+          success: true,
           ...health,
           dbStats: stats,
           exportedAt: ts,

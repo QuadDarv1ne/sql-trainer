@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { withUserAuthStrict } from '@/lib/api-auth';
 import { RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 import { z } from 'zod';
 import { savePushSubscription } from '@/lib/db-users';
 import { logger } from '@/lib/logger';
@@ -18,13 +18,7 @@ const pushSubscribeSchema = z.object({
 
 export const POST = withUserAuthStrict(
   async ({ session, request }) => {
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-    const result = validateBody(body, pushSubscribeSchema);
+    const result = await parseAndValidate(request, pushSubscribeSchema);
     if ('response' in result) return result.response;
 
     const { subscription } = result.data;

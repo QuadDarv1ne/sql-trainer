@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { withAdminAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { banUser, isUserBanned } from '@/lib/db-users';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 
 const banSchema = z.object({
   reason: z.string().max(500).optional().nullable(),
@@ -22,14 +22,7 @@ export const POST = withAdminAuth(async ({ session, request, params }) => {
     return NextResponse.json({ success: false, error: 'User is already banned' }, { status: 409 });
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-  }
-
-  const result = validateBody(body, banSchema);
+  const result = await parseAndValidate(request, banSchema);
   if ('response' in result) return result.response;
 
   const reason = result.data.reason || null;

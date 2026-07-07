@@ -4,5 +4,5 @@ import { getTimeToCompleteEstimates } from '@/lib/db-users';
 
 export const GET = withTeacherAuth(async () => {
   const data = getTimeToCompleteEstimates();
-  return NextResponse.json({ data });
+  return NextResponse.json({ success: true, data });
 });

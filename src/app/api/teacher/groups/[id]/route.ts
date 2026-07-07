@@ -2,7 +2,7 @@ import { withTeacherAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { getGroupById, updateGroup, deleteGroup, getGroupMembers } from '@/lib/db-users';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 import { z } from 'zod';
 
 const updateGroupSchema = z.object({
@@ -52,8 +52,7 @@ export const PATCH = withTeacherAuth(async ({ session, request, params }) => {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
     }
 
-    const body = await request.json();
-    const parsed = validateBody(body, updateGroupSchema);
+    const parsed = await parseAndValidate(request, updateGroupSchema);
     if ('response' in parsed) return parsed.response;
 
     const group = updateGroup(

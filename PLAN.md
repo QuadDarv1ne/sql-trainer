@@ -80,12 +80,12 @@
 ## Phase 5 — Next 10 Quality Improvements
 
 1. [x] **Standardize API response envelope** — completed in Phase 4 #7 (22 routes fixed)
-2. **Add `parseAndValidate` to remaining manual routes** — replace inline `request.json()` + `validateBody` two-step with single `parseAndValidate(req, schema)` call
-3. **Input sanitization audit** — review all user-facing inputs for XSS, ensure consistent escaping across components
-4. **Dead code elimination** — run `ts-prune` to find and remove unused exports across the codebase
-5. **API response compression** — enable gzip/brotli compression for API responses to reduce payload sizes
-6. **Automated dependency updates** — configure Renovate or Dependabot for automated security patches
-7. **Database connection pool monitoring** — add metrics for active/idle connections, connection wait time, and pool exhaustion events
-8. **Image optimization audit** — ensure all images use next/image with proper sizes, formats (WebP/AVIF), and lazy loading
-9. **CSP nonce for inline scripts** — implement dynamic nonce generation for Content Security Policy to allow necessary inline scripts
-10. **Bundle analysis automation** — add `@next/bundle-analyzer` with CI step to catch size regressions before merge
+2. [x] **Add success field to remaining API routes** — api-auth, api-error, web-vitals, scheduled-export
+3. [x] **Fix startPracticeMode** — return value, achievement lookup, resetTaskProgress stale data, analytics query guard
+4. [x] **Add `parseAndValidate` to remaining manual routes** — replaced manual `request.json()` + `validateBody` two-step with single `parseAndValidate(req, schema)` call in 22 routes
+5. [x] **Input sanitization audit** — verified no XSS vectors (no dangerouslySetInnerHTML, no innerHTML). All user inputs sanitized via Zod + api-sanitize.ts
+6. [x] **Dead code elimination** — removed `checkDbAccessibility` (db-monitor), `getStudentCompletedTasks` (db/analytics). Created shared `date-utils.ts` deduplicating 3 formatDate functions
+7. [x] **API response compression** — already enabled: `compress: true` in next.config.ts
+8. [x] **Automated dependency updates** — Dependabot already configured with grouped updates + Docker support
+9. [x] **Database connection pool monitoring** — already implemented: `db-monitor.ts` tracks queries, slow queries, errors, P95 timing, Redis metrics. Exposed via `/api/health`
+10. [x] **Image optimization audit** — verified: zero raw `<img>` tags, all images use next/image or are static assets

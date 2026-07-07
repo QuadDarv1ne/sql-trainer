@@ -4,5 +4,5 @@ import { getDBStats } from '@/lib/db-users';
 
 export const GET = withAdminAuth(async () => {
   const stats = getDBStats();
-  return NextResponse.json({ stats });
+  return NextResponse.json({ success: true, stats });
 });

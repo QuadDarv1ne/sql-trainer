@@ -2,7 +2,7 @@ import { withAdminAuth } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db-users';
 import { logger } from '@/lib/logger';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 import { z } from 'zod';
 
 const scheduledExportSchema = z.object({
@@ -83,13 +83,7 @@ export const POST = withAdminAuth(async ({ session, request }) => {
     );
   `);
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-  }
-  const parsed = validateBody(body, scheduledExportSchema);
+  const parsed = await parseAndValidate(request, scheduledExportSchema);
   if ('response' in parsed) return parsed.response;
 
   const { reportType, format, schedule, emailRecipients } = parsed.data;

@@ -5,7 +5,7 @@ import type { UserRole } from '@/lib/db-users';
 import { rateLimit, getClientIdentifier, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 import { apiServerError } from '@/lib/api-error';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 import { validateCsrfTokenEdge, csrfErrorResponse } from '@/lib/csrf';
 
 const ALLOWED_SELF_ROLES: UserRole[] = ['student', 'teacher'];
@@ -38,13 +38,7 @@ export async function POST(request: NextRequest) {
       return csrfErrorResponse();
     }
 
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json({ success: false, error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-    const result = validateBody(body, registerSchema);
+    const result = await parseAndValidate(request, registerSchema);
     if ('response' in result) return result.response;
 
     const { name, email, password, phone, role } = result.data;

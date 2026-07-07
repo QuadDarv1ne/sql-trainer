@@ -4,5 +4,5 @@ import { NextResponse } from 'next/server';
 
 export const GET = withTeacherAuth(() => {
   const funnel = getTaskCompletionFunnel();
-  return NextResponse.json({ funnel });
+  return NextResponse.json({ success: true, funnel });
 });

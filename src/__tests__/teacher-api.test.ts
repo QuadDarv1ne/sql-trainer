@@ -74,6 +74,14 @@ vi.mock('@/lib/api-auth', () => ({
 // Mock validation to pass through
 vi.mock('@/lib/validation', () => ({
   validateBody: (body: unknown, _schema: unknown) => ({ data: body }),
+  parseAndValidate: async (request: Request, _schema: unknown) => {
+    try {
+      const body = await request.json();
+      return { data: body };
+    } catch {
+      return { response: new Response(JSON.stringify({ error: 'Invalid JSON' }), { status: 400 }) };
+    }
+  },
 }));
 
 // Mock training-tasks for stats

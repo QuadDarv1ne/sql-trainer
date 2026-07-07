@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { getUserById, updateUser } from '@/lib/db-users';
 import { sanitizeName, sanitizePhone } from '@/lib/sanitization';
 import { rateLimit, RATE_LIMIT_WINDOWS } from '@/lib/rate-limit';
-import { validateBody } from '@/lib/validation';
+import { parseAndValidate } from '@/lib/validation';
 
 const profileUpdateSchema = z.object({
   name: z.string().min(1, 'Name cannot be empty').max(100, 'Name is too long').optional(),
@@ -21,12 +21,15 @@ export const GET = withUserAuth(async ({ session }) => {
 
 export const PUT = withUserAuth(async ({ request, session }) => {
   // Stricter rate limit for profile updates: 10 per 15 minutes
-  const limit = await rateLimit(`profile-update:${session.user.id}`, { max: 10, windowMs: RATE_LIMIT_WINDOWS.fifteenMinutes });
+  const limit = await rateLimit(`profile-update:${session.user.id}`, {
+    max: 10,
+    windowMs: RATE_LIMIT_WINDOWS.fifteenMinutes,
+  });
   if (!limit.success) {
     return NextResponse.json({ success: false, error: 'Too many attempts. Please try later' }, { status: 429 });
   }
 
-  const result = validateBody(await request.json(), profileUpdateSchema);
+  const result = await parseAndValidate(request, profileUpdateSchema);
   if ('response' in result) return result.response;
 
   const { name, phone } = result.data;

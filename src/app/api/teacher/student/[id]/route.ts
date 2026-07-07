@@ -21,5 +21,5 @@ export const GET = withTeacherAuth(async ({ session, params }) => {
     return NextResponse.json({ success: false, error: 'Student not found' }, { status: 404 });
   }
   const achievements = await getUserAchievements(id);
-  return NextResponse.json({ student, achievements });
+  return NextResponse.json({ success: true, student, achievements });
 });

@@ -4,5 +4,5 @@ import { NextResponse } from 'next/server';
 
 export const GET = withTeacherAuth(() => {
   const breakdown = getStudentSkillBreakdown();
-  return NextResponse.json({ breakdown });
+  return NextResponse.json({ success: true, breakdown });
 });

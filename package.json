@@ -17,6 +17,10 @@
     "typecheck": "node scripts/typecheck.mjs",
     "analyze": "cross-env ANALYZE=true next build",
     "changelog": "npx auto-changelog --commit-limit false --output CHANGELOG.md --package --unreleased-only",
+    "deploy:amvera": "bash scripts/deploy-amvera.sh",
+    "deploy:amvera:local": "bash scripts/deploy-amvera.sh --local",
+    "docker:build": "docker build --target runner -t sql-trainer .",
+    "docker:run": "docker run --rm -p 3000:3000 --env-file .env.local sql-trainer",
     "prepare": "husky"
   },
   "dependencies": {
