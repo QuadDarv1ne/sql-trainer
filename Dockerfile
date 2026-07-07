@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- Base ----
-FROM node:20-alpine AS base
+FROM node:26-alpine AS base
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
