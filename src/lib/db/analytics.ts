@@ -254,9 +254,13 @@ export interface DailyActivityEntry {
   unique_users: number;
 }
 
-export function getDailyActivity(days = 30, filters?: TimeRangeFilters): DailyActivityEntry[] {
+function getDailyActivityInternal(
+  days: number,
+  filters: TimeRangeFilters | undefined,
+  fillRange: 'days' | 'filter',
+): DailyActivityEntry[] {
   const db = getDb();
-  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+  const cutoff = filters?.start_date ?? Date.now() - days * 24 * 60 * 60 * 1000;
 
   let query = `
     SELECT
@@ -268,9 +272,6 @@ export function getDailyActivity(days = 30, filters?: TimeRangeFilters): DailyAc
   `;
   const params: unknown[] = [cutoff];
 
-  if (filters?.start_date && filters.start_date > cutoff) {
-    params[0] = filters.start_date;
-  }
   if (filters?.end_date) {
     query += ' AND completed_at <= ?';
     params.push(filters.end_date);
@@ -282,19 +283,39 @@ export function getDailyActivity(days = 30, filters?: TimeRangeFilters): DailyAc
 
   // Fill gaps with zero entries
   const result: DailyActivityEntry[] = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().slice(0, 10);
-    const existing = rows.find((r) => r.day === dateStr);
-    result.push({
-      date: dateStr,
-      completions: existing?.completions || 0,
-      unique_users: existing?.unique_users || 0,
-    });
+  if (fillRange === 'days') {
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      const existing = rows.find((r) => r.day === dateStr);
+      result.push({
+        date: dateStr,
+        completions: existing?.completions || 0,
+        unique_users: existing?.unique_users || 0,
+      });
+    }
+  } else {
+    const endDate = filters?.end_date ? new Date(filters.end_date) : new Date();
+    const startDate = filters?.start_date ? new Date(filters.start_date) : new Date(cutoff);
+    const current = new Date(startDate);
+    while (current <= endDate) {
+      const dateStr = current.toISOString().slice(0, 10);
+      const existing = rows.find((r) => r.day === dateStr);
+      result.push({
+        date: dateStr,
+        completions: existing?.completions || 0,
+        unique_users: existing?.unique_users || 0,
+      });
+      current.setDate(current.getDate() + 1);
+    }
   }
 
   return result;
+}
+
+export function getDailyActivity(days = 30, filters?: TimeRangeFilters): DailyActivityEntry[] {
+  return getDailyActivityInternal(days, filters, 'days');
 }
 
 export interface AdminLeaderboardEntry {
@@ -787,53 +808,7 @@ export function getDifficultyComparison(filters?: TimeRangeFilters): DifficultyC
 }
 
 export function getDailyActivityWithFilters(days = 30, filters?: TimeRangeFilters): DailyActivityEntry[] {
-  const db = getDb();
-
-  let cutoff: number;
-  if (filters?.start_date) {
-    cutoff = filters.start_date;
-  } else {
-    cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
-  }
-
-  let query = `
-    SELECT
-      date(completed_at / 1000, 'unixepoch') as day,
-      COUNT(*) as completions,
-      COUNT(DISTINCT user_id) as unique_users
-    FROM user_progress
-    WHERE completed_at >= ?
-  `;
-  const params: unknown[] = [cutoff];
-
-  if (filters?.end_date) {
-    query += ' AND completed_at <= ?';
-    params.push(filters.end_date);
-  }
-
-  query += ' GROUP BY day ORDER BY day';
-
-  const rows = db.prepare(query).all(...params) as { day: string; completions: number; unique_users: number }[];
-
-  // Fill gaps
-  const endDate = filters?.end_date ? new Date(filters.end_date) : new Date();
-  const startDate = filters?.start_date ? new Date(filters.start_date) : new Date(cutoff);
-
-  const result: DailyActivityEntry[] = [];
-  const current = new Date(startDate);
-
-  while (current <= endDate) {
-    const dateStr = current.toISOString().slice(0, 10);
-    const existing = rows.find((r) => r.day === dateStr);
-    result.push({
-      date: dateStr,
-      completions: existing?.completions || 0,
-      unique_users: existing?.unique_users || 0,
-    });
-    current.setDate(current.getDate() + 1);
-  }
-
-  return result;
+  return getDailyActivityInternal(days, filters, 'filter');
 }
 
 // ==================== Automated Alerts & Recommendations ====================
