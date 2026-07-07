@@ -50,7 +50,6 @@ export function splitStatements(sql: string): string[] {
 
   for (let i = 0; i < sql.length; i++) {
     const char = sql[i];
-    const prev = i > 0 ? sql[i - 1] : '';
     const next = sql[i + 1];
 
     // Handle block comments
@@ -103,9 +102,6 @@ export function splitStatements(sql: string): string[] {
         if (next === stringChar) {
           i++;
           current += next;
-        } else if (prev === '\\' && next !== stringChar) {
-          // Backslash-escaped quote — don't end the string
-          // Keep the backslash as-is since SQLite preserves it in string literals
         } else {
           inString = false;
         }
@@ -396,7 +392,7 @@ function cloneDatabase(source: Database.Database): Database.Database {
   // Dump schema (tables and indexes)
   const schema = source
     .prepare(
-      "SELECT sql FROM sqlite_master WHERE sql IS NOT NULL AND type IN ('table', 'index') AND name NOT LIKE 'sqlite_%'",
+      "SELECT sql FROM sqlite_master WHERE sql IS NOT NULL AND type IN ('table', 'index', 'trigger', 'view') AND name NOT LIKE 'sqlite_%'",
     )
     .all() as { sql: string }[];
 
@@ -480,7 +476,7 @@ function executeStatements(db: Database.Database, statements: string[], batchSta
         const rows: Record<string, unknown>[] = [];
         let count = 0;
         for (const row of iter) {
-          if (count > MAX_ROWS) break;
+          if (count >= MAX_ROWS) break;
           rows.push(row);
           count++;
         }
