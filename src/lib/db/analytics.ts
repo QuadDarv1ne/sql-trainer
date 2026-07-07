@@ -6557,31 +6557,33 @@ export function getWeekdayVsWeekendPerformance(filters?: TimeRangeFilters): Week
   // By difficulty
   const difficulties = ['beginner', 'intermediate', 'advanced'];
   const byDifficulty = difficulties.map((diff) => {
+    const wdParams = [...dateParams, `${diff}-%`];
     const wd = (db
       .prepare(
         `
       SELECT COUNT(*) as completions,
              ROUND(AVG(attempts * 1.0), 2) as avg_attempts
       FROM user_progress
-      WHERE task_id LIKE '${diff}-%'
+      WHERE task_id LIKE ?
         AND CAST(STRFTIME('%w', DATE(completed_at / 1000, 'unixepoch')) AS INTEGER) BETWEEN 1 AND 5
         ${dateCondition}
     `,
       )
-      .all(...dateParams)[0] as { completions: number; avg_attempts: number }) || { completions: 0, avg_attempts: 0 };
+      .all(...wdParams)[0] as { completions: number; avg_attempts: number }) || { completions: 0, avg_attempts: 0 };
 
+    const weParams = [...dateParams, `${diff}-%`];
     const we = (db
       .prepare(
         `
       SELECT COUNT(*) as completions,
              ROUND(AVG(attempts * 1.0), 2) as avg_attempts
       FROM user_progress
-      WHERE task_id LIKE '${diff}-%'
+      WHERE task_id LIKE ?
         AND CAST(STRFTIME('%w', DATE(completed_at / 1000, 'unixepoch')) AS INTEGER) IN (0, 6)
         ${dateCondition}
     `,
       )
-      .all(...dateParams)[0] as { completions: number; avg_attempts: number }) || { completions: 0, avg_attempts: 0 };
+      .all(...weParams)[0] as { completions: number; avg_attempts: number }) || { completions: 0, avg_attempts: 0 };
 
     return {
       difficulty: diff,
