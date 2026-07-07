@@ -50,6 +50,7 @@ export function splitStatements(sql: string): string[] {
 
   for (let i = 0; i < sql.length; i++) {
     const char = sql[i];
+    const prev = i > 0 ? sql[i - 1] : '';
     const next = sql[i + 1];
 
     // Handle block comments
@@ -102,6 +103,8 @@ export function splitStatements(sql: string): string[] {
         if (next === stringChar) {
           i++;
           current += next;
+        } else if (prev === '\\' && next !== stringChar) {
+          // Backslash-escaped quote — don't end the string
         } else {
           inString = false;
         }
@@ -486,7 +489,7 @@ function executeStatements(db: Database.Database, statements: string[], batchSta
           throw new Error(t('sql.error.timeout', { seconds: String(MAX_EXECUTION_TIME_MS / 1000) }));
         }
 
-        const truncated = count > MAX_ROWS;
+        const truncated = count >= MAX_ROWS;
         if (truncated) rows.length = MAX_ROWS;
 
         lastResult = {
