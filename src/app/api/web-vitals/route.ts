@@ -28,7 +28,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Invalid metric' }, { status: 400 });
     }
 
-    logger.info(`[WebVitals] ${metric.name}=${Math.round(metric.value)} (${metric.rating}) page=${metric.page}`);
+    const safePage = (metric.page || '').replace(/[\r\n]/g, '_');
+    logger.info(`[WebVitals] ${metric.name}=${Math.round(metric.value)} (${metric.rating}) page=${safePage}`);
 
     return NextResponse.json({ success: true });
   } catch (err) {

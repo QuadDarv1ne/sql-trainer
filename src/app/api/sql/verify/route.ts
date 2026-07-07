@@ -7,6 +7,22 @@ import { executeMongoQuery } from '@/lib/mongodb-engine';
 import { logger } from '@/lib/logger';
 import type { MongoSchema } from '@/lib/mongodb-engine';
 import { sqlVerifySchema } from '@/lib/sql-schema';
+import { auth } from '@/lib/auth';
+import { extractStatementTypes } from '@/lib/sql-safety';
+
+const DDL_PREFIXES = ['DROP', 'ALTER', 'TRUNCATE', 'CREATE', 'RENAME', 'ATTACH', 'DETACH', 'LOAD', 'GRANT', 'REVOKE'] as const;
+
+function containsDdl(sql: string): string | null {
+  const types = extractStatementTypes(sql);
+  for (const stmt of types) {
+    for (const ddl of DDL_PREFIXES) {
+      if (stmt === ddl || stmt.startsWith(ddl + ' ')) {
+        return `Blocked command: ${ddl}. DDL statements are not allowed.`;
+      }
+    }
+  }
+  return null;
+}
 
 function normalizeValue(val: unknown): string {
   if (val === null || val === undefined) return 'NULL';
@@ -40,8 +56,12 @@ function extractLastSelect(sql: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate
+    const session = await auth();
+    const isAuthenticated = !!session?.user?.id;
+
     // Rate limit: 20 verification attempts per minute per client
-    const clientId = getClientIdentifier(request);
+    const clientId = getClientIdentifier(request, isAuthenticated ? session.user.id : undefined);
     const limitResult = await rateLimit(`verify:${clientId}`, { max: 20, windowMs: RATE_LIMIT_WINDOWS.oneMinute });
     if (!limitResult.success) {
       return NextResponse.json(
@@ -54,6 +74,15 @@ export async function POST(request: NextRequest) {
     if ('response' in parsed) return parsed.response;
 
     const { sql, taskId, dbType } = parsed.data;
+
+    // Block DDL statements (DROP, CREATE, ALTER, etc.) — DML is allowed for training tasks
+    const ddlBlocked = containsDdl(sql);
+    if (ddlBlocked) {
+      return NextResponse.json(
+        { verified: false, userRowCount: 0, expectedRowCount: 0, message: ddlBlocked },
+        { status: 403 },
+      );
+    }
 
     const task = getTaskById(taskId);
     if (!task) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
 import { useSQLTrainerStore } from '@/lib/store';
@@ -36,6 +36,16 @@ export function useQueryExecutor({
   const attemptCountRef = useRef(0);
   const progressSyncRef = useRef<AbortController | null>(null);
   const practiceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (practiceTimerRef.current) {
+        clearTimeout(practiceTimerRef.current);
+        practiceTimerRef.current = null;
+      }
+      progressSyncRef.current?.abort();
+    };
+  }, []);
 
   const {
     addQueryHistory,

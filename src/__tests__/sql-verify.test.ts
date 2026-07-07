@@ -28,6 +28,25 @@ vi.mock('@/lib/rate-limit', () => ({
   RATE_LIMIT_WINDOWS: { oneMinute: 60_000, tenMinutes: 600_000, fifteenMinutes: 900_000, oneHour: 3_600_000 },
 }));
 
+vi.mock('@/lib/auth', () => ({
+  auth: vi.fn(() => Promise.resolve({ user: { id: 'test-user', name: 'Test', role: 'student' } })),
+}));
+
+vi.mock('@/lib/sql-safety', () => ({
+  validateTrainingSql: vi.fn(() => null),
+  extractStatementTypes: vi.fn((sql: string) => {
+    const types: string[] = [];
+    const upper = sql.toUpperCase().trim();
+    for (const word of upper.split(/[\s;,]+/)) {
+      if (word && /^[A-Z]/.test(word)) {
+        types.push(word);
+        break;
+      }
+    }
+    return types;
+  }),
+}));
+
 vi.mock('@/lib/validation', () => ({
   validateBody: vi.fn((body, schema) => {
     const result = schema.safeParse(body);
