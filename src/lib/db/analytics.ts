@@ -420,8 +420,8 @@ export function getAvgAttemptsPerTask(filters?: TimeRangeFilters): number {
     }
   }
 
-  const row = db.prepare(query).get(...params) as { avg: number };
-  return row.avg || 0;
+  const row = db.prepare(query).get(...params) as { avg: number } | null;
+  return row?.avg || 0;
 }
 
 // ==================== Advanced Analytics ====================

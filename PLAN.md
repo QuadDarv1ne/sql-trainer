@@ -113,3 +113,10 @@
 6. [x] **Unit tests for `email.ts` (sendEmail, processEmailQueue)** — 8 tests: sendMail params, success/error handling, processEmailQueue empty/populated/skip/failed
 7. [x] **Unit tests for `db/schema.ts` (ACHIEVEMENTS)** — 5 tests: array export, required fields, unique IDs, specific achievements
 8. [x] **Lint cleanup** — fixed unused variable warnings in test files
+
+## Phase 8 — Next 10 Quality Improvements
+
+1. [x] **Unit tests for `db/analytics.ts` (core)** — 12 tests: getTaskAnalytics (enrichment, filters), getCompletionDistribution (5 buckets), getStudentDetail (null/with achievements), generateStudentAlerts (inactive/struggling), generateRecommendations (practice_more/review_basics)
+2. [x] **Unit tests for `db/analytics.ts` (extra)** — 9 tests: getActiveUsersCount, getAvgAttemptsPerTask, getErrorPatternAnalysis, getHintUsageByTask/ByStudent, saveHintUsage, getWeeklyProgress, getStudentPerformanceCards
+3. [x] **Unit tests for `/api/health` endpoint** — 6 tests: valid status object, memory/process/database metrics, 200 healthy, 503 when DB down
+4. [x] **Null-safety fix** — `getAvgAttemptsPerTask` now safely handles null query result

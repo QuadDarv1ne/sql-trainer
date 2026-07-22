@@ -76,6 +76,14 @@
 8. **[x] Fix lint warnings** — `_` prefix для unused vars в openapi.test.ts и schemas.test.ts.
 9. **[x] Total: +75 new tests** (832 → ~907+)
 
+## План из 10 пунктов (2026-07-22 Phase 8)
+
+1. **[x] Тесты `db/analytics.ts` (core)** — 12 тестов: getTaskAnalytics (enrichment, filters), getCompletionDistribution (5 buckets, defaults), getStudentDetail (null, with achievements), generateStudentAlerts (inactive, struggling), generateRecommendations (practice_more, review_basics).
+2. **[x] Тесты `db/analytics.ts` (extra)** — 9 тестов: getActiveUsersCount, getAvgAttemptsPerTask, getErrorPatternAnalysis, getHintUsageByTask, getHintUsageByStudent, saveHintUsage, getWeeklyProgress, getStudentPerformanceCards.
+3. **[x] Тесты `/api/health` endpoint** — 6 тестов: valid status object, memory/process/database metrics, 200 healthy, 503 when DB down.
+4. **[x] Fix null-safety bug** — `getAvgAttemptsPerTask` теперь безопасно обрабатывает null результат запроса.
+5. **[x] Total: +27 new tests** (~907 → ~934+)
+
 ---
 
 ## Сводка текущего состояния
@@ -83,7 +91,7 @@
 | Показатель | Значение |
 |------------|----------|
 | Тестовое покрытие | ~60%+ statements |
-| Unit/интеграционных тестов | ~66 файлов, ~907+ тестов |
+| Unit/интеграционных тестов | ~69 файлов, ~934+ тестов |
 | E2E тестов | 7 тестов (Chromium, Firefox, WebKit) |
 | Компонентов shadcn/ui | 28 |
 | API эндпоинтов | 100+ (с OpenAPI документацией) |
