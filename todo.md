@@ -92,6 +92,12 @@
 4. **[x] Перемещение `ioredis` в dependencies** — ioredis используется в runtime через `require()` в rate-limiter-distributed.ts, перенесён из devDependencies.
 5. **[x] Total: +25 new tests** (~934 → ~959+)
 
+## План из 10 пунктов (2026-07-22 Phase 10)
+
+1. **[x] Тесты `db/analytics.ts` (misc)** — 14 тестов: queueEmail, markEmailSent, markEmailFailed, markScheduleSent, markScheduleFailed, savePushSubscription, deleteGroup (true/false), removeGroupMember (true/false), deleteDeadline (true/false), getErrorTrendAnalysis, getStreakAnalytics.
+2. **[x] E2E тест `admin.spec.ts`** — 5 сценариев: admin page load, health endpoint JSON, database status, memory metrics, unauthenticated access.
+3. **[x] Total: +19 new tests** (~959 → ~978+)
+
 ---
 
 ## Сводка текущего состояния
@@ -99,8 +105,8 @@
 | Показатель | Значение |
 |------------|----------|
 | Тестовое покрытие | ~60%+ statements |
-| Unit/интеграционных тестов | ~72 файла, ~959+ тестов |
-| E2E тестов | 7 тестов (Chromium, Firefox, WebKit) |
+| Unit/интеграционных тестов | ~73 файла, ~978+ тестов |
+| E2E тестов | 12 тестов (Chromium, Firefox, WebKit) |
 | Компонентов shadcn/ui | 28 |
 | API эндпоинтов | 100+ (с OpenAPI документацией) |
 | Задач для тренировки | 20 тем по SQL |

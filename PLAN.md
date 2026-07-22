@@ -127,3 +127,8 @@
 2. [x] **Unit tests for `db/analytics.ts` (notifications)** — 8 tests: getNotificationPreferences, getUserPushSubscriptions, deletePushSubscription, getDueReminders
 3. [x] **Unit tests for `db/analytics.ts` (deadlines)** — 8 tests: getDeadlineById, getDeadlinesForCreator, getAllDeadlines, resolveDeadlineTargets (4 target types)
 4. [x] **Move `ioredis` to dependencies** — runtime dependency was incorrectly in devDependencies
+
+## Phase 10 — Next 10 Quality Improvements
+
+1. [x] **Unit tests for `db/analytics.ts` (misc)** — 14 tests: queueEmail, markEmailSent/Failed, markScheduleSent/Failed, savePushSubscription, deleteGroup, removeGroupMember, deleteDeadline, getErrorTrendAnalysis, getStreakAnalytics
+2. [x] **E2E test for admin dashboard** — 5 scenarios: admin page load, health endpoint JSON validation, database status, memory metrics, unauthenticated access
