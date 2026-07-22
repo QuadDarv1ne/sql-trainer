@@ -137,3 +137,8 @@
 
 1. [x] **Unit tests for `db/analytics.ts` (CRUD mutations)** — 11 tests: addGroupMembers, updateGroup, updateDeadline (with auth checks), getSystemHealth, getDailyActivity, getAdminLeaderboard
 2. [x] **CHANGELOG.md update** — added entries for Phase 7-11: +146 tests, bugfixes, E2E tests, ioredis dependency fix
+
+## Phase 12 — Next 10 Quality Improvements
+
+1. [x] **Unit tests for `db/analytics.ts` (advanced)** — 4 tests: getSessionAnalysis, getHintImpactAnalysis, getDeadlineCompliance, getWeekdayVsWeekendPerformance
+2. [x] **E2E test for teacher dashboard** — 5 scenarios: teacher page load, health endpoint validation, database metrics, Redis status, process info

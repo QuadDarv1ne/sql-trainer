@@ -104,6 +104,12 @@
 2. **[x] Обновление CHANGELOG.md** — добавлены записи для Phase 7-11: +146 тестов, bugfix'и, E2E тесты, ioredis dependency fix.
 3. **[x] Total: +11 new tests** (~978 → ~989+)
 
+## План из 10 пунктов (2026-07-22 Phase 12)
+
+1. **[x] Тесты `db/analytics.ts` (advanced)** — 4 теста: getSessionAnalysis, getHintImpactAnalysis, getDeadlineCompliance, getWeekdayVsWeekendPerformance.
+2. **[x] E2E тест `teacher.spec.ts`** — 5 сценариев: teacher page load, health endpoint JSON, database metrics, Redis status, process info.
+3. **[x] Total: +9 new tests** (~989 → ~998+)
+
 ---
 
 ## Сводка текущего состояния
@@ -111,8 +117,8 @@
 | Показатель | Значение |
 |------------|----------|
 | Тестовое покрытие | ~60%+ statements |
-| Unit/интеграционных тестов | ~74 файла, ~989+ тестов |
-| E2E тестов | 12 тестов (Chromium, Firefox, WebKit) |
+| Unit/интеграционных тестов | ~75 файла, ~998+ тестов |
+| E2E тестов | 17 тестов (Chromium, Firefox, WebKit) |
 | Компонентов shadcn/ui | 28 |
 | API эндпоинтов | 100+ (с OpenAPI документацией) |
 | Задач для тренировки | 20 тем по SQL |
