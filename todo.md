@@ -115,6 +115,11 @@
 1. **[x] Тесты `db/analytics.ts` (final)** — 3 теста: getAuditLog, getDifficultyCalibration, getHintUsageAnalytics.
 2. **[x] Total: +3 new tests** (~998 → ~1001+)
 
+## План из 10 пунктов (2026-07-22 Phase 14)
+
+1. **[x] Тесты `db/analytics.ts` (more)** — 4 теста: getOnboardingFunnel, getWeekdayVsWeekendPerformance, getLiveActivity, getABTestComparison.
+2. **[x] Total: +4 new tests** (~1001 → ~1005+)
+
 ---
 
 ## Сводка текущего состояния
@@ -122,7 +127,7 @@
 | Показатель | Значение |
 |------------|----------|
 | Тестовое покрытие | ~60%+ statements |
-| Unit/интеграционных тестов | ~76 файла, ~1001+ тестов |
+| Unit/интеграционных тестов | ~77 файла, ~1005+ тестов |
 | E2E тестов | 17 тестов (Chromium, Firefox, WebKit) |
 | Компонентов shadcn/ui | 28 |
 | API эндпоинтов | 100+ (с OpenAPI документацией) |

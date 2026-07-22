@@ -146,3 +146,7 @@
 ## Phase 13 — Next 10 Quality Improvements
 
 1. [x] **Unit tests for `db/analytics.ts` (final)** — 3 tests: getAuditLog, getDifficultyCalibration, getHintUsageAnalytics
+
+## Phase 14 — Next 10 Quality Improvements
+
+1. [x] **Unit tests for `db/analytics.ts` (more)** — 4 tests: getOnboardingFunnel, getWeekdayVsWeekendPerformance, getLiveActivity, getABTestComparison
