@@ -142,3 +142,7 @@
 
 1. [x] **Unit tests for `db/analytics.ts` (advanced)** — 4 tests: getSessionAnalysis, getHintImpactAnalysis, getDeadlineCompliance, getWeekdayVsWeekendPerformance
 2. [x] **E2E test for teacher dashboard** — 5 scenarios: teacher page load, health endpoint validation, database metrics, Redis status, process info
+
+## Phase 13 — Next 10 Quality Improvements
+
+1. [x] **Unit tests for `db/analytics.ts` (final)** — 3 tests: getAuditLog, getDifficultyCalibration, getHintUsageAnalytics

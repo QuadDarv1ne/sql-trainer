@@ -110,6 +110,11 @@
 2. **[x] E2E тест `teacher.spec.ts`** — 5 сценариев: teacher page load, health endpoint JSON, database metrics, Redis status, process info.
 3. **[x] Total: +9 new tests** (~989 → ~998+)
 
+## План из 10 пунктов (2026-07-22 Phase 13)
+
+1. **[x] Тесты `db/analytics.ts` (final)** — 3 теста: getAuditLog, getDifficultyCalibration, getHintUsageAnalytics.
+2. **[x] Total: +3 new tests** (~998 → ~1001+)
+
 ---
 
 ## Сводка текущего состояния
@@ -117,7 +122,7 @@
 | Показатель | Значение |
 |------------|----------|
 | Тестовое покрытие | ~60%+ statements |
-| Unit/интеграционных тестов | ~75 файла, ~998+ тестов |
+| Unit/интеграционных тестов | ~76 файла, ~1001+ тестов |
 | E2E тестов | 17 тестов (Chromium, Firefox, WebKit) |
 | Компонентов shadcn/ui | 28 |
 | API эндпоинтов | 100+ (с OpenAPI документацией) |
