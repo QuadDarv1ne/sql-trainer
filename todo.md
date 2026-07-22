@@ -51,6 +51,21 @@
 
 ---
 
+## План из 10 пунктов (2026-07-22)
+
+1. **[x] CSP nonce for inline scripts** — заменить `unsafe-inline` на per-request nonce в production CSP через `proxy.ts`. Nonce передаётся клиенту через `X-Nonce` header.
+2. **[x] Тесты `analytics-cache.ts`** — 16 тестов: get/set, TTL expiry, LRU eviction, key ordering, null param filtering, boolean/number params.
+3. **[x] Тесты `category-icons.ts`** — 6 тестов: все 4 категории маппятся на валидные иконки, ровно 4 записи.
+4. **[x] Тесты `notification-config.ts`** — 10 тестов: reminder intervals (количество, значения, порядок), notification channels (3 канала, id).
+5. **[x] Тесты `pdf-report.ts`** — 14 тестов: student/class/analytics PDF, 3 локали (ru/en/zh), popup blocked toast, section rendering.
+6. **[x] Тесты `timer-slice.ts`** — 23 теста: start/pause/resume/stop/tick, time formatting, warning threshold, clamping.
+7. **[x] Health check enhancements** — добавить `activeHandles`, `activeRequests`, `eventLoop.lagMs` в ответ `/api/health`.
+8. **[x] Typecheck на pre-commit** — добавить `tsc --noEmit` в lint-staged для `.ts/.tsx` файлов.
+9. **[x] Удаление мёртвого кода** — удалить `auto-config.ts` (150 строк) и его тест — нигде не импортируется в production.
+10. **[x] `server-only` mock для тестов** — добавить alias в `vitest.config.ts` для тестирования server-only модулей.
+
+---
+
 ## Сводка текущего состояния
 
 | Показатель | Значение |
@@ -545,7 +560,7 @@
 
 ---
 
-> **Последнее обновление плана:** 2026-07-06
+> **Последнее обновление плана:** 2026-07-22
 > 
 > **Как использовать этот файл:**
 > 1. Отмечай выполненные пункты `[x]`
@@ -563,12 +578,12 @@
 
 | Показатель | Значение |
 |------------|----------|
-| Тестов | **763/763** в 54 файлах (0 failed, все зелёные) |
+| Тестов | **832/832** в 59 файлах (0 failed, все зелёные) |
 | Покрытие | ~60%+ statements |
 | Лайнт | 0 ошибок, 0 предупреждений |
 | Сборка | Next.js 16, Turbopack, standalone |
 | CI/CD | Multi-browser E2E, кэширование, Dependabot |
-| Последнее обновление | 2026-07-06 (Phase 5 complete, code splitting, dead code removal) |
+| Последнее обновление | 2026-07-22 (Phase 6 complete, CSP nonce, +69 tests, typecheck pre-commit) |
 
 ### Выполненные пункты плана
 

@@ -22,7 +22,7 @@ const csrfProtectedApiPrefixes = [
   '/api/sql',
 ];
 
-function getSecurityHeaders(): Record<string, string> {
+function getSecurityHeaders(nonce?: string): Record<string, string> {
   const isDev = process.env.NODE_ENV === 'development';
 
   return {
@@ -39,7 +39,7 @@ function getSecurityHeaders(): Record<string, string> {
       ? "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; connect-src *; media-src *; object-src *; frame-src *; base-uri *; form-action *; frame-ancestors *"
       : [
           "default-src 'self'",
-          "script-src 'self' 'unsafe-inline'",
+          `script-src 'self' 'nonce-${nonce}'`,
           "style-src 'self' 'unsafe-inline'",
           "img-src 'self' data: blob:",
           "font-src 'self' data:",
@@ -82,10 +82,17 @@ export default auth(async (request) => {
 
   const requestId = crypto.randomUUID().slice(0, 12);
 
+  // Generate a per-request nonce for CSP script-src (replaces unsafe-inline in prod)
+  const nonce = crypto.randomUUID().replace(/-/g, '');
+
   const response = NextResponse.next();
 
   // Inject request ID for traceability across logs and client debugging
   response.headers.set('X-Request-Id', requestId);
+
+  // Expose nonce to client-side scripts via meta tag attribute
+  // Next.js reads this header and injects <meta nonce="..."> into <head>
+  response.headers.set('X-Nonce', nonce);
 
   // Generate CSRF token for authenticated requests only when missing
   // Use a flag to avoid regenerating on every request which breaks multi-tab usage
@@ -106,7 +113,7 @@ export default auth(async (request) => {
   }
 
   // Apply security headers to all responses
-  const securityHeaders = getSecurityHeaders();
+  const securityHeaders = getSecurityHeaders(nonce);
   for (const [key, value] of Object.entries(securityHeaders)) {
     response.headers.set(key, value);
   }

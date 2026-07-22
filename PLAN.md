@@ -89,3 +89,16 @@
 8. [x] **Automated dependency updates** — Dependabot already configured with grouped updates + Docker support
 9. [x] **Database connection pool monitoring** — already implemented: `db-monitor.ts` tracks queries, slow queries, errors, P95 timing, Redis metrics. Exposed via `/api/health`
 10. [x] **Image optimization audit** — verified: zero raw `<img>` tags, all images use next/image or are static assets
+
+## Phase 6 — Next 10 Quality Improvements
+
+1. [x] **CSP nonce for inline scripts** — replaced `'unsafe-inline'` with per-request nonce in production CSP via `proxy.ts`; nonce exposed to client via `X-Nonce` header
+2. [x] **Unit tests for `analytics-cache.ts`** — 16 tests covering get/set, TTL expiry, LRU eviction, key ordering, null param filtering, boolean/number params
+3. [x] **Unit tests for `category-icons.ts`** — 6 tests verifying all 4 categories are mapped with valid icons
+4. [x] **Unit tests for `notification-config.ts`** — 10 tests for reminder intervals (count, values, ordering) and notification channels (3 channels, ids)
+5. [x] **Unit tests for `pdf-report.ts`** — 14 tests for student/class/analytics PDF generation, 3 locales (ru/en/zh), popup blocked toast, section rendering
+6. [x] **Unit tests for `timer-slice.ts`** — 23 tests for start/pause/resume/stop/tick, time formatting, warning threshold, clamping
+7. [x] **Health check enhancements** — added `activeHandles`, `activeRequests`, `eventLoop.lagMs` to `/api/health` response
+8. [x] **Typecheck on pre-commit** — added `tsc --noEmit` to lint-staged for `.ts/.tsx` files
+9. [x] **Dead code removal** — removed `auto-config.ts` (150 lines) and its test — never imported in production code
+10. [x] **`server-only` test mock** — added alias in vitest.config.ts so server-only modules can be tested

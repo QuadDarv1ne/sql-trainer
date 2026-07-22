@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- CSP nonce for inline scripts in production — replaces `unsafe-inline` with per-request nonce
+- Unit tests for `analytics-cache.ts`, `category-icons.ts`, `notification-config.ts`, `pdf-report.ts`, `timer-slice.ts` (+69 tests)
+- Health check enhancements: active handles, active requests, event loop lag measurement
+- Typecheck (`tsc --noEmit`) on pre-commit via lint-staged for TypeScript files
+- `server-only` mock alias for vitest to enable testing server-only modules
 - Learning Path component for students with visual progression tracking
 - Group management for teachers with student enrollment and CSV export
 - Admin analytics dashboard with system metrics, activity tracking, and audit logs
@@ -35,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deduplicated 3 inline `formatDate` functions into shared `date-utils.ts`
 
 ### Removed
+- Dead code: `auto-config.ts` (150 lines) and its test — never imported in production code
 - Dead code: `checkDbAccessibility` (db-monitor), `getStudentCompletedTasks` (db/analytics), `deleteUser` (dangerous hard delete), `getAllPushSubscriptions` (zero callers)
 - Enhanced CSP headers in Next.js config
 - Improved ESLint configuration with strict rules

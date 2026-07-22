@@ -25,6 +25,8 @@ interface HealthStatus {
     nodeVersion: string;
     platform: string;
     arch: string;
+    activeHandles: number;
+    activeRequests: number;
   };
   database: {
     status: 'connected' | 'disconnected' | 'error';
@@ -44,6 +46,9 @@ interface HealthStatus {
     isConnected: boolean;
     connectionFailures: number;
     lastError?: string;
+  };
+  eventLoop: {
+    lagMs: number;
   };
 }
 
@@ -65,6 +70,8 @@ export const GET = withTiming(async () => {
       nodeVersion: process.version,
       platform: process.platform,
       arch: process.arch,
+      activeHandles: 0,
+      activeRequests: 0,
     },
     database: {
       status: 'disconnected',
@@ -83,6 +90,9 @@ export const GET = withTiming(async () => {
     redisMetrics: {
       isConnected: false,
       connectionFailures: 0,
+    },
+    eventLoop: {
+      lagMs: 0,
     },
   };
 
@@ -149,6 +159,15 @@ export const GET = withTiming(async () => {
     connectionFailures: redisMetrics.connectionFailures,
     lastError: redisMetrics.lastError,
   };
+
+  // Process handles and event loop lag
+  status.process.activeHandles = typeof process._getActiveHandles === 'function' ? process._getActiveHandles().length : 0;
+  status.process.activeRequests = typeof process._getActiveRequests === 'function' ? process._getActiveRequests().length : 0;
+
+  // Event loop lag measurement
+  const loopStart = performance.now();
+  await new Promise((resolve) => setImmediate(resolve));
+  status.eventLoop.lagMs = Math.round(performance.now() - loopStart);
 
   status.version = process.env.NEXT_PUBLIC_APP_VERSION || undefined;
 
