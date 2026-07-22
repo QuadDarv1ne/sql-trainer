@@ -132,3 +132,8 @@
 
 1. [x] **Unit tests for `db/analytics.ts` (misc)** — 14 tests: queueEmail, markEmailSent/Failed, markScheduleSent/Failed, savePushSubscription, deleteGroup, removeGroupMember, deleteDeadline, getErrorTrendAnalysis, getStreakAnalytics
 2. [x] **E2E test for admin dashboard** — 5 scenarios: admin page load, health endpoint JSON validation, database status, memory metrics, unauthenticated access
+
+## Phase 11 — Next 10 Quality Improvements
+
+1. [x] **Unit tests for `db/analytics.ts` (CRUD mutations)** — 11 tests: addGroupMembers, updateGroup, updateDeadline (with auth checks), getSystemHealth, getDailyActivity, getAdminLeaderboard
+2. [x] **CHANGELOG.md update** — added entries for Phase 7-11: +146 tests, bugfixes, E2E tests, ioredis dependency fix

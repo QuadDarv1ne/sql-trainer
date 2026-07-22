@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - CSP nonce for inline scripts in production — replaces `unsafe-inline` with per-request nonce
 - Unit tests for `analytics-cache.ts`, `category-icons.ts`, `notification-config.ts`, `pdf-report.ts`, `timer-slice.ts` (+69 tests)
+- Unit tests for `api-error.ts`, `email.ts`, `openapi.ts`, `schemas.ts`, `use-polling.ts`, `db/schema.ts` (+75 tests)
+- Unit tests for `db/analytics.ts` core functions: getTaskAnalytics, getCompletionDistribution, getStudentDetail, generateStudentAlerts, generateRecommendations (+12 tests)
+- Unit tests for `db/analytics.ts` extra functions: getActiveUsersCount, getAvgAttemptsPerTask, getHintUsage*, saveHintUsage (+9 tests)
+- Unit tests for `db/analytics.ts` groups: getGroupById, getGroupsByTeacherId, getGroupMembers, getUserGroups, getAllGroupsForAdmin (+9 tests)
+- Unit tests for `db/analytics.ts` notifications: getNotificationPreferences, getUserPushSubscriptions, deletePushSubscription, getDueReminders (+8 tests)
+- Unit tests for `db/analytics.ts` deadlines: getDeadlineById, getDeadlinesForCreator, getAllDeadlines, resolveDeadlineTargets (+8 tests)
+- Unit tests for `db/analytics.ts` misc: queueEmail, markEmailSent/Failed, markScheduleSent/Failed, savePushSubscription, deleteGroup, removeGroupMember, deleteDeadline, getErrorTrendAnalysis, getStreakAnalytics (+14 tests)
+- Unit tests for `db/analytics.ts` CRUD: addGroupMembers, updateGroup, updateDeadline, getSystemHealth, getDailyActivity, getAdminLeaderboard (+11 tests)
+- Unit tests for `/api/health` endpoint: valid status object, memory/process/database metrics, 200 healthy, 503 when DB down (+6 tests)
+- E2E test for admin dashboard: health endpoint validation, database status, memory metrics (+5 scenarios)
+- Null-safety fix in `getAvgAttemptsPerTask` — safely handles null query result
+- Moved `ioredis` from devDependencies to dependencies — runtime dependency for Redis-backed rate limiting
 - Health check enhancements: active handles, active requests, event loop lag measurement
 - Typecheck (`tsc --noEmit`) on pre-commit via lint-staged for TypeScript files
 - `server-only` mock alias for vitest to enable testing server-only modules

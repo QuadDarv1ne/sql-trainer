@@ -98,6 +98,12 @@
 2. **[x] E2E тест `admin.spec.ts`** — 5 сценариев: admin page load, health endpoint JSON, database status, memory metrics, unauthenticated access.
 3. **[x] Total: +19 new tests** (~959 → ~978+)
 
+## План из 10 пунктов (2026-07-22 Phase 11)
+
+1. **[x] Тесты `db/analytics.ts` (CRUD)** — 11 тестов: addGroupMembers (add, empty), updateGroup (update, not found, no fields), updateDeadline (update, not found, auth check), getSystemHealth, getDailyActivity, getAdminLeaderboard.
+2. **[x] Обновление CHANGELOG.md** — добавлены записи для Phase 7-11: +146 тестов, bugfix'и, E2E тесты, ioredis dependency fix.
+3. **[x] Total: +11 new tests** (~978 → ~989+)
+
 ---
 
 ## Сводка текущего состояния
@@ -105,7 +111,7 @@
 | Показатель | Значение |
 |------------|----------|
 | Тестовое покрытие | ~60%+ statements |
-| Unit/интеграционных тестов | ~73 файла, ~978+ тестов |
+| Unit/интеграционных тестов | ~74 файла, ~989+ тестов |
 | E2E тестов | 12 тестов (Chromium, Firefox, WebKit) |
 | Компонентов shadcn/ui | 28 |
 | API эндпоинтов | 100+ (с OpenAPI документацией) |
