@@ -84,6 +84,14 @@
 4. **[x] Fix null-safety bug** — `getAvgAttemptsPerTask` теперь безопасно обрабатывает null результат запроса.
 5. **[x] Total: +27 new tests** (~907 → ~934+)
 
+## План из 10 пунктов (2026-07-22 Phase 9)
+
+1. **[x] Тесты `db/analytics.ts` (groups)** — 9 тестов: getGroupById (null, found), getGroupsByTeacherId, getGroupMembers, getUserGroups, getUserGroup (null, found), getAllGroupsForAdmin.
+2. **[x] Тесты `db/analytics.ts` (notifications)** — 8 тестов: getNotificationPreferences (existing, create default), getUserPushSubscriptions (found, empty), deletePushSubscription (success, not found), getDueReminders.
+3. **[x] Тесты `db/analytics.ts` (deadlines)** — 8 тестов: getDeadlineById (not found, found), getDeadlinesForCreator, getAllDeadlines, resolveDeadlineTargets (all_students, individual, group, unknown).
+4. **[x] Перемещение `ioredis` в dependencies** — ioredis используется в runtime через `require()` в rate-limiter-distributed.ts, перенесён из devDependencies.
+5. **[x] Total: +25 new tests** (~934 → ~959+)
+
 ---
 
 ## Сводка текущего состояния
@@ -91,7 +99,7 @@
 | Показатель | Значение |
 |------------|----------|
 | Тестовое покрытие | ~60%+ statements |
-| Unit/интеграционных тестов | ~69 файлов, ~934+ тестов |
+| Unit/интеграционных тестов | ~72 файла, ~959+ тестов |
 | E2E тестов | 7 тестов (Chromium, Firefox, WebKit) |
 | Компонентов shadcn/ui | 28 |
 | API эндпоинтов | 100+ (с OpenAPI документацией) |

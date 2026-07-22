@@ -120,3 +120,10 @@
 2. [x] **Unit tests for `db/analytics.ts` (extra)** — 9 tests: getActiveUsersCount, getAvgAttemptsPerTask, getErrorPatternAnalysis, getHintUsageByTask/ByStudent, saveHintUsage, getWeeklyProgress, getStudentPerformanceCards
 3. [x] **Unit tests for `/api/health` endpoint** — 6 tests: valid status object, memory/process/database metrics, 200 healthy, 503 when DB down
 4. [x] **Null-safety fix** — `getAvgAttemptsPerTask` now safely handles null query result
+
+## Phase 9 — Next 10 Quality Improvements
+
+1. [x] **Unit tests for `db/analytics.ts` (groups)** — 9 tests: getGroupById, getGroupsByTeacherId, getGroupMembers, getUserGroups, getUserGroup, getAllGroupsForAdmin
+2. [x] **Unit tests for `db/analytics.ts` (notifications)** — 8 tests: getNotificationPreferences, getUserPushSubscriptions, deletePushSubscription, getDueReminders
+3. [x] **Unit tests for `db/analytics.ts` (deadlines)** — 8 tests: getDeadlineById, getDeadlinesForCreator, getAllDeadlines, resolveDeadlineTargets (4 target types)
+4. [x] **Move `ioredis` to dependencies** — runtime dependency was incorrectly in devDependencies
