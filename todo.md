@@ -64,21 +64,31 @@
 9. **[x] Удаление мёртвого кода** — удалить `auto-config.ts` (150 строк) и его тест — нигде не импортируется в production.
 10. **[x] `server-only` mock для тестов** — добавить alias в `vitest.config.ts` для тестирования server-only модулей.
 
+## План из 10 пунктов (2026-07-22 Phase 7)
+
+1. **[x] Тесты `api-error.ts`** — 11 тестов: generateCorrelationId (уникальность, hex, длина), apiError (status, success, correlationId, details), apiServerError (production mode, no leak, correlationId).
+2. **[x] Тесты `email.ts` (renderReminderEmail)** — 14 тестов: HTML рендеринг, XSS escaping title/description, локали (ru/en/fallback), overdue/warning badge, type labels (course/exam/task/inactivity), footer year, description presence.
+3. **[x] Тесты `openapi.ts`** — 10 тестов: OpenAPI 3.0.3 version, info fields, servers, /sql endpoints, /user/progress, tags, responses on all paths, components/schemas.
+4. **[x] Тесты `tasks/schemas.ts`** — 15 тестов: все 6 схем экспортируются, CREATE TABLE в каждой, EMPLOYEES/SHOP/ANALYTICS структура, ClickHouse синтаксис, XSS safety.
+5. **[x] Тесты `use-polling.ts`** — 9 тестов: нет вызова на mount, disabled не вызывает, интервал, refresh, pause/resume, cleanup на unmount, async callbacks, double-fetch prevention.
+6. **[x] Тесты `email.ts` (sendEmail, processEmailQueue)** — 8 тестов: sendMail params, success, error handling, non-Error throw, processEmailQueue empty/populated/skip no-email/failed marking.
+7. **[x] Тесты `db/schema.ts` (ACHIEVEMENTS)** — 5 тестов: array export, required fields, unique IDs, first-query/streak-5 presence.
+8. **[x] Fix lint warnings** — `_` prefix для unused vars в openapi.test.ts и schemas.test.ts.
+9. **[x] Total: +75 new tests** (832 → ~907+)
+
 ---
 
 ## Сводка текущего состояния
 
 | Показатель | Значение |
 |------------|----------|
-| Тестовое покрытие | ~12-15% statements |
-| Unit/интеграционных тестов | ~30 файлов, ~260+ тестов |
-| E2E тестов | 7 тестов (только Chromium) |
+| Тестовое покрытие | ~60%+ statements |
+| Unit/интеграционных тестов | ~66 файлов, ~907+ тестов |
+| E2E тестов | 7 тестов (Chromium, Firefox, WebKit) |
 | Компонентов shadcn/ui | 28 |
-| API эндпоинтов | 100+ (без документации) |
+| API эндпоинтов | 100+ (с OpenAPI документацией) |
 | Задач для тренировки | 20 тем по SQL |
 | Поддерживаемых диалектов | 5 (SQLite, PG, ClickHouse, MySQL, MongoDB) |
-| Самый большой файл | `db-users.ts` (309 КБ) |
-| Второй по размеру | `i18n.ts` (327 КБ) |
 | Ветка | `main` |
 
 ### Сильные стороны проекта (что уже работает хорошо)
@@ -583,7 +593,7 @@
 | Лайнт | 0 ошибок, 0 предупреждений |
 | Сборка | Next.js 16, Turbopack, standalone |
 | CI/CD | Multi-browser E2E, кэширование, Dependabot |
-| Последнее обновление | 2026-07-22 (Phase 6 complete, CSP nonce, +69 tests, typecheck pre-commit) |
+| Последнее обновление | 2026-07-22 (Phase 7 complete, +75 tests: api-error, email, openapi, schemas, use-polling, db-schema) |
 
 ### Выполненные пункты плана
 

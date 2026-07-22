@@ -102,3 +102,14 @@
 8. [x] **Typecheck on pre-commit** — added `tsc --noEmit` to lint-staged for `.ts/.tsx` files
 9. [x] **Dead code removal** — removed `auto-config.ts` (150 lines) and its test — never imported in production code
 10. [x] **`server-only` test mock** — added alias in vitest.config.ts so server-only modules can be tested
+
+## Phase 7 — Next 10 Quality Improvements
+
+1. [x] **Unit tests for `api-error.ts`** — 11 tests: generateCorrelationId (uniqueness, hex, length), apiError (status, success, correlationId, details), apiServerError (production mode, no leak)
+2. [x] **Unit tests for `email.ts` (renderReminderEmail)** — 14 tests: HTML rendering, XSS escaping, locales (ru/en/fallback), overdue/warning badge, type labels, footer year
+3. [x] **Unit tests for `openapi.ts`** — 10 tests: OpenAPI 3.0.3 validation, info fields, servers, /sql endpoints, tags, responses, components/schemas
+4. [x] **Unit tests for `tasks/schemas.ts`** — 15 tests: all 6 schema constants validated, CREATE TABLE presence, structural checks, XSS safety
+5. [x] **Unit tests for `use-polling.ts`** — 9 tests: no mount call, disabled behavior, interval, refresh, pause/resume, cleanup, async, double-fetch prevention
+6. [x] **Unit tests for `email.ts` (sendEmail, processEmailQueue)** — 8 tests: sendMail params, success/error handling, processEmailQueue empty/populated/skip/failed
+7. [x] **Unit tests for `db/schema.ts` (ACHIEVEMENTS)** — 5 tests: array export, required fields, unique IDs, specific achievements
+8. [x] **Lint cleanup** — fixed unused variable warnings in test files
