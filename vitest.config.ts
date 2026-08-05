@@ -8,6 +8,11 @@ export default defineConfig({
     env: {
       AUTH_SECRET: 'test-secret-for-csrf-unit-tests',
     },
+    server: {
+      deps: {
+        inline: ['next-auth'],
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -18,6 +23,8 @@ export default defineConfig({
     alias: {
       '@': __dirname + '/src',
       'server-only': __dirname + '/src/__tests__/__mocks__/server-only.ts',
+      'next/server': 'next/server.js',
+      'next/headers': 'next/headers.js',
     },
   },
 });

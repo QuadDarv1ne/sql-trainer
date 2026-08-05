@@ -18,7 +18,9 @@ const MAX_ENTRIES = 200;
 
 const cache = new Map<string, CacheEntry>();
 
-function buildKey(endpoint: string, params: Record<string, string | number | boolean | null>): string {
+export type CacheParams = Record<string, string | number | boolean | null | undefined>;
+
+function buildKey(endpoint: string, params: CacheParams): string {
   const sorted = Object.entries(params)
     .filter(([, v]) => v !== null && v !== undefined)
     .sort(([a], [b]) => a.localeCompare(b));
@@ -27,7 +29,7 @@ function buildKey(endpoint: string, params: Record<string, string | number | boo
 
 export function getCached<T>(
   endpoint: string,
-  params: Record<string, string | number | boolean | null> = {},
+  params: CacheParams = {},
 ): T | null {
   const key = buildKey(endpoint, params);
   const entry = cache.get(key);
@@ -42,7 +44,7 @@ export function getCached<T>(
 
 export function setCached<T>(
   endpoint: string,
-  params: Record<string, string | number | boolean | null>,
+  params: CacheParams,
   data: T,
   ttlMs: number = DEFAULT_TTL_MS,
 ): void {

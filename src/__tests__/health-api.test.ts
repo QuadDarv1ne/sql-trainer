@@ -45,7 +45,7 @@ describe('api/health', () => {
 
   it('should return a valid health status object', async () => {
     const { GET } = await import('@/app/api/health/route');
-    const response = await GET();
+    const response = await GET(new Request('http://localhost/api/health'));
     const body = await response.json();
 
     expect(body).toHaveProperty('status');
@@ -60,7 +60,7 @@ describe('api/health', () => {
 
   it('should include memory metrics', async () => {
     const { GET } = await import('@/app/api/health/route');
-    const response = await GET();
+    const response = await GET(new Request('http://localhost/api/health'));
     const body = await response.json();
 
     expect(body.memory.rss).toBeGreaterThan(0);
@@ -71,7 +71,7 @@ describe('api/health', () => {
 
   it('should include process info', async () => {
     const { GET } = await import('@/app/api/health/route');
-    const response = await GET();
+    const response = await GET(new Request('http://localhost/api/health'));
     const body = await response.json();
 
     expect(body.process.pid).toBeGreaterThan(0);
@@ -81,7 +81,7 @@ describe('api/health', () => {
 
   it('should include database metrics', async () => {
     const { GET } = await import('@/app/api/health/route');
-    const response = await GET();
+    const response = await GET(new Request('http://localhost/api/health'));
     const body = await response.json();
 
     expect(body.database.status).toBe('connected');
@@ -91,7 +91,7 @@ describe('api/health', () => {
 
   it('should return 200 when healthy', async () => {
     const { GET } = await import('@/app/api/health/route');
-    const response = await GET();
+    const response = await GET(new Request('http://localhost/api/health'));
 
     expect(response.status).toBe(200);
   });
@@ -103,7 +103,7 @@ describe('api/health', () => {
     });
 
     const { GET } = await import('@/app/api/health/route');
-    const response = await GET();
+    const response = await GET(new Request('http://localhost/api/health'));
 
     expect(response.status).toBe(503);
   });

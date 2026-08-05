@@ -35,6 +35,10 @@ vi.mock('@/lib/sanitization', () => ({
   sanitizePhone: (phone: string) => ({ value: phone }),
 }));
 
+vi.mock('@/lib/auth', () => ({
+  auth: vi.fn(() => Promise.resolve(null)),
+}));
+
 beforeAll(async () => {
   process.env.DATABASE_PATH = TEST_DB;
   const { initDatabase } = await import('@/lib/db/schema');

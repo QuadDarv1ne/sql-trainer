@@ -160,9 +160,15 @@ export const GET = withTiming(async () => {
     lastError: redisMetrics.lastError,
   };
 
-  // Process handles and event loop lag
-  status.process.activeHandles = typeof process._getActiveHandles === 'function' ? process._getActiveHandles().length : 0;
-  status.process.activeRequests = typeof process._getActiveRequests === 'function' ? process._getActiveRequests().length : 0;
+  // Process handles and event loop lag (private Node.js internals, not in @types/node)
+  const nodeInternals = process as unknown as {
+    _getActiveHandles?: () => unknown[];
+    _getActiveRequests?: () => unknown[];
+  };
+  status.process.activeHandles =
+    typeof nodeInternals._getActiveHandles === 'function' ? nodeInternals._getActiveHandles().length : 0;
+  status.process.activeRequests =
+    typeof nodeInternals._getActiveRequests === 'function' ? nodeInternals._getActiveRequests().length : 0;
 
   // Event loop lag measurement
   const loopStart = performance.now();
